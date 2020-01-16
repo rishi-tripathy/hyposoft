@@ -25,7 +25,7 @@ SECRET_KEY = '$srlc9$&yywhp7gnsdy(sg9)jk_3c23te%)n4c=%fg70t9$5y2'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['https://hyposoft-staging.herokuapp.com', '0.0.0.0']
+ALLOWED_HOSTS = ['hyposoft-staging.herokuapp.com', '0.0.0.0']
 
 
 # Application definition
