@@ -27,7 +27,8 @@ if os.path.isfile(dotenv_file):
 
 def get_env_variable(var_name):
     try:
-        return os.getenv('SECRET_KEY')
+        return os.getenv(var_name)
+
     except KeyError:
         error_msg = "Set the %s environment variable" % var_name
         raise ImproperlyConfigured(error_msg)
