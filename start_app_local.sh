@@ -4,10 +4,11 @@
 # starts and runs the testsuite, and launches the app locally
 
 
-# Migrating db changes
+# Updating dependencies
 printf "\e[42mInstalling Dependencies...\e[0m\n\n"
 pipenv install
 npm install
+pipenv run pip freeze > requirements.txt
 
 printf "\n\n\e[42mMigrating changes...\e[0m\n\n"
 python manage.py makemigrations
