@@ -10,6 +10,9 @@
   },
 "environments": {
     "test": {
+      "env": {
+        "SECRET_TOKEN": "test-secret"
+      },
       "scripts": {
         "test": "python manage.py test"
       }
