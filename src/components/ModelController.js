@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import ModelUI from './ModelUI'
+import ModelUIRow from './ModelUIRow'
 
 
 export class ModelController extends Component {
@@ -45,7 +45,7 @@ export class ModelController extends Component {
     
     // pass each model in models for ModelUI to render
     return this.state.models.map((m) => (
-      <ModelUI key={m.id} model={m} />
+      <ModelUIRow key={m.id} model={m} />
     ));
 
   }
