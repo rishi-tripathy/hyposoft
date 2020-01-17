@@ -2,17 +2,8 @@
   "name": "Hyposoft",
   "description": "Meeting all your hypothetical infrastructure needs!",
   "repository": "https://github.com/rishi-tripathy/hyposoft",
-  "env": {
-    "SECRET_KEY": {
-      "description": "A secret key for verifying the integrity of signed cookies.",
-      "generator": "secret"
-    }
-  },
 "environments": {
     "test": {
-      "env": {
-        "SECRET_KEY": "test-secret"
-      },
       "scripts": {
         "test": "python manage.py test"
       }
