@@ -21,3 +21,5 @@ python manage.py test
 # Launching app
 printf "\n\n\e[42mRunning app locally...\e[0m\n\n"
 heroku local
+
+
