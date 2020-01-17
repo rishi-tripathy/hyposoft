@@ -2,7 +2,6 @@ from django.contrib import admin
 from .models import Asset  # add this
 
 # Register your models here.
-# todo/admin.py
 
 
 class AssAdmin(admin.ModelAdmin):  # add this
