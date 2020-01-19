@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 # Create your models here.
 
@@ -17,6 +18,17 @@ class Model(models.Model):
 
     def __str__(self):
         return self.vendor
+
+class Instance(models.Model):
+    model = models.ForeignKey(Model, on_delete=models.CASCADE)
+    hostname = models.CharField(max_length=20)
+    rack = models.CharField(max_length=4)
+    rack_u = models.PositiveIntegerField(blank=False)
+    owner = models.ForeignKey(User, blank=True, null=True, on_delete=models.CASCADE)
+    comment = models.TextField(null=True)
+
+    def __str__(self):
+        return self.hostname
 
 
 
