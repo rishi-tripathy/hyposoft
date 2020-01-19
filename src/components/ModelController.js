@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import ModelTable from './ModelTable'
 
-
 export class ModelController extends Component {
   
   constructor() {
