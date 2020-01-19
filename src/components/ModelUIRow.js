@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types';
-import '../stylesheets/ModelCardView.css'
+import '../stylesheets/ModelTableView.css'
 
 export class ModelUIRow extends Component {
 
@@ -36,8 +36,8 @@ export class ModelUIRow extends Component {
   render() {
     return (
       <div>
-         <h1>React Dynamic Table</h1>
-         <table>
+         <h1 id="title">React Dynamic Table</h1>
+         <table id="modelEntries">
             <tbody>
                <tr>{this.renderTableHeader()}</tr>
                { this.renderTableData() }
