@@ -8,17 +8,19 @@ export class ModelUIRow extends Component {
       <div>
         <div className="card">
           <div className="container">
-            <h2>
-              {this.props.model.vendor} {this.props.model.modelNumber} 
-            </h2>
-            <p>Height: {this.props.model.height}</p>
-            <p>Color: {this.props.model.displayColor}</p>
-            <p>Ethernet Ports: {this.props.model.ethernetPorts}</p>
-            <p>Power Ports: {this.props.model.powerPorts}</p>
-            <p>CPU: {this.props.model.cpu}</p>
-            <p>Memory: {this.props.model.memory} GB</p>
-            <p>Storage: {this.props.model.storage}</p>
-            <p>Comments: {this.props.model.comment}</p>
+            <tr>
+              <td>{this.props.model.vendor}</td>
+              <td>{this.props.model.modelNumber} </td>
+              <td>{this.props.model.height}</td>
+              <td>{this.props.model.displayColor}</td>
+              <td>{this.props.model.ethernetPorts}</td>
+              <td>{this.props.model.powerPorts}</td>
+              <td>{this.props.model.cpu}</td>
+              <td>{this.props.model.memory} GB</td>
+              <td>{this.props.model.storage}</td>
+              <td>{this.props.model.comment}</td>
+            </tr>
+            
           </div>
         </div>
         <br></br>
@@ -42,8 +44,8 @@ export class ModelUIRow extends Component {
 //           comment: 'retired offering, no new purchasing'
 
 //ModelController is passing in 'todo'
-ModelUI.propTypes = {
+ModelUIRow.propTypes = {
   model: PropTypes.object.isRequired
 }
 
-export default ModelUI
+export default ModelUIRow
