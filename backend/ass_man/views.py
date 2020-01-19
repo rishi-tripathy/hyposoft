@@ -11,7 +11,7 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 # Project
 from backend.ass_man.models import Asset
 
-ADMIN_ACTIONS = {'create', 'retrieve', 'update', 'partial_update', 'destroy'}
+ADMIN_ACTIONS = {'create', 'update', 'partial_update', 'destroy'}
 
 
 # Docs for ModelViewSet: https://www.django-rest-framework.org/api-guide/viewsets/#modelviewset
