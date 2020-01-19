@@ -8,7 +8,6 @@ export class ModelController extends Component {
     super();
 
     // created two dummy models
-
     this.state = {
       models: [
         {

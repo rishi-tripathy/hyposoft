@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types';
 import '../stylesheets/ModelCardView.css'
 
-export class ModelUI extends Component {
+export class ModelUIRow extends Component {
   render() {
     return (
       <div>
