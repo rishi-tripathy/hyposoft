@@ -20,8 +20,9 @@ from backend.ass_man import views
 
 router = routers.DefaultRouter()  # add this
 router.register(r'users', views.UserViewSet)
-router.register(r'groups', views.GroupViewSet)
-router.register(r'assets', views.AssetViewSet)
+router.register(r'models', views.ModelViewSet)
+router.register(r'instances', views.InstanceViewSet)
+router.register(r'racks', views.RackViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
