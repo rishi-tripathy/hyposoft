@@ -1,15 +1,37 @@
+#ParentElement {
+    display: inline;
+    padding-left: 20%;
+    color: white;
+    text-align: center;
+    font-size: 13px;
+}
+
 #LeftBar {
-    background-color: lavender;
+    background-color: black;
+    height: 731px; /* 43 rows * 17px height of each row, 3px top/bottom border? */ 
+    width: 20px;
 }
 
 #CenterBar {
-    background-color: cadetblue;
+    background-color: black;
+    height: 20px;
+    width: 220px;
 }
 
 #RightBar {
-    background-color: red;
+    background-color: black;
+    height: 731px;
+    width: 20px;
+    position: relative;
+    bottom: 731px;
+    margin-left: 200px; 
 }
 
 #BottomBar {
     background-color: black;
+    height: 20px;
+    width: 220px;
+    position: relative;
+    bottom: 731px;
+    margin-bottom: -700px;
 }
