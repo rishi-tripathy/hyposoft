@@ -75,14 +75,5 @@ class Rack(models.Model):
     u41 = models.ForeignKey(Instance, on_delete=models.CASCADE, blank=True, null=True, related_name='instance41')
     u42 = models.ForeignKey(Instance, on_delete=models.CASCADE, blank=True, null=True, related_name='instance42')
 
-
-
-
-
-
-class Asset(models.Model):
-    title = models.CharField(max_length=120)
-    description = models.TextField()
-
     def __str__(self):
-        return self.title
+        return self.rack_number
