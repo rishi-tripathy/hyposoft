@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import RackTable from './RackTable';
 
 export class RackController extends Component {
 
@@ -8,20 +9,39 @@ export class RackController extends Component {
 
     //dummy models
     this.state = {
-        models: [
+      //in the future, we would 
+        racks: [
             {
-                id: 'A1',
-                height: 2,
-
+              hostName: 'server9',
+              rack: 'B12',
+              rackU: 5,
+              height: 2,
+              vendor: 'Dell',
+              modelNumber: 'R710'              
+            },
+            {
+              hostName: 'server10',
+              rack: 'T12',
+              rackU: 2,
+              height: 3,
+              vendor: 'Cisco',
+              modelNumber: 'R711'              
+            },
+            {
+              hostName: 'server11',
+              rack: 'B12',
+              rackU: 0,
+              height: 2,
+              vendor: 'Dell',
+              modelNumber: 'R710'              
             }
         ]
     }
-
-    }
+  }
 
   render() {
     return (
-      <
+      <RackTable racks = {this.state.racks} />
     )
   }
 }
