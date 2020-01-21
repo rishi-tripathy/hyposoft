@@ -4,24 +4,6 @@ import axios from 'axios'
 
 export class InstanceTable extends Component {
 
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      model : '/api/users/',
-      rack : '/api/users/',
-      rack_u : '/api/users/'
-    }
-  }
-
-  componentDidMount() {
-    axios.get(this.state.model).then(res => {
-      const b = res.data.results;
-      console.log(b);
-      this.setState({ instances: b });
-    });
-  }
-
   renderTableHeader() {
     let header = Object.keys(this.props.instances[0])
     return header.map((key, index) => {
