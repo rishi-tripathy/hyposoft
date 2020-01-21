@@ -6,13 +6,13 @@ from rest_framework.response import Response
 
 # API
 from rest_framework import viewsets
-from backend.ass_man.serializers import UserSerializer, InstanceShortSerializer, InstanceSerializer, \
+from ass_man.serializers import UserSerializer, InstanceShortSerializer, InstanceSerializer, \
     ModelShortSerializer, ModelSerializer,  RackSerializer
 # Auth
 from django.contrib.auth.models import User
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 # Project
-from backend.ass_man.models import Model, Instance, Rack
+from ass_man.models import Model, Instance, Rack
 
 ADMIN_ACTIONS = {'create', 'update', 'partial_update', 'destroy'}
 

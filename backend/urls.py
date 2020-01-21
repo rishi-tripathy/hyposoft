@@ -16,7 +16,7 @@ from django.contrib import admin
 from django.urls import path, include, re_path
 from rest_framework import routers
 from django.views.generic import TemplateView
-from backend.ass_man import views
+from ass_man import views
 
 router = routers.DefaultRouter()  # add this
 router.register(r'users', views.UserViewSet)

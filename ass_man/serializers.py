@@ -1,5 +1,5 @@
 from django.contrib.auth.models import User
-from backend.ass_man.models import Model, Instance, Rack
+from ass_man.models import Model, Instance, Rack
 from rest_framework import serializers
 
 
