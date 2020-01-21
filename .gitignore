@@ -22,6 +22,7 @@ db.sqlite*
 .env.production.local
 .idea
 .vscode
+.icloud
 
 npm-debug.log*
 yarn-debug.log*
