@@ -1,6 +1,7 @@
 {
   "name": "hyposoft",
   "version": "0.1.0",
+  // "homepage": "http://0.0.0.0:5000",
   "private": true,
   "proxy": "https://hyposoft-staging.herokuapp.com/",
   "dependencies": {
