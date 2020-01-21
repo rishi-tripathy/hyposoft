@@ -19,6 +19,7 @@ class Model(models.Model):
     def __str__(self):
         return self.vendor + ' ' + self.model_number
 
+
 class Instance(models.Model):
     model = models.ForeignKey(Model, on_delete=models.CASCADE)
     hostname = models.CharField(max_length=20)

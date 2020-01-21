@@ -7,7 +7,7 @@
 # Updating dependencies
 printf "\e[42mInstalling Dependencies...\e[0m\n\n"
 pipenv install
-npm install
+npm --prefix ./frontend/frontend-react/ install
 pipenv run pip freeze > requirements.txt
 
 printf "\n\n\e[42mMigrating changes...\e[0m\n\n"
@@ -21,3 +21,5 @@ python manage.py test
 # Launching app
 printf "\n\n\e[42mRunning app locally...\e[0m\n\n"
 heroku local
+
+
