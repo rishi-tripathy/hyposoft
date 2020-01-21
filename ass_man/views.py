@@ -76,7 +76,7 @@ class InstanceViewSet(viewsets.ModelViewSet):
 
     def get_serializer_class(self):
         detail = self.request.query_params.get('detail')
-        serializer_class = InstanceShortSerializer if detail=='short' else InstanceSerializer
+        serializer_class = InstanceShortSerializer if detail == 'short' else InstanceSerializer
         return serializer_class
 
 
