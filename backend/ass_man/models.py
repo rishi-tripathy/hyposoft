@@ -17,7 +17,7 @@ class Model(models.Model):
     comment = models.TextField(null=True)
 
     def __str__(self):
-        return self.vendor
+        return self.vendor + ' ' + self.model_number
 
 class Instance(models.Model):
     model = models.ForeignKey(Model, on_delete=models.CASCADE)
