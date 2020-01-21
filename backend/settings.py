@@ -79,7 +79,7 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            os.path.join(BASE_DIR, 'build')
+            os.path.join(BASE_DIR, 'backend', 'frontend', 'frontend-react', 'build')
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -151,5 +151,5 @@ CORS_ORIGIN_REGEX_WHITELIST = [
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'build', 'static')
+STATIC_ROOT = os.path.join(BASE_DIR, 'backend', 'frontend', 'frontend-react', 'build', 'static')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'

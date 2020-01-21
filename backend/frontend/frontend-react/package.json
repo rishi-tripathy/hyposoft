@@ -1,5 +1,5 @@
 {
-  "name": "hyposoft",
+  "name": "frontend-react",
   "version": "0.1.0",
   "private": true,
   "proxy": "http://0.0.0.0:5000",
