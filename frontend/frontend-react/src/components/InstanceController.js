@@ -1,34 +1,34 @@
 import React, { Component } from 'react'
 import InstanceTable from './InstanceTable'
+import axios from 'axios'
 
 export class InstanceController extends Component {
 
   constructor() {
     super();
     
-    // created two dummy models
+    // add ID
     this.state = {
       instances: [
         {
-          id: 1,
           model: 'R710',
-          hostName: 'server9',
+          hostname: 'server9',
           rack: 'B12',
-          rackU: 5,
+          rack_u: 5,
           owner: 'Michael',
           comment: 'Reserved for Palaemon project'
-        },
-        {
-          id: 2,
-          model: 'R711',
-          hostName: 'server10',
-          rack: 'T12',
-          rackU: 2,
-          owner: 'Christina',
-          comment: 'Reserved for Palaemon project'
         }
-      ]
+      ],
+
     }
+  }
+
+  componentDidMount() {
+    axios.get('/api/instances/').then(res => {
+      const b = res.data.results;
+      console.log(b);
+      this.setState({ instances: b });
+    });
   }
 
 
