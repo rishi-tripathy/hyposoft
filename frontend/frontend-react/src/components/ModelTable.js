@@ -13,13 +13,14 @@ export class ModelTable extends Component {
 
   renderTableData() {
     return this.props.models.map((model, index) => {
-       // TODO: get ID
-       const { vendor, model_number, height, display_color } = model //destructuring
+       
+       const { id, vendor, model_number, height, display_color } = model //destructuring
        const { ethernet_ports, power_ports, cpu, memory, storage, comment } = model //more destructuring
        return (
 
           // TODO: change this to ID
-          <tr key={height}>
+          <tr key={id}>
+             <td>{id}</td>
              <td>{vendor}</td>
              <td>{model_number}</td>
              <td>{height}</td>

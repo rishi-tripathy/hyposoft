@@ -13,7 +13,6 @@ export class InstanceTable extends Component {
 
   renderTableData() {
     return this.props.instances.map((instance, index) => {
-        // TODO: add id
         const { id, model, hostname, rack, rack_u, owner, comment } = instance //destructuring
         
         return (
