@@ -103,6 +103,7 @@
         },
         "python-dotenv": {
             "hashes": [
+                "sha256:440c7c23d53b7d352f9c94d6f70860242c2f071cf5c029dd661ccb22d64ae42b",
                 "sha256:f254bfd0c970d64ccbb6c9ebef3667ab301a71473569c991253a481f1c98dddc"
             ],
             "index": "pypi",
@@ -151,6 +152,7 @@
                 "sha256:0c4b206227a8097f05c4dbdd323c50edf81f15db3b8dc064d08c62d37e1a504d",
                 "sha256:194d092e6f246b906e8f70884e620e459fc54db3259e60cf69a4d66c3fda3449",
                 "sha256:1be7e4c9f96948003609aa6c974ae59830a6baecc5376c25c92d7d697e684c08",
+                "sha256:267f65f09771b9a95d1155796664a727db0b328b9558e4d407881908e97a306e",
                 "sha256:4677f594e474c91da97f489fea5b7daa17b5517190899cf213697e48d3902f5a",
                 "sha256:48dab84ebd4831077b150572aec802f303117c8cc5c871e182447281ebf3ac50",
                 "sha256:5541cada25cd173702dbd99f8e22434105456314462326f06dba3e180f203dfd",
@@ -223,7 +225,8 @@
         },
         "wrapt": {
             "hashes": [
-                "sha256:565a021fd19419476b9362b05eeaa094178de64f8361e44468f9e9d7843901e1"
+                "sha256:565a021fd19419476b9362b05eeaa094178de64f8361e44468f9e9d7843901e1",
+                "sha256:821071004dfb67a7f266479cbff0eea3787521660967bb6b56496e058baeff67"
             ],
             "version": "==1.11.2"
         }
