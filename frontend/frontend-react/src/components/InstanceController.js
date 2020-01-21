@@ -2,11 +2,13 @@ import React, { Component } from 'react'
 import InstanceTable from './InstanceTable'
 import axios from 'axios'
 
+
+
+
 export class InstanceController extends Component {
 
   constructor() {
     super();
-    
     // add ID
     this.state = {
       instances: [
@@ -19,16 +21,19 @@ export class InstanceController extends Component {
           comment: 'Reserved for Palaemon project'
         }
       ],
-
     }
   }
 
-  componentDidMount() {
+  getInstances() {
     axios.get('/api/instances/').then(res => {
       const b = res.data.results;
       console.log(b);
       this.setState({ instances: b });
     });
+  }
+
+  componentDidMount() {
+    this.getInstances();
   }
 
 
