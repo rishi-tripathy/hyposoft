@@ -56,7 +56,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'whitenoise.runserver_nostatic',  # < As per whitenoise documentation
     'django.contrib.staticfiles',
-    'corsheaders'
+    'corsheaders',
     'rest_framework',
     'backend.ass_man'
 ]
@@ -142,8 +142,8 @@ USE_TZ = True
 
 # we whitelist localhost:3000 because that's where frontend will be served
 CORS_ORIGIN_WHITELIST = (
-    'localhost',
-    'localhost:5000/'
+    'http://localhost',
+    'http://localhost:5000'
  )
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
