@@ -95,7 +95,7 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 5
+    'PAGE_SIZE': 1
 }
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
