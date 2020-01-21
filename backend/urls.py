@@ -1,5 +1,4 @@
 """backend URL Configuration
-
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/3.0/topics/http/urls/
 Examples:
@@ -20,10 +19,14 @@ from django.views.generic import TemplateView
 from backend.ass_man import views
 
 router = routers.DefaultRouter()  # add this
-
+router.register(r'users', views.UserViewSet)
+router.register(r'models', views.ModelViewSet)
+router.register(r'instances', views.InstanceViewSet)
+router.register(r'racks', views.RackViewSet)
 
 urlpatterns = [
-    path('admin/', admin.site.urls), path('api/', include(router.urls)),  # add this
+    path('admin/', admin.site.urls),
+    path('api/', include(router.urls)),  # add this
+    path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     re_path('.*', TemplateView.as_view(template_name='index.html')),
 ]
-
