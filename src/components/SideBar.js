@@ -2,8 +2,8 @@ import React from 'react';
 import '../stylesheets/SideBar.css'
 import ModelController from './ModelController'
 import InstanceController from './InstanceController'
-import RackView from './RackView'
 import Landing from './Landing'
+import RackController from './RackController'
 
 class SideBar extends React.Component{
 	constructor() {
@@ -51,7 +51,8 @@ class SideBar extends React.Component{
         let content;
 
         if (rackState){
-            content = <RackView />
+          //  content = <RackView />
+            content = <RackController />
         }
         else if (modelState){
             content = <ModelController />

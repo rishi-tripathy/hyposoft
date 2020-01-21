@@ -1,8 +1,4 @@
 import React, { Component } from 'react'
-import ModelController from './ModelController'
-import InstanceController from './InstanceController'
-import RackView from './RackView'
-import SideBar from './SideBar'
 import '../stylesheets/Landing.css'
 
 
