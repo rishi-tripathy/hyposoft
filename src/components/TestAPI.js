@@ -4,8 +4,9 @@ import axios from 'axios';
 export class TestAPI extends Component {
 
   componentDidMount() {
-    axios.get('http://0.0.0.0:5000/api/models/').then(res => {
+    axios.get('/api/models/').then(res => {
       console.log(res);
+      console.log('df')
     });
   }
 
