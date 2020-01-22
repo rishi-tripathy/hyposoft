@@ -5,10 +5,9 @@ import RackRow from './RackRow'
 
 export class RackTable extends Component {
 
-
-
    // gets instance array
    createInstanceArray = () => {
+
       let instanceArray = new Array(44);
       this.props.rackInstances.map((rackInstance, index) => {
          const { id, rackU, height } = rackInstance;
@@ -18,7 +17,6 @@ export class RackTable extends Component {
          }
       });
 
-
       return instanceArray;
    }
 
@@ -27,7 +25,7 @@ export class RackTable extends Component {
       
       let list = [];
       list = this.renderTableData();
-      console.log(list);
+      //console.log(list);
       let renderList = [];
 
       return this.props.numbers.map((number, index) => (
@@ -51,6 +49,7 @@ export class RackTable extends Component {
    }
 
    getRackNum() {
+
       let rackNum = "";
       for (var key of Object.keys(this.props.rack)) {
          if (key === 'rack_number') {
@@ -63,13 +62,16 @@ export class RackTable extends Component {
   
 
    getRows() {
-      let rows = this.props.rack;
+
+      let rows = [];
+      rows = this.props.rack;
       delete rows["id"];
       delete rows["rack_number"];
       return rows;
    }
 
    renderRows() {
+
       return this.props.rackInstances.map((row, index) => {
          return (
             <RackRow row={row} />
@@ -80,43 +82,12 @@ export class RackTable extends Component {
    render() {
 
       //this.getRows = this.getRows.bind(this);
-
-      return this.getRows().map((m) => (
+      let realRows = [];
+      //console.log(this.getRows());
+      realRows = Array.from(this.getRows());
+      return realRows.map((m) => (
          <RackRow row={m} />
       ));
-
-
-      // return (
-      //    <div>
-      //    <h1 id="title"> B12</h1>
-      //       <table id="entries">
-      //          <tbody>
-      //             {/* { console.log(this.getRows()) } */}
-      //             <tr>{ this.renderRows() }</tr>
-
-      //             {/* <Fragment>
-                  
-      //             </Fragment> */}
-      //             {/* {this.renderTableNumbers()} */}
-      //             {/* { this.renderTableData() } */}
-      //             {/* { console.log(this.createInstanceArray()) }
-      //             {
-                     
-      //                this.createInstanceArray.map((inst, index) => {
-      //                   const { hostName, rack, id, vendor, modelNumber } = inst
-      //                   return (
-      //                      <RackRow id={id} num={} instance={} />
-      //                      // <div key={id}>
-      //                      //    {hostName}{modelNumber}{rack}{vendor}
-      //                      // </div>
-      //                   )
-      //                })
-      //             } */}
-                  
-      //          </tbody>
-      //       </table>
-      //    </div>
-      // )
    }
 }
 

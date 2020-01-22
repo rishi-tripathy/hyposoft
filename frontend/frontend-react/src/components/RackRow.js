@@ -2,10 +2,12 @@ import React, { Component } from 'react'
 
 export class RackRow extends Component {
     render() {
+        console.log(this.props.row);
         return (
-            <td>
-                
-            </td>
+            <tr>
+                hi
+                {this.props.row}
+            </tr>
         )
     }
 }
