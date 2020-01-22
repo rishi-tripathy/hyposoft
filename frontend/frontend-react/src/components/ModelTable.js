@@ -5,7 +5,8 @@ import '../stylesheets/TableView.css'
 export class ModelTable extends Component {
 
   renderTableHeader() {
-    let header = Object.keys(this.props.models[0])
+   //  if (this.props.models[0] == null) return;
+    let header = Object.keys(this.props.models[0]);
     return header.map((key, index) => {
        return <th key={index}>{key.toUpperCase()}</th>
     })

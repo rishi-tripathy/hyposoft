@@ -9,9 +9,9 @@ export class InstanceController extends Component {
     this.state = {
       instances: [
         {
-          id: '1',
-          model: 'R710',
-          hostname: 'server9',
+          id: 99,
+          model: 'default',
+          hostname: 'default',
           rack: 'B12',
           rack_u: 5,
           owner: 'Michael',
@@ -25,9 +25,12 @@ export class InstanceController extends Component {
     let modelAPIDest, rackAPIDest, ownerAPIDest;
     
     axios.get('/api/instances/').then(res => {
-      
       // list of instances
       const instanceList = res.data.results;
+      if (instanceList[0] == null) {
+        console.log('instances[0] is null');
+        return;
+      }
 
       // getting API end points
       const { model, rack, owner } = instanceList[0];
@@ -57,7 +60,12 @@ export class InstanceController extends Component {
 
 
   render() {
-    return <InstanceTable instances={this.state.instances} />
+    if (this.state.instances[0] == null) {
+      return <p>No instances</p>
+    } else {
+      return <InstanceTable instances={this.state.instances} />
+    }
+    
   }
 }
 

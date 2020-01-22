@@ -6,17 +6,17 @@ export class ModelController extends Component {
   state = {
     models: [
       {
-        'id': 1,
-        "vendor": "Delasdfasdfl",
-        "model_number": "D2",
-        "height": 2,
-        "display_color": "Red",
-        "ethernet_ports": 1,
-        "power_ports": 1,
-        "cpu": "Intel CPU",
-        "memory": 3,
-        "storage": "Lots of Raid",
-        "comment": "First Model"
+        'id': 99,
+        'vendor': 'default',
+        'model_number': 'default',
+        'height': 2,
+        'display_color': 'Red',
+        'ethernet_ports': 1,
+        'power_ports': 1,
+        'cpu': 'Intel CPU',
+        'memory': 3,
+        'storage': 'Lots of Raid',
+        'comment': 'First Model'
       }
     ]
   };
@@ -25,11 +25,17 @@ export class ModelController extends Component {
     axios.get('/api/models/').then(res => {
       const b = res.data.results;
       this.setState({ models: b });
+      
     });
   }
   
   render() {
-    return <ModelTable models={ this.state.models } />
+    if (this.state.models[0] == null) {
+      return <p>No models exist</p>
+    } else {
+      return <ModelTable models={ this.state.models } />
+    }
+    
   }
 }
 
