@@ -66,6 +66,8 @@ class SideBar extends React.Component{
                     <div id ="Content">
                         <div id="header">
                             <Landing />
+                            <br></br>
+                            <br></br>
                         </div>
                         {content}
                     </div>

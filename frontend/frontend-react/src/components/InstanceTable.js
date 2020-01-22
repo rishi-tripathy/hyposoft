@@ -12,18 +12,15 @@ export class InstanceTable extends Component {
   }
 
   renderTableData() {
-    return this.props.instances.map((instance, index) => {
-        const { id, model, hostname, rack, rack_u, owner, comment } = instance //destructuring
+    return this.props.instances.map((instance) => {
+        const { id, model, hostname } = instance //destructuring
         
         return (
           <tr key={id}>
               <td>{id}</td>
               <td>{model}</td>
               <td>{hostname}</td>
-              <td>{rack}</td>
-              <td>{rack_u}</td>
-              <td>{owner}</td>
-              <td>{comment}</td>
+              <td><button onClick={console.log(id)}>See details</button></td>
           </tr>
         )
     })

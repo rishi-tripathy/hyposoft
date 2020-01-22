@@ -13,10 +13,6 @@ export class InstanceController extends Component {
           id: 99,
           model: 'default',
           hostname: 'default',
-          rack: 'B12',
-          rack_u: 5,
-          owner: 'Michael',
-          comment: 'Reserved for Palaemon project'
         }
       ],
     }
@@ -25,7 +21,7 @@ export class InstanceController extends Component {
   getInstances() {
     let modelAPIDest, rackAPIDest, ownerAPIDest;
     
-    axios.get('/api/instances/').then(res => {
+    axios.get('/api/instances/?detail=short').then(res => {
       // list of instances
       const instanceList = res.data.results;
       if (instanceList[0] == null) {
@@ -34,15 +30,15 @@ export class InstanceController extends Component {
       }
 
       // getting API end points
-      const { model, rack, owner } = instanceList[0];
-      modelAPIDest = model;
-      rackAPIDest = rack;
-      ownerAPIDest = owner;
+      // const { model, rack, owner } = instanceList[0];
+      // modelAPIDest = model;
+      // rackAPIDest = rack;
+      // ownerAPIDest = owner;
 
       console.log(instanceList);
-      console.log(modelAPIDest); 
-      console.log(rackAPIDest); 
-      console.log(ownerAPIDest); 
+      // console.log(modelAPIDest); 
+      // console.log(rackAPIDest); 
+      // console.log(ownerAPIDest); 
 
       // this works!!
       // waiting for miles to update API
