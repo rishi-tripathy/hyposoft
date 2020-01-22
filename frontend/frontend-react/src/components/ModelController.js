@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import ModelTable from './ModelTable'
 import axios from 'axios'
+axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 export class ModelController extends Component {
   state = {
