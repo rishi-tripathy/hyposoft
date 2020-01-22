@@ -22,7 +22,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
     )
     last_name = serializers.CharField(
         required=False,
-        default=""
+        allow_blank=True
     )
     username = serializers.CharField(
         validators=[UniqueValidator(queryset=User.objects.all())]
@@ -36,7 +36,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
             user.first_name = validated_data['first_name']
 
         if validated_data['last_name']:
-            user.first_name = validated_data['last_name']
+            user.last_name = validated_data['last_name']
 
         return user
 

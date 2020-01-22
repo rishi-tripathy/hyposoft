@@ -6,19 +6,21 @@ from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
 from .serializers import UserSerializer
 from rest_framework import viewsets
 
+ADMIN_ACTIONS = {'create', 'update', 'partial_update', 'destroy'}
+
 
 class UserViewSet(viewsets.ModelViewSet):
     # API endpoint that allows users to be viewed or edited.
 
-    # def get_permissions(self):
-    #     # Instantiates and returns the list of permissions that this view requires.
-    #     if self.action in ADMIN_ACTIONS:
-    #         permission_classes = [IsAdminUser]
-    #     else:
-    #         permission_classes = [IsAuthenticated]
-    #     return [permission() for permission in permission_classes]
+    def get_permissions(self):
+        # Instantiates and returns the list of permissions that this view requires.
+        if self.action in ADMIN_ACTIONS:
+            permission_classes = [IsAdminUser]
+        else:
+            permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]
 
-    permission_classes = [AllowAny]
+    # permission_classes = [AllowAny]
     queryset = User.objects.all().order_by('-date_joined')
     serializer_class = UserSerializer
 
