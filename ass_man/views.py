@@ -25,15 +25,15 @@ ADMIN_ACTIONS = {'create', 'update', 'partial_update', 'destroy'}
 class ModelViewSet(viewsets.ModelViewSet):
     # API endpoint that allows groups to be viewed or edited.
 
-    # def get_permissions(self):
-    #     # Instantiates and returns the list of permissions that this view requires.
-    #     if self.action in ADMIN_ACTIONS:
-    #         permission_classes = [IsAdminUser]
-    #     else:
-    #         permission_classes = [IsAuthenticated]
-    #     return [permission() for permission in permission_classes]
+    def get_permissions(self):
+        # Instantiates and returns the list of permissions that this view requires.
+        if self.action in ADMIN_ACTIONS:
+            permission_classes = [IsAdminUser]
+        else:
+            permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]
 
-    permission_classes = [AllowAny]
+    # permission_classes = [AllowAny]
     queryset = Model.objects.all()
 
     def get_serializer_class(self):
@@ -41,25 +41,25 @@ class ModelViewSet(viewsets.ModelViewSet):
         serializer_class = ModelShortSerializer if detail == 'short' else ModelSerializer
         return serializer_class
 
-    # @action(detail=True)
-    # def short(self, request, *args, **kwargs):
-    #     queryset = Model.objects.all()
-    #     serializer_class = ModelShortSerializer(queryset, many=True)
-    #     return Response(serializer_class.data)
+    @action(detail=True)
+    def short(self, request, *args, **kwargs):
+        queryset = Model.objects.all()
+        serializer_class = ModelShortSerializer(queryset, many=True)
+        return Response(serializer_class.data)
 
 
 class InstanceViewSet(viewsets.ModelViewSet):
     # API endpoint that allows groups to be viewed or edited.
 
-    # def get_permissions(self):
-    #     # Instantiates and returns the list of permissions that this view requires.
-    #     if self.action in ADMIN_ACTIONS:
-    #         permission_classes = [IsAdminUser]
-    #     else:
-    #         permission_classes = [IsAuthenticated]
-    #     return [permission() for permission in permission_classes]
+    def get_permissions(self):
+        # Instantiates and returns the list of permissions that this view requires.
+        if self.action in ADMIN_ACTIONS:
+            permission_classes = [IsAdminUser]
+        else:
+            permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]
 
-    permission_classes = [AllowAny]
+    # permission_classes = [AllowAny]
     queryset = Instance.objects.all()
 
     def get_serializer_class(self):
@@ -70,15 +70,15 @@ class InstanceViewSet(viewsets.ModelViewSet):
 
 class RackViewSet(viewsets.ModelViewSet):
     # API endpoint that allows groups to be viewed or edited.
+    #
+    def get_permissions(self):
+        # Instantiates and returns the list of permissions that this view requires.
+        if self.action in ADMIN_ACTIONS:
+            permission_classes = [IsAdminUser]
+        else:
+            permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]
 
-    # def get_permissions(self):
-    #     # Instantiates and returns the list of permissions that this view requires.
-    #     if self.action in ADMIN_ACTIONS:
-    #         permission_classes = [IsAdminUser]
-    #     else:
-    #         permission_classes = [IsAuthenticated]
-    #     return [permission() for permission in permission_classes]
-
-    permission_classes = [AllowAny]
+    # permission_classes = [AllowAny]
     queryset = Rack.objects.all()
     serializer_class = RackSerializer
