@@ -7,7 +7,8 @@ export class CreateUserForm extends Component {
 
     this.state = {
       username: '',
-      displayName: '',
+      firstName: '',
+      lastName:'',
       email: '',
       password: ''
     }
@@ -19,9 +20,15 @@ export class CreateUserForm extends Component {
     });
   }
 
-  handleDisplayNameChange = (event) => {
+  handleFirstNameChange = (event) => {
     this.setState({
-      displayName: event.target.value
+      firstName: event.target.value
+    });
+  }
+
+  handleLastNameChange = (event) => {
+    this.setState({
+      lastName: event.target.value
     });
   }
 
@@ -50,8 +57,12 @@ export class CreateUserForm extends Component {
           <input type='text' value={ this.state.username } onChange={ this.handleUsernameChange } />
         </div>
         <div>
-          <label>Display name</label>
-          <input type='text' value={ this.state.displayName } onChange={ this.handleDisplayNameChange } />
+          <label>First name</label>
+          <input type='text' value={ this.state.firstName } onChange={ this.handleFirstNameChange } />
+        </div>
+        <div>
+          <label>Last name</label>
+          <input type='text' value={ this.state.lastName } onChange={ this.handleLastNameChange } />
         </div>
         <div>
           <label>Email</label>
