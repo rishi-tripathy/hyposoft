@@ -5,7 +5,8 @@ import '../stylesheets/TableView.css'
 export class ModelTable extends Component {
 
   renderTableHeader() {
-    let header = Object.keys(this.props.models[0])
+   //  if (this.props.models[0] == null) return;
+    let header = Object.keys(this.props.models[0]);
     return header.map((key, index) => {
        return <th key={index}>{key.toUpperCase()}</th>
     })
@@ -13,17 +14,17 @@ export class ModelTable extends Component {
 
   renderTableData() {
     return this.props.models.map((model, index) => {
-       const { id, vendor, modelNumber, height, displayColor } = model //destructuring
-       const { ethernetPorts, powerPorts, cpu, memory, storage, comment } = model //more destructuring
+       const { id, vendor, model_number, height, display_color } = model //destructuring
+       const { ethernet_ports, power_ports, cpu, memory, storage, comment } = model //more destructuring
        return (
           <tr key={id}>
              <td>{id}</td>
              <td>{vendor}</td>
-             <td>{modelNumber}</td>
+             <td>{model_number}</td>
              <td>{height}</td>
-             <td>{displayColor}</td>
-             <td>{ethernetPorts}</td>
-             <td>{powerPorts}</td>
+             <td>{display_color}</td>
+             <td>{ethernet_ports}</td>
+             <td>{power_ports}</td>
              <td>{cpu}</td>
              <td>{memory}</td>
              <td>{storage}</td>

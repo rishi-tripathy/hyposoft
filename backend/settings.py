@@ -43,7 +43,7 @@ SECRET_KEY = get_random_secret_key()
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['.herokuapp.com', 'localhost', '127.0.0.1', '0.0.0.0']
+ALLOWED_HOSTS = ['.herokuapp.com', 'localhost', '127.0.0.1', '0.0.0.0', 'localhost:5000']
 
 
 # Application definition
@@ -57,7 +57,7 @@ INSTALLED_APPS = [
     'whitenoise.runserver_nostatic',  # < As per whitenoise documentation
     'django.contrib.staticfiles',
     'rest_framework',
-    'backend.ass_man'
+    'ass_man'
 ]
 
 MIDDLEWARE = [
@@ -77,7 +77,8 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            os.path.join(BASE_DIR, 'build')
+            os.path.join(BASE_DIR, 'frontend', 'frontend-react', 'build'),
+            os.path.join(BASE_DIR, 'templates')
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -91,16 +92,21 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'backend.wsgi.application'
+WSGI_APPLICATION = '.wsgi.application'
 
-
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.SessionAuthentication',
+    ),
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 1
+}
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
 DATABASES = {
     'default': dj_database_url.config(conn_max_age=600)
 }
-
 
 
 # Password validation
@@ -139,6 +145,9 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
+LOGIN_REDIRECT_URL = '/'
+CSRF_COOKIE_NAME = "XSRF-TOKEN"
+
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'build', 'static')
+STATIC_ROOT = os.path.join(BASE_DIR, 'frontend', 'frontend-react', 'build', 'static')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
