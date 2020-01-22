@@ -1,4 +1,6 @@
 import React, { Component } from 'react'
+import axios from 'axios'
+axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 export class CreateUserForm extends Component {
 
@@ -7,9 +9,9 @@ export class CreateUserForm extends Component {
 
     this.state = {
       username: '',
-      firstName: '',
-      lastName:'',
       email: '',
+      first_name: '',
+      last_name:'',
       password: ''
     }
   }
@@ -22,13 +24,13 @@ export class CreateUserForm extends Component {
 
   handleFirstNameChange = (event) => {
     this.setState({
-      firstName: event.target.value
+      first_name: event.target.value
     });
   }
 
   handleLastNameChange = (event) => {
     this.setState({
-      lastName: event.target.value
+      last_name: event.target.value
     });
   }
 
@@ -46,6 +48,16 @@ export class CreateUserForm extends Component {
 
   handleSubmit = (event) => {
     console.log(this.state);
+
+    axios.post('/api/users/', this.state)
+    .then(function (response) {
+      console.log(response);
+    })
+    .catch(function (error) {
+      // TODO: handle error
+      console.log(error.response);
+    });
+
     event.preventDefault();
   }
 
@@ -58,11 +70,11 @@ export class CreateUserForm extends Component {
         </div>
         <div>
           <label>First name</label>
-          <input type='text' value={ this.state.firstName } onChange={ this.handleFirstNameChange } />
+          <input type='text' value={ this.state.first_name } onChange={ this.handleFirstNameChange } />
         </div>
         <div>
           <label>Last name</label>
-          <input type='text' value={ this.state.lastName } onChange={ this.handleLastNameChange } />
+          <input type='text' value={ this.state.last_name } onChange={ this.handleLastNameChange } />
         </div>
         <div>
           <label>Email</label>
