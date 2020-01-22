@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import InstanceTable from './InstanceTable'
 import axios from 'axios'
+axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 export class InstanceController extends Component {
 
@@ -44,6 +45,7 @@ export class InstanceController extends Component {
       console.log(ownerAPIDest); 
 
       // this works!!
+      // waiting for miles to update API
       // axios.get(modelAPIDest).then(r => {
       //   console.log(r);
       // })

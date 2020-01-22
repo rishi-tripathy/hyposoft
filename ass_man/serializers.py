@@ -1,4 +1,3 @@
-from django.contrib.auth.models import User
 from ass_man.models import Model, Instance, Rack
 from rest_framework import serializers
 
@@ -39,7 +38,3 @@ class RackSerializer(serializers.HyperlinkedModelSerializer):
                   'u31', 'u32', 'u33', 'u34', 'u35', 'u36', 'u37', 'u38', 'u39', 'u40',
                   'u41', 'u42']
 
-class UserSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = User
-        fields = ['id', 'url', 'username', 'email', 'groups']
