@@ -31,6 +31,7 @@ class Instance(models.Model):
     def __str__(self):
         return self.hostname
 
+
 class Rack(models.Model):
     rack_number = models.CharField(max_length = 4)
     u1 = models.ForeignKey(Instance, on_delete=models.CASCADE, blank=True, null=True, related_name='instance1')

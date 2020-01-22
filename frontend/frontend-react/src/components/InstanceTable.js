@@ -13,12 +13,11 @@ export class InstanceTable extends Component {
 
   renderTableData() {
     return this.props.instances.map((instance, index) => {
-        // TODO: add id
-        const { model, hostname, rack, rack_u, owner, comment } = instance //destructuring
-        
+        const { id, model, hostname, rack, rack_u, owner, comment } = instance //destructuring
+
         return (
-          // TODO: use id
-          <tr key={rack_u}>
+          <tr key={id}>
+              <td>{id}</td>
               <td>{model}</td>
               <td>{hostname}</td>
               <td>{rack}</td>
