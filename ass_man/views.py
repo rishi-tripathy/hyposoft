@@ -41,11 +41,13 @@ class ModelViewSet(viewsets.ModelViewSet):
         serializer_class = ModelShortSerializer if detail == 'short' else ModelSerializer
         return serializer_class
 
-    @action(detail=True)
-    def short(self, request, *args, **kwargs):
-        queryset = Model.objects.all()
-        serializer_class = ModelShortSerializer(queryset, many=True)
-        return Response(serializer_class.data)
+    # Example for how to add custom actions below
+
+    # @action(detail=True)
+    # def short(self, request, *args, **kwargs):
+    #     queryset = Model.objects.all()
+    #     serializer_class = ModelShortSerializer(queryset, many=True)
+    #     return Response(serializer_class.data)
 
 
 class InstanceViewSet(viewsets.ModelViewSet):
