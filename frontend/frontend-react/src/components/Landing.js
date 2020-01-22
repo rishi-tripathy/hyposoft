@@ -9,11 +9,7 @@ export class Landing extends Component {
     return (
       <div>
         <h1>This is a dummy landing page!</h1>
-        <br></br>
-        <ModelController /> 
-        <br></br>
         {/* <TestAPI /> */}
-        <InstanceController />
       </div>
     )
   }
