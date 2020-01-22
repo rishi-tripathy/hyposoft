@@ -56,7 +56,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'whitenoise.runserver_nostatic',  # < As per whitenoise documentation
     'django.contrib.staticfiles',
-    'corsheaders',
+    # 'corsheaders',
     'rest_framework',
     'ass_man'
 ]
@@ -64,7 +64,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',  # Whitenoise Middleware
-    'corsheaders.middleware.CorsMiddleware',    # add this
+    # 'corsheaders.middleware.CorsMiddleware',    # add this
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -79,7 +79,8 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            os.path.join(BASE_DIR, 'frontend', 'frontend-react', 'build')
+            os.path.join(BASE_DIR, 'frontend', 'frontend-react', 'build'),
+            os.path.join(BASE_DIR, 'templates')
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -96,6 +97,9 @@ TEMPLATES = [
 WSGI_APPLICATION = '.wsgi.application'
 
 REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.SessionAuthentication',
+    ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 1
 }
@@ -139,16 +143,20 @@ USE_L10N = True
 
 USE_TZ = True
 
-CORS_ORIGIN_WHITELIST = (
-    'http://localhost',
-    'http://localhost:5000'
- )
+# CORS_ORIGIN_WHITELIST = (
+#     'http://localhost',
+#     'http://localhost:5000'
+#  )
+#
+# CORS_ORIGIN_REGEX_WHITELIST = [
+#     r"^https://\w+\.herokuapp\.com$",
+# ]
 
-CORS_ORIGIN_REGEX_WHITELIST = [
-    r"^https://\w+\.herokuapp\.com$",
-]
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
+
+LOGIN_REDIRECT_URL = '/'
+CSRF_COOKIE_NAME = "XSRF-TOKEN"
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'frontend', 'frontend-react', 'build', 'static')
