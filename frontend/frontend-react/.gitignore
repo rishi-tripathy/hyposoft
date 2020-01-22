@@ -2,19 +2,15 @@
 
 # dependencies
 /node_modules
-./frontend/frontend-react/node_modules
-./frontend/frontend-react/build
 /.pnp
 .pnp.js
 
 # testing
 /coverage
-db.sqlite*
 
 # production
 /build
-.env
-*.pyc
+build/
 
 # misc
 .DS_Store
@@ -22,9 +18,6 @@ db.sqlite*
 .env.development.local
 .env.test.local
 .env.production.local
-.idea
-.vscode
-.icloud
 
 npm-debug.log*
 yarn-debug.log*
