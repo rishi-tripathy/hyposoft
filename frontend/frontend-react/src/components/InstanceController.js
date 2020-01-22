@@ -2,9 +2,6 @@ import React, { Component } from 'react'
 import InstanceTable from './InstanceTable'
 import axios from 'axios'
 
-
-
-
 export class InstanceController extends Component {
 
   constructor() {

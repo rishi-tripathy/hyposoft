@@ -3,7 +3,6 @@ import ModelTable from './ModelTable'
 import axios from 'axios'
 
 export class ModelController extends Component {
-  
   state = {
     models: [
       {

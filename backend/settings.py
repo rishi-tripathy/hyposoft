@@ -139,14 +139,15 @@ USE_L10N = True
 
 USE_TZ = True
 
-# CORS_ORIGIN_WHITELIST = (
-#     'http://localhost',
-#     'http://localhost:5000'
-#  )
-#
-# CORS_ORIGIN_REGEX_WHITELIST = [
-#     r"^https://\w+\.herokuapp\.com$",
-# ]
+CORS_ORIGIN_WHITELIST = (
+    'http://localhost',
+    'http://localhost:5000'
+ )
+
+CORS_ORIGIN_REGEX_WHITELIST = [
+    r"^https://\w+\.herokuapp\.com$",
+]
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
