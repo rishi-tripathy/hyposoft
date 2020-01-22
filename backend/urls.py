@@ -16,13 +16,14 @@ from django.contrib import admin
 from django.urls import path, include, re_path
 from rest_framework import routers
 from django.views.generic import TemplateView
-from ass_man import views
+from ass_man import views as asset_views
+from usr_man import views as user_views
 
 router = routers.DefaultRouter()  # add this
-router.register(r'users', views.UserViewSet)
-router.register(r'models', views.ModelViewSet)
-router.register(r'instances', views.InstanceViewSet)
-router.register(r'racks', views.RackViewSet)
+router.register(r'users', user_views.UserViewSet)
+router.register(r'models', asset_views.ModelViewSet)
+router.register(r'instances', asset_views.InstanceViewSet)
+router.register(r'racks', asset_views.RackViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
