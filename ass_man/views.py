@@ -59,7 +59,6 @@ class ModelViewSet(viewsets.ModelViewSet):
 
 
 class InstanceViewSet(viewsets.ModelViewSet):
-    # API endpoint that allows groups to be viewed or edited.
 
     def get_permissions(self):
         # Instantiates and returns the list of permissions that this view requires.
