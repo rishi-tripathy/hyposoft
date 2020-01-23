@@ -83,7 +83,8 @@ class InstanceViewSet(viewsets.ModelViewSet):
         serializer_class = InstanceShortSerializer if detail == 'short' else InstanceSerializer
         return serializer_class
 
-    ordering_fields = ['model', 'hostname', 'rack', 'rack_u', 'owner', 'comment']
+    ordering_fields = ['model', 'model__model_number', 'model__vendor',
+                       'hostname', 'rack', 'rack_u', 'owner', 'comment']
 
 
 class RackViewSet(viewsets.ModelViewSet):
