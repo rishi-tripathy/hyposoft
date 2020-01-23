@@ -1,5 +1,6 @@
 from ass_man.models import Model, Instance, Rack
 from rest_framework import serializers
+from rest_framework.validators import UniqueTogetherValidator, UniqueValidator
 
 
 class ModelSerializer(serializers.HyperlinkedModelSerializer):
@@ -7,6 +8,13 @@ class ModelSerializer(serializers.HyperlinkedModelSerializer):
         model = Model
         fields = ['id', 'vendor', 'model_number', 'height', 'display_color',
                   'ethernet_ports','power_ports', 'cpu', 'memory', 'storage', 'comment']
+        validators = [
+            UniqueTogetherValidator(
+                queryset=Model.objects.all(),
+                fields=['vendor', 'model_number']
+            )
+        ]
+
 
 class ModelShortSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:

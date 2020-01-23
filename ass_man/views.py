@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework import status
 
 # Create your views here.
 
@@ -31,7 +32,6 @@ class ModelViewSet(viewsets.ModelViewSet):
             permission_classes = [IsAuthenticated]
         return [permission() for permission in permission_classes]
 
-    # permission_classes = [AllowAny]
     queryset = Model.objects.all()
 
     def get_serializer_class(self):
@@ -39,12 +39,23 @@ class ModelViewSet(viewsets.ModelViewSet):
         serializer_class = ModelShortSerializer if detail == 'short' else ModelSerializer
         return serializer_class
 
-    # Example for how to add custom actions below
-    # @action(detail=True)
-    # def short(self, request, *args, **kwargs):
-    #     queryset = Model.objects.all()
-    #     serializer_class = ModelShortSerializer(queryset, many=True)
-    #     return Response(serializer_class.data)
+    @action(detail=True, methods=['GET'])
+    def can_delete(self, request, *args, **kwargs):
+        matches = Instance.objects.all().filter(model=self.get_object())
+        if matches.count() > 0:
+            return Response({
+                'can_delete': 'false'
+            })
+        return Response({
+            'can_delete': 'true'
+        })
+
+    def destroy(self, request, *args, **kwargs):
+        matches = Instance.objects.filter(model=self.get_object())
+        if matches.count() > 0:
+            return Response('Cannot delete this model as there exists an associated instance',
+                            status=status.HTTP_400_BAD_REQUEST)
+        super().destroy(self, request, *args, **kwargs)
 
 
 class InstanceViewSet(viewsets.ModelViewSet):
@@ -58,7 +69,6 @@ class InstanceViewSet(viewsets.ModelViewSet):
             permission_classes = [IsAuthenticated]
         return [permission() for permission in permission_classes]
 
-    # permission_classes = [AllowAny]
     queryset = Instance.objects.all()
 
     def get_serializer_class(self):
@@ -78,6 +88,31 @@ class RackViewSet(viewsets.ModelViewSet):
             permission_classes = [IsAuthenticated]
         return [permission() for permission in permission_classes]
 
-    # permission_classes = [AllowAny]
     queryset = Rack.objects.all()
     serializer_class = RackSerializer
+
+    @action(detail=True, methods=['GET'])
+    def is_empty(self, request, *args, **kwargs):
+        u_filled = 0
+        slots = ['u{}'.format(i) for i in range(1, 43)]
+        for field_name in slots:
+            if getattr(self.get_object(), field_name):
+                u_filled += 1
+        if u_filled > 0:
+            return Response({
+                'is_empty': 'false'
+            })
+        return Response({
+            'is_empty': 'true'
+        })
+
+    def destroy(self, request, *args, **kwargs):
+        u_filled = 0
+        slots = ['u{}'.format(i) for i in range(1, 43)]
+        for slot in slots:
+            if getattr(self.get_object(), slot):
+                u_filled += 1
+        if u_filled > 0:
+            return Response('Cannot delete this rack as it is not empty.',
+                            status=status.HTTP_400_BAD_REQUEST)
+        super().destroy(self, request, *args, **kwargs)
