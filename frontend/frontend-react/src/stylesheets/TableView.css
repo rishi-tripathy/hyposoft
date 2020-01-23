@@ -16,6 +16,11 @@
   padding: 8px;
 }
 
+#entries td-racks {
+  height: 50%;
+}
+
+
 #entries tr:nth-child(even){background-color: #f2f2f2;}
 
 #entries tr:hover {background-color: #ddd;}
@@ -28,3 +33,7 @@
   color: white;
 }
 
+#rackContainer {
+  width: 30%;
+  height: 25%;
+}

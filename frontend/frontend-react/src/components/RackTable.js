@@ -10,11 +10,14 @@ export class RackTable extends Component {
 
       let instanceArray = new Array(44);
       this.props.rackInstances.map((rackInstance, index) => {
+
          const { id, rackU, height } = rackInstance;
-         instanceArray[rackU] = rackInstance;
+				 instanceArray[rackU] = rackInstance;
+
          for(var i = 1; i < height; i++){
             instanceArray[rackU+i] = rackInstance;
-         }
+				 }
+				 
       });
 
       return instanceArray;
@@ -53,7 +56,7 @@ export class RackTable extends Component {
       let rackNum = "";
       for (var key of Object.keys(this.props.rack)) {
          if (key === 'rack_number') {
-            rackNum = key;
+            rackNum = this.props.rack[key];
             return rackNum;
          }
      }
@@ -72,22 +75,33 @@ export class RackTable extends Component {
 
    renderRows() {
 
-      return this.props.rackInstances.map((row, index) => {
+      let realRows = [];
+      for(var i in this.getRows()){
+         realRows.push(i);
+      }
+      //= Array.from(this.getRows());
+      console.log(realRows);
+      return realRows.map((row, index) => {
          return (
-            <RackRow row={row} />
+            <RackRow row={row}/> //
          ) 
       })
    }
 
    render() {
 
-      //this.getRows = this.getRows.bind(this);
-      let realRows = [];
-      //console.log(this.getRows());
-      realRows = Array.from(this.getRows());
-      return realRows.map((m) => (
-         <RackRow row={m} />
-      ));
+      let rackNumber = this.getRackNum();
+
+      return (
+         <div id="rackContainer">
+         <h1 id="title">{rackNumber}</h1>
+           <table id="entries">
+               <tbody>
+                 {this.renderRows()}
+               </tbody>
+           </table>
+         </div>
+     )
    }
 }
 
