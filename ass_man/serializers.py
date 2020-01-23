@@ -1,12 +1,20 @@
 from ass_man.models import Model, Instance, Rack
 from rest_framework import serializers
+from rest_framework.validators import UniqueTogetherValidator, UniqueValidator
 
 
 class ModelSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Model
         fields = ['id', 'vendor', 'model_number', 'height', 'display_color',
-                  'ethernet_ports','power_ports', 'cpu', 'memory', 'storage', 'comment']
+                  'ethernet_ports', 'power_ports', 'cpu', 'memory', 'storage', 'comment']
+        validators = [
+            UniqueTogetherValidator(
+                queryset=Model.objects.all(),
+                fields=['vendor', 'model_number']
+            )
+        ]
+
 
 class ModelShortSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
@@ -28,6 +36,11 @@ class InstanceShortSerializer(serializers.ModelSerializer):
 
 
 class RackSerializer(serializers.HyperlinkedModelSerializer):
+    rack_number = serializers.CharField(
+        required=True,
+        validators=[UniqueValidator(queryset=Rack.objects.all())]
+    )
+
     class Meta:
         model = Rack
         fields = ['id', 'rack_number', 'u1', 'u2', 'u3', 'u4', 'u5', 'u6', 'u7', 'u8',
@@ -35,3 +48,4 @@ class RackSerializer(serializers.HyperlinkedModelSerializer):
                   'u21', 'u22', 'u23', 'u24', 'u25', 'u26', 'u27', 'u28', 'u29', 'u30',
                   'u31', 'u32', 'u33', 'u34', 'u35', 'u36', 'u37', 'u38', 'u39', 'u40',
                   'u41', 'u42']
+
