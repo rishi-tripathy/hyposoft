@@ -7,7 +7,7 @@ class ModelSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Model
         fields = ['id', 'vendor', 'model_number', 'height', 'display_color',
-                  'ethernet_ports','power_ports', 'cpu', 'memory', 'storage', 'comment']
+                  'ethernet_ports', 'power_ports', 'cpu', 'memory', 'storage', 'comment']
         validators = [
             UniqueTogetherValidator(
                 queryset=Model.objects.all(),
