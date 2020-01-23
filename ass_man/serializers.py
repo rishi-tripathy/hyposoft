@@ -36,6 +36,11 @@ class InstanceShortSerializer(serializers.ModelSerializer):
 
 
 class RackSerializer(serializers.HyperlinkedModelSerializer):
+    rack_number = serializers.CharField(
+        required=True,
+        validators=[UniqueValidator(queryset=Rack.objects.all())]
+    )
+
     class Meta:
         model = Rack
         fields = ['id', 'rack_number', 'u1', 'u2', 'u3', 'u4', 'u5', 'u6', 'u7', 'u8',
@@ -43,3 +48,4 @@ class RackSerializer(serializers.HyperlinkedModelSerializer):
                   'u21', 'u22', 'u23', 'u24', 'u25', 'u26', 'u27', 'u28', 'u29', 'u30',
                   'u31', 'u32', 'u33', 'u34', 'u35', 'u36', 'u37', 'u38', 'u39', 'u40',
                   'u41', 'u42']
+
