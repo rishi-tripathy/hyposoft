@@ -12,7 +12,7 @@ export class Landing extends Component {
         <h1>This is a dummy landing page!</h1>
         <AddUserModal />
         <br></br>
-        <ModelController /> 
+        <ModelController />
         <br></br>
         {/* <TestAPI /> */}
         <InstanceController />

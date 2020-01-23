@@ -56,7 +56,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'whitenoise.runserver_nostatic',  # < As per whitenoise documentation
     'django.contrib.staticfiles',
-    # 'corsheaders',
     'rest_framework',
     'ass_man'
 ]
@@ -64,7 +63,6 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',  # Whitenoise Middleware
-    # 'corsheaders.middleware.CorsMiddleware',    # add this
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -100,7 +98,7 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.SessionAuthentication',
     ),
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'DEFAULT_PAGINATION_CLASS': 'backend.paginators.Unpaginatable',
     'PAGE_SIZE': 1
 }
 # Database
@@ -142,15 +140,6 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
-
-# CORS_ORIGIN_WHITELIST = (
-#     'http://localhost',
-#     'http://localhost:5000'
-#  )
-#
-# CORS_ORIGIN_REGEX_WHITELIST = [
-#     r"^https://\w+\.herokuapp\.com$",
-# ]
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
