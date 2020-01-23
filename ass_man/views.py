@@ -106,9 +106,11 @@ class InstanceViewSet(viewsets.ModelViewSet):
             elif rack_u == 12:
                 rack.u12 = instance
             elif rack_u == 13:
+                rack.u13 = instance
+            elif rack_u == 14:
                 rack.u14 = instance
             elif rack_u == 15:
-                rack.u15 = instan
+                rack.u15 = instance
             elif rack_u == 16:
                 rack.u16 = instance
             elif rack_u == 17:
