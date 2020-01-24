@@ -4,6 +4,15 @@ import '../stylesheets/TableView.css'
 
 export class ModelTable extends Component {
 
+	constructor() {
+		super();
+		this.showCreateForm = this.showCreateForm.bind(this);
+	}
+
+	showCreateForm = () => {
+		this.props.sendShowCreate(true);
+	}
+
   renderTableHeader() {
    //  if (this.props.models[0] == null) return;
     let header = Object.keys(this.props.models[0]);
@@ -29,15 +38,19 @@ export class ModelTable extends Component {
              <td>{memory}</td>
              <td>{storage}</td>
              <td>{comment}</td>
+             <td><button>Edit (doesn't work)</button></td>
+            <td><button>Delete (doesn't work)</button></td>
           </tr>
        )
     })
-   }
+	}
 
+  
   render() {
     return (
       <div>
          <h1 id="title">Models</h1>
+         <button onClick={ this.showCreateForm } >Add</button>
          <table id="entries">
             <tbody>
                <tr>{this.renderTableHeader()}</tr>
