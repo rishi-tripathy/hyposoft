@@ -33,7 +33,7 @@ export class ModelTable extends Component {
        )
     })
    }
- 
+
   render() {
     return (
       <div>

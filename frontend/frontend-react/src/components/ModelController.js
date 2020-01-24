@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import ModelTable from './ModelTable'
 import axios from 'axios'
+axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 export class ModelController extends Component {
   state = {
@@ -25,17 +26,17 @@ export class ModelController extends Component {
     axios.get('/api/models/').then(res => {
       const b = res.data.results;
       this.setState({ models: b });
-      
+
     });
   }
-  
+
   render() {
     if (this.state.models[0] == null) {
       return <p>No models exist</p>
     } else {
       return <ModelTable models={ this.state.models } />
     }
-    
+
   }
 }
 

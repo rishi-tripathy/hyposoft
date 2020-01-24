@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import InstanceTable from './InstanceTable'
 import axios from 'axios'
+axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 export class InstanceController extends Component {
 
@@ -23,7 +24,7 @@ export class InstanceController extends Component {
 
   getInstances() {
     let modelAPIDest, rackAPIDest, ownerAPIDest;
-    
+
     axios.get('/api/instances/').then(res => {
       // list of instances
       const instanceList = res.data.results;
@@ -39,11 +40,12 @@ export class InstanceController extends Component {
       ownerAPIDest = owner;
 
       console.log(instanceList);
-      console.log(modelAPIDest); 
-      console.log(rackAPIDest); 
-      console.log(ownerAPIDest); 
+      console.log(modelAPIDest);
+      console.log(rackAPIDest);
+      console.log(ownerAPIDest);
 
       // this works!!
+      // waiting for miles to update API
       // axios.get(modelAPIDest).then(r => {
       //   console.log(r);
       // })
@@ -51,7 +53,7 @@ export class InstanceController extends Component {
       this.setState({ instances: instanceList });
     })
     //return {m: modelAPIDest, r: rackAPIDest, o: ownerAPIDest};
-    
+
   }
 
   componentDidMount() {
@@ -65,7 +67,7 @@ export class InstanceController extends Component {
     } else {
       return <InstanceTable instances={this.state.instances} />
     }
-    
+
   }
 }
 
