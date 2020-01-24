@@ -76,7 +76,7 @@ export class InstanceController extends Component {
       this.setState({ instances: instanceList });
     })
     //return {m: modelAPIDest, r: rackAPIDest, o: ownerAPIDest};
-    
+
   }
 
   componentDidMount() {
@@ -108,7 +108,7 @@ export class InstanceController extends Component {
         
       )
     }
-    
+
   }
 }
 

@@ -1,8 +1,10 @@
 from django.shortcuts import render
 from django.contrib.auth.models import User
-from rest_framework import status
+from rest_framework import status, request
+from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
+from rest_framework.filters import OrderingFilter
 from .serializers import UserSerializer
 from rest_framework import viewsets
 
@@ -22,7 +24,12 @@ class UserViewSet(viewsets.ModelViewSet):
 
     # permission_classes = [AllowAny]
     queryset = User.objects.all().order_by('-date_joined')
+
     serializer_class = UserSerializer
+
+    filter_backends = [OrderingFilter, ]
+
+    ordering_fields = ['username', 'first_name', 'last_name', 'email']
 
     def create(self, request, *args, **kwargs):
         serializer = UserSerializer(data=request.data)
@@ -33,5 +40,9 @@ class UserViewSet(viewsets.ModelViewSet):
                 return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
+    @action(detail=False, methods=['GET'])
+    def am_i_admin(self, request, *args, **kwargs):
+        return Response({
+            'is_admin': request.user.is_staff
+        })
 # Create your views here.
