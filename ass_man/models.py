@@ -1,15 +1,16 @@
 from django.db import models
 from django.contrib.auth.models import User
-from ass_man.fields import ColorField, Color
+from django.core.validators import MinLengthValidator
+from ass_man.validators import validate_color as ColorValidator
 
 # Create your models here.
 
 
 class Model(models.Model):
     vendor = models.CharField(max_length=50)
-    model_number = models.CharField(max_length=5)
+    model_number = models.CharField(max_length=10)
     height = models.PositiveIntegerField()
-    display_color = ColorField(default=Color(128,128,128))
+    display_color = models.CharField(max_length=6, validators=[ColorValidator, MinLengthValidator(6)], default='777777')
     ethernet_ports = models.PositiveIntegerField(blank=True, null=True)
     power_ports = models.PositiveIntegerField(blank=True, null=True)
     cpu = models.CharField(blank=True, max_length=50)
