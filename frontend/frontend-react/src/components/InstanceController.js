@@ -1,22 +1,49 @@
 import React, { Component } from 'react'
 import InstanceTable from './InstanceTable'
 import axios from 'axios'
+import DetailedInstance from './DetailedInstance';
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 export class InstanceController extends Component {
+
 
   constructor() {
     super();
     this.state = {
       instances: [
-        {
-          id: 99,
-          model: 'default',
-          hostname: 'default',
-        }
+        // {
+        //   id: 99,
+        //   model: 'default',
+        //   hostname: 'default',
+        // }
       ],
-    }
+      showTableView: true,
+      showIndividualInstanceView: false,
+      detailedInstanceID: 0,
+    };
+
+    this.getShowTable = this.getShowTable.bind(this);
+    this.getDetailedInstanceID = this.getDetailedInstanceID.bind(this);
   }
+
+  getShowTable = (show) => {
+    show ? this.setState({
+      showTableView : true,
+      showIndividualInstanceView: false
+    })
+    : this.setState({
+      showTableView : false,
+      showIndividualInstanceView: true
+    }) 
+  }
+
+  getDetailedInstanceID = (id) => {
+    console.log('getting this id' + id)
+    this.setState({ detailedInstanceID: id});
+  }
+
+  
+
 
   getInstances() {
     let modelAPIDest, rackAPIDest, ownerAPIDest;
@@ -35,7 +62,7 @@ export class InstanceController extends Component {
       // rackAPIDest = rack;
       // ownerAPIDest = owner;
 
-      console.log(instanceList);
+      // console.log(instanceList);
       // console.log(modelAPIDest); 
       // console.log(rackAPIDest); 
       // console.log(ownerAPIDest); 
@@ -61,7 +88,25 @@ export class InstanceController extends Component {
     if (this.state.instances[0] == null) {
       return <p>No instances</p>
     } else {
-      return <InstanceTable instances={this.state.instances} />
+      return (
+        <div>
+          { 
+            this.state.showTableView ? 
+            <InstanceTable 
+              instances={ this.state.instances } 
+              sendShowTable={ this.getShowTable } 
+              sendInstanceID={ this.getDetailedInstanceID } /> 
+            : null
+          }
+          { 
+            this.state.showIndividualInstanceView ? 
+            <DetailedInstance instanceID={ this.state.detailedInstanceID } /> 
+            : null
+          }
+        </div>
+        
+        
+      )
     }
     
   }
