@@ -33,7 +33,7 @@ export class InstanceTable extends Component {
               <td>{hostname}</td>
               { console.log('pass id' + id) } 
               <td><DetailedInstanceModal instanceID={id} /></td>
-              <td><button onClick={ () => this.passUp(id) }>click</button></td>
+              <td><button onClick={ () => this.passUp(id) }>More details</button></td>
           </tr>
         )
     })
