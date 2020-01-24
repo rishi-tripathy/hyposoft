@@ -1,15 +1,17 @@
 from django.db import models
 from django.contrib.auth.models import User
-from ass_man.fields import ColorField, Color
+from django.core.validators import MinLengthValidator, MinValueValidator
+from ass_man.validators import (validate_color as ColorValidator,
+                                validate_hostname as HostnameValidator)
 
 # Create your models here.
 
 
 class Model(models.Model):
     vendor = models.CharField(max_length=50)
-    model_number = models.CharField(max_length=5)
+    model_number = models.CharField(max_length=10)
     height = models.PositiveIntegerField()
-    display_color = ColorField(default=Color(128,128,128))
+    display_color = models.CharField(max_length=6, validators=[ColorValidator, MinLengthValidator(6)], default='777777')
     ethernet_ports = models.PositiveIntegerField(blank=True, null=True)
     power_ports = models.PositiveIntegerField(blank=True, null=True)
     cpu = models.CharField(blank=True, max_length=50)
@@ -23,9 +25,9 @@ class Model(models.Model):
 
 class Instance(models.Model):
     model = models.ForeignKey(Model, on_delete=models.PROTECT)
-    hostname = models.CharField(max_length=20)
+    hostname = models.CharField(max_length=20, validators=[HostnameValidator])
     rack = models.ForeignKey('Rack', on_delete=models.PROTECT)
-    rack_u = models.PositiveIntegerField(blank=False)
+    rack_u = models.PositiveIntegerField(blank=False, validators=[MinValueValidator(1)])
     owner = models.ForeignKey(User, blank=True, null=True, on_delete=models.PROTECT)
     comment = models.TextField(blank=True)
 

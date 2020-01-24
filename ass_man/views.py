@@ -102,7 +102,7 @@ class InstanceViewSet(viewsets.ModelViewSet):
         for i in range(model.height):
             rack_u_field = 'u'+str(rack_u)
             setattr(rack, rack_u_field, instance)
-            rack_u+=1
+            rack_u += 1
         rack.save()
         return super().create(request)
 
