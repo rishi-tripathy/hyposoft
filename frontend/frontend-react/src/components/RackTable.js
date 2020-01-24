@@ -1,6 +1,5 @@
 import React, { Component, Fragment } from 'react'
-import '../stylesheets/TableView.css'
-import PropTypes from 'prop-types';
+import '../stylesheets/RackTable.css'
 import RackRow from './RackRow'
 
 export class RackTable extends Component {
@@ -75,15 +74,19 @@ export class RackTable extends Component {
 
    renderRows() {
 
-      let realRows = [];
-      for(var i in this.getRows()){
-         realRows.push(i);
+			let realRows = [];
+			let rackInstances = [];
+      for(var i of Object.keys(this.getRows())){
+				 realRows.push(i);
+				 console.log(i); //rackU
+				 console.log(this.getRows()[i]); //rackInstance
+				 rackInstances.push(this.getRows()[i]); //push rackInstance
       }
       //= Array.from(this.getRows());
-      console.log(realRows);
-      return realRows.map((row, index) => {
+      //console.log(realRows);
+      return realRows.reverse().map((row, index) => {
          return (
-            <RackRow row={row}/> //
+            <RackRow row={row} object ={rackInstances[index]} /> //
          ) 
       })
    }
@@ -93,17 +96,16 @@ export class RackTable extends Component {
       let rackNumber = this.getRackNum();
 
       return (
-         <div id="rackContainer">
-         <h1 id="title">{rackNumber}</h1>
            <table id="entries">
                <tbody>
+								 <th></th>
+								 <th>{rackNumber}</th>
+								 <th></th>
                  {this.renderRows()}
                </tbody>
            </table>
-         </div>
      )
    }
 }
 
 export default RackTable
-    

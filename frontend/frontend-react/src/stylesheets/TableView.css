@@ -16,10 +16,6 @@
   padding: 8px;
 }
 
-#entries td-racks {
-  height: 50%;
-}
-
 
 #entries tr:nth-child(even){background-color: #f2f2f2;}
 
@@ -31,9 +27,4 @@
   text-align: center;
   background-color: #4CAF50;
   color: white;
-}
-
-#rackContainer {
-  width: 30%;
-  height: 25%;
 }

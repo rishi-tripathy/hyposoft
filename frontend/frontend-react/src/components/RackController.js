@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import RackTable from './RackTable';
+import RacksView from './RacksView';
 
 export class RackController extends Component {
 
@@ -12,13 +12,13 @@ export class RackController extends Component {
           "u2": null,
           "u3": null,
           "u4": null,
-          "u5": null,
+          "u5": 1,
           "u6": null,
           "u7": null,
           "u8": null,
           "u9": null,
           "u10": null,
-          "u11": null,
+          "u11": 'im a rack',
           "u12": null,
           "u13": null,
           "u14": null,
@@ -67,9 +67,10 @@ export class RackController extends Component {
 
   render() {
     let numberArray = [];
-     //numberArray = this.initializeNumberArray();
-    //console.log(this.state.results[0]);
-    return <RackTable rack={this.state.results[0]} />
+     
+    //for rendering multiple racks, map the arr and return multiple RackViews 
+
+    return <RacksView rack={this.state.results[0]} />
   }
 }
 

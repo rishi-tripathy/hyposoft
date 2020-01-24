@@ -1,0 +1,51 @@
+#entries td, #entries th {
+    max-height: 3px;
+    /* padding: 2px; */
+    
+  }
+
+  #entries td2 {
+    color: white;
+    background-color: purple;
+  }
+
+  #title {
+    text-align: center;
+    font-family: arial, sans-serif;
+  }
+  
+  #entries {
+    text-align: center;
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    border-collapse: collapse;
+    /* border: 3px solid black; */
+    width: 100%;
+  }
+ 
+#entries td:nth-child(odd){
+  background-color: black;
+  color: white;
+  max-width: 5px;
+  font-size: x-small;
+  max-height: 3px;
+  border: 1px solid black;
+}
+
+#entries tr {
+  max-height: 3px;
+}
+
+#entries tr:hover {background-color: #ddd;}
+
+#entries th {
+  text-align: center;
+  background-color: black;
+  color: white;
+  border: 1px solid black;
+  max-height: 3px;
+}
+
+#rackContainer {
+  width: 30%;
+  max-height: 300px;
+}

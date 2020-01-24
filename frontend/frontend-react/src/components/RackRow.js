@@ -1,17 +1,32 @@
 import React, { Component } from 'react'
-import '../stylesheets/TableView.css'
+import '../stylesheets/RackTable.css'
 
 export class RackRow extends Component {
     render() {
         console.log(this.props.row);
+
+        let objectIsNull = true;
+
+        if(this.props.object != null){
+            objectIsNull = false;
+        }
+
         return (
+          // <tr {objectIsNull ? style={{'background-color': purple}} : style={{'background-color': white}}>
             <tr>
-                <td-racks>
-                    {this.props.row}    
-                </td-racks> 
-                <td> 
-                    rack instance if there is one 
-                </td>  
+                <td>
+                    { this.props.row }    
+                </td> 
+                { objectIsNull &&
+                    <td> 
+                    { this.props.object }
+                    </td> 
+                } 
+                { !objectIsNull &&
+                    <td2> 
+                    { this.props.object }
+                    </td2> 
+                } 
                 <td>
                     {this.props.row}    
                 </td>                

@@ -51,7 +51,6 @@ class SideBar extends React.Component{
         let content;
 
         if (rackState){
-          //  content = <RackView />
             content = <RackController />
         }
         else if (modelState){
