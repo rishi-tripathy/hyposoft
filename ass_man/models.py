@@ -1,7 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.core.validators import MinLengthValidator
-from ass_man.validators import validate_color as ColorValidator
+from django.core.validators import MinLengthValidator, MinValueValidator
+from ass_man.validators import (validate_color as ColorValidator,
+                                validate_hostname as HostnameValidator)
 
 # Create your models here.
 
@@ -24,9 +25,9 @@ class Model(models.Model):
 
 class Instance(models.Model):
     model = models.ForeignKey(Model, on_delete=models.PROTECT)
-    hostname = models.CharField(max_length=20)
+    hostname = models.CharField(max_length=20, validators=[HostnameValidator])
     rack = models.ForeignKey('Rack', on_delete=models.PROTECT)
-    rack_u = models.PositiveIntegerField(blank=False)
+    rack_u = models.PositiveIntegerField(blank=False, validators=[MinValueValidator(1)])
     owner = models.ForeignKey(User, blank=True, null=True, on_delete=models.PROTECT)
     comment = models.TextField(blank=True)
 
