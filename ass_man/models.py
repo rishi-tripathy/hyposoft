@@ -1,32 +1,33 @@
 from django.db import models
 from django.contrib.auth.models import User
+from ass_man.fields import ColorField, Color
 
 # Create your models here.
 
 
 class Model(models.Model):
     vendor = models.CharField(max_length=50)
-    model_number = models.CharField(max_length=5, null=True)
-    height = models.PositiveIntegerField(null=True)
-    display_color = models.CharField(max_length=50, default='yellow')
+    model_number = models.CharField(max_length=5)
+    height = models.PositiveIntegerField()
+    display_color = ColorField(default=Color(128,128,128))
     ethernet_ports = models.PositiveIntegerField(blank=True, null=True)
     power_ports = models.PositiveIntegerField(blank=True, null=True)
     cpu = models.CharField(blank=True, max_length=50)
     memory = models.PositiveIntegerField(blank=True, null=True)
     storage = models.CharField(blank=True, max_length=50)
-    comment = models.TextField(null=True)
+    comment = models.TextField(blank=True)
 
     def __str__(self):
         return self.vendor + ' ' + self.model_number
 
 
 class Instance(models.Model):
-    model = models.ForeignKey(Model, on_delete=models.CASCADE)
+    model = models.ForeignKey(Model, on_delete=models.PROTECT)
     hostname = models.CharField(max_length=20)
-    rack = models.ForeignKey('Rack', on_delete=models.CASCADE)
+    rack = models.ForeignKey('Rack', on_delete=models.PROTECT)
     rack_u = models.PositiveIntegerField(blank=False)
-    owner = models.ForeignKey(User, blank=True, null=True, on_delete=models.CASCADE)
-    comment = models.TextField(null=True)
+    owner = models.ForeignKey(User, blank=True, null=True, on_delete=models.PROTECT)
+    comment = models.TextField(blank=True)
 
     def __str__(self):
         return self.hostname
