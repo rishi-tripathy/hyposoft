@@ -17,7 +17,8 @@ from ass_man.serializers import (InstanceShortSerializer,
                                  ModelShortSerializer,
                                  ModelSerializer,
                                  RackSerializer,
-                                 RackFetchSerializer)
+                                 RackFetchSerializer,
+                                 InstanceOfModelSerializer)
 # Auth
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 # Project
@@ -50,6 +51,12 @@ class ModelViewSet(viewsets.ModelViewSet):
                        'ethernet_ports', 'power_ports', 'cpu', 'memory', 'storage', 'comment']
 
     filterset_class = ModelFilter
+
+    @action(detail=True, methods=['GET'])
+    def instances(self, request, *args, **kwargs):
+        instances = Instance.objects.all().filter(model=self.get_object())
+        serializer = InstanceOfModelSerializer(instances, many=True, context={'request': request})
+        return Response(serializer.data)
 
     @action(detail=True, methods=['GET'])
     def can_delete(self, request, *args, **kwargs):

@@ -88,10 +88,17 @@ class RackSerializer(serializers.HyperlinkedModelSerializer):
                   'u31', 'u32', 'u33', 'u34', 'u35', 'u36', 'u37', 'u38', 'u39', 'u40',
                   'u41', 'u42']
 
-class InstaceOfModelSerializer(serializers.HyperlinkedModelSerializer):
+class RackOfInstanceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Rack
+        fields = ['url', 'rack_number']
+
+        
+class InstanceOfModelSerializer(serializers.HyperlinkedModelSerializer):
+    rack = RackOfInstanceSerializer()
     class Meta:
         model = Instance
-        fields = ['url', 'model', 'hostname', 'rack', 'owner']
+        fields = ['url', 'hostname', 'rack', 'rack_u', 'owner']
 
 class RackInstanceSerializer(serializers.ModelSerializer):
     model = ModelInstanceSerializer()
@@ -103,7 +110,6 @@ class RackFetchSerializer(serializers.HyperlinkedModelSerializer):
     for i in range(1,42):
         s = 'u%d = RackInstanceSerializer()'%(i)
         exec(s)
-    #u1 = RackInstanceSerializer(source='u1')
 
     class Meta:
         model = Rack
