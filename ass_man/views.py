@@ -21,6 +21,7 @@ from ass_man.serializers import (InstanceShortSerializer,
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 # Project
 from ass_man.models import Model, Instance, Rack
+from ass_man.filters import ModelFilter
 
 ADMIN_ACTIONS = {'create', 'update', 'partial_update', 'destroy'}
 
@@ -47,8 +48,7 @@ class ModelViewSet(viewsets.ModelViewSet):
     ordering_fields = ['vendor', 'model_number', 'height', 'display_color',
                        'ethernet_ports', 'power_ports', 'cpu', 'memory', 'storage', 'comment']
 
-    filterset_fields = ['vendor', 'model_number', 'height', 'display_color',
-                        'ethernet_ports', 'power_ports', 'cpu', 'memory', 'storage', 'comment']
+    filterset_class = ModelFilter
 
     @action(detail=True, methods=['GET'])
     def can_delete(self, request, *args, **kwargs):
@@ -61,10 +61,20 @@ class ModelViewSet(viewsets.ModelViewSet):
             'can_delete': 'true'
         })
 
+    # @action(detail=True, methods=['GET'])
+    # def instances(self, request, *args, **kwargs):
+    #     matches = Instance.objects.all().filter(model=self.get_object())
+    #     return matches
+
+
     def destroy(self, request, *args, **kwargs):
         matches = Instance.objects.filter(model=self.get_object())
         if matches.count() > 0:
-            return Response('Cannot delete this model as there exists an associated instance',
+            offending_instances = []
+            for match in matches:
+                offending_instances.append(match.rack.rack_number.__str__() + match.rack_u.__str__())
+            return Response('Cannot delete this model as there are associated instances at the following locations: ' +
+                            ', '.join(offending_instances),
                             status=status.HTTP_400_BAD_REQUEST)
         super().destroy(self, request, *args, **kwargs)
 
