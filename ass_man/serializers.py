@@ -2,16 +2,22 @@ from ass_man.models import Model, Instance, Rack
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator, UniqueValidator
 from django.core.validators import MinLengthValidator, MinValueValidator
-from ass_man.validators import (validate_color as ColorValidator,
-                                validate_hostname as HostnameValidator,
-                                validate_rack_number as RackNumberValidator)
+
+
+import re
+from django.core.exceptions import ValidationError
 
 
 class ModelSerializer(serializers.HyperlinkedModelSerializer):
-    display_color = serializers.CharField(validators=
-                                          [ColorValidator,
-                                           MinLengthValidator(6)]
-                                          )
+    display_color = serializers.CharField(validators=[MinLengthValidator(6)])
+
+
+    def validate_display_color(self, value):
+        if not re.match('^[A-Fa-f0-9]*$', value):
+            raise ValidationError(
+                '%(value)s is not an valid color. Please ensure this value is a RGB specifier between 000000-FFFFFF',
+                params={'value': value},
+            )
 
     class Meta:
         model = Model
@@ -32,8 +38,15 @@ class ModelShortSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class InstanceSerializer(serializers.HyperlinkedModelSerializer):
-    hostname = serializers.CharField(validators=[HostnameValidator])
     rack_u = serializers.IntegerField(validators=[MinValueValidator(1)])
+
+    # adapted from https://stackoverflow.com/questions/2063213/regular-expression-for-validating-dns-label-host-name
+    def validate_hostname(self, value):
+        if not re.match('^(?![0-9]+$)(?!-)[a-zA-Z0-9-]{,63}(?<!-)$', value):
+            raise ValidationError(
+                '%(value)s is not an valid hostname. Please ensure this value is a valid hostname as per RFC 1034.',
+                params={'value': value},
+            )
 
     class Meta:
         model = Instance
@@ -51,8 +64,16 @@ class InstanceShortSerializer(serializers.ModelSerializer):
 class RackSerializer(serializers.HyperlinkedModelSerializer):
     rack_number = serializers.CharField(
         required=True,
-        validators=[UniqueValidator(queryset=Rack.objects.all()), RackNumberValidator]
+        validators=[UniqueValidator(queryset=Rack.objects.all())]
     )
+
+    def validate_rack_number(self, value):
+        if not re.match('^[A-Z][0-9]+$', value):
+            raise ValidationError(
+                '%(value)s is not a valid rack number. Please ensure this value is a '
+                'capital letter followed by a positive number, e.g. "B12"',
+                params={'value': value},
+            )
 
     class Meta:
         model = Rack
