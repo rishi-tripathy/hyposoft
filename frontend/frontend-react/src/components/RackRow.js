@@ -3,7 +3,7 @@ import '../stylesheets/RackTable.css'
 
 export class RackRow extends Component {
     render() {
-        console.log(this.props.row);
+        //console.log(this.props.row);
 
         let objectIsNull = true;
 

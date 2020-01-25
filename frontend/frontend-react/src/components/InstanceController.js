@@ -24,7 +24,7 @@ export class InstanceController extends Component {
 
   getInstances() {
     let modelAPIDest, rackAPIDest, ownerAPIDest;
-    
+
     axios.get('/api/instances/').then(res => {
       // list of instances
       const instanceList = res.data.results;
@@ -40,9 +40,9 @@ export class InstanceController extends Component {
       ownerAPIDest = owner;
 
       console.log(instanceList);
-      console.log(modelAPIDest); 
-      console.log(rackAPIDest); 
-      console.log(ownerAPIDest); 
+      console.log(modelAPIDest);
+      console.log(rackAPIDest);
+      console.log(ownerAPIDest);
 
       // this works!!
       // waiting for miles to update API
@@ -53,7 +53,7 @@ export class InstanceController extends Component {
       this.setState({ instances: instanceList });
     })
     //return {m: modelAPIDest, r: rackAPIDest, o: ownerAPIDest};
-    
+
   }
 
   componentDidMount() {
@@ -67,7 +67,7 @@ export class InstanceController extends Component {
     } else {
       return <InstanceTable instances={this.state.instances} />
     }
-    
+
   }
 }
 

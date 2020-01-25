@@ -1,10 +1,12 @@
 import React, { Component } from 'react'
 import RacksView from './RacksView';
+import axios from 'axios'
+axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 export class RackController extends Component {
 
   state = {
-    results: [
+    racks: [
       {
           "id": 1,
           "rack_number": "B12",
@@ -55,22 +57,24 @@ export class RackController extends Component {
     
   }
     
-    // initializeNumberArray(){
-    //   var array = [];
+  componentDidMount() {
+    axios.get('/api/racks/').then(res => {
+      const r = res.data.results;
+      this.setState({ racks: r });
+      console.log("in axios")
+    });
+  }
 
-    //   for (var i = 43; i > 0; i--) {
-    //     array.push(i);
-    //   }
-
-    //   return array;
-    // }
-
-  render() {
-    let numberArray = [];
-     
+  render() { 
     //for rendering multiple racks, map the arr and return multiple RackViews 
+    console.log(this.state.racks);
+    if (this.state.racks[0] == null) {
+      return <p> No Racks Exist </p>
 
-    return <RacksView rack={this.state.results[0]} />
+    } else {
+     // console.log(this.state.racks);
+      return <p>hey</p>//<RacksView rack={this.state.racks} />
+    }
   }
 }
 

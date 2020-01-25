@@ -14,7 +14,7 @@ export class InstanceTable extends Component {
   renderTableData() {
     return this.props.instances.map((instance, index) => {
         const { id, model, hostname, rack, rack_u, owner, comment } = instance //destructuring
-        
+
         return (
           <tr key={id}>
               <td>{id}</td>
