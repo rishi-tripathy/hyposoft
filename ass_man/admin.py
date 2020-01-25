@@ -5,7 +5,7 @@ from .models import Model, Instance, Rack  # add this
 
 
 class AssAdmin(admin.ModelAdmin):  # add this
-     list_display = ['id']  # add this
+    list_display = ['id']  # add this
 
 
 # Register your models here.
