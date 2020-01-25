@@ -1,10 +1,18 @@
 from ass_man.models import Model, Instance, Rack
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator, UniqueValidator
-from ass_man.validators import validate_rack_number as RackNumberValidator
+from django.core.validators import MinLengthValidator, MinValueValidator
+from ass_man.validators import (validate_color as ColorValidator,
+                                validate_hostname as HostnameValidator,
+                                validate_rack_number as RackNumberValidator)
 
 
 class ModelSerializer(serializers.HyperlinkedModelSerializer):
+    display_color = serializers.CharField(validators=
+                                          [ColorValidator,
+                                           MinLengthValidator(6)]
+                                          )
+
     class Meta:
         model = Model
         fields = ['id', 'vendor', 'model_number', 'height', 'display_color',
@@ -24,6 +32,9 @@ class ModelShortSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class InstanceSerializer(serializers.HyperlinkedModelSerializer):
+    hostname = serializers.CharField(validators=[HostnameValidator])
+    rack_u = serializers.IntegerField(validators=[MinValueValidator(1)])
+
     class Meta:
         model = Instance
         fields = ['id', 'model', 'hostname', 'rack', 'rack_u', 'owner', 'comment']
