@@ -1,6 +1,7 @@
 from ass_man.models import Model, Instance, Rack
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator, UniqueValidator
+from ass_man.validators import validate_rack_number as RackNumberValidator
 
 
 class ModelSerializer(serializers.HyperlinkedModelSerializer):
@@ -39,7 +40,7 @@ class InstanceShortSerializer(serializers.ModelSerializer):
 class RackSerializer(serializers.HyperlinkedModelSerializer):
     rack_number = serializers.CharField(
         required=True,
-        validators=[UniqueValidator(queryset=Rack.objects.all())]
+        validators=[UniqueValidator(queryset=Rack.objects.all()), RackNumberValidator]
     )
 
     class Meta:

@@ -2,7 +2,8 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import MinLengthValidator, MinValueValidator
 from ass_man.validators import (validate_color as ColorValidator,
-                                validate_hostname as HostnameValidator)
+                                validate_hostname as HostnameValidator,
+                                validate_rack_number as RackNameValidator)
 
 # Create your models here.
 
@@ -25,7 +26,7 @@ class Model(models.Model):
 
 class Instance(models.Model):
     model = models.ForeignKey(Model, on_delete=models.PROTECT)
-    hostname = models.CharField(max_length=20, validators=[HostnameValidator])
+    hostname = models.CharField(max_length=64, validators=[HostnameValidator])
     rack = models.ForeignKey('Rack', on_delete=models.PROTECT)
     rack_u = models.PositiveIntegerField(blank=False, validators=[MinValueValidator(1)])
     owner = models.ForeignKey(User, blank=True, null=True, on_delete=models.PROTECT)
@@ -36,7 +37,7 @@ class Instance(models.Model):
 
 
 class Rack(models.Model):
-    rack_number = models.CharField(max_length=4)
+    rack_number = models.CharField(max_length=5, validators=[RackNameValidator])
     u1 = models.ForeignKey(Instance, on_delete=models.CASCADE, blank=True, null=True, related_name='instance1')
     u2 = models.ForeignKey(Instance, on_delete=models.CASCADE, blank=True, null=True, related_name='instance2')
     u3 = models.ForeignKey(Instance, on_delete=models.CASCADE, blank=True, null=True, related_name='instance3')

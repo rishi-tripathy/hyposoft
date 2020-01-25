@@ -4,9 +4,9 @@ from rest_framework import status, request
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
-from rest_framework.filters import OrderingFilter
 from .serializers import UserSerializer
 from rest_framework import viewsets
+from usr_man.filters import UserFilter
 
 ADMIN_ACTIONS = {'create', 'update', 'partial_update', 'destroy'}
 
@@ -27,9 +27,10 @@ class UserViewSet(viewsets.ModelViewSet):
 
     serializer_class = UserSerializer
 
+    filterset_class = UserFilter
     ordering_fields = ['username', 'first_name', 'last_name', 'email']
 
-    filterset_fields = ['username', 'first_name', 'last_name', 'email']
+
 
     def create(self, request, *args, **kwargs):
         serializer = UserSerializer(data=request.data)
