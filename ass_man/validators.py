@@ -10,8 +10,9 @@ def validate_color(value):
         )
 
 
+# adapted from https://stackoverflow.com/questions/2063213/regular-expression-for-validating-dns-label-host-name
 def validate_hostname(value):
-    if not re.match('^(?![0-9]+$)(?!-)[a-zA-Z0-9-]{,63}(?<!-)$', value):  # adapted from
+    if not re.match('^(?![0-9]+$)(?!-)[a-zA-Z0-9-]{,63}(?<!-)$', value):
         raise ValidationError(
             '%(value)s is not an valid hostname. Please ensure this value is a valid hostname as per RFC 1034.',
             params={'value': value},

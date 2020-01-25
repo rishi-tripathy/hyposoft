@@ -27,9 +27,9 @@ class UserViewSet(viewsets.ModelViewSet):
 
     serializer_class = UserSerializer
 
-    filter_backends = [OrderingFilter, ]
-
     ordering_fields = ['username', 'first_name', 'last_name', 'email']
+
+    filterset_fields = ['username', 'first_name', 'last_name', 'email']
 
     def create(self, request, *args, **kwargs):
         serializer = UserSerializer(data=request.data)

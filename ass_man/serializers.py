@@ -30,6 +30,7 @@ class InstanceSerializer(serializers.HyperlinkedModelSerializer):
 
 class InstanceShortSerializer(serializers.ModelSerializer):
     model = serializers.StringRelatedField()
+
     class Meta:
         model = Instance
         fields = ['id', 'model', 'hostname']
@@ -43,8 +44,8 @@ class RackSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Rack
-        fields = ['id', 'rack_number', 'u1', 'u2', 'u3', 'u4', 'u5', 'u6', 'u7', 'u8',
-                  'u9', 'u10', 'u11', 'u12', 'u13', 'u14', 'u15', 'u16', 'u17', 'u18', 'u19', 'u20',
+        fields = ['id', 'rack_number', 'u1', 'u2', 'u3', 'u4', 'u5', 'u6', 'u7', 'u8', 'u9', 'u10',
+                  'u11', 'u12', 'u13', 'u14', 'u15', 'u16', 'u17', 'u18', 'u19', 'u20',
                   'u21', 'u22', 'u23', 'u24', 'u25', 'u26', 'u27', 'u28', 'u29', 'u30',
                   'u31', 'u32', 'u33', 'u34', 'u35', 'u36', 'u37', 'u38', 'u39', 'u40',
                   'u41', 'u42']
