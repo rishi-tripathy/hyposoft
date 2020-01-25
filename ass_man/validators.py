@@ -18,3 +18,12 @@ def validate_hostname(value):
             params={'value': value},
         )
 
+
+def validate_rack_number(value):
+    if not re.match('^[A-Z][0-9]*', value):
+        raise ValidationError(
+            '%(value)s is not a valid rack number. Please ensure this value is a '
+            'capital letter followed by a positive number, e.g. "B12"',
+            params={'value': value},
+        )
+
