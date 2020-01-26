@@ -9,7 +9,7 @@ from django.core.exceptions import ValidationError
 
 
 class ModelSerializer(serializers.HyperlinkedModelSerializer):
-    display_color = serializers.CharField(validators=[MinLengthValidator(6)])
+    display_color = serializers.CharField(validators=[MinLengthValidator(6)], default='777777')
 
 
     def validate_display_color(self, value):
@@ -88,12 +88,17 @@ class RackSerializer(serializers.HyperlinkedModelSerializer):
                   'u31', 'u32', 'u33', 'u34', 'u35', 'u36', 'u37', 'u38', 'u39', 'u40',
                   'u41', 'u42']
 
+class VendorsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Model
+        fields = ['vendor']
+
 class RackOfInstanceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Rack
         fields = ['url', 'rack_number']
 
-        
+
 class InstanceOfModelSerializer(serializers.HyperlinkedModelSerializer):
     rack = RackOfInstanceSerializer()
     class Meta:

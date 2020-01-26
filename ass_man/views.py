@@ -18,7 +18,8 @@ from ass_man.serializers import (InstanceShortSerializer,
                                  ModelSerializer,
                                  RackSerializer,
                                  RackFetchSerializer,
-                                 InstanceOfModelSerializer)
+                                 InstanceOfModelSerializer,
+                                 VendorsSerializer)
 # Auth
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 # Project
@@ -51,6 +52,13 @@ class ModelViewSet(viewsets.ModelViewSet):
                        'ethernet_ports', 'power_ports', 'cpu', 'memory', 'storage', 'comment']
 
     filterset_class = ModelFilter
+
+    @action(detail=False, methods=['GET'])
+    def vendors(self, request, *args, **kwargs):
+        vendor_typed = self.request.query_params.get('vendor')
+        vendors = Model.objects.all().filter(vendor__istartswith=vendor_typed).distinct()
+        serializer = VendorsSerializer(vendors, many=True)
+        return Response(serializer.data)
 
     @action(detail=True, methods=['GET'])
     def instances(self, request, *args, **kwargs):
