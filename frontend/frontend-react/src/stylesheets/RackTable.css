@@ -1,12 +1,14 @@
-#entries td, #entries th {
+#entries1 td, #entries1 th {
     max-height: 3px;
-    /* padding: 2px; */
+    width:auto;
+    padding: 2px; 
     
   }
 
-  #entries td2 {
+  #entries1 td2 {
     color: white;
     background-color: purple;
+    max-height: min-content;
   }
 
   #title {
@@ -14,38 +16,35 @@
     font-family: arial, sans-serif;
   }
   
-  #entries {
+  #entries1 {
     text-align: center;
     font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
     border-collapse: collapse;
     /* border: 3px solid black; */
-    width: 100%;
+    /* width: 100%; */
   }
  
-#entries td:nth-child(odd){
+#entries1 td:nth-child(odd){
   background-color: black;
   color: white;
-  max-width: 5px;
-  font-size: x-small;
+  width: 10px;
+  font-size: 8px;
   max-height: 3px;
   border: 1px solid black;
+  max-height: min-content;
 }
 
-#entries tr {
-  max-height: 3px;
+#entries1 td { 
+  background: whitesmoke;
+  max-height: min-content;
 }
 
-#entries tr:hover {background-color: #ddd;}
+#entries1 tr:hover {background-color: #ddd;}
 
-#entries th {
+#entries1 th {
   text-align: center;
   background-color: black;
   color: white;
+  font-size: small;
   border: 1px solid black;
-  max-height: 3px;
-}
-
-#rackContainer {
-  width: 30%;
-  max-height: 300px;
 }

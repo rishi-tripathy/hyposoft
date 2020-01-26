@@ -1,72 +1,32 @@
 import React, { Component, Fragment } from 'react'
 import '../stylesheets/RackTable.css'
+import '../stylesheets/RacksView.css'
 import RackRow from './RackRow'
 
 export class RackTable extends Component {
 
-   // gets instance array
-   createInstanceArray = () => {
-
-      let instanceArray = new Array(44);
-      this.props.rackInstances.map((rackInstance, index) => {
-
-         const { id, rackU, height } = rackInstance;
-				 instanceArray[rackU] = rackInstance;
-
-         for(var i = 1; i < height; i++){
-            instanceArray[rackU+i] = rackInstance;
-				 }
-				 
-      });
-
-      return instanceArray;
-   }
-
-
-   renderTableNumbers() {
-      
-      let list = [];
-      list = this.renderTableData();
-      //console.log(list);
-      let renderList = [];
-
-      return this.props.numbers.map((number, index) => (
-         <tr key = {index}>
-            <td> { number } </td>
-            <td> { list } </td>
-            <td> { number } </td>
-            </tr>
-      ))
-    }
-    
-   renderTableData() {
-      return this.props.rackInstances.map((rackInstance, index) => {
-         const { hostName, rack, id, vendor, modelNumber } = rackInstance
-         return (
-            <div key={id}>
-               {hostName}{modelNumber}{rack}{vendor}
-            </div>
-         )
-      })
-   }
-
    getRackNum() {
-
+      console.log("rack object");
+      console.log(this.props.rack);
+      console.log("item");
+      console.log(this.props.rack[0]); //correctly gets data
+      //need to get data.results 
       let rackNum = "";
-      for (var key of Object.keys(this.props.rack)) {
+
+      for (var key of Object.keys(this.props.rack[0])) {
+         console.log(this.props.rack[0][key]);
          if (key === 'rack_number') {
-            rackNum = this.props.rack[key];
+            rackNum = this.props.rack[0][key];
+            console.log(rackNum);
             return rackNum;
          }
      }
    }
 
-  
-
    getRows() {
 
       let rows = [];
-      rows = this.props.rack;
+      rows = this.props.rack[0];
       delete rows["id"];
       delete rows["rack_number"];
       return rows;
@@ -74,19 +34,20 @@ export class RackTable extends Component {
 
    renderRows() {
 
-			let realRows = [];
-			let rackInstances = [];
+      let realRows = [];
+      let rackInstances = [];
       for(var i of Object.keys(this.getRows())){
-				 realRows.push(i);
-				 console.log(i); //rackU
-				 console.log(this.getRows()[i]); //rackInstance
-				 rackInstances.push(this.getRows()[i]); //push rackInstance
+         realRows.push(i.substring(1,3));
+         // console.log("curr rackU "+i); //rackU
+         // console.log("curr rack instance "+this.getRows()[i]); //rackInstance
+         rackInstances.push(this.getRows()[i]); //push rackInstance
       }
-      //= Array.from(this.getRows());
-      //console.log(realRows);
+
+      console.log(this.getRackNum());
+
       return realRows.reverse().map((row, index) => {
          return (
-            <RackRow row={row} object ={rackInstances[index]} /> //
+           <RackRow row={row} object ={rackInstances[index]} /> //
          ) 
       })
    }
@@ -96,7 +57,7 @@ export class RackTable extends Component {
       let rackNumber = this.getRackNum();
 
       return (
-           <table id="entries">
+           <table id="entries1">
                <tbody>
 								 <th></th>
 								 <th>{rackNumber}</th>
