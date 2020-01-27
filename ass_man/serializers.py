@@ -1,9 +1,7 @@
 from ass_man.models import Model, Instance, Rack
 from rest_framework import serializers, status
-from rest_framework.response import Response
 from rest_framework.validators import UniqueTogetherValidator, UniqueValidator
 from django.core.validators import MinLengthValidator, MinValueValidator
-import traceback
 import re
 
 
@@ -36,8 +34,15 @@ class ModelShortSerializer(serializers.HyperlinkedModelSerializer):
         fields = ['id', 'vendor', 'model_number', 'cpu', 'storage']
 
 
+class ModelInstanceSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Model
+        fields = ['url', 'vendor', 'model_number', 'display_color']
+
+
 class InstanceSerializer(serializers.HyperlinkedModelSerializer):
     rack_u = serializers.IntegerField(validators=[MinValueValidator(1)])
+    model = ModelInstanceSerializer()
 
     def check_rack_u_validity(self, validated_data):
         rack = validated_data['rack']
@@ -73,7 +78,7 @@ class InstanceSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class InstanceShortSerializer(serializers.ModelSerializer):
-    model = serializers.StringRelatedField()
+    model = ModelInstanceSerializer()
 
     class Meta:
         model = Instance
@@ -100,3 +105,36 @@ class RackSerializer(serializers.HyperlinkedModelSerializer):
                   'u31', 'u32', 'u33', 'u34', 'u35', 'u36', 'u37', 'u38', 'u39', 'u40',
                   'u41', 'u42']
 
+
+class VendorsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Model
+        fields = ['vendor']
+
+
+class RackOfInstanceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Rack
+        fields = ['url', 'rack_number']
+
+
+class InstanceOfModelSerializer(serializers.HyperlinkedModelSerializer):
+    rack = RackOfInstanceSerializer()
+
+    class Meta:
+        model = Instance
+        fields = ['url', 'hostname', 'rack', 'rack_u', 'owner']
+
+
+class RackInstanceSerializer(serializers.ModelSerializer):
+    model = ModelInstanceSerializer()
+
+    class Meta:
+        model = Instance
+        fields = ['url', 'model', 'hostname']
+
+
+class RackFetchSerializer(serializers.HyperlinkedModelSerializer):
+    for i in range(1, 42):
+        s = 'u{} = RackInstanceSerializer()'.format(i)
+        exec(s)
