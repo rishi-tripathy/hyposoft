@@ -16,7 +16,10 @@ from ass_man.serializers import (InstanceShortSerializer,
                                  InstanceSerializer,
                                  ModelShortSerializer,
                                  ModelSerializer,
-                                 RackSerializer)
+                                 RackSerializer,
+                                 RackFetchSerializer,
+                                 InstanceOfModelSerializer,
+                                 VendorsSerializer)
 # Auth
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 # Project
@@ -49,6 +52,19 @@ class ModelViewSet(viewsets.ModelViewSet):
                        'ethernet_ports', 'power_ports', 'cpu', 'memory', 'storage', 'comment']
 
     filterset_class = ModelFilter
+
+    @action(detail=False, methods=['GET'])
+    def vendors(self, request, *args, **kwargs):
+        vendor_typed = self.request.query_params.get('vendor')
+        vendors = Model.objects.all().filter(vendor__istartswith=vendor_typed).distinct()
+        serializer = VendorsSerializer(vendors, many=True)
+        return Response(serializer.data)
+
+    @action(detail=True, methods=['GET'])
+    def instances(self, request, *args, **kwargs):
+        instances = Instance.objects.all().filter(model=self.get_object())
+        serializer = InstanceOfModelSerializer(instances, many=True, context={'request': request})
+        return Response(serializer.data)
 
     @action(detail=True, methods=['GET'])
     def can_delete(self, request, *args, **kwargs):
@@ -140,8 +156,6 @@ class RackViewSet(viewsets.ModelViewSet):
 
     queryset = Rack.objects.all()
 
-    serializer_class = RackSerializer
-
     ordering_fields = ['rack_number', 'u1', 'u2', 'u3', 'u4', 'u5', 'u6', 'u7', 'u8',
                        'u9', 'u10', 'u11', 'u12', 'u13', 'u14', 'u15', 'u16', 'u17', 'u18', 'u19', 'u20',
                        'u21', 'u22', 'u23', 'u24', 'u25', 'u26', 'u27', 'u28', 'u29', 'u30',
@@ -179,3 +193,7 @@ class RackViewSet(viewsets.ModelViewSet):
             return Response('Cannot delete this rack as it is not empty.',
                             status=status.HTTP_400_BAD_REQUEST)
         super().destroy(self, request, *args, **kwargs)
+
+    def get_serializer_class(self):
+        serializer_class = RackFetchSerializer if self.request.method == 'GET' else RackSerializer
+        return serializer_class

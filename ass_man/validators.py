@@ -1,3 +1,5 @@
+# DEPRECATED: This file no longer in use- only used by database migrations
+
 from django.core.exceptions import ValidationError
 import re
 

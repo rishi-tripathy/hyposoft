@@ -8,7 +8,7 @@ class Model(models.Model):
     vendor = models.CharField(max_length=50)
     model_number = models.CharField(max_length=10)
     height = models.PositiveIntegerField()
-    display_color = models.CharField(max_length=6, default='777777')
+    display_color = models.CharField(max_length=6, blank=True, null=True, default='777777')
     ethernet_ports = models.PositiveIntegerField(blank=True, null=True)
     power_ports = models.PositiveIntegerField(blank=True, null=True)
     cpu = models.CharField(blank=True, max_length=50)
