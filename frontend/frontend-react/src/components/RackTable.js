@@ -6,25 +6,18 @@ import RackRow from './RackRow'
 export class RackTable extends Component {
 
    getRackNum() {
-      console.log("rack object");
-      console.log(this.props.rack);
-      console.log("item");
-      console.log(this.props.rack[0]); //correctly gets data
       //need to get data.results 
       let rackNum = "";
 
       for (var key of Object.keys(this.props.rack[0])) {
-         console.log(this.props.rack[0][key]);
          if (key === 'rack_number') {
             rackNum = this.props.rack[0][key];
-            console.log(rackNum);
             return rackNum;
          }
      }
    }
 
    getRows() {
-
       let rows = [];
       rows = this.props.rack[0];
       delete rows["id"];
@@ -33,24 +26,19 @@ export class RackTable extends Component {
    }
 
    renderRows() {
-
       let realRows = [];
       let rackInstances = [];
+
       for(var i of Object.keys(this.getRows())){
-         realRows.push(i.substring(1,3));
-         // console.log("curr rackU "+i); //rackU
-         // console.log("curr rack instance "+this.getRows()[i]); //rackInstance
+         realRows.push(i.substring(1,3)); //push U number
          rackInstances.push(this.getRows()[i]); //push rackInstance
       }
-
-      console.log(this.getRackNum());
-
       return realRows.reverse().map((row, index) => {
          return (
-           <RackRow row={row} object ={rackInstances[index]} /> //
+           <RackRow row={row} object ={rackInstances[realRows.length-index-1]} /> //
          ) 
       })
-   }
+   } 
 
    render() {
 

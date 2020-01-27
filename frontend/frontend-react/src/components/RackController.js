@@ -15,7 +15,7 @@ export class RackController extends Component {
   }
     
   getRacks() {
-    axios.get('/api/racks/?page=2').then(res => {
+    axios.get('/api/racks/').then(res => {
       // /api/racks/ does not get all in pagination -- ask them 
 
       const rackList = res.data.results;

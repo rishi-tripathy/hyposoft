@@ -11,12 +11,14 @@ export class RackRow extends Component {
             objectIsNull = false;
         }
 
+        //only return somethin
+
         return (
-          // <tr {objectIsNull ? style={{'background-color': purple}} : style={{'background-color': white}}>
             <tr>
                 <td>
-                    { this.props.row }    
+                    { this.props.row }   
                 </td> 
+
                 { objectIsNull &&
                     <td> 
                     { this.props.object }
@@ -26,7 +28,8 @@ export class RackRow extends Component {
                     <td2> 
                     { this.props.object }
                     </td2> 
-                } 
+                }   
+
                 <td>
                     {this.props.row}    
                 </td>                
