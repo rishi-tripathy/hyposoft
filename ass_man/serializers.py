@@ -40,14 +40,20 @@ class ModelInstanceSerializer(serializers.HyperlinkedModelSerializer):
         fields = ['url', 'vendor', 'model_number', 'display_color']
 
 
+class VendorsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Model
+        fields = ['vendor']
+
+
 class InstanceSerializer(serializers.HyperlinkedModelSerializer):
     rack_u = serializers.IntegerField(validators=[MinValueValidator(1)])
-    model = ModelInstanceSerializer()
+    # model = ModelInstanceSerializer()
 
     def check_rack_u_validity(self, validated_data):
         rack = validated_data['rack']
         rack_u = validated_data['rack_u']
-        height = validated_data['model'].height
+        height = validated_data['model__height']
         invalid_list = []
         if rack_u+height > 42:
             raise serializers.ValidationError("Height conflict: this instance does not fit in the rack.")
@@ -77,12 +83,23 @@ class InstanceSerializer(serializers.HyperlinkedModelSerializer):
         fields = ['id', 'model', 'hostname', 'rack', 'rack_u', 'owner', 'comment']
 
 
-class InstanceShortSerializer(serializers.ModelSerializer):
+class InstanceFetchSerializer(InstanceSerializer):
+    model = ModelInstanceSerializer()
+
+
+class InstanceShortSerializer(InstanceSerializer):
     model = ModelInstanceSerializer()
 
     class Meta:
         model = Instance
         fields = ['id', 'model', 'hostname']
+
+
+# Used to fetch the Rack associated with an Instance
+class RackOfInstanceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Rack
+        fields = ['url', 'rack_number']
 
 
 class RackSerializer(serializers.HyperlinkedModelSerializer):
@@ -106,18 +123,6 @@ class RackSerializer(serializers.HyperlinkedModelSerializer):
                   'u41', 'u42']
 
 
-class VendorsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Model
-        fields = ['vendor']
-
-
-class RackOfInstanceSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Rack
-        fields = ['url', 'rack_number']
-
-
 class InstanceOfModelSerializer(serializers.HyperlinkedModelSerializer):
     rack = RackOfInstanceSerializer()
 
@@ -138,3 +143,11 @@ class RackFetchSerializer(serializers.HyperlinkedModelSerializer):
     for i in range(1, 42):
         s = 'u{} = RackInstanceSerializer()'.format(i)
         exec(s)
+
+    class Meta:
+        model = Rack
+        fields = ['id', 'rack_number', 'u1', 'u2', 'u3', 'u4', 'u5', 'u6', 'u7', 'u8', 'u9', 'u10',
+                  'u11', 'u12', 'u13', 'u14', 'u15', 'u16', 'u17', 'u18', 'u19', 'u20',
+                  'u21', 'u22', 'u23', 'u24', 'u25', 'u26', 'u27', 'u28', 'u29', 'u30',
+                  'u31', 'u32', 'u33', 'u34', 'u35', 'u36', 'u37', 'u38', 'u39', 'u40',
+                  'u41', 'u42']
