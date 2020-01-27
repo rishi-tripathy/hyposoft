@@ -53,10 +53,11 @@ class InstanceSerializer(serializers.HyperlinkedModelSerializer):
     def check_rack_u_validity(self, validated_data):
         rack = validated_data['rack']
         rack_u = validated_data['rack_u']
-        height = validated_data['model__height']
+        model = validated_data['model']
+        height = model.height
         invalid_list = []
         if rack_u+height > 42:
-            raise serializers.ValidationError("Height conflict: this instance does not fit in the rack.")
+            raise serializers.ValidationError("Height conflict: this instance does not fit in the rack at this location.")
         for i in range(rack_u, rack_u+height):
             if eval('rack.u{}'.format(i)):
                 invalid_list.append('Conflict: host ' +
@@ -64,10 +65,15 @@ class InstanceSerializer(serializers.HyperlinkedModelSerializer):
                                     ' conflicts at U{}'.format(i))
         if len(invalid_list) > 0:
             raise serializers.ValidationError(invalid_list)
+        return
 
     def create(self, validated_data):
         self.check_rack_u_validity(validated_data)
         return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        self.check_rack_u_validity(validated_data)
+        return super().update(instance, validated_data)
 
     # adapted from https://stackoverflow.com/questions/2063213/regular-expression-for-validating-dns-label-host-name
 
@@ -92,7 +98,7 @@ class InstanceShortSerializer(InstanceSerializer):
 
     class Meta:
         model = Instance
-        fields = ['id', 'model', 'hostname']
+        fields = ['id', 'model', 'hostname', 'rack', 'rack_u', 'owner']
 
 
 # Used to fetch the Rack associated with an Instance

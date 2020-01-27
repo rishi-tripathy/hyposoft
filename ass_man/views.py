@@ -5,6 +5,7 @@ from rest_framework import status
 from rest_framework import viewsets
 from ass_man.serializers import (InstanceShortSerializer,
                                  InstanceSerializer,
+                                 InstanceFetchSerializer,
                                  ModelShortSerializer,
                                  ModelSerializer,
                                  RackSerializer,
@@ -113,14 +114,36 @@ class InstanceViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        inst = serializer.save()
-        rack = inst.rack
-        for i in range(inst.rack_u, inst.rack_u+inst.model.height):
-            exec('rack.u{} = inst'.format(i))
+        instance = serializer.save()
+        rack = instance.rack
+        for i in range(instance.rack_u, instance.rack_u+instance.model.height):
+            exec('rack.u{} = instance'.format(i))
         rack.save()
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        prev_rack = instance.rack
+        prev_rack_u = instance.rack_u
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        for i in range(prev_rack_u, prev_rack_u + instance.model.height):
+            exec('prev_rack.u{} = None'.format(i))
+        prev_rack.save()
+        self.perform_update(serializer)
+        instance = self.get_object()
+        new_rack = instance.rack
+        for i in range(instance.rack_u, instance.rack_u+instance.model.height):
+            exec('new_rack.u{} = instance'.format(i))
+        new_rack.save()
+        if getattr(instance, '_prefetched_objects_cache', None):
+            # If 'prefetch_related' has been applied to a queryset, we need to
+            # forcibly invalidate the prefetch cache on the instance.
+            instance._prefetched_objects_cache = {}
+
+        return Response(serializer.data)
     # Custom actions below
 
 
