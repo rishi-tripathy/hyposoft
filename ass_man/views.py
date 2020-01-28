@@ -157,7 +157,7 @@ class InstanceViewSet(viewsets.ModelViewSet):
     def model_names(self, request, *args, **kwargs):
         name_typed = self.request.query_params.get('name') or ''
         models = Model.objects.annotate(
-        unique_name=Concat('vendor', 'model_number', output_field=CharField())).filter(unique_name__icontains=name_typed).all()
+        unique_name=Concat('vendor', 'model_number')).filter(unique_name__icontains=name_typed).all()
         serializer = UniqueModelsSerializer(models, many=True, context={'request': request})
         return Response(serializer.data)
 
