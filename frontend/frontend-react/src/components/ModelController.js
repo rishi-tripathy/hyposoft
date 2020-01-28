@@ -73,7 +73,7 @@ export class ModelController extends Component {
   }
 
   componentDidMount() {
-    axios.get('/api/models/').then(res => {
+    axios.get('/api/models/?shortform=true').then(res => {
       const b = res.data.results;
       this.setState({ models: b });
     })
