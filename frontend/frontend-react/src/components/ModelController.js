@@ -28,6 +28,8 @@ export class ModelController extends Component {
     showDeleteView: false,
     editID: 0,
     deleteID: 0,
+    prevPage: null,
+    nextPage: null,
   };
 
   getShowCreate = (show) => {
@@ -74,11 +76,41 @@ export class ModelController extends Component {
 
   componentDidMount() {
     axios.get('/api/models/?shortform=true').then(res => {
-      const b = res.data.results;
-      this.setState({ models: b });
+      console.log('nextpage from model shortform')
+      console.log(res.data)
+      this.setState({ 
+        models: res.data.results,
+        prevPage: res.data.previous,
+        nextPage: res.data.next,
+      });
     })
-    .then(function (response) {
-      console.log(response);
+    .catch(function (error) {
+      // TODO: handle error
+      console.log(error.response);
+    });
+  }
+
+  paginateNext = () => {
+    axios.get(this.state.nextPage).then(res => {
+      this.setState({ 
+        models: res.data.results,
+        prevPage: res.data.previous,
+        nextPage: res.data.next,
+      });
+    })
+    .catch(function (error) {
+      // TODO: handle error
+      console.log(error.response);
+    });
+  }
+
+  paginatePrev = () => {
+    axios.get(this.state.prevPage).then(res => {
+      this.setState({ 
+        models: res.data.results,
+        prevPage: res.data.previous,
+        nextPage: res.data.next,
+      });
     })
     .catch(function (error) {
       // TODO: handle error
@@ -102,12 +134,26 @@ export class ModelController extends Component {
         content= <EditModelForm editID={this.state.editID} /> 
     }
 
+    let paginateNavigation = <p>no nav</p>;
+    if (this.state.prevPage == null && this.state.nextPage != null) {
+      paginateNavigation = <button onClick={ this.paginateNext }>next page</button>;
+    } 
+    else if (this.state.prevPage != null && this.state.nextPage == null) {
+      paginateNavigation = <button onClick={ this.paginatePrev }>prev page</button>;
+    }
+    else if (this.state.prevPage != null && this.state.nextPage != null) {
+      paginateNavigation = <div><button onClick={ this.paginatePrev }>prev page</button><button onClick={ this.paginateNext }>next page</button></div>;
+    }
+  
+
 
     if (this.state.models[0] == null) {
       return <p>No models exist</p>
     } else {
       return (
         <div>
+          { paginateNavigation }
+          <br></br>
           {content}
         </div>
       )

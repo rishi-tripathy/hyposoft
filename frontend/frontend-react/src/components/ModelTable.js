@@ -24,7 +24,6 @@ export class ModelTable extends Component {
    
    showDeleteForm = (id) => {
 		if (window.confirm('Are you sure you want to delete?')) {
-			console.log('delete')
 			let dst = '/api/models/'.concat(id).concat('/');
 			axios.delete(dst)
 			.then(function (response) {
