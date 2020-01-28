@@ -37,7 +37,10 @@ class ModelViewSet(viewsets.ModelViewSet):
 
     def get_serializer_class(self):
         # detail = self.request.query_params.get('detail')
-        serializer_class = ModelSerializer if self.detail else ModelShortSerializer
+        if self.request.method == 'GET':
+            serializer_class = ModelSerializer if self.detail else ModelShortSerializer
+        else:
+            serializer_class = ModelSerializer
         return serializer_class
 
     ordering_fields = ['vendor', 'model_number', 'height', 'display_color',
@@ -172,7 +175,10 @@ class RackViewSet(viewsets.ModelViewSet):
                         'u41', 'u42']
 
     def get_serializer_class(self):
-        serializer_class = RackFetchSerializer if self.request.method == 'GET' else RackSerializer
+        if self.request.method == 'GET':
+            serializer_class = RackFetchSerializer
+        else:
+            serializer_class = RackSerializer
         return serializer_class
 
     # Overriding of super functions
