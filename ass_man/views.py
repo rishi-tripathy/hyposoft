@@ -14,7 +14,7 @@ from ass_man.serializers import (InstanceShortSerializer,
                                  RackFetchSerializer,
                                  InstanceOfModelSerializer,
                                  VendorsSerializer,
-                                 UniqueModelsSerializer)
+                                 UniqueModelsSerializer,
                                  VendorsSerializer)
 
 # Auth
