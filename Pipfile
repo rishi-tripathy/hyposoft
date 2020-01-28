@@ -15,6 +15,7 @@ python-dotenv = "*"
 dj-database-url = "*"
 psycopg2-binary = "*"
 django-cors-headers = "*"
+django-filter = "*"
 
 [requires]
 python_version = "3.7"
