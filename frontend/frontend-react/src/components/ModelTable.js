@@ -25,7 +25,7 @@ export class ModelTable extends Component {
    showDeleteForm = (id) => {
 		if (window.confirm('Are you sure you want to delete?')) {
 			console.log('delete')
-			let dst = '/api/models/'.concat(id).concat('/');
+			let dst = '/api/models/?shortform=true'.concat(id).concat('/');
 			axios.delete(dst)
 			.then(function (response) {
 				console.log(response);
@@ -63,7 +63,6 @@ export class ModelTable extends Component {
              <td>{cpu}</td>
              <td>{memory}</td>
              <td>{storage}</td>
-             <td>{comment}</td>
              <td><button onClick={ () => this.showEditForm(id) }>Edit</button></td>
             <td><button onClick={ () => this.showDeleteForm(id) }>Delete</button></td>
           </tr>
