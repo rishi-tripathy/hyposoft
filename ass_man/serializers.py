@@ -2,6 +2,7 @@ from ass_man.models import Model, Instance, Rack
 from rest_framework import serializers, status
 from rest_framework.validators import UniqueTogetherValidator, UniqueValidator
 from django.core.validators import MinLengthValidator, MinValueValidator
+from usr_man.serializers import UserOfInstanceSerializer
 import re
 
 
@@ -31,7 +32,24 @@ class ModelSerializer(serializers.HyperlinkedModelSerializer):
 class ModelShortSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Model
-        fields = ['id', 'vendor', 'model_number', 'cpu', 'storage']
+        fields = ['id', 'vendor', 'model_number', 'height', 'display_color', 'ethernet_ports', 'power_ports','cpu', 'memory', 'storage']
+
+class UniqueModelsSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Model
+        fields = ['url', 'vendor', 'model_number']
+
+
+class ModelInstanceSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Model
+        fields = ['url', 'vendor', 'model_number', 'display_color']
+
+
+class VendorsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Model
+        fields = ['vendor']
 
 class UniqueModelsSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
@@ -105,25 +123,27 @@ class InstanceSerializer(serializers.HyperlinkedModelSerializer):
         model = Instance
         fields = ['id', 'model', 'hostname', 'rack', 'rack_u', 'owner', 'comment']
 
-
-class InstanceFetchSerializer(InstanceSerializer):
-    model = ModelInstanceSerializer()
-
-
-class InstanceShortSerializer(InstanceSerializer):
-    model = ModelInstanceSerializer()
-
-    class Meta:
-        model = Instance
-        fields = ['id', 'model', 'hostname', 'rack', 'rack_u', 'owner']
-
-
 # Used to fetch the Rack associated with an Instance
 class RackOfInstanceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Rack
         fields = ['url', 'rack_number']
 
+
+class InstanceFetchSerializer(InstanceSerializer):
+    model = ModelInstanceSerializer()
+    rack = RackOfInstanceSerializer()
+    owner = UserOfInstanceSerializer()
+
+
+class InstanceShortSerializer(InstanceSerializer):
+    model = ModelInstanceSerializer()
+    rack = RackOfInstanceSerializer()
+    owner = UserOfInstanceSerializer()
+
+    class Meta:
+        model = Instance
+        fields = ['id', 'model', 'hostname', 'rack', 'rack_u', 'owner']
 
 class RackSerializer(serializers.HyperlinkedModelSerializer):
     rack_number = serializers.CharField(
