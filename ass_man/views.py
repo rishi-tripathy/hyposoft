@@ -1,6 +1,9 @@
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status
+from django.db.models.functions import Concat
+from django.db.models import CharField
+
 # API
 from rest_framework import viewsets
 from ass_man.serializers import (InstanceShortSerializer,
@@ -11,7 +14,8 @@ from ass_man.serializers import (InstanceShortSerializer,
                                  RackSerializer,
                                  RackFetchSerializer,
                                  InstanceOfModelSerializer,
-                                 VendorsSerializer)
+                                 VendorsSerializer,
+                                 UniqueModelsSerializer)
 # Auth
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 # Project
@@ -148,6 +152,15 @@ class InstanceViewSet(viewsets.ModelViewSet):
 
         return Response(serializer.data)
     # Custom actions below
+
+    @action(detail=False, methods=['GET'])
+    def model_names(self, request, *args, **kwargs):
+        name_typed = self.request.query_params.get('name') or ''
+        models = Model.objects.annotate(
+        unique_name=Concat('vendor', 'model_number')).\
+        filter(unique_name__icontains=name_typed).all()
+        serializer = UniqueModelsSerializer(models, many=True, context={'request': request})
+        return Response(serializer.data)
 
 
 class RackViewSet(viewsets.ModelViewSet):
