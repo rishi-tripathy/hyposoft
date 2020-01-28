@@ -1,12 +1,64 @@
 import React from 'react';
 import './App.css';
-import Landing from './components/Landing'
-import SideBar from './components/SideBar'
+import Login from './components/Login'
+import { BrowserRouter as Router, Route, Link, Switch } from 'react-router-dom'
+import SideBar from './components/SideBar';
+import axios from 'axios'
+axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
-function App() {
-  return (
-   <SideBar />
-  );
+class App extends React.Component {
+
+  constructor() {
+    super();
+    this.state = {
+      logged_in: false,
+    }
+  }
+
+  componentDidMount() {
+    this.checkLoginStatus();
+  }
+
+  checkLoginStatus() {
+      axios.get('api/users/am_i_admin/').then(res => {
+          const r = res.data.is_admin;
+          this.setState({logged_in: r});
+          console.log(r);
+          console.log(this.state.admin);
+
+      });
+  }
+
+  handleOnClick() {
+    // console.log("i fresh");
+    // console.log(window.location);
+    // let pathName = '/accounts/login/';
+    // let base = 'localhost:5000'; //replace when needed
+    // window.location.replace(base + pathName);
+    window.location = "/accounts/login/";
+    console.log(window.location);
+    //window.location.reload(true);
+  }
+
+  render() {
+
+    let content;
+    console.log("in render");
+    console.log(this.state.logged_in);
+
+    if(!this.state.logged_in){
+      content = <button onClick={this.handleOnClick}>Log In!</button>
+    }
+    else {
+      content = <SideBar />
+    }
+
+    return (
+      <Router>
+        {content}
+      </Router>
+    )
+  }
 }
 
 export default App;

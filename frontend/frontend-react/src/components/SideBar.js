@@ -3,6 +3,8 @@ import '../stylesheets/SideBar.css'
 import ModelController from './ModelController'
 import InstanceController from './InstanceController'
 import Landing from './Landing'
+import axios from 'axios'
+axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 class SideBar extends React.Component{
     constructor() {
@@ -11,12 +13,28 @@ class SideBar extends React.Component{
             racks: true,
             models: false,
             instances: false,
+            admin: false,
         };
         this.showRacks = this.showRacks.bind(this);
         this.showModels = this.showModels.bind(this);
         this.showInstances = this.showInstances.bind(this);
 
     }
+
+    componentDidMount() {
+        this.checkLoginStatus();
+    }
+
+    checkLoginStatus() {
+        axios.get('api/users/am_i_admin/').then(res => {
+            const r = res.data.is_admin;
+            this.setState({admin: r});
+            console.log(r);
+            console.log(this.state.admin);
+
+        });
+    }
+
     showRacks() {
         this.setState({
             racks: true,
@@ -49,17 +67,23 @@ class SideBar extends React.Component{
 
         let content;
 
-        if (rackState){
-          //  content = <RackView />
-          //  content = <RackController />
-          
-        }
-        else if (modelState){
-            content = <ModelController />
-        }
-        else {
-            content= <InstanceController />
-        }
+        // if(this.state.admin){
+            if (rackState){
+                //  content = <RackView />
+                //  content = <RackController />
+                
+              }
+              else if (modelState){
+                  content = <ModelController />
+              }
+              else {
+                  content= <InstanceController />
+              }
+        // }
+        // else {
+        //     //not admin
+        //     content= <InstanceController />
+        // }
 
         return(
             <div>
