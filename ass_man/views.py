@@ -22,7 +22,7 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 # Project
 from ass_man.models import Model, Instance, Rack
 from rest_framework.filters import OrderingFilter
-from django_filters.rest_framework import DjangoFilterBackend
+from django_filters.rest_framework import DjangoFilterBackend as DjangoFiltersBackend
 from ass_man.filters import InstanceFilter, ModelFilter, RackFilter, InstanceFilterByRack
 
 ADMIN_ACTIONS = {'create', 'update', 'partial_update', 'destroy'}
@@ -120,8 +120,7 @@ class InstanceViewSet(viewsets.ModelViewSet):
                         'hostname', 'rack', 'rack_u', 'owner']
 
     filter_backends = [OrderingFilter,
-                       DjangoFilterBackend,
-                       InstanceFilter,
+                       DjangoFiltersBackend,
                        InstanceFilterByRack]
     # Overriding of super functions
 
@@ -189,7 +188,7 @@ class RackViewSet(viewsets.ModelViewSet):
                        'u41', 'u42']
 
     filter_backends = [OrderingFilter,
-                       DjangoFilterBackend,
+                       DjangoFiltersBackend,
                        RackFilter]
 
     filterset_fields = ['rack_number']

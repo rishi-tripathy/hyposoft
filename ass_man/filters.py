@@ -51,8 +51,8 @@ class InstanceFilterByRack(rest_filters.BaseFilterBackend):
         return queryset \
             .annotate(rack_num_letter=Substr('rack__rack_number', 1, 1)) \
             .annotate(rack_num_number=Substr('rack__rack_number', 2, None)) \
-            .filter(rack__rack_num_letter__range=(start_letter, end_letter)) \
-            .filter(rack__rack_num_number__range=(start_number, end_number))
+            .filter(rack_num_letter__range=(start_letter, end_letter)) \
+            .filter(rack_num_number__range=(start_number, end_number))
 
 
 class RackFilter(rest_filters.BaseFilterBackend):
