@@ -50,7 +50,7 @@ class InstanceSerializer(serializers.HyperlinkedModelSerializer):
     rack_u = serializers.IntegerField(validators=[MinValueValidator(1)])
     # model = ModelInstanceSerializer()
 
-    def check_rack_u_validity(self, validated_data):
+    def check_rack_u_validity(self, validated_data, instance=None):
         rack = validated_data['rack']
         rack_u = validated_data['rack_u']
         model = validated_data['model']
@@ -59,7 +59,7 @@ class InstanceSerializer(serializers.HyperlinkedModelSerializer):
         if rack_u+height > 42:
             raise serializers.ValidationError("Height conflict: this instance does not fit in the rack at this location.")
         for i in range(rack_u, rack_u+height):
-            if eval('rack.u{}'.format(i)):
+            if eval('rack.u{} and (rack.u{} != instance)'.format(i, i)):
                 invalid_list.append('Conflict: host ' +
                                     eval('rack.u{}.__str__()'.format(i)) +
                                     ' conflicts at U{}'.format(i))
@@ -72,7 +72,7 @@ class InstanceSerializer(serializers.HyperlinkedModelSerializer):
         return super().create(validated_data)
 
     def update(self, instance, validated_data):
-        self.check_rack_u_validity(validated_data)
+        self.check_rack_u_validity(validated_data, instance)
         return super().update(instance, validated_data)
 
     # adapted from https://stackoverflow.com/questions/2063213/regular-expression-for-validating-dns-label-host-name
