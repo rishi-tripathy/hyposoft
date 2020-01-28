@@ -21,7 +21,9 @@ from ass_man.serializers import (InstanceShortSerializer,
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 # Project
 from ass_man.models import Model, Instance, Rack
-from ass_man.filters import ModelFilter
+from rest_framework.filters import OrderingFilter
+from django_filters.rest_framework import DjangoFilterBackend
+from ass_man.filters import InstanceFilter, ModelFilter, RackFilter, InstanceFilterByRack
 
 ADMIN_ACTIONS = {'create', 'update', 'partial_update', 'destroy'}
 
@@ -40,6 +42,7 @@ class ModelViewSet(viewsets.ModelViewSet):
 
     queryset = Model.objects.all()
 
+
     def get_serializer_class(self):
         if self.request.method == 'GET':
             serializer_class = ModelSerializer if self.detail else ModelShortSerializer
@@ -50,7 +53,8 @@ class ModelViewSet(viewsets.ModelViewSet):
     ordering_fields = ['vendor', 'model_number', 'height', 'display_color',
                        'ethernet_ports', 'power_ports', 'cpu', 'memory', 'storage', 'comment']
 
-    filterset_class = ModelFilter
+    filterset_fields = ['vendor', 'model_number', 'height', 'display_color',
+                        'ethernet_ports', 'power_ports', 'cpu', 'memory', 'storage']
 
     # Overriding of super functions
     def destroy(self, request, *args, **kwargs):
@@ -113,10 +117,13 @@ class InstanceViewSet(viewsets.ModelViewSet):
                        'hostname', 'rack', 'rack_u', 'owner', 'comment']
 
     filterset_fields = ['model', 'model__model_number', 'model__vendor',
-                        'hostname', 'rack', 'rack_u', 'owner', 'comment']
+                        'hostname', 'rack', 'rack_u', 'owner']
 
+    filter_backends = [OrderingFilter,
+                       DjangoFilterBackend,
+                       InstanceFilter,
+                       InstanceFilterByRack]
     # Overriding of super functions
-    # TODO: Update, partial update
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -181,11 +188,11 @@ class RackViewSet(viewsets.ModelViewSet):
                        'u31', 'u32', 'u33', 'u34', 'u35', 'u36', 'u37', 'u38', 'u39', 'u40',
                        'u41', 'u42']
 
-    filterset_fields = ['rack_number', 'u1', 'u2', 'u3', 'u4', 'u5', 'u6', 'u7', 'u8',
-                        'u9', 'u10', 'u11', 'u12', 'u13', 'u14', 'u15', 'u16', 'u17', 'u18', 'u19', 'u20',
-                        'u21', 'u22', 'u23', 'u24', 'u25', 'u26', 'u27', 'u28', 'u29', 'u30',
-                        'u31', 'u32', 'u33', 'u34', 'u35', 'u36', 'u37', 'u38', 'u39', 'u40',
-                        'u41', 'u42']
+    filter_backends = [OrderingFilter,
+                       DjangoFilterBackend,
+                       RackFilter]
+
+    filterset_fields = ['rack_number']
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
@@ -221,3 +228,6 @@ class RackViewSet(viewsets.ModelViewSet):
         return Response({
             'is_empty': 'true'
         })
+
+    # Custom actions below
+
