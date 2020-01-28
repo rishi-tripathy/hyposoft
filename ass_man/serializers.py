@@ -33,6 +33,23 @@ class ModelShortSerializer(serializers.HyperlinkedModelSerializer):
         model = Model
         fields = ['id', 'vendor', 'model_number', 'cpu', 'storage']
 
+class UniqueModelsSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Model
+        fields = ['url', 'vendor', 'model_number']
+
+
+class ModelInstanceSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Model
+        fields = ['url', 'vendor', 'model_number', 'display_color']
+
+
+class VendorsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Model
+        fields = ['vendor']
+
 
 class ModelInstanceSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
