@@ -23,17 +23,18 @@ export class ModelTable extends Component {
    }
    
    showDeleteForm = (id) => {
-		//if (confirm('Are you sure you want to delete?')) {
-			// let dst = '/api/models/'.concat(id).concat('/');
-			// axios.delete(dst)
-			// .then(function (response) {
-			// 	console.log(response);
-			// })
-			// .catch(function (error) {
-			// 	// TODO: handle error
-			// 	console.log(error.response);
-			// });
-		//}
+		if (window.confirm('Are you sure you want to delete?')) {
+			console.log('delete')
+			let dst = '/api/models/'.concat(id).concat('/');
+			axios.delete(dst)
+			.then(function (response) {
+				console.log(response);
+			})
+			.catch(function (error) {
+				// TODO: handle error
+				console.log(error.response);
+			});
+		}
 
 		//this.props.sendShowDelete(true);
 	}
