@@ -1,6 +1,5 @@
 import React from 'react';
 import './App.css';
-import Login from './components/Login'
 import { BrowserRouter as Router, Route, Link, Switch } from 'react-router-dom'
 import SideBar from './components/SideBar';
 import axios from 'axios'
@@ -30,14 +29,8 @@ class App extends React.Component {
   }
 
   handleOnClick() {
-    // console.log("i fresh");
-    // console.log(window.location);
-    // let pathName = '/accounts/login/';
-    // let base = 'localhost:5000'; //replace when needed
-    // window.location.replace(base + pathName);
     window.location = "/accounts/login/";
     console.log(window.location);
-    //window.location.reload(true);
   }
 
   render() {

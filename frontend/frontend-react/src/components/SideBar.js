@@ -21,20 +21,6 @@ class SideBar extends React.Component{
 
     }
 
-    componentDidMount() {
-        this.checkLoginStatus();
-    }
-
-    checkLoginStatus() {
-        axios.get('api/users/am_i_admin/').then(res => {
-            const r = res.data.is_admin;
-            this.setState({admin: r});
-            console.log(r);
-            console.log(this.state.admin);
-
-        });
-    }
-
     showRacks() {
         this.setState({
             racks: true,
