@@ -42,7 +42,6 @@ class ModelViewSet(viewsets.ModelViewSet):
 
     queryset = Model.objects.all()
 
-
     def get_serializer_class(self):
         if self.request.method == 'GET':
             serializer_class = ModelSerializer if self.detail else ModelShortSerializer
@@ -51,7 +50,7 @@ class ModelViewSet(viewsets.ModelViewSet):
         return serializer_class
 
     ordering_fields = ['vendor', 'model_number', 'height', 'display_color',
-                       'ethernet_ports', 'power_ports', 'cpu', 'memory', 'storage', 'comment']
+                       'ethernet_ports', 'power_ports', 'cpu', 'memory', 'storage']
 
     filterset_fields = ['vendor', 'model_number', 'height', 'display_color',
                         'ethernet_ports', 'power_ports', 'cpu', 'memory', 'storage']
@@ -62,8 +61,12 @@ class ModelViewSet(viewsets.ModelViewSet):
         if matches.count() > 0:
             offending_instances = []
             for match in matches:
-                offending_instances.append(match.rack.rack_number.__str__() + match.rack_u.__str__())
-            return Response('Cannot delete this model as there are associated instances at the following locations: ' +
+                offending_instances.append(match.hostname.__str__() +
+                                           ' at ' +
+                                           match.rack.rack_number.__str__() +
+                                           ' U' +
+                                           match.rack_u.__str__())
+            return Response('Cannot delete this model as there are associated instances: ' +
                             ', '.join(offending_instances),
                             status=status.HTTP_400_BAD_REQUEST)
         super().destroy(self, request, *args, **kwargs)
@@ -90,6 +93,10 @@ class ModelViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['GET'])
     def instances(self, request, *args, **kwargs):
         instances = Instance.objects.all().filter(model=self.get_object())
+        page = self.paginate_queryset(instances)
+        if page is not None:
+            serializer = InstanceOfModelSerializer(page, many=True, context={'request': request})
+            return self.get_paginated_response(serializer.data)
         serializer = InstanceOfModelSerializer(instances, many=True, context={'request': request})
         return Response(serializer.data)
 
@@ -114,7 +121,7 @@ class InstanceViewSet(viewsets.ModelViewSet):
         return serializer_class
 
     ordering_fields = ['model', 'model__model_number', 'model__vendor',
-                       'hostname', 'rack', 'rack_u', 'owner', 'comment']
+                       'hostname', 'rack', 'rack_u', 'owner']
 
     filterset_fields = ['model', 'model__model_number', 'model__vendor',
                         'hostname', 'rack', 'rack_u', 'owner']
@@ -163,8 +170,8 @@ class InstanceViewSet(viewsets.ModelViewSet):
     def model_names(self, request, *args, **kwargs):
         name_typed = self.request.query_params.get('name') or ''
         models = Model.objects.annotate(
-        unique_name=Concat('vendor', 'model_number')).\
-        filter(unique_name__icontains=name_typed).all()
+            unique_name=Concat('vendor', 'model_number')).\
+            filter(unique_name__icontains=name_typed).all()
         serializer = UniqueModelsSerializer(models, many=True, context={'request': request})
         return Response(serializer.data)
 
@@ -202,13 +209,19 @@ class RackViewSet(viewsets.ModelViewSet):
 
     # Overriding of super functions
     def destroy(self, request, *args, **kwargs):
-        u_filled = 0
         slots = ['u{}'.format(i) for i in range(1, 43)]
+        offending_instances = []
         for slot in slots:
-            if getattr(self.get_object(), slot):
-                u_filled += 1
-        if u_filled > 0:
-            return Response('Cannot delete this rack as it is not empty.',
+            match = getattr(self.get_object(), slot)
+            if match:
+                offending_instances.append(match.hostname.__str__()
+                                           + ' at ' +
+                                           match.rack.rack_number.__str__() +
+                                           ' ' +
+                                           slot.__str__())
+        if len(offending_instances) > 0:
+            return Response('Cannot delete this rack as it contains instances: ' +
+                            ', '.join(offending_instances),
                             status=status.HTTP_400_BAD_REQUEST)
         super().destroy(self, request, *args, **kwargs)
 
