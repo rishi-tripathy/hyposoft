@@ -2,6 +2,11 @@ import React, { Component } from 'react'
 import '../stylesheets/RackTable.css'
 
 export class RackRow extends Component {
+
+    showInstance() {
+        console.log("ia m showing");
+    }
+
     render() {
         //console.log(this.props.row);
 
@@ -10,8 +15,6 @@ export class RackRow extends Component {
         if(this.props.object != null){
             objectIsNull = false;
         }
-
-        //only return somethin
 
         return (
             <tr>
@@ -25,8 +28,8 @@ export class RackRow extends Component {
                     </td> 
                 } 
                 { !objectIsNull &&
-                    <td2> 
-                    { this.props.object }
+                    <td2 onClick={this.showInstance}> 
+                        { this.props.object }
                     </td2> 
                 }   
 
