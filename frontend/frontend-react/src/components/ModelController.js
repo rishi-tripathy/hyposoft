@@ -121,11 +121,11 @@ export class ModelController extends Component {
   render() {
     let content;
     if (this.state.showTableView){
-        content = <ModelTable models={ this.state.models } 
+        content = <div><h2>Model Table</h2><ModelTable models={ this.state.models } 
                     sendShowCreate={this.getShowCreate}
                     sendShowEdit={this.getShowEdit}
                     sendEditID={this.getEditID}
-                    sendShowDelete={this.getShowDelete} />
+                    sendShowDelete={this.getShowDelete} /></div>
     }
     else if (this.state.showCreateView){
         content = <CreateModelForm /> 
@@ -136,17 +136,15 @@ export class ModelController extends Component {
 
     let paginateNavigation = <p>no nav</p>;
     if (this.state.prevPage == null && this.state.nextPage != null) {
-      paginateNavigation = <button onClick={ this.paginateNext }>next page</button>;
+      paginateNavigation = <div><button onClick={ this.paginateNext }>next page</button></div>;
     } 
     else if (this.state.prevPage != null && this.state.nextPage == null) {
-      paginateNavigation = <button onClick={ this.paginatePrev }>prev page</button>;
+      paginateNavigation = <div><button onClick={ this.paginatePrev }>prev page</button></div>;
     }
     else if (this.state.prevPage != null && this.state.nextPage != null) {
       paginateNavigation = <div><button onClick={ this.paginatePrev }>prev page</button><button onClick={ this.paginateNext }>next page</button></div>;
     }
   
-
-
     if (this.state.models[0] == null) {
       return <p>No models exist</p>
     } else {
