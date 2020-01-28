@@ -2,6 +2,7 @@ import React from 'react';
 import '../stylesheets/SideBar.css'
 import ModelController from './ModelController'
 import InstanceController from './InstanceController'
+import RackController from './RackController'
 import Landing from './Landing'
 import axios from 'axios'
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
@@ -53,11 +54,8 @@ class SideBar extends React.Component{
 
         let content;
 
-        // if(this.state.admin){
             if (rackState){
-                //  content = <RackView />
-                //  content = <RackController />
-                
+                content = <RackController />
               }
               else if (modelState){
                   content = <ModelController />
@@ -65,11 +63,6 @@ class SideBar extends React.Component{
               else {
                   content= <InstanceController />
               }
-        // }
-        // else {
-        //     //not admin
-        //     content= <InstanceController />
-        // }
 
         return(
             <div>
