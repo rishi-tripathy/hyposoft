@@ -22,7 +22,6 @@ export class CreateModelForm extends Component {
 
   handleSubmit = (e) => {
     e.preventDefault();
-    console.log(this.state);
     
     axios.post('/api/models/', this.state)
     .then(function (response) {

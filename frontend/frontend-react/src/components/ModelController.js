@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import ModelTable from './ModelTable'
 import CreateModelForm from './CreateModelForm'
 import axios from 'axios'
+import EditModelForm from './EditModelForm';
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 export class ModelController extends Component {
@@ -23,17 +24,51 @@ export class ModelController extends Component {
     ],
     showTableView: true,
     showCreateView: false,
+    showEditView: false,
+    showDeleteView: false,
+    editID: 0,
+    deleteID: 0,
   };
 
   getShowCreate = (show) => {
     show ? this.setState({
+      showTableView: false,
       showCreateView : true,
-      showTableView: false
+      showEditView: false,
+      showDeleteView: false,
     })
     : this.setState({
       showCreateView : false,
-      // might not need line below
-      showTableView: this.state.showTableView
+    }) 
+  }
+
+  getShowEdit = (show) => {
+    show ? this.setState({
+      showTableView: false,
+      showCreateView : false,
+      showEditView: true,
+      showDeleteView: false,
+    })
+    : this.setState({
+      showEditView : false,
+    }) 
+  }
+
+  getEditID = (id) => {
+    this.setState({
+      editID: id,
+    });
+  }
+
+  getShowDelete = (show) => {
+    show ? this.setState({
+      showTableView: false,
+      showCreateView : false,
+      showEditView: false,
+      showDeleteView: true,
+    })
+    : this.setState({
+      showDeleteView : false,
     }) 
   }
 
@@ -41,21 +76,32 @@ export class ModelController extends Component {
     axios.get('/api/models/').then(res => {
       const b = res.data.results;
       this.setState({ models: b });
-
     });
   }
 
   render() {
+    let content;
+    if (this.state.showTableView){
+        content = <ModelTable models={ this.state.models } 
+                    sendShowCreate={this.getShowCreate}
+                    sendShowEdit={this.getShowEdit}
+                    sendEditID={this.getEditID}
+                    sendShowDelete={this.getShowDelete} />
+    }
+    else if (this.state.showCreateView){
+        content = <CreateModelForm /> 
+    }
+    else if (this.state.showEditView){
+        content= <EditModelForm editID={this.state.editID} /> 
+    }
+
+
     if (this.state.models[0] == null) {
       return <p>No models exist</p>
     } else {
       return (
         <div>
-          { 
-            this.state.showCreateView ? 
-            <CreateModelForm /> 
-            : <ModelTable models={ this.state.models } sendShowCreate={this.getShowCreate} />
-          }
+          {content}
         </div>
       )
     }

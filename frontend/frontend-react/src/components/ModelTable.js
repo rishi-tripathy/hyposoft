@@ -1,16 +1,41 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types';
 import '../stylesheets/TableView.css'
+import axios from 'axios'
+axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 export class ModelTable extends Component {
 
 	constructor() {
 		super();
-		this.showCreateForm = this.showCreateForm.bind(this);
+      this.showCreateForm = this.showCreateForm.bind(this);
+      this.showEditForm = this.showEditForm.bind(this);
+      this.showEditForm = this.showEditForm.bind(this);
 	}
 
 	showCreateForm = () => {
 		this.props.sendShowCreate(true);
+   }
+   
+   showEditForm = (id) => {
+      this.props.sendShowEdit(true);
+      this.props.sendEditID(id);
+   }
+   
+   showDeleteForm = (id) => {
+		//if (confirm('Are you sure you want to delete?')) {
+			// let dst = '/api/models/'.concat(id).concat('/');
+			// axios.delete(dst)
+			// .then(function (response) {
+			// 	console.log(response);
+			// })
+			// .catch(function (error) {
+			// 	// TODO: handle error
+			// 	console.log(error.response);
+			// });
+		//}
+
+		//this.props.sendShowDelete(true);
 	}
 
   renderTableHeader() {
@@ -38,8 +63,8 @@ export class ModelTable extends Component {
              <td>{memory}</td>
              <td>{storage}</td>
              <td>{comment}</td>
-             <td><button>Edit (doesn't work)</button></td>
-            <td><button>Delete (doesn't work)</button></td>
+             <td><button onClick={ () => this.showEditForm(id) }>Edit</button></td>
+            <td><button onClick={ () => this.showDeleteForm(id) }>Delete</button></td>
           </tr>
        )
     })
