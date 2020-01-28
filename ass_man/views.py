@@ -66,7 +66,7 @@ class ModelViewSet(viewsets.ModelViewSet):
             return Response('Cannot delete this model as there are associated instances at the following locations: ' +
                             ', '.join(offending_instances),
                             status=status.HTTP_400_BAD_REQUEST)
-        super().destroy(self, request, *args, **kwargs)
+        return super().destroy(self, request, *args, **kwargs)
 
     # Custom actions below
     @action(detail=True, methods=['GET'])
@@ -210,7 +210,7 @@ class RackViewSet(viewsets.ModelViewSet):
         if u_filled > 0:
             return Response('Cannot delete this rack as it is not empty.',
                             status=status.HTTP_400_BAD_REQUEST)
-        super().destroy(self, request, *args, **kwargs)
+        return super().destroy(self, request, *args, **kwargs)
 
     # New Actions
     @action(detail=True, methods=['GET'])
