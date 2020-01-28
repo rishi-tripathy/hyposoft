@@ -16,7 +16,7 @@ from django.contrib import admin
 from django.urls import path, include, re_path
 from rest_framework import routers
 from django.views.generic import TemplateView
-from ass_man import views as asset_views
+import ass_man.views as asset_views
 from usr_man import views as user_views
 
 router = routers.DefaultRouter()  # add this
