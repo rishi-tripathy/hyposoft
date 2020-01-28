@@ -3,7 +3,6 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.db.models.functions import Concat
 from django.db.models import CharField
-
 # API
 from rest_framework import viewsets
 from ass_man.serializers import (InstanceShortSerializer,
@@ -15,7 +14,9 @@ from ass_man.serializers import (InstanceShortSerializer,
                                  RackFetchSerializer,
                                  InstanceOfModelSerializer,
                                  VendorsSerializer,
-                                 UniqueModelsSerializer)
+                                 UniqueModelsSerializer,
+                                 VendorsSerializer)
+
 # Auth
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 # Project

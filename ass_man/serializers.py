@@ -51,6 +51,35 @@ class VendorsSerializer(serializers.ModelSerializer):
         model = Model
         fields = ['vendor']
 
+class UniqueModelsSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Model
+        fields = ['url', 'vendor', 'model_number']
+
+
+class ModelInstanceSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Model
+        fields = ['url', 'vendor', 'model_number', 'display_color']
+
+
+class VendorsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Model
+        fields = ['vendor']
+
+
+class ModelInstanceSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Model
+        fields = ['url', 'vendor', 'model_number', 'display_color']
+
+
+class VendorsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Model
+        fields = ['vendor']
+
 
 class InstanceSerializer(serializers.HyperlinkedModelSerializer):
     rack_u = serializers.IntegerField(validators=[MinValueValidator(1)])
