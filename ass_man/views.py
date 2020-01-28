@@ -1,26 +1,27 @@
-from django.shortcuts import render
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status
-import re
-from ass_man.models import Rack, Instance, Model
-from django.contrib.auth.models import User
-
-
-# Create your views here.
-
+from django.db.models.functions import Concat
+from django.db.models import CharField
 # API
 from rest_framework import viewsets
-from rest_framework.filters import OrderingFilter
 from ass_man.serializers import (InstanceShortSerializer,
                                  InstanceSerializer,
+                                 InstanceFetchSerializer,
                                  ModelShortSerializer,
                                  ModelSerializer,
-                                 RackSerializer)
+                                 RackSerializer,
+                                 RackFetchSerializer,
+                                 InstanceOfModelSerializer,
+                                 VendorsSerializer,
+                                 UniqueModelsSerializer)
+                                 VendorsSerializer)
+
 # Auth
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 # Project
 from ass_man.models import Model, Instance, Rack
+from ass_man.filters import ModelFilter
 
 ADMIN_ACTIONS = {'create', 'update', 'partial_update', 'destroy'}
 
@@ -29,8 +30,8 @@ ADMIN_ACTIONS = {'create', 'update', 'partial_update', 'destroy'}
 
 class ModelViewSet(viewsets.ModelViewSet):
 
+    # View Housekeeping (permissions, serializers, filter fields, etc
     def get_permissions(self):
-        # Instantiates and returns the list of permissions that this view requires.
         if self.action in ADMIN_ACTIONS:
             permission_classes = [IsAdminUser]
         else:
@@ -40,15 +41,31 @@ class ModelViewSet(viewsets.ModelViewSet):
     queryset = Model.objects.all()
 
     def get_serializer_class(self):
-        detail = self.request.query_params.get('detail')
-        serializer_class = ModelShortSerializer if detail == 'short' else ModelSerializer
+        # detail = self.request.query_params.get('detail')
+        if self.request.method == 'GET':
+            serializer_class = ModelSerializer if self.detail else ModelShortSerializer
+        else:
+            serializer_class = ModelSerializer
         return serializer_class
-
-    filter_backends = [OrderingFilter, ]
 
     ordering_fields = ['vendor', 'model_number', 'height', 'display_color',
                        'ethernet_ports', 'power_ports', 'cpu', 'memory', 'storage', 'comment']
 
+    filterset_class = ModelFilter
+
+    # Overriding of super functions
+    def destroy(self, request, *args, **kwargs):
+        matches = Instance.objects.filter(model=self.get_object())
+        if matches.count() > 0:
+            offending_instances = []
+            for match in matches:
+                offending_instances.append(match.rack.rack_number.__str__() + match.rack_u.__str__())
+            return Response('Cannot delete this model as there are associated instances at the following locations: ' +
+                            ', '.join(offending_instances),
+                            status=status.HTTP_400_BAD_REQUEST)
+        super().destroy(self, request, *args, **kwargs)
+
+    # Custom actions below
     @action(detail=True, methods=['GET'])
     def can_delete(self, request, *args, **kwargs):
         matches = Instance.objects.all().filter(model=self.get_object())
@@ -60,18 +77,24 @@ class ModelViewSet(viewsets.ModelViewSet):
             'can_delete': 'true'
         })
 
-    def destroy(self, request, *args, **kwargs):
-        matches = Instance.objects.filter(model=self.get_object())
-        if matches.count() > 0:
-            return Response('Cannot delete this model as there exists an associated instance',
-                            status=status.HTTP_400_BAD_REQUEST)
-        super().destroy(self, request, *args, **kwargs)
+    @action(detail=False, methods=['GET'])
+    def vendors(self, request, *args, **kwargs):
+        vendor_typed = self.request.query_params.get('vendor') or ''
+        vendors = Model.objects.all().filter(vendor__istartswith=vendor_typed).distinct()
+        serializer = VendorsSerializer(vendors, many=True)
+        return Response(serializer.data)
+
+    @action(detail=True, methods=['GET'])
+    def instances(self, request, *args, **kwargs):
+        instances = Instance.objects.all().filter(model=self.get_object())
+        serializer = InstanceOfModelSerializer(instances, many=True, context={'request': request})
+        return Response(serializer.data)
 
 
 class InstanceViewSet(viewsets.ModelViewSet):
 
+    # View Housekeeping (permissions, serializers, filter fields, etc
     def get_permissions(self):
-        # Instantiates and returns the list of permissions that this view requires.
         if self.action in ADMIN_ACTIONS:
             permission_classes = [IsAdminUser]
         else:
@@ -80,47 +103,71 @@ class InstanceViewSet(viewsets.ModelViewSet):
 
     queryset = Instance.objects.all()
 
-
-    filter_backends = [OrderingFilter, ]
-
-    def create(self, request, *args, **kwargs):
-        model_id_str = re.search(r"models/(\d+)", request.data['model'])
-        model_id = int(model_id_str.groups()[0])
-        model = Model.objects.get(pk=model_id)
-        owner_id_str = re.search(r"users/(\d+)", request.data['owner'])
-        owner_id = int(owner_id_str.groups()[0])
-        owner = User.objects.get(pk=owner_id)
-        rack_uri = request.data['rack']
-        rack_id_str = re.search(r"racks/(\d+)", rack_uri)
-        rack_id = int(rack_id_str.groups()[0])
-        rack = Rack.objects.get(pk=rack_id)
-        instance = Instance(model=model, hostname=request.data['hostname'], rack=rack, rack_u=request.data['rack_u'], owner=owner, comment=request.data['comment'])
-        instance.save()
-
-        rack_u_str = request.data['rack_u']
-        rack_u = int(rack_u_str)
-        for i in range(model.height):
-            rack_u_field = 'u'+str(rack_u)
-            setattr(rack, rack_u_field, instance)
-            rack_u+=1
-        rack.save()
-        return super().create(request)
-
-
     def get_serializer_class(self):
-        detail = self.request.query_params.get('detail')
-        serializer_class = InstanceShortSerializer if detail == 'short' else InstanceSerializer
+        if self.request.method == 'GET':
+            serializer_class = InstanceFetchSerializer if self.detail else InstanceShortSerializer
+        else:
+            serializer_class = InstanceSerializer
         return serializer_class
 
     ordering_fields = ['model', 'model__model_number', 'model__vendor',
                        'hostname', 'rack', 'rack_u', 'owner', 'comment']
 
+    filterset_fields = ['model', 'model__model_number', 'model__vendor',
+                        'hostname', 'rack', 'rack_u', 'owner', 'comment']
+
+    # Overriding of super functions
+    # TODO: Update, partial update
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        instance = serializer.save()
+        rack = instance.rack
+        for i in range(instance.rack_u, instance.rack_u+instance.model.height):
+            exec('rack.u{} = instance'.format(i))
+        rack.save()
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        prev_rack = instance.rack
+        prev_rack_u = instance.rack_u
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        for i in range(prev_rack_u, prev_rack_u + instance.model.height):
+            exec('prev_rack.u{} = None'.format(i))
+        prev_rack.save()
+        self.perform_update(serializer)
+        instance = self.get_object()
+        new_rack = instance.rack
+        for i in range(instance.rack_u, instance.rack_u+instance.model.height):
+            exec('new_rack.u{} = instance'.format(i))
+        new_rack.save()
+        if getattr(instance, '_prefetched_objects_cache', None):
+            # If 'prefetch_related' has been applied to a queryset, we need to
+            # forcibly invalidate the prefetch cache on the instance.
+            instance._prefetched_objects_cache = {}
+
+        return Response(serializer.data)
+    # Custom actions below
+
+    @action(detail=False, methods=['GET'])
+    def model_names(self, request, *args, **kwargs):
+        name_typed = self.request.query_params.get('name') or ''
+        models = Model.objects.annotate(
+        unique_name=Concat('vendor', 'model_number')).\
+        filter(unique_name__icontains=name_typed).all()
+        serializer = UniqueModelsSerializer(models, many=True, context={'request': request})
+        return Response(serializer.data)
+
 
 class RackViewSet(viewsets.ModelViewSet):
-    # API endpoint that allows groups to be viewed or edited.
 
+    # View Housekeeping (permissions, serializers, filter fields, etc
     def get_permissions(self):
-        # Instantiates and returns the list of permissions that this view requires.
         if self.action in ADMIN_ACTIONS:
             permission_classes = [IsAdminUser]
         else:
@@ -129,16 +176,38 @@ class RackViewSet(viewsets.ModelViewSet):
 
     queryset = Rack.objects.all()
 
-    serializer_class = RackSerializer
-
-    filter_backends = [OrderingFilter, ]
-
     ordering_fields = ['rack_number', 'u1', 'u2', 'u3', 'u4', 'u5', 'u6', 'u7', 'u8',
                        'u9', 'u10', 'u11', 'u12', 'u13', 'u14', 'u15', 'u16', 'u17', 'u18', 'u19', 'u20',
                        'u21', 'u22', 'u23', 'u24', 'u25', 'u26', 'u27', 'u28', 'u29', 'u30',
                        'u31', 'u32', 'u33', 'u34', 'u35', 'u36', 'u37', 'u38', 'u39', 'u40',
                        'u41', 'u42']
 
+    filterset_fields = ['rack_number', 'u1', 'u2', 'u3', 'u4', 'u5', 'u6', 'u7', 'u8',
+                        'u9', 'u10', 'u11', 'u12', 'u13', 'u14', 'u15', 'u16', 'u17', 'u18', 'u19', 'u20',
+                        'u21', 'u22', 'u23', 'u24', 'u25', 'u26', 'u27', 'u28', 'u29', 'u30',
+                        'u31', 'u32', 'u33', 'u34', 'u35', 'u36', 'u37', 'u38', 'u39', 'u40',
+                        'u41', 'u42']
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            serializer_class = RackFetchSerializer
+        else:
+            serializer_class = RackSerializer
+        return serializer_class
+
+    # Overriding of super functions
+    def destroy(self, request, *args, **kwargs):
+        u_filled = 0
+        slots = ['u{}'.format(i) for i in range(1, 43)]
+        for slot in slots:
+            if getattr(self.get_object(), slot):
+                u_filled += 1
+        if u_filled > 0:
+            return Response('Cannot delete this rack as it is not empty.',
+                            status=status.HTTP_400_BAD_REQUEST)
+        super().destroy(self, request, *args, **kwargs)
+
+    # New Actions
     @action(detail=True, methods=['GET'])
     def is_empty(self, request, *args, **kwargs):
         u_filled = 0
@@ -153,14 +222,3 @@ class RackViewSet(viewsets.ModelViewSet):
         return Response({
             'is_empty': 'true'
         })
-
-    def destroy(self, request, *args, **kwargs):
-        u_filled = 0
-        slots = ['u{}'.format(i) for i in range(1, 43)]
-        for slot in slots:
-            if getattr(self.get_object(), slot):
-                u_filled += 1
-        if u_filled > 0:
-            return Response('Cannot delete this rack as it is not empty.',
-                            status=status.HTTP_400_BAD_REQUEST)
-        super().destroy(self, request, *args, **kwargs)
