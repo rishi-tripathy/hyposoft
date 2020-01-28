@@ -17,7 +17,6 @@ export class ModelController extends Component {
         'cpu': 'Intel CPU',
         'memory': 3,
         'storage': 'Lots of Raid',
-        'comment': 'First Model'
       }
     ]
   };
@@ -26,7 +25,13 @@ export class ModelController extends Component {
     axios.get('/api/models/').then(res => {
       const b = res.data.results;
       this.setState({ models: b });
-
+    })
+    .then(function (response) {
+      console.log(response);
+    })
+    .catch(function (error) {
+      // TODO: handle error
+      console.log(error.response);
     });
   }
 
