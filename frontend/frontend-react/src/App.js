@@ -25,6 +25,12 @@ class App extends React.Component {
           console.log(r);
           console.log(this.state.admin);
 
+      })
+      .then(response => { 
+        console.log(response)
+      })
+      .catch(error => {
+          console.log(error.response)
       });
   }
 

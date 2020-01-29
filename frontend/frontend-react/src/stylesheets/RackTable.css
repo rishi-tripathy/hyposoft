@@ -8,14 +8,18 @@
   #entries1 td2 {
     color: white;
     background-color: purple;
-    max-height: min-content;
+    font-size: 10px;
+    color: white;
+    /* width: 500px;  */
+    max-height: 3px;
   }
 
   #title {
     text-align: center;
     font-family: arial, sans-serif;
   }
-  
+
+
   #entries1 {
     text-align: center;
     font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
@@ -31,7 +35,6 @@
   font-size: 8px;
   max-height: 3px;
   border: 1px solid black;
-  max-height: min-content;
 }
 
 #entries1 td { 
@@ -41,10 +44,18 @@
 
 #entries1 tr:hover {background-color: #ddd;}
 
+#entries1 tr {
+  width: 500px;  
+}
+
 #entries1 th {
   text-align: center;
   background-color: black;
   color: white;
   font-size: small;
   border: 1px solid black;
+}
+
+#entries1 td:nth-child(even){
+  width:200px;
 }

@@ -7,7 +7,7 @@ export class RackRow extends Component {
 
         let objectIsNull = true;
 
-        if(this.props.object != null){
+        if(this.props.instanceUrl != null){
             objectIsNull = false;
         }
 
@@ -21,12 +21,13 @@ export class RackRow extends Component {
 
                 { objectIsNull &&
                     <td> 
-                    { this.props.object }
+                    { this.props.instanceUrl }
                     </td> 
                 } 
-                { !objectIsNull &&
+                 { !objectIsNull &&
                     <td2> 
-                    { this.props.object }
+                        { this.props.model } 
+                        { this.props.hostname }
                     </td2> 
                 }   
 

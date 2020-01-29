@@ -26,26 +26,46 @@ export class RackTable extends Component {
    }
 
    renderRows() {
-      let realRows = [];
-      let rackInstances = [];
+
+      //these store information per rack, for empty ones, everything is added as null except for rackUs 
+      let rackUs = [];
+      let rackInstances = []; //has URLs or null
+      let modelInfo = []; //has model uri or null
+      let displayColors = [];
+      let hostnameInfo = []; //has hostname String or null
 
       for(var i of Object.keys(this.getRows())){
-         realRows.push(i.substring(1,3)); //push U number
+         rackUs.push(i.substring(1,3)); //push U number
 
          if(this.getRows()[i] !== null){
-            //there is a rack here, need to break keys again
-            console.log(this.getRows()[i]);
-
+           // there is a rack here, need to break keys again
+            console.log(this.getRows()[i].url);
+            console.log(this.getRows()[i].model);
+            console.log(this.getRows()[i].hostname);
+            rackInstances.push(this.getRows()[i].url); //push rackInstance
+            modelInfo.push(this.getRows()[i].model.vendor +  " " +this.getRows()[i].model.model_number);
+            displayColors.push(this.getRows()[i].model.display_color);
+            hostnameInfo.push(this.getRows()[i].hostname);
          }
-         rackInstances.push(this.getRows()[i]); //push rackInstance
+         else {
+            rackInstances.push(this.getRows()[i]); 
+            modelInfo.push(this.getRows()[i]); 
+            displayColors.push(this.getRows()[i]);
+            hostnameInfo.push(this.getRows()[i]); //push rackInstance -- null in this case lol, no need to break it apart
+         }
       }
-      return realRows.reverse().map((row, index) => {
+
+      console.log(rackUs);
+      console.log(rackInstances);
+      console.log(modelInfo);
+      console.log(displayColors);
+      console.log(hostnameInfo);
+
+      return rackUs.reverse().map((row, index) => {
          return (
-          // <RackRow row={row} object ={rackInstances[realRows.length-index-1]} /> //
-          <div>
-             
-          </div>
-         ) 
+          <RackRow row={row} instanceUrl ={rackInstances[rackUs.length-index-1]} model= {modelInfo[rackUs.length-index-1]} displayColor= {modelInfo[rackUs.length-index-1] } hostname={hostnameInfo[rackUs.length-index-1]}/>
+         //<div></div>
+          ) 
       })
    } 
 
