@@ -25,7 +25,7 @@ export class DetailedInstance extends Component {
       <div>
         <p>individual instance here</p>
         <p>{ this.props.instanceID }</p>
-        <InstanceCard inst={this.state.instance} />
+        <InstanceCard inst={ this.state.instance } />
       </div>
     )
   }

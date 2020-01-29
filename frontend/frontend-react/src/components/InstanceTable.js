@@ -10,13 +10,13 @@ export class InstanceTable extends Component {
     this.passUP = this.passUp.bind(this);
   }
 
-  passUp= (id) => {
+  passUp = (id) => {
     this.props.sendShowTable(false);
     this.props.sendInstanceID(id);
   }
 
   renderTableHeader() {
-    let header = Object.keys(this.props.instances[0])
+    let header = ['id', 'model_vendor', 'hostname', 'rack', 'rack_u', 'owner_username'];
     return header.map((key, index) => {
         return <th key={index}>{key.toUpperCase()}</th>
     })
@@ -24,13 +24,16 @@ export class InstanceTable extends Component {
 
   renderTableData() {
     return this.props.instances.map((instance) => {
-        const { id, model, hostname } = instance //destructuring
+        const { id, model, hostname, rack, owner, rack_u } = instance //destructuring
         
         return (
           <tr key={id}>
               <td>{id}</td>
-              <td>{model}</td>
+              <td>{model.vendor}</td>
               <td>{hostname}</td>
+              <td>{rack.rack_number}</td>
+              <td>{rack_u}</td>
+              <td>{owner.username}</td>
               { console.log('pass id' + id) } 
               <td><DetailedInstanceModal instanceID={id} /></td>
               <td><button onClick={ () => this.passUp(id) }>More details</button></td>

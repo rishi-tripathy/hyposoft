@@ -65,10 +65,7 @@ export class InstanceController extends Component {
       //   console.log(r);
       // })
 
-      // this.setState({ instances: instanceList });
-    })
-    .then(function (response) {
-      console.log(response);
+      this.setState({ instances: instanceList });
     })
     .catch(function (error) {
       // TODO: handle error
