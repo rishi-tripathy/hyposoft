@@ -11,7 +11,7 @@ export class Landing extends Component {
       <div>
         <h1>This is a dummy landing page!</h1>
         <AddUserModal />
-       </div>
+      </div>
     )
   }
 }

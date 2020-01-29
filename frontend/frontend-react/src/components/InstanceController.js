@@ -51,31 +51,29 @@ export class InstanceController extends Component {
     axios.get('/api/instances/?detail=short').then(res => {
       // list of instances
       const instanceList = res.data.results;
+
+      // TODO: integrate
+      console.log(instanceList);
       if (instanceList[0] == null) {
         console.log('instances[0] is null');
         return;
       }
 
-      // getting API end points
-      // const { model, rack, owner } = instanceList[0];
-      // modelAPIDest = model;
-      // rackAPIDest = rack;
-      // ownerAPIDest = owner;
-
-      // console.log(instanceList);
-      // console.log(modelAPIDest); 
-      // console.log(rackAPIDest); 
-      // console.log(ownerAPIDest); 
-
-      // this works!!
+      // this works for nested stuff
       // waiting for miles to update API
       // axios.get(modelAPIDest).then(r => {
       //   console.log(r);
       // })
 
-      this.setState({ instances: instanceList });
+      // this.setState({ instances: instanceList });
     })
-    //return {m: modelAPIDest, r: rackAPIDest, o: ownerAPIDest};
+    .then(function (response) {
+      console.log(response);
+    })
+    .catch(function (error) {
+      // TODO: handle error
+      console.log(error.response);
+    });
 
   }
 

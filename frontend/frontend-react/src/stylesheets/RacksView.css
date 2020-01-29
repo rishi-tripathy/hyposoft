@@ -1,0 +1,21 @@
+#h2 {
+    text-align: center;
+    font-size: 10px;
+}
+
+#table.table1 {
+    float: left;
+    max-height: 300px;
+    font-size: xs;
+}
+/* 
+
+#rack-container {
+
+    background-color: whitesmoke;
+    width: 180px;
+    /* position: relative;
+    left: 20px;
+    bottom: 1482px;
+} */
+
