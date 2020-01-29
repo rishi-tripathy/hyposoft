@@ -31,11 +31,20 @@ export class RackTable extends Component {
 
       for(var i of Object.keys(this.getRows())){
          realRows.push(i.substring(1,3)); //push U number
+
+         if(this.getRows()[i] !== null){
+            //there is a rack here, need to break keys again
+            console.log(this.getRows()[i]);
+
+         }
          rackInstances.push(this.getRows()[i]); //push rackInstance
       }
       return realRows.reverse().map((row, index) => {
          return (
-           <RackRow row={row} object ={rackInstances[realRows.length-index-1]} /> //
+          // <RackRow row={row} object ={rackInstances[realRows.length-index-1]} /> //
+          <div>
+             
+          </div>
          ) 
       })
    } 
