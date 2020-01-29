@@ -71,7 +71,7 @@ class ModelViewSet(viewsets.ModelViewSet):
     # Custom actions below
     @action(detail=True, methods=['GET'])
     def can_delete(self, request, *args, **kwargs):
-        matches = Instance.objecgit ts.all().filter(model=self.get_object())
+        matches = Instance.objects.all().filter(model=self.get_object())
         if matches.count() > 0:
             return Response({
                 'can_delete': 'false'
