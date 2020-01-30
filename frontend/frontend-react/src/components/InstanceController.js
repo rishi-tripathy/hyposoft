@@ -24,6 +24,8 @@ export class InstanceController extends Component {
       detailedInstanceID: 0,
       showCreateView: false,
       showEditView: false,
+      prevPage: null,
+      nextPage: null,
     };
 
     this.getShowTable = this.getShowTable.bind(this);
@@ -83,23 +85,30 @@ export class InstanceController extends Component {
     let modelAPIDest, rackAPIDest, ownerAPIDest;
     
     axios.get('/api/instances/?detail=short').then(res => {
-      // list of instances
-      const instanceList = res.data.results;
+      console.log(res.data.next)
+      this.setState({ 
+        instances: res.data.results,
+        prevPage: res.data.previous,
+        nextPage: res.data.next,
+      });
 
-      // TODO: integrate
-      console.log(instanceList);
-      if (instanceList[0] == null) {
-        console.log('instances[0] is null');
-        return;
-      }
+      // // list of instances
+      // const instanceList = res.data.results;
 
-      // this works for nested stuff
-      // waiting for miles to update API
-      // axios.get(modelAPIDest).then(r => {
-      //   console.log(r);
-      // })
+      // // TODO: integrate
+      // console.log(instanceList);
+      // if (instanceList[0] == null) {
+      //   console.log('instances[0] is null');
+      //   return;
+      // }
 
-      this.setState({ instances: instanceList });
+      // // this works for nested stuff
+      // // waiting for miles to update API
+      // // axios.get(modelAPIDest).then(r => {
+      // //   console.log(r);
+      // // })
+
+      // this.setState({ instances: instanceList });
     })
     .catch(function (error) {
       // TODO: handle error
@@ -110,6 +119,34 @@ export class InstanceController extends Component {
 
   componentDidMount() {
     this.getInstances();
+  }
+
+  paginateNext = () => {
+    axios.get(this.state.nextPage).then(res => {
+      this.setState({ 
+        instances: res.data.results,
+        prevPage: res.data.previous,
+        nextPage: res.data.next,
+      });
+    })
+    .catch(function (error) {
+      // TODO: handle error
+      console.log(error.response);
+    });
+  }
+
+  paginatePrev = () => {
+    axios.get(this.state.prevPage).then(res => {
+      this.setState({ 
+        instances: res.data.results,
+        prevPage: res.data.previous,
+        nextPage: res.data.next,
+      });
+    })
+    .catch(function (error) {
+      // TODO: handle error
+      console.log(error.response);
+    });
   }
 
 
@@ -136,6 +173,22 @@ export class InstanceController extends Component {
       content = <EditInstanceForm />
     }
 
+    let paginateNavigation = <p></p>;
+    if (this.state.prevPage == null && this.state.nextPage != null) {
+      paginateNavigation = <div><button onClick={ this.paginateNext }>next page</button></div>;
+    } 
+    else if (this.state.prevPage != null && this.state.nextPage == null) {
+      paginateNavigation = <div><button onClick={ this.paginatePrev }>prev page</button></div>;
+    }
+    else if (this.state.prevPage != null && this.state.nextPage != null) {
+      paginateNavigation = <div><button onClick={ this.paginatePrev }>prev page</button><button onClick={ this.paginateNext }>next page</button></div>;
+    }
+
+    // if we're not on the table, then don't show pagination
+    if (! this.state.showTableView) {
+      paginateNavigation = <p></p>;
+    }
+
 
 
 
@@ -144,6 +197,8 @@ export class InstanceController extends Component {
     } else {
       return (
         <div>
+          { paginateNavigation }
+          <br></br>
           { content }
         </div>
         
