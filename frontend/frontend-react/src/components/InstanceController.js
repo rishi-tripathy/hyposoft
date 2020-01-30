@@ -37,13 +37,11 @@ export class InstanceController extends Component {
     }) 
   }
 
-  getDetailedInstanceID = (id) => {
-    console.log('getting this id' + id)
-    this.setState({ detailedInstanceID: id});
-  }
-
   
 
+  getDetailedInstanceID = (id) => {
+    this.setState({ detailedInstanceID: id});
+  }
 
   getInstances() {
     let modelAPIDest, rackAPIDest, ownerAPIDest;

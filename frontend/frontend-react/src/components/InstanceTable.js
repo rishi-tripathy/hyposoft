@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import '../stylesheets/TableView.css'
 import axios from 'axios'
-import DetailedInstanceModal from './DetailedInstanceModal'
+
 
 export class InstanceTable extends Component {
 
@@ -25,7 +25,7 @@ export class InstanceTable extends Component {
   renderTableData() {
     return this.props.instances.map((instance) => {
         const { id, model, hostname, rack, owner, rack_u } = instance //destructuring
-        
+
         return (
           <tr key={id}>
               <td>{id}</td>
@@ -34,8 +34,6 @@ export class InstanceTable extends Component {
               <td>{rack.rack_number}</td>
               <td>{rack_u}</td>
               <td>{owner.username}</td>
-              { console.log('pass id' + id) } 
-              <td><DetailedInstanceModal instanceID={id} /></td>
               <td><button onClick={ () => this.passUp(id) }>More details</button></td>
           </tr>
         )
