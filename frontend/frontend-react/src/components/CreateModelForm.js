@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import axios from 'axios'
 import Select from 'react-select';
+import Creatable, { makeCreatableSelect } from 'react-select/creatable';
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 export class CreateModelForm extends Component {
@@ -51,7 +52,7 @@ export class CreateModelForm extends Component {
     e.preventDefault();
 
     let stateCopy = Object.assign({}, this.state.model);
-    stateCopy.vendor = this.state.selectedVendorOption.value;
+    stateCopy.vendor = this.state.selectedVendorOption ? this.state.selectedVendorOption.value : null;
     let stateToSend = this.removeEmpty(stateCopy);
     
     console.log(stateToSend)
@@ -68,14 +69,21 @@ export class CreateModelForm extends Component {
     this.setState({ selectedVendorOption });
   };
 
+  isOptionUnique(prop) {
+    // not sure if this does anything: check once backend updates
+    const { option, options, valueKey, labelKey } = prop;
+    return !options.find(opt => option[valueKey] === opt[valueKey])
+  }
+
   render() {
     return (
       <form onSubmit={this.handleSubmit}>
         <h3>Create model form!!</h3>
         <p>Vendor</p> 
-        <Select value={ this.state.selectedVendorOption }
+        <Creatable value={ this.state.selectedVendorOption }
           onChange={ this.handleChangeVendor }
           options={ this.state.vendorOptions }
+          isOptionUnique={this.isOptionUnique}
           searchable={ true } />
 
         <p>Model number</p> 
@@ -151,7 +159,7 @@ export class CreateModelForm extends Component {
         } } />
         
         <p>Comment</p>
-        <input type="number" onChange={e => {
+        <input type="text" onChange={e => {
           let modelCopy = JSON.parse(JSON.stringify(this.state.model))
           modelCopy.comment = e.target.value
           this.setState({

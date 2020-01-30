@@ -12,7 +12,7 @@ export class InstanceController extends Component {
   constructor() {
     super();
     this.state = {
-      instances: [
+      instances: [ {}
         // {
         //   id: 99,
         //   model: 'default',
@@ -189,23 +189,13 @@ export class InstanceController extends Component {
       paginateNavigation = <p></p>;
     }
 
-
-
-
-    if (this.state.instances[0] == null) {
-      return <p>No instances</p>
-    } else {
-      return (
-        <div>
-          { paginateNavigation }
-          <br></br>
-          { content }
-        </div>
-        
-        
-      )
-    }
-
+    return (
+      <div>
+        { paginateNavigation }
+        <br></br>
+        { content }
+      </div>
+    )
   }
 }
 

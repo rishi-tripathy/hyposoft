@@ -39,8 +39,9 @@ export class CreateInstanceForm extends Component {
     e.preventDefault();
 
     let stateCopy = Object.assign({}, this.state.instance);
-    stateCopy.model = this.state.selectedModelOption.value;
-    stateCopy.rack = this.state.selectedRackOption.value;
+    stateCopy.model = this.state.selectedModelOption ? this.state.selectedModelOption.value : null;
+    stateCopy.rack = this.state.selectedRackOption ? this.state.selectedRackOption.value : null;
+    stateCopy.owner = this.state.selectedOwnerOption ? this.state.selectedOwnerOption.value : null;
     let stateToSend = this.removeEmpty(stateCopy);
     
     console.log(stateToSend)
@@ -79,6 +80,21 @@ export class CreateInstanceForm extends Component {
       }
       console.log(res.data)
       this.setState({ rackOptions: myOptions });
+    })
+    .catch(function (error) {
+      // TODO: handle error
+      console.log(error.response);
+    });
+
+    // OWNER
+    dst = '/api/users/?show_all=true';
+    axios.get(dst).then(res => {
+      let myOptions = []; 
+      for (let i = 0; i < res.data.length; i++) {
+        myOptions.push({ value: res.data[i].url, label: res.data[i].username });
+      }
+      console.log(res.data)
+      this.setState({ ownerOptions: myOptions });
     })
     .catch(function (error) {
       // TODO: handle error

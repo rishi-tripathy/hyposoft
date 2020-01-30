@@ -48,13 +48,13 @@ export class InstanceTable extends Component {
   renderTableData() {
     return this.props.instances.map((instance) => {
         const { id, model, hostname, rack, owner, rack_u } = instance //destructuring
-
+        
         return (
           <tr key={id}>
             <td>{id}</td>
-            <td>{model.vendor}</td>
+            <td>{model ? model.vendor : null}</td>
             <td>{hostname}</td>
-            <td>{rack.rack_number}</td>
+            <td>{rack ? rack.rack_number : null}</td>
             <td>{rack_u}</td>
             <td>{owner ? owner.username : null}</td>
             <td><button onClick={ () => this.passUp(id) }>More details</button></td>
