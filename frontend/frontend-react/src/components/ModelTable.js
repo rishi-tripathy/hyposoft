@@ -22,7 +22,7 @@ export class ModelTable extends Component {
 		this.props.sendEditID(id);
 	}
    
-   showDeleteForm = (id) => {
+	showDeleteForm = (id) => {
 		if (window.confirm('Are you sure you want to delete?')) {
 			let dst = '/api/models/'.concat(id).concat('/');
 			axios.delete(dst)
@@ -33,11 +33,7 @@ export class ModelTable extends Component {
 				alert('Delete was not successful.\n' + JSON.stringify(error.response.data));
 			});
 		}
-
-		//this.props.sendShowDelete(true);
 	}
-	//this.props.sendShowDelete(true);
-}
 
   renderTableHeader() {
    //  if (this.props.models[0] == null) return;
