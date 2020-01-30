@@ -3,15 +3,25 @@ import '../stylesheets/RackTable.css'
 
 export class RackRow extends Component {
     render() {
-        //console.log(this.props.row);
+        console.log(this.props.displayColor);
 
         let objectIsNull = true;
 
-        if(this.props.object != null){
+        if(this.props.displayColor != null){
             objectIsNull = false;
         }
 
         //only return somethin
+
+        console.log(this.props.displayColor);
+
+        //let color = parseInt(this.props.displayColor, 10);
+        let color = 'red';//'#ffffb2';
+        console.log(color);
+
+        // const styleObj = {
+        //     backgroundColor: color,
+        // }
 
         return (
             <tr>
@@ -21,12 +31,15 @@ export class RackRow extends Component {
 
                 { objectIsNull &&
                     <td> 
-                    { this.props.object }
+                    { this.props.instanceUrl }
                     </td> 
                 } 
-                { !objectIsNull &&
-                    <td2> 
-                    { this.props.object }
+                 { !objectIsNull &&
+                    <td2 style={{backgroundColor: color}}>
+                    {/* <td2> */}
+                    <pre>
+                        { this.props.model }       { this.props.hostname } 
+                    </pre>
                     </td2> 
                 }   
 
