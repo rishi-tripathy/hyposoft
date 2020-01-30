@@ -15,6 +15,29 @@ export class InstanceTable extends Component {
     this.props.sendInstanceID(id);
   }
 
+  showCreateForm = () => {
+		this.props.sendShowCreate(true);
+  }
+
+  showEditForm = (id) => {
+    this.props.sendShowEdit(true);
+    this.props.sendEditID(id);
+  }
+ 
+  showDeleteForm = (id) => {
+    if (window.confirm('Are you sure you want to delete?')) {
+      let dst = '/api/instances/'.concat(id).concat('/');
+      axios.delete(dst)
+      .then(function (response) {
+        console.log(response);
+      })
+      .catch(function (error) {
+        // TODO: handle error
+        console.log(error.response);
+      });
+    }
+  }
+
   renderTableHeader() {
     let header = ['id', 'model_vendor', 'hostname', 'rack', 'rack_u', 'owner_username'];
     return header.map((key, index) => {
@@ -28,13 +51,15 @@ export class InstanceTable extends Component {
 
         return (
           <tr key={id}>
-              <td>{id}</td>
-              <td>{model.vendor}</td>
-              <td>{hostname}</td>
-              <td>{rack.rack_number}</td>
-              <td>{rack_u}</td>
-              <td>{owner.username}</td>
-              <td><button onClick={ () => this.passUp(id) }>More details</button></td>
+            <td>{id}</td>
+            <td>{model.vendor}</td>
+            <td>{hostname}</td>
+            <td>{rack.rack_number}</td>
+            <td>{rack_u}</td>
+            <td>{owner.username}</td>
+            <td><button onClick={ () => this.passUp(id) }>More details</button></td>
+            <td><button onClick={ () => this.showEditForm(id) }>Edit</button></td>
+            <td><button onClick={ () => this.showDeleteForm(id) }>Delete</button></td>
           </tr>
         )
     })
@@ -43,7 +68,11 @@ export class InstanceTable extends Component {
   render() {
     return (
         <div>
-        <h1 id="title">Instances</h1>
+          <div>
+					 <p>gonna put filters and stuff here</p>
+					 <button onClick={ this.showCreateForm }>Add Instance</button>
+				 </div>
+
           <table id="entries">
               <tbody>
                 <tr>{this.renderTableHeader()}</tr>

@@ -2,6 +2,8 @@ import React, { Component } from 'react'
 import InstanceTable from './InstanceTable'
 import axios from 'axios'
 import DetailedInstance from './DetailedInstance';
+import CreateInstanceForm from './CreateInstanceForm';
+import EditInstanceForm from './EditInstanceForm';
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 export class InstanceController extends Component {
@@ -20,6 +22,8 @@ export class InstanceController extends Component {
       showTableView: true,
       showIndividualInstanceView: false,
       detailedInstanceID: 0,
+      showCreateView: false,
+      showEditView: false,
     };
 
     this.getShowTable = this.getShowTable.bind(this);
@@ -35,6 +39,38 @@ export class InstanceController extends Component {
       showTableView : false,
       showIndividualInstanceView: true
     }) 
+  }
+
+  getShowCreate = (show) => {
+    show ? this.setState({
+      showTableView: false,
+      showIndividualInstanceView: false,
+      showCreateView : true,
+      showEditView: false,
+      showDeleteView: false,
+    })
+    : this.setState({
+      showCreateView : false,
+    }) 
+  }
+
+  getShowEdit = (show) => {
+    show ? this.setState({
+      showTableView: false,
+      showIndividualInstanceView: false,
+      showCreateView : false,
+      showEditView: true,
+      showDeleteView: false,
+    })
+    : this.setState({
+      showEditView : false,
+    }) 
+  }
+
+  getEditID = (id) => {
+    this.setState({
+      editID: id,
+    });
   }
 
   
@@ -78,24 +114,37 @@ export class InstanceController extends Component {
 
 
   render() {
+    let content;
+
+    if (this.state.showTableView) {
+      content = <InstanceTable 
+                  instances={ this.state.instances } 
+                  sendShowTable={ this.getShowTable } 
+                  sendInstanceID={ this.getDetailedInstanceID }
+                  sendShowCreate={this.getShowCreate}
+                  sendShowEdit={this.getShowEdit}
+                  sendEditID={this.getEditID}
+                  sendShowDelete={this.getShowDelete} />;
+    }
+    else if (this.state.showIndividualInstanceView) {
+      content = <DetailedInstance instanceID={ this.state.detailedInstanceID } /> ;
+    }
+    else if (this.state.showCreateView) {
+      content = <CreateInstanceForm />
+    }
+    else if (this.state.showEditView) {
+      content = <EditInstanceForm />
+    }
+
+
+
+
     if (this.state.instances[0] == null) {
       return <p>No instances</p>
     } else {
       return (
         <div>
-          { 
-            this.state.showTableView ? 
-            <InstanceTable 
-              instances={ this.state.instances } 
-              sendShowTable={ this.getShowTable } 
-              sendInstanceID={ this.getDetailedInstanceID } /> 
-            : null
-          }
-          { 
-            this.state.showIndividualInstanceView ? 
-            <DetailedInstance instanceID={ this.state.detailedInstanceID } /> 
-            : null
-          }
+          { content }
         </div>
         
         
