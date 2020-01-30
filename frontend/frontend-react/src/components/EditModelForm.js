@@ -36,14 +36,7 @@ export class EditModelForm extends Component {
     
     axios.patch(dst, stateToSend)
     .then(function (response) {
-<<<<<<< HEAD
       alert('Edit was successful');
-=======
-      console.log(response);
-      console.log('trying to show table')
-      //this.props.sendShowEdit(false);
-      // this.props.sendShowTable(true);
->>>>>>> dev-frontend
     })
     .catch(function (error) {
       alert('Edit was not successful.\n' + JSON.stringify(error.response.data));
