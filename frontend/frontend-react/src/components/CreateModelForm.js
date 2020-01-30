@@ -7,30 +7,36 @@ export class CreateModelForm extends Component {
   constructor() {
     super();
     this.state = {
-      'vendor': '',
-      'model_number': '',
-      'height': '',
-      'display_color': '',
-      'ethernet_ports': '',
-      'power_ports': '',
-      'cpu': '',
-      'memory': '',
-      'storage': '',
-      'comment': '',
+      'vendor': null,
+      'model_number': null,
+      'height': null,
+      'display_color': null,
+      'ethernet_ports': null,
+      'power_ports': null,
+      'cpu': null,
+      'memory': null,
+      'storage': null,
+      'comment': null,
     }
   }
 
+  removeEmpty = (obj) => {
+    Object.keys(obj).forEach((k) => (!obj[k] && obj[k] !== undefined) && delete obj[k]);
+    return obj;
+  };
+
   handleSubmit = (e) => {
     e.preventDefault();
+
+    let stateCopy = Object.assign({}, this.state);
+    let stateToSend = this.removeEmpty(stateCopy);
     
-    axios.post('/api/models/', this.state)
+    axios.post('/api/models/', stateToSend)
     .then(function (response) {
-      this.props.sendShowTable(true);
-      console.log(response);
+      alert('Created successfully');
     })
     .catch(function (error) {
-      // TODO: handle error
-      console.log(error.response);
+      alert('Creation was not successful.\n' + JSON.stringify(error.response.data));
     });
   }
 

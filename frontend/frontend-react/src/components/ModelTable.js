@@ -27,11 +27,10 @@ export class ModelTable extends Component {
 			let dst = '/api/models/'.concat(id).concat('/');
 			axios.delete(dst)
 			.then(function (response) {
-				console.log(response);
+				alert('Delete was successful');
 			})
 			.catch(function (error) {
-				// TODO: handle error
-				console.log(error.response);
+				alert('Delete was not successful.\n' + JSON.stringify(error.response.data));
 			});
 		}
 
