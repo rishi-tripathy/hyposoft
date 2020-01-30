@@ -7,16 +7,16 @@ export class CreateModelForm extends Component {
   constructor() {
     super();
     this.state = {
-      'vendor': 'default',
-      'model_number': 'default',
-      'height': 2,
-      'display_color': 'Red',
-      'ethernet_ports': 1,
-      'power_ports': 1,
-      'cpu': 'Intel CPU',
-      'memory': 3,
-      'storage': 'Lots of Raid',
-      'comment': 'First Model'
+      'vendor': '',
+      'model_number': '',
+      'height': '',
+      'display_color': '',
+      'ethernet_ports': '',
+      'power_ports': '',
+      'cpu': '',
+      'memory': '',
+      'storage': '',
+      'comment': '',
     }
   }
 
@@ -25,6 +25,7 @@ export class CreateModelForm extends Component {
     
     axios.post('/api/models/', this.state)
     .then(function (response) {
+      this.props.sendShowTable(true);
       console.log(response);
     })
     .catch(function (error) {
