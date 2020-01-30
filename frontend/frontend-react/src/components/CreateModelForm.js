@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import axios from 'axios'
+import Select from 'react-select';
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 export class CreateModelForm extends Component {
@@ -7,17 +8,38 @@ export class CreateModelForm extends Component {
   constructor() {
     super();
     this.state = {
-      'vendor': null,
-      'model_number': null,
-      'height': null,
-      'display_color': null,
-      'ethernet_ports': null,
-      'power_ports': null,
-      'cpu': null,
-      'memory': null,
-      'storage': null,
-      'comment': null,
+      model: {
+        'vendor': null,
+        'model_number': null,
+        'height': null,
+        'display_color': null,
+        'ethernet_ports': null,
+        'power_ports': null,
+        'cpu': null,
+        'memory': null,
+        'storage': null,
+        'comment': null,
+      },
+      vendorOptions: [],
+      selectedVendorOption: null,
     }
+  }
+
+  componentDidMount() {
+    // MODEL
+    let dst = '/api/models/vendors/';
+    axios.get(dst).then(res => {
+      let myOptions = []; 
+      for (let i = 0; i < res.data.length; i++) {
+        myOptions.push({ value: res.data[i].vendor, label: res.data[i].vendor });
+      }
+      console.log(res.data)
+      this.setState({ vendorOptions: myOptions });
+    })
+    .catch(function (error) {
+      // TODO: handle error
+      console.log(error.response);
+    });
   }
 
   removeEmpty = (obj) => {
@@ -28,9 +50,11 @@ export class CreateModelForm extends Component {
   handleSubmit = (e) => {
     e.preventDefault();
 
-    let stateCopy = Object.assign({}, this.state);
+    let stateCopy = Object.assign({}, this.state.model);
+    stateCopy.vendor = this.state.selectedVendorOption.value;
     let stateToSend = this.removeEmpty(stateCopy);
     
+    console.log(stateToSend)
     axios.post('/api/models/', stateToSend)
     .then(function (response) {
       alert('Created successfully');
@@ -40,20 +64,101 @@ export class CreateModelForm extends Component {
     });
   }
 
+  handleChangeVendor = selectedVendorOption => {
+    this.setState({ selectedVendorOption });
+  };
+
   render() {
     return (
       <form onSubmit={this.handleSubmit}>
         <h3>Create model form!!</h3>
-        <p>Vendor</p> <input type="text" onChange={e => this.setState({vendor: e.target.value})} />
-        <p>Model number</p> <input type="text" onChange={e => this.setState({model_number: e.target.value})} />
-        <p>Height</p> <input type="number" onChange={e => this.setState({height: e.target.value})}/>
-        <p>Display color</p> <input type="text" onChange={e => this.setState({display_color: e.target.value})}/>
-        <p>Ethernet ports</p> <input type="number" onChange={e => this.setState({ethernet_ports: e.target.value})}/>
-        <p>Power ports</p> <input type="number" onChange={e => this.setState({power_ports: e.target.value})}/>
-        <p>CPU</p> <input type="text" onChange={e => this.setState({cpu: e.target.value})}/>
-        <p>Memory</p> <input type="number" onChange={e => this.setState({memory: e.target.value})}/>
-        <p>Storage</p> <input type="text" onChange={e => this.setState({storage: e.target.value})}/>
-        <p>Comment</p> <input type="text" onChange={e => this.setState({comment: e.target.value})}/>
+        <p>Vendor</p> 
+        <Select value={ this.state.selectedVendorOption }
+          onChange={ this.handleChangeVendor }
+          options={ this.state.vendorOptions }
+          searchable={ true } />
+
+        <p>Model number</p> 
+        <input type="text" onChange={e => {
+          let modelCopy = JSON.parse(JSON.stringify(this.state.model))
+          modelCopy.model_number = e.target.value
+          this.setState({
+            model: modelCopy 
+          }) 
+        } } />
+
+        <p>Height</p>
+        <input type="number" onChange={e => {
+          let modelCopy = JSON.parse(JSON.stringify(this.state.model))
+          modelCopy.height = e.target.value
+          this.setState({
+            model: modelCopy 
+          }) 
+        } } />
+
+        <p>Display color</p> 
+        <input type="text" onChange={e => {
+          let modelCopy = JSON.parse(JSON.stringify(this.state.model))
+          modelCopy.display_color = e.target.value
+          this.setState({
+            model: modelCopy 
+          }) 
+        } } />
+
+        <p>Ethernet ports</p> 
+        <input type="number" onChange={e => {
+          let modelCopy = JSON.parse(JSON.stringify(this.state.model))
+          modelCopy.ethernet_ports = e.target.value
+          this.setState({
+            model: modelCopy 
+          }) 
+        } } />
+
+        <p>Power ports</p>
+        <input type="number" onChange={e => {
+          let modelCopy = JSON.parse(JSON.stringify(this.state.model))
+          modelCopy.power_ports = e.target.value
+          this.setState({
+            model: modelCopy 
+          }) 
+        } } />
+
+        <p>CPU</p>
+        <input type="text" onChange={e => {
+          let modelCopy = JSON.parse(JSON.stringify(this.state.model))
+          modelCopy.cpu = e.target.value
+          this.setState({
+            model: modelCopy 
+          }) 
+        } } />
+
+        <p>Memory</p>
+        <input type="number" onChange={e => {
+          let modelCopy = JSON.parse(JSON.stringify(this.state.model))
+          modelCopy.memory = e.target.value
+          this.setState({
+            model: modelCopy 
+          }) 
+        } } />
+
+        <p>Storage</p>
+        <input type="text" onChange={e => {
+          let modelCopy = JSON.parse(JSON.stringify(this.state.model))
+          modelCopy.storage = e.target.value
+          this.setState({
+            model: modelCopy 
+          }) 
+        } } />
+        
+        <p>Comment</p>
+        <input type="number" onChange={e => {
+          let modelCopy = JSON.parse(JSON.stringify(this.state.model))
+          modelCopy.comment = e.target.value
+          this.setState({
+            model: modelCopy 
+          }) 
+        } } />
+
         <input type="submit" value="Submit" />
       </form>
     )

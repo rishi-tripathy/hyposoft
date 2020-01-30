@@ -104,10 +104,10 @@ export class CreateInstanceForm extends Component {
       <form onSubmit={this.handleSubmit}>
         <h3>Create Instance Form</h3>
         <p>Model</p> 
-          <Select value={ this.state.selectedModelOption }
-            onChange={ this.handleChangeModel }
-            options={ this.state.modelOptions }
-            searchable={ true } />
+        <Select value={ this.state.selectedModelOption }
+          onChange={ this.handleChangeModel }
+          options={ this.state.modelOptions }
+          searchable={ true } />
         
         <p>Hostname</p>
         <input type="text" onChange={e => {
@@ -139,7 +139,15 @@ export class CreateInstanceForm extends Component {
           options={ this.state.ownerOptions }
           searchable={ true } />
         
-        {/* <p>Comment</p> <input type="text" onChange={e => this.setState({model: e.target.value})} /> */}
+        <p>Comment</p> 
+        <input type="text" onChange={e => {
+          let instanceCopy = JSON.parse(JSON.stringify(this.state.instance))
+          instanceCopy.comment = e.target.value
+          this.setState({
+            instance: instanceCopy 
+          }) 
+        } } />
+
         <input type="submit" value="Submit" />
       </form>
     )
