@@ -130,7 +130,7 @@ export class InstanceController extends Component {
       content = <DetailedInstance instanceID={ this.state.detailedInstanceID } /> ;
     }
     else if (this.state.showCreateView) {
-      content = <CreateInstanceForm />
+      content = <CreateInstanceForm sendShowTable={this.getShowTable} />
     }
     else if (this.state.showEditView) {
       content = <EditInstanceForm />
