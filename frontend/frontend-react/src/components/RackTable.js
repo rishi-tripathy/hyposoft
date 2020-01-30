@@ -17,12 +17,26 @@ export class RackTable extends Component {
      }
    }
 
-   getRows() {
+   fixRows() {
       let rows = [];
       rows = this.props.rack[0];
       delete rows["id"];
       delete rows["rack_number"];
+
+      console.log(this.props.rack[0]);
+
+      for(var i of Object.keys(rows)){
+         rows[i.substring(1,3)] = rows[i]; //replace key
+         delete rows[i];
+      }
+      
+      console.log(rows);
+
       return rows;
+   }
+
+   getRows(){
+      return this.props.rack[0];
    }
 
    renderRows() {
@@ -35,17 +49,42 @@ export class RackTable extends Component {
       let hostnameInfo = []; //has hostname String or null
 
       for(var i of Object.keys(this.getRows())){
-         rackUs.push(i.substring(1,3)); //push U number
+         let previousRackU;
+         let nextRackU;
+         let currentRackU;
 
-         if(this.getRows()[i] !== null){
+         rackUs.push(i);
+
+         if(i!==1 && this.getRows()[i] !== null){
+
+            currentRackU = this.getRows()[i];
+
            // there is a rack here, need to break keys again
-            console.log(this.getRows()[i].url);
-            console.log(this.getRows()[i].model);
-            console.log(this.getRows()[i].hostname);
-            rackInstances.push(this.getRows()[i].url); //push rackInstance
-            modelInfo.push(this.getRows()[i].model.vendor +  " " +this.getRows()[i].model.model_number);
-            displayColors.push(this.getRows()[i].model.display_color);
-            hostnameInfo.push(this.getRows()[i].hostname);
+            console.log(currentRackU);
+            console.log(currentRackU.url);
+            console.log(currentRackU.model);
+            console.log(currentRackU.hostname);
+            rackInstances.push(currentRackU.url); //push rackInstance
+            displayColors.push(currentRackU.model.display_color);
+
+
+            //only want to display things if FIRST (which is last backwards)... 
+            previousRackU = this.getRows()[i-1];
+            nextRackU = this.getRows()[i+1];
+
+            console.log(previousRackU);
+            console.log(nextRackU);
+
+            if(previousRackU === null){
+               //the previous one is null and this is the first U of the thing
+               modelInfo.push(currentRackU.model.vendor +  " " + currentRackU.model.model_number);
+               hostnameInfo.push(currentRackU.hostname);
+            }
+            else{
+               modelInfo.push(null);
+               hostnameInfo.push(null);
+            }
+               
          }
          else {
             rackInstances.push(this.getRows()[i]); 
@@ -63,7 +102,7 @@ export class RackTable extends Component {
 
       return rackUs.reverse().map((row, index) => {
          return (
-          <RackRow row={row} instanceUrl ={rackInstances[rackUs.length-index-1]} model= {modelInfo[rackUs.length-index-1]} displayColor= {modelInfo[rackUs.length-index-1] } hostname={hostnameInfo[rackUs.length-index-1]}/>
+          <RackRow row={row} instanceUrl ={rackInstances[rackUs.length-index-1]} model= {modelInfo[rackUs.length-index-1]} displayColor= {displayColors[rackUs.length-index-1] } hostname={hostnameInfo[rackUs.length-index-1]}/>
          //<div></div>
           ) 
       })
@@ -72,6 +111,7 @@ export class RackTable extends Component {
    render() {
 
       let rackNumber = this.getRackNum();
+      let rows = this.fixRows();
 
       return (
            <table id="entries1">

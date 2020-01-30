@@ -1,17 +1,28 @@
 import React, { Component } from 'react'
 import '../stylesheets/RackTable.css'
+import styled from 'styled-components';
 
 export class RackRow extends Component {
     render() {
-        //console.log(this.props.row);
+        console.log(this.props.displayColor);
 
         let objectIsNull = true;
 
-        if(this.props.instanceUrl != null){
+        if(this.props.displayColor != null){
             objectIsNull = false;
         }
 
         //only return somethin
+
+        console.log(this.props.displayColor);
+
+        //let color = parseInt(this.props.displayColor, 10);
+        let color = 'red';//'#ffffb2';
+        console.log(color);
+
+        // const styleObj = {
+        //     backgroundColor: color,
+        // }
 
         return (
             <tr>
@@ -25,9 +36,11 @@ export class RackRow extends Component {
                     </td> 
                 } 
                  { !objectIsNull &&
-                    <td2> 
-                        { this.props.model } 
-                        { this.props.hostname }
+                    <td2 style={{backgroundColor: color}}>
+                    {/* <td2> */}
+                    <pre>
+                        { this.props.model }       { this.props.hostname } 
+                    </pre>
                     </td2> 
                 }   
 
