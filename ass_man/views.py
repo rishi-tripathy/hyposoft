@@ -60,6 +60,46 @@ class ModelViewSet(viewsets.ModelViewSet):
                         'ethernet_ports', 'power_ports', 'cpu', 'memory', 'storage']
 
     # Overriding of super functions
+    def update(self, request, *args, **kwargs):
+        model = self.get_object()
+        prev_height = model.height
+        instances = Instance.objects.all().filter(model=self.get_object())
+        serializer = self.get_serializer(model, data=request.data, partial=False)
+        serializer.is_valid(raise_exception=True)
+        # Check to see if it's OK to update this model (if all instances still fit
+        new_height = int(request.data['height'])
+        if prev_height < new_height:  # Have to check for conflicts
+            diff = new_height - prev_height
+            for instance in instances:
+                rack = instance.rack
+                prev_top_index = instance.rack_u+prev_height-1
+                for i in range(prev_top_index + 1, prev_top_index + diff + 1):
+                    try:
+                        if eval('rack.u{}'.format(i)):
+                            raise ValidationError
+                    except ValidationError:
+                        return Response(
+                            'This update fails because it would cause a height conflict for instance {} at rack {} based at {}, loop start {}, loop eend {}, error at {}, i think instance top was {}'
+                            .format(instance.hostname.__str__(), rack.rack_number.__str__(), instance.rack_u, prev_top_index+1, prev_top_index+1+diff, i, prev_top_index ),
+                            status=status.HTTP_400_BAD_REQUEST)
+            for instance in instances:  # All indices passed, we can apply updates now
+                rack = instance.rack
+                for i in range(instance.rack_u, instance.rack_u + new_height + 1):
+                    exec('rack.u{} = instance'.format(i))
+                rack.save()
+
+        elif prev_height > new_height:  # can't error, just have to clear extra space in rack
+            for instance in instances:
+                rack = instance.rack
+                prev_top_index = instance.rack_u + prev_height - 1
+                for i in range(instance.rack_u + new_height, prev_top_index + 1):
+                    exec('rack.u{} = None'.format(i))
+                rack.save()
+
+        serializer.save()  # Save updates to the model
+
+        return Response(serializer.data)
+
     def destroy(self, request, *args, **kwargs):
         matches = Instance.objects.filter(model=self.get_object())
         if matches.count() > 0:
@@ -166,7 +206,6 @@ class InstanceViewSet(viewsets.ModelViewSet):
             # If 'prefetch_related' has been applied to a queryset, we need to
             # forcibly invalidate the prefetch cache on the instance.
             instance._prefetched_objects_cache = {}
-
         return Response(serializer.data)
     # Custom actions below
 

@@ -91,7 +91,7 @@ class InstanceSerializer(serializers.HyperlinkedModelSerializer):
         model = validated_data['model']
         height = model.height
         invalid_list = []
-        if rack_u+height > 42:
+        if (rack_u+height-1) > 42:
             raise serializers.ValidationError("Height conflict: this instance does not fit in the rack at this location.")
         for i in range(rack_u, rack_u+height):
             if eval('rack.u{} and (rack.u{} != instance)'.format(i, i)):
