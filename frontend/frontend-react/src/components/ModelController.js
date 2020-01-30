@@ -77,9 +77,6 @@ export class ModelController extends Component {
       const b = res.data.results;
       this.setState({ models: b });
     })
-    .then(function (response) {
-      console.log(response);
-    })
     .catch(function (error) {
       // TODO: handle error
       console.log(error.response);

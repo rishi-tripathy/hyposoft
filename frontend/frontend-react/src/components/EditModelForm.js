@@ -8,31 +8,37 @@ export class EditModelForm extends Component {
   constructor() {
     super();
     this.state = {
-      'vendor': 'default',
-      'model_number': 'default',
-      'height': 2,
-      'display_color': 'Red',
-      'ethernet_ports': 1,
-      'power_ports': 1,
-      'cpu': 'Intel CPU',
-      'memory': 3,
-      'storage': 'Lots of Raid',
-      'comment': 'First Model'
+      'vendor': null,
+      'model_number': null,
+      'height': null,
+      'display_color': null,
+      'ethernet_ports': null,
+      'power_ports': null,
+      'cpu': null,
+      'memory': null,
+      'storage': null,
+      'comment': null,
     }
   }
+
+  removeEmpty = (obj) => {
+    Object.keys(obj).forEach((k) => (!obj[k] && obj[k] !== undefined) && delete obj[k]);
+    return obj;
+  };
 
   handleSubmit = (e) => {
     e.preventDefault();
     let dst = '/api/models/'.concat(this.props.editID).concat('/');
 
-    //TODO: NEED this.state AS A PARAM, LOOK UP WHY
-    axios.patch(dst, this.state)
+    let stateCopy = Object.assign({}, this.state);
+    let stateToSend = this.removeEmpty(stateCopy);
+    
+    axios.patch(dst, stateToSend)
     .then(function (response) {
-      console.log(response);
+      alert('Edit was successful');
     })
     .catch(function (error) {
-      // TODO: handle error
-      console.log(error.response);
+      alert('Edit was not successful.\n' + JSON.stringify(error.response.data));
     });
   }
 
