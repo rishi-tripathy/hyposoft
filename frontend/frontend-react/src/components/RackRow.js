@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
 import '../stylesheets/RackTable.css'
-import styled from 'styled-components';
 
 export class RackRow extends Component {
     render() {

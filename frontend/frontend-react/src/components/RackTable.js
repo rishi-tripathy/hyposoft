@@ -60,10 +60,10 @@ export class RackTable extends Component {
             currentRackU = this.getRows()[i];
 
            // there is a rack here, need to break keys again
-            console.log(currentRackU);
-            console.log(currentRackU.url);
-            console.log(currentRackU.model);
-            console.log(currentRackU.hostname);
+            // console.log(currentRackU);
+            // console.log(currentRackU.url);
+            // console.log(currentRackU.model);
+            // console.log(currentRackU.hostname);
             rackInstances.push(currentRackU.url); //push rackInstance
             displayColors.push(currentRackU.model.display_color);
 
@@ -94,11 +94,11 @@ export class RackTable extends Component {
          }
       }
 
-      console.log(rackUs);
-      console.log(rackInstances);
-      console.log(modelInfo);
-      console.log(displayColors);
-      console.log(hostnameInfo);
+      // console.log(rackUs);
+      // console.log(rackInstances);
+      // console.log(modelInfo);
+      // console.log(displayColors);
+      // console.log(hostnameInfo);
 
       return rackUs.reverse().map((row, index) => {
          return (
