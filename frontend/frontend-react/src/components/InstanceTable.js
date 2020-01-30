@@ -56,7 +56,7 @@ export class InstanceTable extends Component {
             <td>{hostname}</td>
             <td>{rack.rack_number}</td>
             <td>{rack_u}</td>
-            <td>{owner.username}</td>
+            <td>{owner ? owner.username : null}</td>
             <td><button onClick={ () => this.passUp(id) }>More details</button></td>
             <td><button onClick={ () => this.showEditForm(id) }>Edit</button></td>
             <td><button onClick={ () => this.showDeleteForm(id) }>Delete</button></td>

@@ -21,6 +21,7 @@ export class RackTable extends Component {
       let rows = [];
       rows = this.props.rack[0];
       delete rows["id"];
+      delete rows["url"];
       delete rows["rack_number"];
 
       console.log(this.props.rack[0]);
