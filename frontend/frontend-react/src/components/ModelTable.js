@@ -22,17 +22,19 @@ export class ModelTable extends Component {
 		this.props.sendEditID(id);
 	}
    
-	showDeleteForm = (id) => {
-	if (window.confirm('Are you sure you want to delete?')) {
-		let dst = '/api/models/'.concat(id).concat('/');
-		axios.delete(dst)
-		.then(function (response) {
-			console.log(response);
-		})
-		.catch(function (error) {
-			// TODO: handle error
-			console.log(error.response);
-		});
+   showDeleteForm = (id) => {
+		if (window.confirm('Are you sure you want to delete?')) {
+			let dst = '/api/models/'.concat(id).concat('/');
+			axios.delete(dst)
+			.then(function (response) {
+				alert('Delete was successful');
+			})
+			.catch(function (error) {
+				alert('Delete was not successful.\n' + JSON.stringify(error.response.data));
+			});
+		}
+
+		//this.props.sendShowDelete(true);
 	}
 	//this.props.sendShowDelete(true);
 }
