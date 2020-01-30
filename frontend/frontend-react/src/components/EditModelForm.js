@@ -5,8 +5,8 @@ axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 export class EditModelForm extends Component {
 
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = {
       'vendor': 'default',
       'model_number': 'default',
@@ -19,6 +19,7 @@ export class EditModelForm extends Component {
       'storage': 'Lots of Raid',
       'comment': 'First Model'
     }
+    //this.handleSubmit = this.handleSubmit.bind(this);
   }
 
   handleSubmit = (e) => {
@@ -29,6 +30,9 @@ export class EditModelForm extends Component {
     axios.patch(dst, this.state)
     .then(function (response) {
       console.log(response);
+      console.log('trying to show table')
+      //this.props.sendShowEdit(false);
+      // this.props.sendShowTable(true);
     })
     .catch(function (error) {
       // TODO: handle error
@@ -58,8 +62,6 @@ export class EditModelForm extends Component {
       console.log(error.response);
     });
   }
-
-  
 
   render() {
     return (
