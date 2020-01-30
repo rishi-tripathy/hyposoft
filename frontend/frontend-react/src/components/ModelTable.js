@@ -24,7 +24,6 @@ export class ModelTable extends Component {
    
    showDeleteForm = (id) => {
 		if (window.confirm('Are you sure you want to delete?')) {
-			console.log('delete')
 			let dst = '/api/models/'.concat(id).concat('/');
 			axios.delete(dst)
 			.then(function (response) {
@@ -73,8 +72,11 @@ export class ModelTable extends Component {
   render() {
     return (
       <div>
-         <h1 id="title">Models</h1>
-         <button onClick={ this.showCreateForm } >Add</button>
+				 <div>
+					 <p>gonna put filters and stuff here</p>
+					 <button onClick={ this.showCreateForm }>Add</button>
+				 </div>
+         
          <table id="entries">
             <tbody>
                <tr>{this.renderTableHeader()}</tr>
