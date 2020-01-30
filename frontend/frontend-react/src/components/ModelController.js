@@ -161,7 +161,8 @@ export class ModelController extends Component {
       
     }
     else if (this.state.showCreateView){
-        content = <CreateModelForm sendShowTable={this.getShowTable} /> 
+        content = <CreateModelForm 
+                    sendShowTable={this.getShowTable} /> 
     }
     else if (this.state.showEditView){
         content= <EditModelForm editID={this.state.editID} 
