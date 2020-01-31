@@ -4,6 +4,7 @@ import axios from 'axios'
 import DetailedInstance from './DetailedInstance';
 import CreateInstanceForm from './CreateInstanceForm';
 import EditInstanceForm from './EditInstanceForm';
+import InstanceFilters from './InstanceFilters';
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 export class InstanceController extends Component {
@@ -26,10 +27,12 @@ export class InstanceController extends Component {
       showEditView: false,
       prevPage: null,
       nextPage: null,
+      filterQuery: '',
     };
 
     this.getShowTable = this.getShowTable.bind(this);
     this.getDetailedInstanceID = this.getDetailedInstanceID.bind(this);
+    this.getFilterQuery = this.getFilterQuery.bind(this);
   }
 
   getShowTable = (show) => {
@@ -75,50 +78,44 @@ export class InstanceController extends Component {
     });
   }
 
-  
-
   getDetailedInstanceID = (id) => {
     this.setState({ detailedInstanceID: id});
   }
 
   getInstances() {
-    let modelAPIDest, rackAPIDest, ownerAPIDest;
-    
-    axios.get('/api/instances/?detail=short').then(res => {
+    console.log('retrieving instnaces')
+    let dst = '/api/instances/' + this.state.filterQuery;
+    axios.get(dst).then(res => {
       console.log(res.data.next)
       this.setState({ 
         instances: res.data.results,
         prevPage: res.data.previous,
         nextPage: res.data.next,
       });
-
-      // // list of instances
-      // const instanceList = res.data.results;
-
-      // // TODO: integrate
-      // console.log(instanceList);
-      // if (instanceList[0] == null) {
-      //   console.log('instances[0] is null');
-      //   return;
-      // }
-
-      // // this works for nested stuff
-      // // waiting for miles to update API
-      // // axios.get(modelAPIDest).then(r => {
-      // //   console.log(r);
-      // // })
-
-      // this.setState({ instances: instanceList });
     })
     .catch(function (error) {
       // TODO: handle error
       console.log(error.response);
     });
+  }
 
+  getFilterQuery = (q) => {
+    this.setState({
+      filterQuery: q,
+    });
+    console.log(this.state.filterQuery);
   }
 
   componentDidMount() {
     this.getInstances();
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState.filterQuery !== this.state.filterQuery) {
+      console.log('instnace controller update')
+      this.getInstances();
+    }
+    
   }
 
   paginateNext = () => {
@@ -158,23 +155,21 @@ export class InstanceController extends Component {
                   instances={ this.state.instances } 
                   sendShowTable={ this.getShowTable } 
                   sendInstanceID={ this.getDetailedInstanceID }
-                  sendShowCreate={this.getShowCreate}
-                  sendShowEdit={this.getShowEdit}
-                  sendEditID={this.getEditID}
-                  sendShowDelete={this.getShowDelete} />;
+                  sendShowCreate={this.getShowCreate }
+                  sendShowEdit={this.getShowEdit }
+                  sendEditID={this.getEditID } />;
     }
     else if (this.state.showIndividualInstanceView) {
       content = <DetailedInstance instanceID={ this.state.detailedInstanceID } /> ;
     }
     else if (this.state.showCreateView) {
-      content = <CreateInstanceForm sendShowTable={this.getShowTable} />
+      content = <CreateInstanceForm sendShowTable={this.getShowTable } />
     }
     else if (this.state.showEditView) {
       content = <EditInstanceForm editID={this.state.editID} 
                   sendShowTable={ this.getShowTable } 
-                  sendShowCreate={this.getShowCreate}
-                  sendShowEdit={this.getShowEdit}
-                  sendShowDelete={this.getShowDelete} />
+                  sendShowCreate={this.getShowCreate }
+                  sendShowEdit={this.getShowEdit } />
     }
 
     let paginateNavigation = <p></p>;
@@ -188,13 +183,18 @@ export class InstanceController extends Component {
       paginateNavigation = <div><button onClick={ this.paginatePrev }>prev page</button><button onClick={ this.paginateNext }>next page</button></div>;
     }
 
+    let filters = <InstanceFilters sendFilterQuery={ this.getFilterQuery } />
+
     // if we're not on the table, then don't show pagination
     if (! this.state.showTableView) {
       paginateNavigation = <p></p>;
+      filters = <p></p>;
     }
 
     return (
       <div>
+        { filters }
+        <br></br>
         { paginateNavigation }
         <br></br>
         { content }

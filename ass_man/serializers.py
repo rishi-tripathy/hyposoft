@@ -54,7 +54,7 @@ class VendorsSerializer(serializers.ModelSerializer):
 class UniqueModelsSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Model
-        fields = ['url', 'vendor', 'model_number']
+        fields = ['id', 'url', 'vendor', 'model_number']
 
 
 class ModelInstanceSerializer(serializers.HyperlinkedModelSerializer):

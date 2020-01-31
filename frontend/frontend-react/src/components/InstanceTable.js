@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import '../stylesheets/TableView.css'
 import axios from 'axios'
+import InstanceFilters from './InstanceFilters';
 
 
 export class InstanceTable extends Component {
@@ -70,9 +71,8 @@ export class InstanceTable extends Component {
     return (
         <div>
           <div>
-					 <p>gonna put filters and stuff here</p>
-					 <button onClick={ this.showCreateForm }>Add Instance</button>
-				 </div>
+            <button onClick={ this.showCreateForm }>Add Instance</button>
+          </div>
 
           <table id="entries">
               <tbody>
