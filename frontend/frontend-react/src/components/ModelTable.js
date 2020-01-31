@@ -9,7 +9,7 @@ export class ModelTable extends Component {
 	constructor() {
 		super();
 		this.state = {
-			importCSV: null,
+			file: null,
 		}
 		this.showCreateForm = this.showCreateForm.bind(this);
 		this.showEditForm = this.showEditForm.bind(this);
@@ -80,23 +80,26 @@ export class ModelTable extends Component {
 		});
 	}
 
+	
+
+	handleFileUpload = (e) => {
+		console.log(e.target.files[0])
+		this.setState({
+      file: e.target.files[0],
+		});
+	}
+
 	fileUpload = (file) => {
 		const url = '/api/models/import_file/';
     const formData = new FormData();
-    formData.append('file',file)
+		formData.append('file', file)
+		formData.append('name', 'sup')
     const config = {
         headers: {
             'content-type': 'multipart/form-data'
         }
     }
-    return post(url, formData,config)
-	}
-
-	handleFileUpload = (e) => {
-		console.log(e.target.files[0])
-		this.setState({
-      importCSV: e.target.files[0],
-		});
+    return post(url, formData, config)
 	}
 
   render() {
