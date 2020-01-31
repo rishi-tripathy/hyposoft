@@ -46,6 +46,7 @@ export class RacksView extends Component {
     render(){
         return(
             <div>
+                
             <p>gonna put filters and stuff here</p><button onClick={ this.showCreateForm }>Add Single Rack</button>
                 { this.props.rack.map((item, key) =>
                 <div id="rackContainer">

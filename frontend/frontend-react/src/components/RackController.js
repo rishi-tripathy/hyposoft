@@ -37,6 +37,15 @@ export class RackController extends Component {
     }) 
   }
 
+  handleCreateClick = () => {
+    this.setState({
+      showRacksView: false,
+      showCreateView : true,
+      showEditView: false,
+      showDeleteView: false,
+    })
+  }
+
   getShowCreate = (show) => {
     show ? this.setState({
       showRacksView: false,
@@ -138,6 +147,9 @@ export class RackController extends Component {
   render() { 
     let content; 
 
+    console.log("render again");
+    console.log(this.state);
+
     if (this.state.showRacksView){
       content = 
         <RacksView rack={this.state.racks}
@@ -173,9 +185,6 @@ export class RackController extends Component {
       paginateNavigation = <p></p>;
     }
   
-    if (this.state.racks[0] == null) {
-      return <p>No racks exist</p>
-    } else {
       return (
         <div>
           { paginateNavigation }
@@ -185,6 +194,6 @@ export class RackController extends Component {
       )
     }
   }
-}
+//}
 
 export default RackController
