@@ -27,7 +27,9 @@ export class RackRow extends Component {
         //     backgroundColor: color,
         // }
         let content; 
-        let dispColor = this.props.displayColor;
+        let dispColor = '#';
+        dispColor = dispColor.concat(this.props.displayColor);
+        console.log(dispColor)
         let bcolor = 'black';
         if(!objectIsNull){
             content = 
