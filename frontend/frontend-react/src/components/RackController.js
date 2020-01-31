@@ -181,10 +181,6 @@ export class RackController extends Component {
         </div>
       )
     }
-    // return(
-    //     <RacksView rack={racks} /> 
-    // )
-    // }
   }
 }
 

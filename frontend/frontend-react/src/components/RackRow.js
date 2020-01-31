@@ -3,7 +3,7 @@ import '../stylesheets/RackTable.css'
 
 export class RackRow extends Component {
     render() {
-        console.log(this.props.displayColor);
+       // console.log(this.props.displayColor);
 
         let objectIsNull = true;
 
@@ -13,11 +13,11 @@ export class RackRow extends Component {
 
         //only return somethin
 
-        console.log(this.props.displayColor);
+       // console.log(this.props.displayColor);
 
         //let color = parseInt(this.props.displayColor, 10);
         let color = 'red';//'#ffffb2';
-        console.log(color);
+        //console.log(color);
 
         // const styleObj = {
         //     backgroundColor: color,
