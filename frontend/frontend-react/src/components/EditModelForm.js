@@ -35,8 +35,9 @@ export class EditModelForm extends Component {
     e.preventDefault();
     let dst = '/api/models/'.concat(this.props.editID).concat('/');
 
-    let stateCopy = Object.assign({}, this.state);
+    let stateCopy = Object.assign({}, this.state.model);
     let stateToSend = this.removeEmpty(stateCopy);
+    console.log(stateToSend)
     
     axios.patch(dst, stateToSend)
     .then(function (response) {
@@ -52,8 +53,16 @@ export class EditModelForm extends Component {
     axios.get(dst).then(res => {
       console.log(res);
       
-      let modelCopy = JSON.parse(JSON.stringify(this.state.model))
-      modelCopy.vendor = res.data.vendor
+      let modelCopy = JSON.parse(JSON.stringify(this.state.model));
+      modelCopy.vendor = res.data.vendor;
+      modelCopy.model_number = res.data.model_number;
+      modelCopy.display_color = res.data.display_color;
+      modelCopy.ethernet_ports = res.data.ethernet_ports;
+      modelCopy.power_ports = res.data.power_ports;
+      modelCopy.cpu = res.data.cpu;
+      modelCopy.memory = res.data.memory;
+      modelCopy.storage = res.data.storage;
+      modelCopy.comment = res.data.comment;
       this.setState({
         model: modelCopy,
       }) 
@@ -107,16 +116,105 @@ export class EditModelForm extends Component {
           options={ this.state.vendorOptions }
           searchable={ true } />
         
-        {/* <input type="text" value={this.state.vendor} onChange={e => this.setState({vendor: e.target.value})} /> */}
-        {/* <p>Model number</p> <input type="text" value={this.state.model_number} onChange={e => this.setState({model_number: e.target.value})} />
-        <p>Height</p> <input type="number" value={this.state.height} onChange={e => this.setState({height: e.target.value})}/>
-        <p>Display color</p> <input type="text" value={this.state.display_color} onChange={e => this.setState({display_color: e.target.value})}/>
-        <p>Ethernet ports</p> <input type="number" value={this.state.ethernet_ports} onChange={e => this.setState({ethernet_ports: e.target.value})}/>
-        <p>Power ports</p> <input type="number" value={this.state.power_ports} onChange={e => this.setState({power_ports: e.target.value})}/>
-        <p>CPU</p> <input type="text" value={this.state.cpu} onChange={e => this.setState({cpu: e.target.value})}/>
-        <p>Memory</p> <input type="number" value={this.state.memory} onChange={e => this.setState({memory: e.target.value})}/>
-        <p>Storage</p> <input type="text" value={this.state.storage} onChange={e => this.setState({storage: e.target.value})}/>
-        <p>Comment</p> <input type="text" value={this.state.comment} onChange={e => this.setState({comment: e.target.value})}/> */}
+        
+        <p>Model number</p> 
+        <input type="text" 
+          value={this.state.model.model_number}
+          onChange={e => {
+            let modelCopy = JSON.parse(JSON.stringify(this.state.model))
+            modelCopy.model_number = e.target.value
+            this.setState({
+              model: modelCopy 
+            }) 
+        } } />
+
+        <p>Height</p>
+        <input type="number" 
+          value={this.state.model.height}
+          onChange={e => {
+            let modelCopy = JSON.parse(JSON.stringify(this.state.model))
+            modelCopy.height = e.target.value
+            this.setState({
+              model: modelCopy 
+            }) 
+        } } />
+
+        <p>Display color</p>
+        <input type="text" 
+          value={this.state.model.display_color}
+          onChange={e => {
+            let modelCopy = JSON.parse(JSON.stringify(this.state.model))
+            modelCopy.display_color = e.target.value
+            this.setState({
+              model: modelCopy 
+            }) 
+        } } />
+        
+        <p>Ethernet ports</p> 
+        <input type="number" 
+          value={this.state.model.ethernet_ports}
+          onChange={e => {
+            let modelCopy = JSON.parse(JSON.stringify(this.state.model))
+            modelCopy.ethernet_ports = e.target.value
+            this.setState({
+              model: modelCopy 
+            }) 
+        } } />
+
+        <p>Power ports</p> 
+        <input type="number" 
+          value={this.state.model.power_ports}
+          onChange={e => {
+            let modelCopy = JSON.parse(JSON.stringify(this.state.model))
+            modelCopy.power_ports = e.target.value
+            this.setState({
+              model: modelCopy 
+            }) 
+        } } />
+
+        <p>CPU</p> 
+        <input type="text" 
+          value={this.state.model.cpu}
+          onChange={e => {
+            let modelCopy = JSON.parse(JSON.stringify(this.state.model))
+            modelCopy.cpu = e.target.value
+            this.setState({
+              model: modelCopy 
+            }) 
+        } } />
+        
+        <p>Memory</p> 
+        <input type="number" 
+          value={this.state.model.memory}
+          onChange={e => {
+            let modelCopy = JSON.parse(JSON.stringify(this.state.model))
+            modelCopy.memory = e.target.value
+            this.setState({
+              model: modelCopy 
+            }) 
+        } } />
+
+        <p>Storage</p>
+        <input type="text" 
+          value={this.state.model.storage}
+          onChange={e => {
+            let modelCopy = JSON.parse(JSON.stringify(this.state.model))
+            modelCopy.storage = e.target.value
+            this.setState({
+              model: modelCopy 
+            }) 
+        } } />
+
+        <p>Comment</p>
+        <input type="text" 
+          value={this.state.model.comment}
+          onChange={e => {
+            let modelCopy = JSON.parse(JSON.stringify(this.state.model))
+            modelCopy.comment = e.target.value
+            this.setState({
+              model: modelCopy 
+            }) 
+        } } />
         <input type="submit" value="Submit" />
       </form>
     )
