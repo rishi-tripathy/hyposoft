@@ -76,8 +76,9 @@ export class CreateRackForm extends Component {
   render() {
     return (
       <form onSubmit={this.handleSubmit}>
-        <h3>Create rack form!!</h3>
-        <p>rack_number</p> <input type="text" onChange={e => this.setState({vendor: e.target.value})} />
+        <h3>Create rack form</h3>
+        <p>Rack Number</p> <input type="text" onChange={e => this.setState({rack_number: e.target.value})} />
+        <input type="submit" value="Submit" />
       </form>
     )
   }

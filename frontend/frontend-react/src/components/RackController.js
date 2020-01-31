@@ -136,7 +136,6 @@ export class RackController extends Component {
     let content; 
 
     if (this.state.showRacksView){
-
       content = 
         <RacksView rack={this.state.racks}
                   sendShowCreate={this.getShowCreate}
