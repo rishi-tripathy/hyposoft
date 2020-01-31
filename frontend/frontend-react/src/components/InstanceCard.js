@@ -18,7 +18,7 @@ export class InstanceCard extends Component {
           <p>Hostname: {hostname}</p> 
           <p>Rack Number: {rack.rack_number}</p> 
           <p>Rack_U: {rack_u}</p> 
-          <p>Owner Username: {owner.username}</p> 
+          <p>Owner Username: {owner ? owner.username : null}</p> 
           <p>Comment: {comment}</p> 
           <DetailedModelModal modelURL={model.url} />
           {/* <button onClick={ this.showModel }>See Detailed Model</button> */}
