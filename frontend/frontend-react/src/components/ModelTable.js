@@ -104,7 +104,7 @@ export class ModelTable extends Component {
 				</div>
 				<div>
 					<input type="file" name="file" onChange={this.handleImport} />
-					<button>Submit</button>
+					<button>Import File</button>
 				</div>
          
          <table id="entries">
