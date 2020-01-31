@@ -97,8 +97,6 @@ class ModelViewSet(viewsets.ModelViewSet):
                             ', '.join(offending_instances),
                             status=status.HTTP_400_BAD_REQUEST)
         return super().destroy(self, request, *args, **kwargs)
-<<<<<<< HEAD
-=======
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
@@ -119,7 +117,6 @@ class ModelViewSet(viewsets.ModelViewSet):
             return self.get_paginated_response(serializer.data)
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
->>>>>>> master
 
     # Custom actions below
     @action(detail=False, methods=['GET'])
@@ -311,13 +308,6 @@ class RackViewSet(viewsets.ModelViewSet):
         slots = ['u{}'.format(i) for i in range(1, 43)]
         offending_instances = []
         for slot in slots:
-<<<<<<< HEAD
-            if getattr(self.get_object(), slot):
-                u_filled += 1
-        if u_filled > 0:
-            return Response('Cannot delete this rack as it is not empty.',
-                            status=status.HTTP_400_BAD_REQUEST)
-=======
             match = getattr(self.get_object(), slot)
             if match:
                 offending_instances.append(match.hostname.__str__()
@@ -330,7 +320,6 @@ class RackViewSet(viewsets.ModelViewSet):
             return Response({
                 'Error:', err_message
             }, status=status.HTTP_400_BAD_REQUEST)
->>>>>>> master
         return super().destroy(self, request, *args, **kwargs)
 
     # New Actions
