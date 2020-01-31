@@ -45,7 +45,6 @@ class ModelViewSet(viewsets.ModelViewSet):
 
     queryset = Model.objects.all()
 
-
     def get_serializer_class(self):
         if self.request.method == 'GET':
             serializer_class = ModelSerializer if self.detail else ModelShortSerializer
@@ -193,7 +192,7 @@ class InstanceViewSet(viewsets.ModelViewSet):
         prev_rack_u = instance.rack_u
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
-        for i in range(prev_rack_u, prev_rack_u + instance.model.height):
+        for i in range(prev_rack_u, prev_rack_u + instance.model.height + 1):
             exec('prev_rack.u{} = None'.format(i))
         prev_rack.save()
         self.perform_update(serializer)
