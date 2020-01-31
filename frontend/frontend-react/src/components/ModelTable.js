@@ -19,12 +19,12 @@ export class ModelTable extends Component {
 	showCreateForm = () => {
 		this.props.sendShowCreate(true);
   }
-   
+
 	showEditForm = (id) => {
 		this.props.sendShowEdit(true);
 		this.props.sendEditID(id);
 	}
-   
+
 	showDeleteForm = (id) => {
 		if (window.confirm('Are you sure you want to delete?')) {
 			let dst = '/api/models/'.concat(id).concat('/');
@@ -44,8 +44,8 @@ export class ModelTable extends Component {
   //   return header.map((key, index) => {
   //      return <th key={index}>{key.toUpperCase()}</th>
 	// 	})
-		
-		let header = ['id', 'vendor', 'model_number', 'height', 
+
+		let header = ['id', 'vendor', 'model_number', 'height',
 		'display_color', 'ethernet_ports,', 'power_ports', 'cpu', 'memory', 'storage', 'comment'];
     return header.map((key, index) => {
         return <th key={index}>{key.toUpperCase()}</th>
@@ -84,7 +84,7 @@ export class ModelTable extends Component {
 		formData.append('file', this.state.importCSV);
 		let options = {
 			method: 'POST',
-			//headers: {"Authorization": localStorage.getItem("token")},
+			headers: {"Authorization": localStorage.getItem("token")},
 			body: formData
 		}
 
@@ -95,7 +95,7 @@ export class ModelTable extends Component {
 			})
 
 	}
-  
+
   render() {
     return (
       <div>
@@ -106,7 +106,7 @@ export class ModelTable extends Component {
 					<input type="file" name="file" onChange={this.handleImport} />
 					<button>Import File</button>
 				</div>
-         
+
          <table id="entries">
             <tbody>
                <tr>{this.renderTableHeader()}</tr>
