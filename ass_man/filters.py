@@ -1,6 +1,10 @@
 from rest_framework import generics
 from django_filters import rest_framework as filters
 from ass_man.models import Model, Instance, Rack
+from rest_framework import filters as rest_filters
+from django.db.models.functions import Substr
+from rest_framework.validators import ValidationError
+from rest_framework.response import Response
 
 
 class ModelFilter(filters.FilterSet):
@@ -33,5 +37,38 @@ class InstanceFilter(filters.FilterSet):
         fields = ['vendor', 'model_number', 'hostname', 'owner', 'comment']
 
 
+class InstanceFilterByRack(rest_filters.BaseFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        # If this filter is not being invoked:
+        if not request.query_params.get('rack_num_start') or not request.query_params.get('rack_num_end'):
+            return queryset
 
+        # If it is being invoked:
+        start_letter = request.query_params.get('rack_num_start')[0]
+        start_number = request.query_params.get('rack_num_start')[1:]
+        end_letter = request.query_params.get('rack_num_end')[0]
+        end_number = request.query_params.get('rack_num_end')[1:]
+        return queryset \
+            .annotate(rack_num_letter=Substr('rack__rack_number', 1, 1)) \
+            .annotate(rack_num_number=Substr('rack__rack_number', 2, None)) \
+            .filter(rack_num_letter__range=(start_letter, end_letter)) \
+            .filter(rack_num_number__range=(start_number, end_number))
+
+
+class RackFilter(rest_filters.BaseFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        # If this filter is not being invoked:
+        if not request.query_params.get('rack_num_start') or not request.query_params.get('rack_num_end'):
+            return queryset
+
+        # If it is being invoked:
+        start_letter = request.query_params.get('rack_num_start')[0]
+        start_number = request.query_params.get('rack_num_start')[1:]
+        end_letter = request.query_params.get('rack_num_end')[0]
+        end_number = request.query_params.get('rack_num_end')[1:]
+        return queryset\
+            .annotate(rack_num_letter=Substr('rack_number', 1, 1))\
+            .annotate(rack_num_number=Substr('rack_number', 2, None))\
+            .filter(rack_num_letter__range=(start_letter, end_letter))\
+            .filter(rack_num_number__range=(start_number, end_number))
 

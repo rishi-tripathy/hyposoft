@@ -21,7 +21,9 @@ from ass_man.serializers import (InstanceShortSerializer,
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 # Project
 from ass_man.models import Model, Instance, Rack
-from ass_man.filters import ModelFilter
+from rest_framework.filters import OrderingFilter
+from django_filters.rest_framework import DjangoFilterBackend as DjangoFiltersBackend
+from ass_man.filters import InstanceFilter, ModelFilter, RackFilter, InstanceFilterByRack
 
 ADMIN_ACTIONS = {'create', 'update', 'partial_update', 'destroy'}
 
@@ -40,8 +42,8 @@ class ModelViewSet(viewsets.ModelViewSet):
 
     queryset = Model.objects.all()
 
+
     def get_serializer_class(self):
-        # detail = self.request.query_params.get('detail')
         if self.request.method == 'GET':
             serializer_class = ModelSerializer if self.detail else ModelShortSerializer
         else:
@@ -49,9 +51,10 @@ class ModelViewSet(viewsets.ModelViewSet):
         return serializer_class
 
     ordering_fields = ['vendor', 'model_number', 'height', 'display_color',
-                       'ethernet_ports', 'power_ports', 'cpu', 'memory', 'storage', 'comment']
+                       'ethernet_ports', 'power_ports', 'cpu', 'memory', 'storage']
 
-    filterset_class = ModelFilter
+    filterset_fields = ['vendor', 'model_number', 'height', 'display_color',
+                        'ethernet_ports', 'power_ports', 'cpu', 'memory', 'storage']
 
     # Overriding of super functions
     def destroy(self, request, *args, **kwargs):
@@ -59,8 +62,12 @@ class ModelViewSet(viewsets.ModelViewSet):
         if matches.count() > 0:
             offending_instances = []
             for match in matches:
-                offending_instances.append(match.rack.rack_number.__str__() + match.rack_u.__str__())
-            return Response('Cannot delete this model as there are associated instances at the following locations: ' +
+                offending_instances.append(match.hostname.__str__() +
+                                           ' at ' +
+                                           match.rack.rack_number.__str__() +
+                                           ' U' +
+                                           match.rack_u.__str__())
+            return Response('Cannot delete this model as there are associated instances: ' +
                             ', '.join(offending_instances),
                             status=status.HTTP_400_BAD_REQUEST)
         super().destroy(self, request, *args, **kwargs)
@@ -87,6 +94,10 @@ class ModelViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['GET'])
     def instances(self, request, *args, **kwargs):
         instances = Instance.objects.all().filter(model=self.get_object())
+        page = self.paginate_queryset(instances)
+        if page is not None:
+            serializer = InstanceOfModelSerializer(page, many=True, context={'request': request})
+            return self.get_paginated_response(serializer.data)
         serializer = InstanceOfModelSerializer(instances, many=True, context={'request': request})
         return Response(serializer.data)
 
@@ -111,13 +122,15 @@ class InstanceViewSet(viewsets.ModelViewSet):
         return serializer_class
 
     ordering_fields = ['model', 'model__model_number', 'model__vendor',
-                       'hostname', 'rack', 'rack_u', 'owner', 'comment']
+                       'hostname', 'rack', 'rack_u', 'owner']
 
     filterset_fields = ['model', 'model__model_number', 'model__vendor',
-                        'hostname', 'rack', 'rack_u', 'owner', 'comment']
+                        'hostname', 'rack', 'rack_u', 'owner']
 
+    filter_backends = [OrderingFilter,
+                       DjangoFiltersBackend,
+                       InstanceFilterByRack]
     # Overriding of super functions
-    # TODO: Update, partial update
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -158,8 +171,8 @@ class InstanceViewSet(viewsets.ModelViewSet):
     def model_names(self, request, *args, **kwargs):
         name_typed = self.request.query_params.get('name') or ''
         models = Model.objects.annotate(
-        unique_name=Concat('vendor', 'model_number')).\
-        filter(unique_name__icontains=name_typed).all()
+            unique_name=Concat('vendor', 'model_number')).\
+            filter(unique_name__icontains=name_typed).all()
         serializer = UniqueModelsSerializer(models, many=True, context={'request': request})
         return Response(serializer.data)
 
@@ -182,11 +195,11 @@ class RackViewSet(viewsets.ModelViewSet):
                        'u31', 'u32', 'u33', 'u34', 'u35', 'u36', 'u37', 'u38', 'u39', 'u40',
                        'u41', 'u42']
 
-    filterset_fields = ['rack_number', 'u1', 'u2', 'u3', 'u4', 'u5', 'u6', 'u7', 'u8',
-                        'u9', 'u10', 'u11', 'u12', 'u13', 'u14', 'u15', 'u16', 'u17', 'u18', 'u19', 'u20',
-                        'u21', 'u22', 'u23', 'u24', 'u25', 'u26', 'u27', 'u28', 'u29', 'u30',
-                        'u31', 'u32', 'u33', 'u34', 'u35', 'u36', 'u37', 'u38', 'u39', 'u40',
-                        'u41', 'u42']
+    filter_backends = [OrderingFilter,
+                       DjangoFiltersBackend,
+                       RackFilter]
+
+    filterset_fields = ['rack_number']
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
@@ -197,13 +210,19 @@ class RackViewSet(viewsets.ModelViewSet):
 
     # Overriding of super functions
     def destroy(self, request, *args, **kwargs):
-        u_filled = 0
         slots = ['u{}'.format(i) for i in range(1, 43)]
+        offending_instances = []
         for slot in slots:
-            if getattr(self.get_object(), slot):
-                u_filled += 1
-        if u_filled > 0:
-            return Response('Cannot delete this rack as it is not empty.',
+            match = getattr(self.get_object(), slot)
+            if match:
+                offending_instances.append(match.hostname.__str__()
+                                           + ' at ' +
+                                           match.rack.rack_number.__str__() +
+                                           ' ' +
+                                           slot.__str__())
+        if len(offending_instances) > 0:
+            return Response('Cannot delete this rack as it contains instances: ' +
+                            ', '.join(offending_instances),
                             status=status.HTTP_400_BAD_REQUEST)
         super().destroy(self, request, *args, **kwargs)
 
@@ -222,3 +241,6 @@ class RackViewSet(viewsets.ModelViewSet):
         return Response({
             'is_empty': 'true'
         })
+
+    # Custom actions below
+
