@@ -119,6 +119,34 @@ class ModelViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
     # Custom actions below
+    @action(detail=False, methods=['POST'])
+    def import_file(self, request, *args, **kwargs):
+        file = request.data['file']
+        reader = csv.reader(file)
+        models_created = []
+        models_to_override
+        for row in reader:
+            obj, create = Model.objects.get_or_create(
+            vendor=row[0],
+            model_number=row[1]
+            )
+            #object already exisits
+            if not create:
+                models_to_override.append(obj)
+            elif create:
+                obj.display_color=row[2]
+                obj.ethernet_ports=row[3]
+                obj.power_ports=row[4]
+                obj.cpu=row[5]
+                obj.memory=row[6
+                obj.storage=row[7]
+                obj.comment=row[8]
+            if create:
+                models_created.append(obj)
+            else:
+
+        return Response()
+
     @action(detail=False, methods=['GET'])
     def filter_fields(self, request, *args, **kwargs):
         return Response({
@@ -478,4 +506,3 @@ def report(request):
         'vendors_allocated': vendor_dict,
         'owners_allocated': owner_dict_by_username
     })
-  
