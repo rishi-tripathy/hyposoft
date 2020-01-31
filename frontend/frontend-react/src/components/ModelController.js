@@ -9,7 +9,7 @@ export class ModelController extends Component {
   constructor() {
     super();
     this.state = {
-      models: [
+      models: [ {}
         // {
         //   'id': 99,
         //   'vendor': 'default',
@@ -35,6 +35,7 @@ export class ModelController extends Component {
     };
     //this.refreshTable = this.refreshTable.bind(this);
     this.getShowTable = this.getShowTable.bind(this);
+    //this.getShowCreate = this.getShowCreate.bind(this);
   }
   
 
@@ -52,6 +53,7 @@ export class ModelController extends Component {
   }
 
   getShowCreate = (show) => {
+    console.log(this.state)
     show ? this.setState({
       showTableView: false,
       showCreateView : true,
@@ -61,6 +63,7 @@ export class ModelController extends Component {
     : this.setState({
       showCreateView : false,
     }) 
+    console.log(this.state)
   }
 
   getShowEdit = (show) => {
@@ -161,7 +164,8 @@ export class ModelController extends Component {
       
     }
     else if (this.state.showCreateView){
-        content = <CreateModelForm sendShowTable={this.getShowTable} /> 
+        content = <CreateModelForm 
+                    sendShowTable={this.getShowTable} /> 
     }
     else if (this.state.showEditView){
         content= <EditModelForm editID={this.state.editID} 
@@ -187,17 +191,13 @@ export class ModelController extends Component {
       paginateNavigation = <p></p>;
     }
   
-    if (this.state.models[0] == null) {
-      return <p>No models exist</p>
-    } else {
-      return (
-        <div>
-          { paginateNavigation }
-          <br></br>
-          {content}
-        </div>
-      )
-    }
+    return (
+      <div>
+        { paginateNavigation }
+        <br></br>
+        {content}
+      </div>
+    )
   }
 }
 

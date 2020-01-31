@@ -28,7 +28,7 @@ export class RackTable extends Component {
       //console.log(this.props.rack);
 
       for(var i of Object.keys(temp_rows)){
-         if(i!=="id" && i!=="rack_number"){
+         if(i!=="id" && i!=="rack_number" && i!=="url"){
             temp_rows[i.substring(1,3)] = temp_rows[i]; //replace key
             delete temp_rows[i];
          }
@@ -55,7 +55,7 @@ export class RackTable extends Component {
       rows = this.fixRows();
 
       for(var i of Object.keys(rows)){
-         if(i!=="id" && i!=="rack_number"){
+         if(i!=="id" && i!=="rack_number" && i!=="url"){
             let previousRackU;
             let nextRackU;
             let currentRackU;

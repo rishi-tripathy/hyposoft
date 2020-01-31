@@ -29,7 +29,6 @@ export class DetailedInstance extends Component {
           },
           'comment': 'default'
         }
-      
     }
   }
 

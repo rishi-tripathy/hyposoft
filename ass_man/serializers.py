@@ -49,39 +49,11 @@ class ModelInstanceSerializer(serializers.HyperlinkedModelSerializer):
 class VendorsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Model
-        fields = ['vendor']
-
-class UniqueModelsSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = Model
-        fields = ['url', 'vendor', 'model_number']
-
-
-class ModelInstanceSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = Model
-        fields = ['url', 'vendor', 'model_number', 'display_color']
-
-
-class VendorsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Model
-        fields = ['vendor']
-
-
-class ModelInstanceSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = Model
-        fields = ['url', 'vendor', 'model_number', 'display_color']
-
-
-class VendorsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Model
-        fields = ['vendor']
+        fields = ['vendor', 'url']
 
 
 class InstanceSerializer(serializers.HyperlinkedModelSerializer):
+    hostname = serializers.CharField(validators=[UniqueValidator(queryset=Instance.objects.all())])
     rack_u = serializers.IntegerField(validators=[MinValueValidator(1)])
     # model = ModelInstanceSerializer()
 
@@ -91,7 +63,7 @@ class InstanceSerializer(serializers.HyperlinkedModelSerializer):
         model = validated_data['model']
         height = model.height
         invalid_list = []
-        if rack_u+height > 42:
+        if (rack_u+height-1) > 42:
             raise serializers.ValidationError("Height conflict: this instance does not fit in the rack at this location.")
         for i in range(rack_u, rack_u+height):
             if eval('rack.u{} and (rack.u{} != instance)'.format(i, i)):
@@ -115,13 +87,21 @@ class InstanceSerializer(serializers.HyperlinkedModelSerializer):
     def validate_hostname(self, value):
         if not re.match('^(?![0-9]+$)(?!-)[a-zA-Z0-9-]{,63}(?<!-)$', value):
             raise serializers.ValidationError(
-                '{} is not an valid hostname. Please ensure this value is a valid hostname as per RFC 1034.'.format(value.__str__())
+                '{} is not an valid hostname. Please ensure this value is a valid hostname as per RFC 1034.'.format(
+                    value.__str__())
             )
         return value
 
     class Meta:
         model = Instance
         fields = ['id', 'model', 'hostname', 'rack', 'rack_u', 'owner', 'comment']
+
+# Used to fetch the Rack associated with an Instance
+class RackOfInstanceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Rack
+        fields = ['url', 'rack_number']
+
 
 # Used to fetch the Rack associated with an Instance
 class RackOfInstanceSerializer(serializers.ModelSerializer):
@@ -144,6 +124,7 @@ class InstanceShortSerializer(InstanceSerializer):
     class Meta:
         model = Instance
         fields = ['id', 'model', 'hostname', 'rack', 'rack_u', 'owner']
+
 
 class RackSerializer(serializers.HyperlinkedModelSerializer):
     rack_number = serializers.CharField(
@@ -183,13 +164,13 @@ class RackInstanceSerializer(serializers.ModelSerializer):
 
 
 class RackFetchSerializer(serializers.HyperlinkedModelSerializer):
-    for i in range(1, 42):
+    for i in range(1, 43):
         s = 'u{} = RackInstanceSerializer()'.format(i)
         exec(s)
 
     class Meta:
         model = Rack
-        fields = ['id', 'rack_number', 'u1', 'u2', 'u3', 'u4', 'u5', 'u6', 'u7', 'u8', 'u9', 'u10',
+        fields = ['id', 'url', 'rack_number', 'u1', 'u2', 'u3', 'u4', 'u5', 'u6', 'u7', 'u8', 'u9', 'u10',
                   'u11', 'u12', 'u13', 'u14', 'u15', 'u16', 'u17', 'u18', 'u19', 'u20',
                   'u21', 'u22', 'u23', 'u24', 'u25', 'u26', 'u27', 'u28', 'u29', 'u30',
                   'u31', 'u32', 'u33', 'u34', 'u35', 'u36', 'u37', 'u38', 'u39', 'u40',
