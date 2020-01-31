@@ -76,21 +76,39 @@ class ModelViewSet(viewsets.ModelViewSet):
                             status=status.HTTP_400_BAD_REQUEST)
         super().destroy(self, request, *args, **kwargs)
 
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        if request.query_params.get('export') == 'true':
+        #    vendor,model_number,height,display_color,ethernet_ports,power_ports,cpu,memory,storage,comment
+            response = HttpResponse(content_type='text/csv')
+            response['Content-Disposition'] = 'attachment; filename="models.csv"'
+
+            writer = csv.writer(response)
+            writer.writerow(['vendor', 'model_number', 'height', 'display_color', 'ethernet_ports', 'power_ports', 'cpu', 'memory', 'storage', 'comment'])
+            for model in queryset:
+                writer.writerow([model.vendor, model.model_number, model.height, model.display_color, model.ethernet_ports, model.power_ports, model.cpu, model.memory, model.storage, model.comment])
+            return response
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
     # Custom actions below
-    @action(detail=False, methods=['GET'])
-    def export(self, request, *args, **kwargs):
-        models = Model.objects.all()
-    #    vendor,model_number,height,display_color,ethernet_ports,power_ports,cpu,memory,storage,comment
-        response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = 'attachment; filename="models.csv"'
-
-        writer = csv.writer(response)
-        writer.writerow(['vendor', 'model_number', 'height', 'display_color', 'ethernet_ports', 'power_ports', 'cpu', 'memory', 'storage', 'comment'])
-        for model in models:
-            writer.writerow([model.vendor, model.model_number, model.height, model.display_color, model.ethernet_ports, model.power_ports, model.cpu, model.memory, model.storage, model.comment])
-
-
-        return response
+    # @action(detail=False, methods=['GET'])
+    # def export(self, request, *args, **kwargs):
+    #     models = Model.objects.all()
+    # #    vendor,model_number,height,display_color,ethernet_ports,power_ports,cpu,memory,storage,comment
+    #     response = HttpResponse(content_type='text/csv')
+    #     response['Content-Disposition'] = 'attachment; filename="models.csv"'
+    #
+    #     writer = csv.writer(response)
+    #     writer.writerow(['vendor', 'model_number', 'height', 'display_color', 'ethernet_ports', 'power_ports', 'cpu', 'memory', 'storage', 'comment'])
+    #     for model in models:
+    #         writer.writerow([model.vendor, model.model_number, model.height, model.display_color, model.ethernet_ports, model.power_ports, model.cpu, model.memory, model.storage, model.comment])
+    #     return response
 
     @action(detail=True, methods=['GET'])
     def can_delete(self, request, *args, **kwargs):
@@ -184,6 +202,37 @@ class InstanceViewSet(viewsets.ModelViewSet):
             instance._prefetched_objects_cache = {}
 
         return Response(serializer.data)
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        if request.query_params.get('export') == 'true':
+        #    hostname,rack,rack_position,vendor,model_number,owner,comment
+            response = HttpResponse(content_type='text/csv')
+            response['Content-Disposition'] = 'attachment; filename="models.csv"'
+
+            writer = csv.writer(response)
+            writer.writerow(['hostname', 'rack', 'rack_position', 'vendor', 'model_number', 'owner', 'comment'])
+            for instance in queryset:
+                writer.writerow([instance.hostname, instance.rack.rack_number, instance.rack_u, instance.model.vendor, instance.model.model_number, instance.owner.username, instance.comment])
+            return response
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+            #    hostname,rack,rack_position,vendor,model_number,owner,comment
+                #response = HttpResponse(content_type='text/csv')
+                #response['Content-Disposition'] = 'attachment; filename="instances.csv"'
+
+                #writer = csv.writer(response)
+                #writer.writerow(['hostname', 'rack', 'rack_position', 'vendor', 'model_number', 'owner', 'comment'])
+                #for instance in queryset:
+                #    writer.writerow([instance.hostname, instance.rack.rack_number, instance.rack_position, instance.model.vendor, instance.model.model_number, instance.owner.username, instance.comment])
+                #return response
+
     # Custom actions below
 
     @action(detail=False, methods=['GET'])
