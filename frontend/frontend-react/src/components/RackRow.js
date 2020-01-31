@@ -7,7 +7,11 @@ export class RackRow extends Component {
 
         let objectIsNull = true;
 
-        if(this.props.displayColor != null){
+        console.log(this.props.row);
+        console.log(this.props.instanceUrl);
+        console.log(this.props.displayColor);
+
+        if(this.props.displayColor !== null){
             objectIsNull = false;
         }
 
@@ -22,6 +26,25 @@ export class RackRow extends Component {
         // const styleObj = {
         //     backgroundColor: color,
         // }
+        let content; 
+        let dispColor = this.props.displayColor;
+        let bcolor = 'black';
+        if(!objectIsNull){
+            content = 
+             <td style={{
+                fontSize: 10,
+                background: dispColor, //need to pass a function in
+                color: bcolor,
+             }}>
+            {/* { console.log(this.props.displayColor) } */}
+                <pre>
+                    { this.props.model }       { this.props.hostname } 
+                </pre>
+            </td> 
+        }
+        else{
+            content = <td></td>;
+        }
 
         return (
             <tr>
@@ -29,19 +52,7 @@ export class RackRow extends Component {
                     { this.props.row }   
                 </td> 
 
-                { objectIsNull &&
-                    <td> 
-                    { this.props.instanceUrl }
-                    </td> 
-                } 
-                 { !objectIsNull &&
-                    <td2 style={{backgroundColor: color}}>
-                    {/* <td2> */}
-                    <pre>
-                        { this.props.model }       { this.props.hostname } 
-                    </pre>
-                    </td2> 
-                }   
+               { content }
 
                 <td>
                     {this.props.row}    

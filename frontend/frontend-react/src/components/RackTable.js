@@ -101,9 +101,14 @@ export class RackTable extends Component {
             }
          }
       }
+      console.log(rackInstances);
+      console.log(modelInfo);
+      console.log(displayColors);
+      console.log(hostnameInfo);
+
       return rackUs.reverse().map((row, index) => {
          return (
-          <RackRow row={row} instanceUrl ={rackInstances[rackUs.length-index-1]} model= {modelInfo[rackUs.length-index-1]} displayColor= {displayColors[rackUs.length-index-1] } hostname={hostnameInfo[rackUs.length-index-1]}/>
+          <RackRow row={row} /*instanceUrl ={rackInstances[rackUs.length-index-1]}*/ model= {modelInfo[rackUs.length-index-1]} displayColor= {displayColors[rackUs.length-index-1] } hostname={hostnameInfo[rackUs.length-index-1]}/>
          //<div></div>
           ) 
       })

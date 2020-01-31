@@ -109,6 +109,9 @@ export class RackController extends Component {
         prevPage: res.data.previous,
         nextPage: res.data.next,
       });
+
+      console.log(this.state.racks);
+
     })
     .catch(function (error) {
       // TODO: handle error
