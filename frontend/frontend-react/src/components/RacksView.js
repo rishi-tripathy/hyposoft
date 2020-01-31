@@ -10,16 +10,12 @@ export class RacksView extends Component {
     //rack isn't variable/no other API endpoint for individual rack
 
     render(){
+        console.log("in racks view");
         console.log(this.props.rack);
 
         return(
-            <div id="rackContainer">
-                <h2 id="title">
-                    Rack instance
-                </h2>
-                <div id="table">
-                    <RackTable rack={this.props.rack} />
-                </div>
+            <div id="table1">
+                <RackTable rack={this.props.rack} />
             </div>
         )
     }

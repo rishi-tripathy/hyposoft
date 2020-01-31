@@ -83,29 +83,16 @@ export class RackController extends Component {
     this.refreshRacks();
     
   }
-
-
-  refreshTable = () => {
-    axios.get('/api/models/?shortform=true').then(res => {
-      this.setState({ 
-        models: res.data.results,
-        prevPage: res.data.previous,
-        nextPage: res.data.next,
-      });
-    })
-    .catch(function (error) {
-      // TODO: handle error
-      console.log(error.response);
-    });
-  }
     
   refreshRacks = () => {
-    axios.get('/api/racks/?show_all=true').then(res => {
+    axios.get('/api/racks/').then(res => {
       this.setState({ 
         racks: res.data.results,
         prevPage: res.data.previous,
         nextPage: res.data.next,
       });
+
+      console.log(this.state.racks);
     })
     .catch(function (error) {
       // TODO: handle error
@@ -145,11 +132,22 @@ export class RackController extends Component {
     let content; 
 
     if (this.state.showRacksView){
-      content = <div><h2>Rack Table</h2><RacksView rack={ this.state.racks } 
+
+      content = this.state.racks.map((item, key) =>
+      <div id="rackContainer">
+        <RacksView rack={item}
                   sendShowCreate={this.getShowCreate}
                   sendShowEdit={this.getShowEdit}
                   sendEditID={this.getEditID}
-                  sendShowDelete={this.getShowDelete} /></div>
+                  sendShowDelete={this.getShowDelete} />
+      </div>
+      )
+
+      // content = <RacksView rack={ this.state.racks } 
+      //             sendShowCreate={this.getShowCreate}
+      //             sendShowEdit={this.getShowEdit}
+      //             sendEditID={this.getEditID}
+      //             sendShowDelete={this.getShowDelete} />
 
       
     }
@@ -187,7 +185,7 @@ export class RackController extends Component {
         <div>
           { paginateNavigation }
           <br></br>
-          {content}
+            {content}
         </div>
       )
     }

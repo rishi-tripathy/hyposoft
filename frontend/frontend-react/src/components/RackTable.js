@@ -9,9 +9,11 @@ export class RackTable extends Component {
       //need to get data.results 
       let rackNum = "";
 
-      for (var key of Object.keys(this.props.rack[0])) {
+      console.log(this.props.rack);
+
+      for (var key of Object.keys(this.props.rack)) {
          if (key === 'rack_number') {
-            rackNum = this.props.rack[0][key];
+            rackNum = this.props.rack[key];
             return rackNum;
          }
      }
@@ -19,11 +21,11 @@ export class RackTable extends Component {
 
    fixRows() {
       let rows = [];
-      rows = this.props.rack[0];
+      rows = this.props.rack;
       delete rows["id"];
       delete rows["rack_number"];
 
-      console.log(this.props.rack[0]);
+      console.log(this.props.rack);
 
       for(var i of Object.keys(rows)){
          rows[i.substring(1,3)] = rows[i]; //replace key
@@ -36,7 +38,7 @@ export class RackTable extends Component {
    }
 
    getRows(){
-      return this.props.rack[0];
+      return this.props.rack;
    }
 
    renderRows() {
