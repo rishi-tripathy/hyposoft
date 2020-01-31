@@ -71,7 +71,7 @@ class ModelViewSet(viewsets.ModelViewSet):
 
         if prev_height != new_height and instances.exists():
             return Response(
-              'This update fails the height of models may not be changed if instances of the model exist.',
+              'This update fails- the height of models may not be changed if instances of the model exist.',
               status=status.HTTP_400_BAD_REQUEST)
 
 
