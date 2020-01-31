@@ -101,6 +101,8 @@ export class RackController extends Component {
   }
 
   paginateNext = () => {
+    console.log("next has been pushed");
+    this.state.racks = null;
     axios.get(this.state.nextPage).then(res => {
       this.setState({ 
         racks: res.data.results,
@@ -112,6 +114,8 @@ export class RackController extends Component {
       // TODO: handle error
       console.log(error.response);
     });
+
+    console.log(this.state.racks);
   }
 
   paginatePrev = () => {
@@ -133,23 +137,12 @@ export class RackController extends Component {
 
     if (this.state.showRacksView){
 
-      content = this.state.racks.map((item, key) =>
-      <div id="rackContainer">
-        <RacksView rack={item}
+      content = 
+        <RacksView rack={this.state.racks}
                   sendShowCreate={this.getShowCreate}
                   sendShowEdit={this.getShowEdit}
                   sendEditID={this.getEditID}
                   sendShowDelete={this.getShowDelete} />
-      </div>
-      )
-
-      // content = <RacksView rack={ this.state.racks } 
-      //             sendShowCreate={this.getShowCreate}
-      //             sendShowEdit={this.getShowEdit}
-      //             sendEditID={this.getEditID}
-      //             sendShowDelete={this.getShowDelete} />
-
-      
     }
     else if (this.state.showCreateView){
         content = <CreateRackForm sendShowTable={this.getShowRacks} /> 
