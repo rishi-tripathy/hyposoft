@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types';
 import '../stylesheets/TableView.css'
-import axios from 'axios'
+import axios, { post } from 'axios'
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 export class ModelTable extends Component {
@@ -39,12 +39,6 @@ export class ModelTable extends Component {
 	}
 
   renderTableHeader() {
-  //  //  if (this.props.models[0] == null) return;
-  //   let header = Object.keys(this.props.models[0]);
-  //   return header.map((key, index) => {
-  //      return <th key={index}>{key.toUpperCase()}</th>
-	// 	})
-
 		let header = ['id', 'vendor', 'model_number', 'height',
 		'display_color', 'ethernet_ports,', 'power_ports', 'cpu', 'memory', 'storage', 'comment'];
     return header.map((key, index) => {
@@ -76,24 +70,33 @@ export class ModelTable extends Component {
 	}
 
 	handleImport = (e) => {
+		e.preventDefault();
+
+		this.fileUpload(this.state.file).then((response)=>{
+      console.log(response.data);
+		})
+		.catch(function (error) {
+			alert('Import was not successful.\n' + JSON.stringify(error.response.data));
+		});
+	}
+
+	fileUpload = (file) => {
+		const url = '/api/models/import_file/';
+    const formData = new FormData();
+    formData.append('file',file)
+    const config = {
+        headers: {
+            'content-type': 'multipart/form-data'
+        }
+    }
+    return post(url, formData,config)
+	}
+
+	handleFileUpload = (e) => {
 		console.log(e.target.files[0])
 		this.setState({
       importCSV: e.target.files[0],
 		});
-		let formData = new FormData();
-		formData.append('file', this.state.importCSV);
-		let options = {
-			method: 'POST',
-			headers: {"Authorization": localStorage.getItem("token")},
-			body: formData
-		}
-
-		fetch(`/api/models/import_file/`, options)
-      .then(resp => resp.json())
-      .then(result => {
-				alert(result.message)
-			})
-
 	}
 
   render() {
@@ -102,10 +105,10 @@ export class ModelTable extends Component {
 				<div>
 				<button onClick={ this.showCreateForm }>Add Model</button>
 				</div>
-				<div>
-					<input type="file" name="file" onChange={this.handleImport} />
-					<button>Import File</button>
-				</div>
+				<form onSubmit={this.handleImport} >
+					<input type="file" name="file" onChange={this.handleFileUpload}/>
+					<button type="submit">Import File</button>
+				</form>
 
          <table id="entries">
             <tbody>
