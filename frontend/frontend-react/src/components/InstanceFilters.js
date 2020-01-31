@@ -27,9 +27,7 @@ export class InstanceFilters extends Component {
         rack_u: '',
         ownerID: '',
       }, 
-
       query: null,
-
     }
   }
 
@@ -89,8 +87,6 @@ export class InstanceFilters extends Component {
     });
   }
 
-  
-  
   componentDidMount() {
     this.mountModelNames();
     this.mountRacks();
@@ -141,10 +137,7 @@ export class InstanceFilters extends Component {
       query: q,
     })
 
-
-
     return q;
-    
   }
 
   handleSubmit = (e) => {
@@ -159,8 +152,6 @@ export class InstanceFilters extends Component {
     this.props.sendFilterQuery(this.createQuery());
   }
 
-
-  
   render() {
     return (
       <div>
