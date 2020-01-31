@@ -18,6 +18,8 @@ class UserViewSet(viewsets.ModelViewSet):
         # Instantiates and returns the list of permissions that this view requires.
         if self.action in ADMIN_ACTIONS:
             permission_classes = [IsAdminUser]
+        elif self.action == 'who_am_i':
+            permission_classes = [AllowAny]
         else:
             permission_classes = [IsAuthenticated]
         return [permission() for permission in permission_classes]
@@ -30,20 +32,30 @@ class UserViewSet(viewsets.ModelViewSet):
     filterset_class = UserFilter
     ordering_fields = ['username', 'first_name', 'last_name', 'email']
 
+    # Override default actions here
 
+    # Implement custom actions below
+    @action(detail=False, methods=['GET'])
+    def filter_fields(self, request, *args, **kwargs):
+        return Response({
+            'filter_fields': ['username', 'first_name', 'last_name', 'email']
+        })
 
-    def create(self, request, *args, **kwargs):
-        serializer = UserSerializer(data=request.data)
-        if serializer.is_valid():
-            user = serializer.save()
-            if user:
-                headers = self.get_success_headers(serializer.data)
-                return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    @action(detail=False, methods=['GET'])
+    def sorting_fields(self, request, *args, **kwargs):
+        return Response({
+            'sorting_fields': self.ordering_fields
+        })
 
     @action(detail=False, methods=['GET'])
     def am_i_admin(self, request, *args, **kwargs):
         return Response({
             'is_admin': request.user.is_staff
         })
-# Create your views here.
+
+    @action(detail=False, methods=['GET'])
+    def who_am_i(self, request, *args, **kwargs):
+        return Response({
+            'current_user': request.user.username
+        })
+
