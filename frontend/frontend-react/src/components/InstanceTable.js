@@ -39,7 +39,7 @@ export class InstanceTable extends Component {
   }
 
   renderTableHeader() {
-    let header = ['id', 'model_vendor', 'hostname', 'rack', 'rack_u', 'owner_username'];
+    let header = ['id', 'model vendor', 'model number', 'hostname', 'rack', 'rack_u', 'owner_username'];
     return header.map((key, index) => {
         return <th key={index}>{key.toUpperCase()}</th>
     })
@@ -53,6 +53,7 @@ export class InstanceTable extends Component {
           <tr key={id}>
             <td>{id}</td>
             <td>{model ? model.vendor : null}</td>
+            <td>{model ? model.model_number : null}</td>
             <td>{hostname}</td>
             <td>{rack ? rack.rack_number : null}</td>
             <td>{rack_u}</td>

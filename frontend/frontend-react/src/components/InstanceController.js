@@ -170,7 +170,11 @@ export class InstanceController extends Component {
       content = <CreateInstanceForm sendShowTable={this.getShowTable} />
     }
     else if (this.state.showEditView) {
-      content = <EditInstanceForm />
+      content = <EditInstanceForm editID={this.state.editID} 
+                  sendShowTable={ this.getShowTable } 
+                  sendShowCreate={this.getShowCreate}
+                  sendShowEdit={this.getShowEdit}
+                  sendShowDelete={this.getShowDelete} />
     }
 
     let paginateNavigation = <p></p>;

@@ -66,16 +66,6 @@ export class EditModelForm extends Component {
       this.setState({
         model: modelCopy,
       }) 
-
-      // this.setState({ vendor: res.data.vendor });
-      // this.setState({ model_number: res.data.model_number });
-      // this.setState({ display_color: res.data.display_color });
-      // this.setState({ ethernet_ports: res.data.ethernet_ports });
-      // this.setState({ power_ports: res.data.power_ports });
-      // this.setState({ cpu: res.data.cpu });
-      // this.setState({ memory: res.data.memory });
-      // this.setState({ storage: res.data.storage });
-      // this.setState({ comment: res.data.comment });
     })
     .catch(function (error) {
       // TODO: handle error
