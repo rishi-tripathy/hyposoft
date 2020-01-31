@@ -8,9 +8,12 @@ export class ModelTable extends Component {
 
 	constructor() {
 		super();
-      this.showCreateForm = this.showCreateForm.bind(this);
-      this.showEditForm = this.showEditForm.bind(this);
-      this.showEditForm = this.showEditForm.bind(this);
+		this.state = {
+			importCSV: null,
+		}
+		this.showCreateForm = this.showCreateForm.bind(this);
+		this.showEditForm = this.showEditForm.bind(this);
+		this.showEditForm = this.showEditForm.bind(this);
 	}
 
 	showCreateForm = () => {
@@ -72,14 +75,37 @@ export class ModelTable extends Component {
     })
 	}
 
+	handleImport = (e) => {
+		console.log(e.target.files[0])
+		this.setState({
+      importCSV: e.target.files[0],
+		});
+		let formData = new FormData();
+		formData.append('file', this.state.importCSV);
+		let options = {
+			method: 'POST',
+			//headers: {"Authorization": localStorage.getItem("token")},
+			body: formData
+		}
+
+		fetch(`/api/models/import_file/`, options)
+      .then(resp => resp.json())
+      .then(result => {
+				alert(result.message)
+			})
+
+	}
   
   render() {
     return (
       <div>
-				 <div>
-					 <p>gonna put filters and stuff here</p>
-					 <button onClick={ this.showCreateForm }>Add Model</button>
-				 </div>
+				<div>
+				<button onClick={ this.showCreateForm }>Add Model</button>
+				</div>
+				<div>
+					<input type="file" name="file" onChange={this.handleImport} />
+					<button>Submit</button>
+				</div>
          
          <table id="entries">
             <tbody>
