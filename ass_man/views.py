@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.db.models.functions import Concat
 from django.db.models import CharField
+from django.http import HttpResponse
 # API
 from rest_framework import viewsets
 from ass_man.serializers import (InstanceShortSerializer,
@@ -28,6 +29,8 @@ from ass_man.filters import InstanceFilter, ModelFilter, RackFilter, InstanceFil
 from rest_framework.serializers import ValidationError
 from rest_framework.request import Request, HttpRequest
 import json
+
+import csv
 
 ADMIN_ACTIONS = {'create', 'update', 'partial_update', 'destroy'}
 
@@ -93,6 +96,26 @@ class ModelViewSet(viewsets.ModelViewSet):
                             ', '.join(offending_instances),
                             status=status.HTTP_400_BAD_REQUEST)
         return super().destroy(self, request, *args, **kwargs)
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        if request.query_params.get('export') == 'true':
+        #    vendor,model_number,height,display_color,ethernet_ports,power_ports,cpu,memory,storage,comment
+            response = HttpResponse(content_type='text/csv')
+            response['Content-Disposition'] = 'attachment; filename="models.csv"'
+
+            writer = csv.writer(response)
+            writer.writerow(['vendor', 'model_number', 'height', 'display_color', 'ethernet_ports', 'power_ports', 'cpu', 'memory', 'storage', 'comment'])
+            for model in queryset:
+                writer.writerow([model.vendor, model.model_number, model.height, model.display_color, model.ethernet_ports, model.power_ports, model.cpu, model.memory, model.storage, model.comment])
+            return response
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
     # Custom actions below
     @action(detail=False, methods=['GET'])
@@ -199,6 +222,27 @@ class InstanceViewSet(viewsets.ModelViewSet):
             # forcibly invalidate the prefetch cache on the instance.
             instance._prefetched_objects_cache = {}
         return Response(serializer.data)
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        if request.query_params.get('export') == 'true':
+        #    hostname,rack,rack_position,vendor,model_number,owner,comment
+            response = HttpResponse(content_type='text/csv')
+            response['Content-Disposition'] = 'attachment; filename="models.csv"'
+
+            writer = csv.writer(response)
+            writer.writerow(['hostname', 'rack', 'rack_position', 'vendor', 'model_number', 'owner', 'comment'])
+            for instance in queryset:
+                writer.writerow([instance.hostname, instance.rack.rack_number, instance.rack_u, instance.model.vendor, instance.model.model_number, instance.owner.username, instance.comment])
+            return response
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
     # Custom actions below
 
     @action(detail=False, methods=['GET'])
@@ -426,4 +470,3 @@ def report(request):
         'vendors_allocated': vendor_dict,
         'owners_allocated': owner_dict_by_username
     })
-
