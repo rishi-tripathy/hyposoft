@@ -97,8 +97,6 @@ class ModelViewSet(viewsets.ModelViewSet):
                             ', '.join(offending_instances),
                             status=status.HTTP_400_BAD_REQUEST)
         return super().destroy(self, request, *args, **kwargs)
-<<<<<<< HEAD
-=======
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
@@ -119,7 +117,26 @@ class ModelViewSet(viewsets.ModelViewSet):
             return self.get_paginated_response(serializer.data)
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
->>>>>>> master
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        if request.query_params.get('export') == 'true':
+        #    vendor,model_number,height,display_color,ethernet_ports,power_ports,cpu,memory,storage,comment
+            response = HttpResponse(content_type='text/csv')
+            response['Content-Disposition'] = 'attachment; filename="models.csv"'
+
+            writer = csv.writer(response)
+            writer.writerow(['vendor', 'model_number', 'height', 'display_color', 'ethernet_ports', 'power_ports', 'cpu', 'memory', 'storage', 'comment'])
+            for model in queryset:
+                writer.writerow([model.vendor, model.model_number, model.height, model.display_color, model.ethernet_ports, model.power_ports, model.cpu, model.memory, model.storage, model.comment])
+            return response
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
     # Custom actions below
     @action(detail=False, methods=['GET'])
@@ -312,12 +329,15 @@ class RackViewSet(viewsets.ModelViewSet):
         offending_instances = []
         for slot in slots:
 <<<<<<< HEAD
+<<<<<<< HEAD
             if getattr(self.get_object(), slot):
                 u_filled += 1
         if u_filled > 0:
             return Response('Cannot delete this rack as it is not empty.',
                             status=status.HTTP_400_BAD_REQUEST)
 =======
+=======
+>>>>>>> 107a36777f3eedb7b696bb25c0d839d9b4834d2d
             match = getattr(self.get_object(), slot)
             if match:
                 offending_instances.append(match.hostname.__str__()
@@ -330,7 +350,10 @@ class RackViewSet(viewsets.ModelViewSet):
             return Response({
                 'Error:', err_message
             }, status=status.HTTP_400_BAD_REQUEST)
+<<<<<<< HEAD
 >>>>>>> master
+=======
+>>>>>>> 107a36777f3eedb7b696bb25c0d839d9b4834d2d
         return super().destroy(self, request, *args, **kwargs)
 
     # New Actions
