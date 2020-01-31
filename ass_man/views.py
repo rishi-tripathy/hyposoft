@@ -121,10 +121,10 @@ class ModelViewSet(viewsets.ModelViewSet):
     # Custom actions below
     @action(detail=False, methods=['POST'])
     def import_file(self, request, *args, **kwargs):
-        file = request.data['name']
+        file = request.FILES['file']
         reader = csv.reader(file)
         models_created = []
-        models_to_override
+        models_to_override = []
         for row in reader:
             obj, create = Model.objects.get_or_create(
             vendor=row[0],

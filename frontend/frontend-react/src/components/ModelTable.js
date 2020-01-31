@@ -93,7 +93,7 @@ export class ModelTable extends Component {
 		const url = '/api/models/import_file/';
     const formData = new FormData();
 		formData.append('file', file)
-		formData.append('name', 'sup')
+		//formData.append('name', 'sup')
     const config = {
         headers: {
             'content-type': 'multipart/form-data'
