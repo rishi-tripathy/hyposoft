@@ -145,6 +145,7 @@ class InstanceShortSerializer(InstanceSerializer):
         model = Instance
         fields = ['id', 'model', 'hostname', 'rack', 'rack_u', 'owner']
 
+
 class RackSerializer(serializers.HyperlinkedModelSerializer):
     rack_number = serializers.CharField(
         validators=[UniqueValidator(queryset=Rack.objects.all())]
@@ -183,7 +184,7 @@ class RackInstanceSerializer(serializers.ModelSerializer):
 
 
 class RackFetchSerializer(serializers.HyperlinkedModelSerializer):
-    for i in range(1, 42):
+    for i in range(1, 43):
         s = 'u{} = RackInstanceSerializer()'.format(i)
         exec(s)
 

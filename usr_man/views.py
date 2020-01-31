@@ -18,6 +18,8 @@ class UserViewSet(viewsets.ModelViewSet):
         # Instantiates and returns the list of permissions that this view requires.
         if self.action in ADMIN_ACTIONS:
             permission_classes = [IsAdminUser]
+        elif self.action == 'who_am_i':
+            permission_classes = [AllowAny]
         else:
             permission_classes = [IsAuthenticated]
         return [permission() for permission in permission_classes]
@@ -29,8 +31,6 @@ class UserViewSet(viewsets.ModelViewSet):
 
     filterset_class = UserFilter
     ordering_fields = ['username', 'first_name', 'last_name', 'email']
-
-
 
     def create(self, request, *args, **kwargs):
         serializer = UserSerializer(data=request.data)
@@ -45,5 +45,11 @@ class UserViewSet(viewsets.ModelViewSet):
     def am_i_admin(self, request, *args, **kwargs):
         return Response({
             'is_admin': request.user.is_staff
+        })
+
+    @action(detail=False, methods=['GET'])
+    def who_am_i(self, request, *args, **kwargs):
+        return Response({
+            'current_user': request.user.username
         })
 # Create your views here.

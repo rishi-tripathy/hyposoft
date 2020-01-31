@@ -25,6 +25,9 @@ from ass_man.models import Model, Instance, Rack
 from rest_framework.filters import OrderingFilter
 from django_filters.rest_framework import DjangoFilterBackend as DjangoFiltersBackend
 from ass_man.filters import InstanceFilter, ModelFilter, RackFilter, InstanceFilterByRack
+from rest_framework.serializers import ValidationError
+from rest_framework.request import Request, HttpRequest
+import json
 
 ADMIN_ACTIONS = {'create', 'update', 'partial_update', 'destroy'}
 
@@ -71,7 +74,7 @@ class ModelViewSet(viewsets.ModelViewSet):
             return Response('Cannot delete this model as there are associated instances: ' +
                             ', '.join(offending_instances),
                             status=status.HTTP_400_BAD_REQUEST)
-        super().destroy(self, request, *args, **kwargs)
+        return super().destroy(self, request, *args, **kwargs)
 
     # Custom actions below
     @action(detail=True, methods=['GET'])
@@ -225,9 +228,65 @@ class RackViewSet(viewsets.ModelViewSet):
             return Response('Cannot delete this rack as it contains instances: ' +
                             ', '.join(offending_instances),
                             status=status.HTTP_400_BAD_REQUEST)
-        super().destroy(self, request, *args, **kwargs)
+        return super().destroy(self, request, *args, **kwargs)
 
     # New Actions
+    @action(detail=False, methods=['POST', 'DELETE'])
+    def many(self, request, *args, **kwargs):
+        try:
+            srn = request.data['start_rack_num']
+            ern = request.data['end_rack_num']
+        except KeyError:
+            return Response('Invalid rack range- must specify start and end rack number',
+                            status=status.HTTP_400_BAD_REQUEST)
+        try:
+            s_letter = srn[0].upper()
+            e_letter = ern[0].upper()
+            s_number = int(srn[1:])
+            e_number = int(ern[1:])
+
+            try:
+                assert(s_letter <= e_letter)
+            except AssertionError:
+                return Response('Your start letter must be less than or equal to your end letter',
+                                status=status.HTTP_400_BAD_REQUEST)
+            try:
+                assert(s_number <= e_number)
+            except AssertionError:
+                return Response('Your start number must be less than or equal to your end number',
+                                status=status.HTTP_400_BAD_REQUEST)
+            rack_numbers = [x + y
+                            for x in
+                            (chr(i) for i in range(ord(s_letter), ord(e_letter) + 1))
+                            for y in
+                            (str(j) for j in range(s_number, e_number + 1))
+                            ]
+            results = []
+            for rn in rack_numbers:
+                rn_request_data = {
+                    "rack_number": rn
+                }
+                if request.method == 'POST':
+                    try:
+                        serializer = self.get_serializer(data=rn_request_data)
+                        serializer.is_valid(raise_exception=True)
+                        serializer.save()
+                        results.append(rn + ' successfully created')
+                    except ValidationError:
+                        results.append('Warning: skipping rack ' + rn + ' as it already exists')
+
+                elif request.method == 'DELETE':
+                    try:
+                        instance = self.queryset.get(rack_number__iexact=rn)
+                        instance.delete()
+                        results.append(rn + ' successfully deleted')
+                    except AssertionError:
+                        results.append(('Error: rack ' + rn + ' cannot be deleted as it does not exist. Continuing...'))
+        except (IndexError, ValueError) as e:
+            return Response(e.detail, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(results, status.HTTP_207_MULTI_STATUS)
+
     @action(detail=True, methods=['GET'])
     def is_empty(self, request, *args, **kwargs):
         u_filled = 0
@@ -243,6 +302,7 @@ class RackViewSet(viewsets.ModelViewSet):
             'is_empty': 'true'
         })
 
+      
     # Custom actions below
 @api_view(['GET'])
 def report(request):
