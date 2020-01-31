@@ -104,7 +104,11 @@ REST_FRAMEWORK = {
         'rest_framework.filters.OrderingFilter',
         'django_filters.rest_framework.DjangoFilterBackend',
     ),
+<<<<<<< HEAD
     'PAGE_SIZE': 3
+=======
+    'PAGE_SIZE': 10
+>>>>>>> master
 }
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
