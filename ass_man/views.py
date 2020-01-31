@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.db.models.functions import Concat
 from django.db.models import CharField
+from django.http import HttpResponse
 # API
 from rest_framework import viewsets
 from ass_man.serializers import (InstanceShortSerializer,
@@ -25,6 +26,8 @@ from ass_man.models import Model, Instance, Rack
 from rest_framework.filters import OrderingFilter
 from django_filters.rest_framework import DjangoFilterBackend as DjangoFiltersBackend
 from ass_man.filters import InstanceFilter, ModelFilter, RackFilter, InstanceFilterByRack
+
+import csv
 
 ADMIN_ACTIONS = {'create', 'update', 'partial_update', 'destroy'}
 
@@ -74,6 +77,21 @@ class ModelViewSet(viewsets.ModelViewSet):
         super().destroy(self, request, *args, **kwargs)
 
     # Custom actions below
+    @action(detail=False, methods=['GET'])
+    def export(self, request, *args, **kwargs):
+        models = Model.objects.all()
+    #    vendor,model_number,height,display_color,ethernet_ports,power_ports,cpu,memory,storage,comment
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="models.csv"'
+
+        writer = csv.writer(response)
+        writer.writerow(['vendor', 'model_number', 'height', 'display_color', 'ethernet_ports', 'power_ports', 'cpu', 'memory', 'storage', 'comment'])
+        for model in models:
+            writer.writerow([model.vendor, model.model_number, model.height, model.display_color, model.ethernet_ports, model.power_ports, model.cpu, model.memory, model.storage, model.comment])
+
+
+        return response
+
     @action(detail=True, methods=['GET'])
     def can_delete(self, request, *args, **kwargs):
         matches = Instance.objects.all().filter(model=self.get_object())
