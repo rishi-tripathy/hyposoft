@@ -1,4 +1,4 @@
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
 from django.db.models.functions import Concat
@@ -19,6 +19,7 @@ from ass_man.serializers import (InstanceShortSerializer,
 
 # Auth
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
+from django.contrib.auth.models import User
 # Project
 from ass_man.models import Model, Instance, Rack
 from rest_framework.filters import OrderingFilter
@@ -339,4 +340,58 @@ class RackViewSet(viewsets.ModelViewSet):
             'is_empty': 'true'
         })
 
+
+# Custom actions below
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def report(request):
+    racks = Rack.objects.all()
+    total = 0
+    occupied = 0
+    slots = ['u{}'.format(i) for i in range(1, 43)]
+    for rack in racks:
+        for field_name in slots:
+            if getattr(rack, field_name):
+                occupied += 1
+            total += 1
+    if total == 0:
+        total += 1
+    percentage_occupied = occupied/total*100
+    percentage_free = (total-occupied)/total*100
+
+    instances = Instance.objects.all()
+    vendor_dict = {}
+    model_dict = {}
+    owner_dict = {}
+    for instance in instances:
+        if instance.model_id in model_dict:
+            model_dict[instance.model_id] += 1
+        else:
+            model_dict[instance.model_id] = 1
+        if instance.owner_id in owner_dict:
+            owner_dict[instance.owner_id] += 1
+        else:
+            owner_dict[instance.owner_id] = 1
+
+    model_dict_by_model_number = {}
+    for model in model_dict.keys():
+        model_obj = Model.objects.get(pk=model)
+        model_dict_by_model_number[model_obj.model_number] = model_dict[model]
+        if model_obj.vendor in vendor_dict:
+            vendor_dict[model_obj.vendor] += model_dict[model]
+        else:
+            vendor_dict[model_obj.vendor] = model_dict[model]
+
+    owner_dict_by_username = {}
+    for owner_id in owner_dict.keys():
+        owner = User.objects.get(pk=owner_id)
+        owner_dict_by_username[owner.username] = owner_dict[owner_id]
+
+    return Response({
+        'rackspace_used': percentage_occupied,
+        'rackspace_free': percentage_free,
+        'models_allocated': model_dict_by_model_number,
+        'vendors_allocated': vendor_dict,
+        'owners_allocated': owner_dict_by_username
+    })
 
