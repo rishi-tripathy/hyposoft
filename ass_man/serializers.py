@@ -34,39 +34,11 @@ class ModelShortSerializer(serializers.HyperlinkedModelSerializer):
         model = Model
         fields = ['id', 'vendor', 'model_number', 'height', 'display_color', 'ethernet_ports', 'power_ports','cpu', 'memory', 'storage']
 
-class UniqueModelsSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = Model
-        fields = ['url', 'vendor', 'model_number']
-
-
-class ModelInstanceSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = Model
-        fields = ['url', 'vendor', 'model_number', 'display_color']
-
-
-class VendorsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Model
-        fields = ['vendor']
 
 class UniqueModelsSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Model
         fields = ['url', 'vendor', 'model_number']
-
-
-class ModelInstanceSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = Model
-        fields = ['url', 'vendor', 'model_number', 'display_color']
-
-
-class VendorsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Model
-        fields = ['vendor']
 
 
 class ModelInstanceSerializer(serializers.HyperlinkedModelSerializer):
@@ -82,6 +54,7 @@ class VendorsSerializer(serializers.ModelSerializer):
 
 
 class InstanceSerializer(serializers.HyperlinkedModelSerializer):
+    hostname = serializers.CharField(validators=[UniqueValidator(queryset=Instance.objects.all())])
     rack_u = serializers.IntegerField(validators=[MinValueValidator(1)])
     # model = ModelInstanceSerializer()
 
@@ -115,13 +88,15 @@ class InstanceSerializer(serializers.HyperlinkedModelSerializer):
     def validate_hostname(self, value):
         if not re.match('^(?![0-9]+$)(?!-)[a-zA-Z0-9-]{,63}(?<!-)$', value):
             raise serializers.ValidationError(
-                '{} is not an valid hostname. Please ensure this value is a valid hostname as per RFC 1034.'.format(value.__str__())
+                '{} is not an valid hostname. Please ensure this value is a valid hostname as per RFC 1034.'.format(
+                    value.__str__())
             )
         return value
 
     class Meta:
         model = Instance
         fields = ['id', 'model', 'hostname', 'rack', 'rack_u', 'owner', 'comment']
+
 
 # Used to fetch the Rack associated with an Instance
 class RackOfInstanceSerializer(serializers.ModelSerializer):

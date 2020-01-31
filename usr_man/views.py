@@ -32,14 +32,20 @@ class UserViewSet(viewsets.ModelViewSet):
     filterset_class = UserFilter
     ordering_fields = ['username', 'first_name', 'last_name', 'email']
 
-    def create(self, request, *args, **kwargs):
-        serializer = UserSerializer(data=request.data)
-        if serializer.is_valid():
-            user = serializer.save()
-            if user:
-                headers = self.get_success_headers(serializer.data)
-                return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    # Override default actions here
+
+    # Implement custom actions below
+    @action(detail=False, methods=['GET'])
+    def filter_fields(self, request, *args, **kwargs):
+        return Response({
+            'filter_fields': ['username', 'first_name', 'last_name', 'email']
+        })
+
+    @action(detail=False, methods=['GET'])
+    def sorting_fields(self, request, *args, **kwargs):
+        return Response({
+            'filter_fields': self.ordering_fields
+        })
 
     @action(detail=False, methods=['GET'])
     def am_i_admin(self, request, *args, **kwargs):
@@ -52,4 +58,4 @@ class UserViewSet(viewsets.ModelViewSet):
         return Response({
             'current_user': request.user.username
         })
-# Create your views here.
+

@@ -68,33 +68,12 @@ class ModelViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         # Check to see if it's OK to update this model (if all instances still fit
         new_height = int(request.data['height'])
-        if prev_height < new_height:  # Have to check for conflicts
-            diff = new_height - prev_height
-            for instance in instances:
-                rack = instance.rack
-                prev_top_index = instance.rack_u+prev_height-1
-                for i in range(prev_top_index + 1, prev_top_index + diff + 1):
-                    try:
-                        if eval('rack.u{}'.format(i)):
-                            raise ValidationError
-                    except ValidationError:
-                        return Response(
-                            'This update fails because it would cause a height conflict for instance {} at rack {} based at {}, loop start {}, loop eend {}, error at {}, i think instance top was {}'
-                            .format(instance.hostname.__str__(), rack.rack_number.__str__(), instance.rack_u, prev_top_index+1, prev_top_index+1+diff, i, prev_top_index ),
-                            status=status.HTTP_400_BAD_REQUEST)
-            for instance in instances:  # All indices passed, we can apply updates now
-                rack = instance.rack
-                for i in range(instance.rack_u, instance.rack_u + new_height + 1):
-                    exec('rack.u{} = instance'.format(i))
-                rack.save()
 
-        elif prev_height > new_height:  # can't error, just have to clear extra space in rack
-            for instance in instances:
-                rack = instance.rack
-                prev_top_index = instance.rack_u + prev_height - 1
-                for i in range(instance.rack_u + new_height, prev_top_index + 1):
-                    exec('rack.u{} = None'.format(i))
-                rack.save()
+        if prev_height != new_height and instances.exists():
+            return Response(
+              'This update fails the height of models may not be changed if instances of the model exist.',
+              status=status.HTTP_400_BAD_REQUEST)
+
 
         serializer.save()  # Save updates to the model
 
@@ -116,6 +95,18 @@ class ModelViewSet(viewsets.ModelViewSet):
         return super().destroy(self, request, *args, **kwargs)
 
     # Custom actions below
+    @action(detail=False, methods=['GET'])
+    def filter_fields(self, request, *args, **kwargs):
+        return Response({
+            'filter_fields': self.filterset_fields
+        })
+
+    @action(detail=False, methods=['GET'])
+    def sorting_fields(self, request, *args, **kwargs):
+        return Response({
+            'filter_fields': self.ordering_fields
+        })
+
     @action(detail=True, methods=['GET'])
     def can_delete(self, request, *args, **kwargs):
         matches = Instance.objects.all().filter(model=self.get_object())
@@ -130,9 +121,10 @@ class ModelViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['GET'])
     def vendors(self, request, *args, **kwargs):
         vendor_typed = self.request.query_params.get('vendor') or ''
-        vendors = Model.objects.all().filter(vendor__istartswith=vendor_typed).distinct()
-        serializer = VendorsSerializer(vendors, many=True)
-        return Response(serializer.data)
+        vendors = list(Model.objects.values_list('vendor', flat=True).filter(vendor__istartswith=vendor_typed).distinct())
+        return Response({
+            'vendors': vendors
+        })
 
     @action(detail=True, methods=['GET'])
     def instances(self, request, *args, **kwargs):
@@ -210,6 +202,20 @@ class InstanceViewSet(viewsets.ModelViewSet):
     # Custom actions below
 
     @action(detail=False, methods=['GET'])
+    def filter_fields(self, request, *args, **kwargs):
+        fields = self.filterset_fields
+        fields.extend(('start_rack_num', 'end_rack_num'))
+        return Response({
+            'filter_fields': fields
+        })
+
+    @action(detail=False, methods=['GET'])
+    def sorting_fields(self, request, *args, **kwargs):
+        return Response({
+            'filter_fields': self.ordering_fields
+        })
+
+    @action(detail=False, methods=['GET'])
     def model_names(self, request, *args, **kwargs):
         name_typed = self.request.query_params.get('name') or ''
         models = Model.objects.annotate(
@@ -231,11 +237,7 @@ class RackViewSet(viewsets.ModelViewSet):
 
     queryset = Rack.objects.all()
 
-    ordering_fields = ['rack_number', 'u1', 'u2', 'u3', 'u4', 'u5', 'u6', 'u7', 'u8',
-                       'u9', 'u10', 'u11', 'u12', 'u13', 'u14', 'u15', 'u16', 'u17', 'u18', 'u19', 'u20',
-                       'u21', 'u22', 'u23', 'u24', 'u25', 'u26', 'u27', 'u28', 'u29', 'u30',
-                       'u31', 'u32', 'u33', 'u34', 'u35', 'u36', 'u37', 'u38', 'u39', 'u40',
-                       'u41', 'u42']
+    ordering_fields = ['rack_number']
 
     filter_backends = [OrderingFilter,
                        DjangoFiltersBackend,
@@ -269,6 +271,20 @@ class RackViewSet(viewsets.ModelViewSet):
         return super().destroy(self, request, *args, **kwargs)
 
     # New Actions
+    @action(detail=False, methods=['GET'])
+    def filter_fields(self, request, *args, **kwargs):
+        fields = self.filterset_fields
+        fields.extend(('start_rack_num', 'end_rack_num'))
+        return Response({
+            'filter_fields': fields
+        })
+
+    @action(detail=False, methods=['GET'])
+    def sorting_fields(self, request, *args, **kwargs):
+        return Response({
+            'filter_fields': self.ordering_fields
+        })
+
     @action(detail=False, methods=['POST', 'DELETE'])
     def many(self, request, *args, **kwargs):
         try:
@@ -315,15 +331,26 @@ class RackViewSet(viewsets.ModelViewSet):
 
                 elif request.method == 'DELETE':
                     try:
-                        instance = self.queryset.get(rack_number__iexact=rn)
-                        instance.delete()
-                        results.append(rn + ' successfully deleted')
+                        rack = self.queryset.get(rack_number__iexact=rn)
                     except AssertionError:
                         results.append(('Error: rack ' + rn + ' cannot be deleted as it does not exist. Continuing...'))
-        except (IndexError, ValueError) as e:
-            return Response(e.detail, status=status.HTTP_400_BAD_REQUEST)
+                        continue
+                    try:
+                        resp = rack.delete()
+                        assert (resp.status != status.HTTP_400_BAD_REQUEST)
+                    except AssertionError:
+                        results.append('Error: rack ' + rn + ' cannot be deleted as it is not empty. Continuing...')
+                        continue
+                    results.append(rn + ' successfully deleted')
 
-        return Response(results, status.HTTP_207_MULTI_STATUS)
+        except (IndexError, ValueError) as e:
+            return Response({
+                'Error': e.detail
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({
+            'results': results
+        }, status=status.HTTP_207_MULTI_STATUS)
 
     @action(detail=True, methods=['GET'])
     def is_empty(self, request, *args, **kwargs):
