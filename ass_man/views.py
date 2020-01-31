@@ -104,7 +104,7 @@ class ModelViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['GET'])
     def sorting_fields(self, request, *args, **kwargs):
         return Response({
-            'filter_fields': self.ordering_fields
+            'sorting_fields': self.ordering_fields
         })
 
     @action(detail=True, methods=['GET'])
@@ -212,7 +212,7 @@ class InstanceViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['GET'])
     def sorting_fields(self, request, *args, **kwargs):
         return Response({
-            'filter_fields': self.ordering_fields
+            'sorting_fields': self.ordering_fields
         })
 
     @action(detail=False, methods=['GET'])
@@ -265,9 +265,10 @@ class RackViewSet(viewsets.ModelViewSet):
                                            ' ' +
                                            slot.__str__())
         if len(offending_instances) > 0:
-            return Response('Cannot delete this rack as it contains instances: ' +
-                            ', '.join(offending_instances),
-                            status=status.HTTP_400_BAD_REQUEST)
+            err_message = 'Cannot delete this rack as it contains instances: ' +', '.join(offending_instances)
+            return Response({
+                'Error:', err_message
+            }, status=status.HTTP_400_BAD_REQUEST)
         return super().destroy(self, request, *args, **kwargs)
 
     # New Actions
@@ -282,7 +283,7 @@ class RackViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['GET'])
     def sorting_fields(self, request, *args, **kwargs):
         return Response({
-            'filter_fields': self.ordering_fields
+            'sorting_fields': self.ordering_fields
         })
 
     @action(detail=False, methods=['POST', 'DELETE'])
@@ -291,8 +292,9 @@ class RackViewSet(viewsets.ModelViewSet):
             srn = request.data['start_rack_num']
             ern = request.data['end_rack_num']
         except KeyError:
-            return Response('Invalid rack range- must specify start and end rack number',
-                            status=status.HTTP_400_BAD_REQUEST)
+            return Response({
+                'Error': 'Invalid rack range- must specify start and end rack number'
+            },status=status.HTTP_400_BAD_REQUEST)
         try:
             s_letter = srn[0].upper()
             e_letter = ern[0].upper()
@@ -302,13 +304,16 @@ class RackViewSet(viewsets.ModelViewSet):
             try:
                 assert(s_letter <= e_letter)
             except AssertionError:
-                return Response('Your start letter must be less than or equal to your end letter',
-                                status=status.HTTP_400_BAD_REQUEST)
+                return Response({
+                    'Error': 'Your start letter must be less than or equal to your end letter'
+                }, status=status.HTTP_400_BAD_REQUEST)
             try:
                 assert(s_number <= e_number)
             except AssertionError:
-                return Response('Your start number must be less than or equal to your end number',
-                                status=status.HTTP_400_BAD_REQUEST)
+                return Response({
+                    'Error': 'Your start number must be less than or equal to your end number'
+                }, status=status.HTTP_400_BAD_REQUEST)
+
             rack_numbers = [x + y
                             for x in
                             (chr(i) for i in range(ord(s_letter), ord(e_letter) + 1))

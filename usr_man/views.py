@@ -44,7 +44,7 @@ class UserViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['GET'])
     def sorting_fields(self, request, *args, **kwargs):
         return Response({
-            'filter_fields': self.ordering_fields
+            'sorting_fields': self.ordering_fields
         })
 
     @action(detail=False, methods=['GET'])
