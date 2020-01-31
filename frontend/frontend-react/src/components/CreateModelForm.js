@@ -31,8 +31,8 @@ export class CreateModelForm extends Component {
     let dst = '/api/models/vendors/';
     axios.get(dst).then(res => {
       let myOptions = []; 
-      for (let i = 0; i < res.data.length; i++) {
-        myOptions.push({ value: res.data[i].vendor, label: res.data[i].vendor });
+      for (let i = 0; i < res.data.vendors.length; i++) {
+        myOptions.push({ value: res.data.vendors[i], label: res.data.vendors[i] });
       }
       console.log(res.data)
       this.setState({ vendorOptions: myOptions });
