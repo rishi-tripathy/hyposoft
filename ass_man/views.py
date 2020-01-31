@@ -29,8 +29,8 @@ from ass_man.filters import InstanceFilter, ModelFilter, RackFilter, InstanceFil
 from rest_framework.serializers import ValidationError
 from rest_framework.request import Request, HttpRequest
 import json
-
 import csv
+
 
 ADMIN_ACTIONS = {'create', 'update', 'partial_update', 'destroy'}
 
@@ -48,6 +48,7 @@ class ModelViewSet(viewsets.ModelViewSet):
         return [permission() for permission in permission_classes]
 
     queryset = Model.objects.all()
+
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
@@ -287,6 +288,12 @@ class RackViewSet(viewsets.ModelViewSet):
                        DjangoFiltersBackend,
                        RackFilter]
 
+
+    filter_backends = [OrderingFilter,
+                       DjangoFiltersBackend,
+                       RackFilter]
+
+
     filterset_fields = ['rack_number']
 
     def get_serializer_class(self):
@@ -418,6 +425,7 @@ class RackViewSet(viewsets.ModelViewSet):
 
 
 # Custom actions below
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def report(request):
@@ -470,3 +478,4 @@ def report(request):
         'vendors_allocated': vendor_dict,
         'owners_allocated': owner_dict_by_username
     })
+  

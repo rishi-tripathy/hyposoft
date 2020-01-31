@@ -34,7 +34,6 @@ class ModelShortSerializer(serializers.HyperlinkedModelSerializer):
         model = Model
         fields = ['id', 'vendor', 'model_number', 'height', 'display_color', 'ethernet_ports', 'power_ports','cpu', 'memory', 'storage']
 
-
 class UniqueModelsSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Model
@@ -96,6 +95,12 @@ class InstanceSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Instance
         fields = ['id', 'model', 'hostname', 'rack', 'rack_u', 'owner', 'comment']
+
+# Used to fetch the Rack associated with an Instance
+class RackOfInstanceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Rack
+        fields = ['url', 'rack_number']
 
 
 # Used to fetch the Rack associated with an Instance
