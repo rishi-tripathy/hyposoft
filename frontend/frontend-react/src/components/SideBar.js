@@ -2,44 +2,48 @@ import React from 'react';
 import '../stylesheets/SideBar.css'
 import ModelController from './ModelController'
 import InstanceController from './InstanceController'
-import Landing from './Landing'
 import RackController from './RackController'
+import Landing from './Landing'
+import axios from 'axios'
+axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 class SideBar extends React.Component{
-	constructor() {
-		super();
-		this.state = {
+    constructor() {
+        super();
+        this.state = {
             racks: true,
             models: false,
             instances: false,
-		};
+            admin: false,
+        };
         this.showRacks = this.showRacks.bind(this);
         this.showModels = this.showModels.bind(this);
-		this.showInstances = this.showInstances.bind(this);
+        this.showInstances = this.showInstances.bind(this);
 
     }
+
     showRacks() {
-		this.setState({
+        this.setState({
             racks: true,
             models: false,
             instances: false,
-		});
+        });
     }
 
     showModels() {
-		this.setState({
+        this.setState({
             racks: false,
             models: true,
             instances: false,
-		});
+        });
     }
     
     showInstances() {
-		this.setState({
+        this.setState({
             racks: false,
             models: false,
             instances: true,
-		});
+        });
     }
 
     render() {
@@ -50,15 +54,15 @@ class SideBar extends React.Component{
 
         let content;
 
-        if (rackState){
-            content = <RackController />
-        }
-        else if (modelState){
-            content = <ModelController />
-        }
-        else {
-            content= <InstanceController />
-        }
+            if (rackState){
+                content = <RackController />
+              }
+              else if (modelState){
+                  content = <ModelController />
+              }
+              else {
+                  content= <InstanceController />
+              }
 
         return(
             <div>
