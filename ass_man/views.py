@@ -328,16 +328,11 @@ class RackViewSet(viewsets.ModelViewSet):
         slots = ['u{}'.format(i) for i in range(1, 43)]
         offending_instances = []
         for slot in slots:
-<<<<<<< HEAD
-<<<<<<< HEAD
             if getattr(self.get_object(), slot):
                 u_filled += 1
         if u_filled > 0:
             return Response('Cannot delete this rack as it is not empty.',
                             status=status.HTTP_400_BAD_REQUEST)
-=======
-=======
->>>>>>> 107a36777f3eedb7b696bb25c0d839d9b4834d2d
             match = getattr(self.get_object(), slot)
             if match:
                 offending_instances.append(match.hostname.__str__()
@@ -350,10 +345,6 @@ class RackViewSet(viewsets.ModelViewSet):
             return Response({
                 'Error:', err_message
             }, status=status.HTTP_400_BAD_REQUEST)
-<<<<<<< HEAD
->>>>>>> master
-=======
->>>>>>> 107a36777f3eedb7b696bb25c0d839d9b4834d2d
         return super().destroy(self, request, *args, **kwargs)
 
     # New Actions
