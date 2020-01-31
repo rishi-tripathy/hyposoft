@@ -146,6 +146,11 @@ export class InstanceController extends Component {
     });
   }
 
+  exportData = () => {
+    let dst = '/api/instances/' + this.state.filterQuery;
+    console.log('exporting to:  ' + dst);
+  }
+
 
   render() {
     let content;
@@ -198,6 +203,8 @@ export class InstanceController extends Component {
         { paginateNavigation }
         <br></br>
         { content }
+        <br></br>
+        <button onClick={ this.exportData } >Export</button>
       </div>
     )
   }

@@ -161,7 +161,8 @@ export class InstanceFilters extends Component {
           <Select value={ this.state.selectedModelOption }
             onChange={ this.handleChangeModel }
             options={ this.state.modelOptions }
-            searchable={ true } />
+            searchable={ true }
+            clearable={ true } />
           
           <p>Model Number</p>
           <input type="text" onChange={e => {
