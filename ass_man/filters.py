@@ -39,11 +39,6 @@ class InstanceFilter(filters.FilterSet):
 
 class InstanceFilterByRack(rest_filters.BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
-        # If this filter is not being invoked:
-        # if not request.query_params.get('rack_num_start') or not request.query_params.get('rack_num_end'):
-        #     return queryset
-
-        # If it is being invoked:
         start_letter = request.query_params.get('rack_num_start')[0].upper() if request.query_params.get(
             'rack_num_start') else 'A'
         start_number = request.query_params.get('rack_num_start')[1:] if request.query_params.get(
@@ -61,10 +56,6 @@ class InstanceFilterByRack(rest_filters.BaseFilterBackend):
 
 class RackFilter(rest_filters.BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
-        # If this filter is not being invoked:
-
-
-        # If it is being invoked:
         start_letter = request.query_params.get('rack_num_start')[0].upper() if request.query_params.get(
             'rack_num_start') else 'A'
         start_number = request.query_params.get('rack_num_start')[1:] if request.query_params.get(
