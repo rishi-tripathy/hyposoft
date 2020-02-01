@@ -8,9 +8,9 @@ export class ModelTable extends Component {
 
 	constructor() {
 		super();
-      this.showCreateForm = this.showCreateForm.bind(this);
-      this.showEditForm = this.showEditForm.bind(this);
-      this.showEditForm = this.showEditForm.bind(this);
+      // this.showCreateForm = this.showCreateForm.bind(this);
+      // this.showEditForm = this.showEditForm.bind(this);
+      // this.showEditForm = this.showEditForm.bind(this);
 	}
 
 	showDetailedModel = (id) => {

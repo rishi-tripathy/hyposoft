@@ -1,6 +1,8 @@
 import React, { Component } from 'react'
 import axios from 'axios'
 import ModelCard from './ModelCard'
+import DetailedInstance from './DetailedInstance'
+import AllInstancesOfModelView from './AllInstancesOfModelView';
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 
@@ -21,11 +23,29 @@ export class DetailedModel extends Component {
         'memory': null,
         'storage': '',
         'comment': ''
-      }
+      },
+      detailedInstanceID: 0,
+      showIndividualInstanceView: false,
+      showTableView : true,
     }
   }
 
-  componentDidMount() {
+  getShowDetailedInstance = (show) => {
+    show ? this.setState({
+      showIndividualInstanceView: true,
+      // everything else false
+      showTableView : false,
+    })
+    : this.setState({
+      showIndividualInstanceView : false,
+    }) 
+  }
+
+  getDetailedInstanceID = (id) => {
+    this.setState({ detailedInstanceID: id});
+  }
+
+  loadModelData = () => {
     let dst = '/api/models/'.concat(this.props.modelID).concat('/');
     axios.get(dst).then(res => {
       this.setState({
@@ -34,10 +54,28 @@ export class DetailedModel extends Component {
     });
   }
 
+  componentDidMount() {
+    this.loadModelData();
+  }
+
   render() {
+
+    let content;
+    if (this.state.showTableView) {
+      content = <AllInstancesOfModelView modelID={this.state.model.id} 
+                  sendInstanceID={ this.getDetailedInstanceID }
+                  sendShowDetailedInstance={ this.getShowDetailedInstance } />;
+    }
+    else if (this.state.showIndividualInstanceView) {
+      content = <DetailedInstance instanceID={ this.state.detailedInstanceID } /> ;
+    }
+
     return (
       <div>
         <ModelCard model={ this.state.model } />
+        <br></br>
+        <br></br>
+        { content }
       </div>
     )
   }
