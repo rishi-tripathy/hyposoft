@@ -126,8 +126,8 @@ export class InstanceFilters extends Component {
     const { modelID, modelNumber, modelVendor, hostname, rackID, rack_u, ownerID, rackStart, rackEnd } = this.state.identifiers;
     let q = '' + 
             'model=' + modelID + '&' +
-            'model__model_number=' + modelNumber + '&' +
-            'model__vendor=' + modelVendor + '&' +
+            'model_number=' + modelNumber + '&' +
+            'vendor=' + modelVendor + '&' +
             'hostname=' + hostname + '&' +
             'rack=' + rackID + '&' +
             'rack_u=' + rack_u + '&' +
