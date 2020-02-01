@@ -4,6 +4,7 @@ import CreateModelForm from './CreateModelForm'
 import axios from 'axios'
 import EditModelForm from './EditModelForm';
 import ModelFilters from './ModelFilters';
+import ModelSort from './ModelSort';
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 export class ModelController extends Component {
@@ -34,6 +35,7 @@ export class ModelController extends Component {
       prevPage: null,
       nextPage: null,
       filterQuery: '',
+      sortQuery: '',
     };
 
     // I don't think i need this bind here; but too scared to take it out lol
@@ -99,10 +101,13 @@ export class ModelController extends Component {
   }
 
   getFilterQuery = (q) => {
-    this.setState({
-      filterQuery: q,
-    });
+    this.setState({ filterQuery: q });
     console.log(this.state.filterQuery);
+  }
+
+  getSortQuery = (q) => {
+    this.setState({ sortQuery: q })
+    console.log(this.state.sortQuery);
   }
 
   componentDidMount() {
@@ -121,11 +126,17 @@ export class ModelController extends Component {
     if (prevState.filterQuery !== this.state.filterQuery) {
       this.getModels();
     }
-    
+
+    // Once sort changes, rerender
+    if (prevState.sortQuery !== this.state.sortQuery) {
+      this.getModels();
+    }
   }
 
   getModels = () => {
-    let dst = '/api/models/' + this.state.filterQuery;
+    let dst = '/api/models/' + '?' + this.state.filterQuery + '&' + this.state.sortQuery;
+    console.log('QUERY')
+    console.log(dst)
     axios.get(dst).then(res => {
       this.setState({ 
         models: res.data.results,
@@ -204,16 +215,20 @@ export class ModelController extends Component {
     }
 
     let filters = <ModelFilters sendFilterQuery={ this.getFilterQuery } />
+    let sorting = <ModelSort sendSortQuery={ this.getSortQuery } />
 
-    // if we're not on the table, then don't show pagination or filters
+    // if we're not on the table, then don't show pagination or filters or sort
     if (! this.state.showTableView) {
       paginateNavigation = <p></p>;
       filters = <p></p>;
+      sorting = <p></p>;
     }
   
     return (
       <div>
         { filters }
+        <br></br>
+        { sorting }
         <br></br>
         { paginateNavigation }
         <br></br>

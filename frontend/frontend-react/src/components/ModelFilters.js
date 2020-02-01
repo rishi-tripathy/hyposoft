@@ -27,7 +27,8 @@ export class ModelFilters extends Component {
 
   createQuery = () => {
     const { vendor, model_number, height, display_color, ethernet_ports, power_ports, cpu, memory, storage } = this.state.identifiers;
-    let q = '?' + 
+    // NO '?' here!!
+    let q = '' + 
             'vendor=' + vendor + '&' +
             'model_number=' + model_number + '&' +
             'height=' + height + '&' +
