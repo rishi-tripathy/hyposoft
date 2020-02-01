@@ -298,7 +298,7 @@ class RackViewSet(viewsets.ModelViewSet):
     queryset = Rack.objects.all()
 
     ordering_fields = RACK_ORDERING_FILTERING_FIELDS
-    ordering = ['rack_number']
+    ordering = RACK_ORDERING_FILTERING_FIELDS
     filter_backends = [OrderingFilter,
                        DjangoFiltersBackend,
                        RackFilter]
