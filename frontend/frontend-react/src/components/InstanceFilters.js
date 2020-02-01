@@ -26,6 +26,8 @@ export class InstanceFilters extends Component {
         rackID: '',
         rack_u: '',
         ownerID: '',
+        rackStart: '',
+        rackEnd: '',
       }, 
       query: null,
     }
@@ -121,7 +123,7 @@ export class InstanceFilters extends Component {
   };
 
   createQuery = () => {
-    const { modelID, modelNumber, modelVendor, hostname, rackID, rack_u, ownerID } = this.state.identifiers;
+    const { modelID, modelNumber, modelVendor, hostname, rackID, rack_u, ownerID, rackStart, rackEnd } = this.state.identifiers;
     let q = '' + 
             'model=' + modelID + '&' +
             'model__model_number=' + modelNumber + '&' +
@@ -129,7 +131,9 @@ export class InstanceFilters extends Component {
             'hostname=' + hostname + '&' +
             'rack=' + rackID + '&' +
             'rack_u=' + rack_u + '&' +
-            'owner=' + ownerID;
+            'owner=' + ownerID + '&' +
+            'rack_num_start=' + rackStart + '&' + 
+            'rack_num_end=' + rackEnd;
     this.setState({ query: q });
     return q;
   }
@@ -205,6 +209,26 @@ export class InstanceFilters extends Component {
             onChange={ this.handleChangeOwner }
             options={ this.state.ownerOptions }
             searchable={ true } />
+
+          <p>Rack Start</p>
+          <input type="text" onChange={e => {
+            let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
+            identifiersCopy.rackStart = e.target.value
+            this.setState({
+              identifiers: identifiersCopy 
+            }) 
+          } } />
+
+          <p>Rack End</p>
+          <input type="text" onChange={e => {
+            let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
+            identifiersCopy.rackEnd = e.target.value
+            this.setState({
+              identifiers: identifiersCopy 
+            }) 
+          } } />
+          
+
           
           
           {/* <p>Comment</p> 
