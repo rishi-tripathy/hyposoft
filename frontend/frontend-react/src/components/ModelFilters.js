@@ -88,7 +88,7 @@ export class ModelFilters extends Component {
           } } />
 
           <p>Display Color</p>
-          <input type="number" onChange={e => {
+          <input type="text" onChange={e => {
             let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
             identifiersCopy.display_color = e.target.value
             this.setState({

@@ -13,6 +13,13 @@ export class ModelTable extends Component {
       this.showEditForm = this.showEditForm.bind(this);
 	}
 
+	showDetailedModel = (id) => {
+		//this.props.sendShowTable(false);
+		this.props.sendShowDetailedModel(true);
+    this.props.sendModelID(id);
+  }
+
+
 	showCreateForm = () => {
 		this.props.sendShowCreate(true);
   }
@@ -37,7 +44,7 @@ export class ModelTable extends Component {
 
   renderTableHeader() {
 		let header = ['id', 'vendor', 'model_number', 'height', 
-		'display_color', 'ethernet_ports,', 'power_ports', 'cpu', 'memory', 'storage', 'comment'];
+		'display_color', 'ethernet_ports,', 'power_ports', 'cpu', 'memory', 'storage'];
     return header.map((key, index) => {
         return <th key={index}>{key.toUpperCase()}</th>
     })
@@ -59,6 +66,7 @@ export class ModelTable extends Component {
 						<td>{cpu}</td>
 						<td>{memory}</td>
 						<td>{storage}</td>
+						<td><button onClick={ () => this.showDetailedModel(id) }>More details</button></td>
 						<td><button onClick={ () => this.showEditForm(id) }>Edit</button></td>
             <td><button onClick={ () => this.showDeleteForm(id) }>Delete</button></td>
           </tr>

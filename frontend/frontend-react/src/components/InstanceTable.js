@@ -8,11 +8,11 @@ export class InstanceTable extends Component {
 
   constructor() {
     super();
-    this.passUP = this.passUp.bind(this);
+    //this.passUP = this.showDetailedInstance.bind(this);
   }
 
-  passUp = (id) => {
-    this.props.sendShowTable(false);
+  showDetailedInstance = (id) => {
+    this.props.sendShowDetailedInstance(true);
     this.props.sendInstanceID(id);
   }
 
@@ -59,7 +59,7 @@ export class InstanceTable extends Component {
             <td>{rack ? rack.rack_number : null}</td>
             <td>{rack_u}</td>
             <td>{owner ? owner.username : null}</td>
-            <td><button onClick={ () => this.passUp(id) }>More details</button></td>
+            <td><button onClick={ () => this.showDetailedInstance(id) }>More details</button></td>
             <td><button onClick={ () => this.showEditForm(id) }>Edit</button></td>
             <td><button onClick={ () => this.showDeleteForm(id) }>Delete</button></td>
           </tr>

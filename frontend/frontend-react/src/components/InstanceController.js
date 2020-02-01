@@ -40,21 +40,37 @@ export class InstanceController extends Component {
   getShowTable = (show) => {
     show ? this.setState({
       showTableView : true,
-      showIndividualInstanceView: false
+      // everything else false
+      showIndividualInstanceView: false,
+      showCreateView: false,
+      showEditView: false,
     })
     : this.setState({
       showTableView : false,
-      showIndividualInstanceView: true
+    }) 
+  }
+
+  getShowDetailedInstance = (show) => {
+    show ? this.setState({
+      showIndividualInstanceView: true,
+      // everything else false
+      showTableView : false,
+      showCreateView: false,
+      showEditView: false,
+    })
+    : this.setState({
+      showIndividualInstanceView : false,
     }) 
   }
 
   getShowCreate = (show) => {
     show ? this.setState({
+      showCreateView : true,
+      // everything else false
       showTableView: false,
       showIndividualInstanceView: false,
-      showCreateView : true,
       showEditView: false,
-      showDeleteView: false,
+      
     })
     : this.setState({
       showCreateView : false,
@@ -63,11 +79,11 @@ export class InstanceController extends Component {
 
   getShowEdit = (show) => {
     show ? this.setState({
+      showEditView: true,
+      // everything else false
       showTableView: false,
       showIndividualInstanceView: false,
       showCreateView : false,
-      showEditView: true,
-      showDeleteView: false,
     })
     : this.setState({
       showEditView : false,
@@ -168,6 +184,7 @@ export class InstanceController extends Component {
       content = <InstanceTable 
                   instances={ this.state.instances } 
                   sendShowTable={ this.getShowTable } 
+                  sendShowDetailedInstance= { this.getShowDetailedInstance }
                   sendInstanceID={ this.getDetailedInstanceID }
                   sendShowCreate={this.getShowCreate }
                   sendShowEdit={this.getShowEdit }
