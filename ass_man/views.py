@@ -263,8 +263,9 @@ class InstanceViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=[GET])
     def filter_fields(self, request, *args, **kwargs):
-        fields = self.filterset_fields.copy()
-        fields.extend(('start_rack_num', 'end_rack_num'))
+        fields = ['model', 'vendor', 'model_number', 'hostname', 'rack', 'rack_u', 'owner_username', 'comment',
+                  'rack_num_start', 'rack_num_end']
+
         return Response({
             'filter_fields': fields
         })
@@ -334,8 +335,8 @@ class RackViewSet(viewsets.ModelViewSet):
     # New Actions
     @action(detail=False, methods=[GET])
     def filter_fields(self, request, *args, **kwargs):
-        fields = self.filterset_fields.copy()
-        fields.extend(('start_rack_num', 'end_rack_num'))
+        fields = RACK_ORDERING_FILTERING_FIELDS.copy()
+        fields.extend(['rack_num_start', 'rack_num_end'])
         return Response({
             'filter_fields': fields
         })
@@ -349,8 +350,8 @@ class RackViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=[POST, DELETE])
     def many(self, request, *args, **kwargs):
         try:
-            srn = request.data['start_rack_num']
-            ern = request.data['end_rack_num']
+            srn = request.data['rack_num_start']
+            ern = request.data['rack_num_end']
         except KeyError:
             return Response({
                 'Error': RACK_MANY_INCOMPLETE_QUERY_PARAMS_ERROR_MSG
