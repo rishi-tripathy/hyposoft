@@ -100,11 +100,10 @@ class ModelViewSet(viewsets.ModelViewSet):
 
         if prev_height != new_height and instances.exists():
             return Response({
-              'Error": MODEL_HEIGHT_UPDATE_ERROR_MSG
-            },
-              status=status.HTTP_400_BAD_REQUEST)
+              'Error': MODEL_HEIGHT_UPDATE_ERROR_MSG
+            }, status=status.HTTP_400_BAD_REQUEST)
 
-          serializer.save()  # Save updates to the model
+        serializer.save()  # Save updates to the model
 
         return Response(serializer.data)
 
