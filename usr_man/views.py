@@ -32,6 +32,7 @@ class UserViewSet(viewsets.ModelViewSet):
     filterset_class = UserFilter
     filterset_fields = USER_ORDERING_FILTERING_FIELDS
 
+
     ordering_fields = USER_ORDERING_FILTERING_FIELDS
     # Override default actions here
 

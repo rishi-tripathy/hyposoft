@@ -83,9 +83,9 @@ class ModelViewSet(viewsets.ModelViewSet):
             serializer_class = ModelSerializer
         return serializer_class
 
+
     ordering_fields = MODEL_ORDERING_FILTERING_FIELDS
     ordering = ['vendor', 'model_number']  # default ordering
-
     filterset_fields = MODEL_ORDERING_FILTERING_FIELDS
 
     # Overriding of super functions
@@ -99,11 +99,12 @@ class ModelViewSet(viewsets.ModelViewSet):
         new_height = int(request.data['height'])
 
         if prev_height != new_height and instances.exists():
-            return Response(
-              MODEL_HEIGHT_UPDATE_ERROR_MSG,
+            return Response({
+              'Error": MODEL_HEIGHT_UPDATE_ERROR_MSG
+            },
               status=status.HTTP_400_BAD_REQUEST)
 
-        serializer.save()  # Save updates to the model
+          serializer.save()  # Save updates to the model
 
         return Response(serializer.data)
 
@@ -117,6 +118,7 @@ class ModelViewSet(viewsets.ModelViewSet):
                                            match.rack.rack_number.__str__() +
                                            ' U' +
                                            match.rack_u.__str__())
+
             return Response(MODEL_DESTROY_ERROR_MSG +
                             ', '.join(offending_instances),
                             status=status.HTTP_400_BAD_REQUEST)
@@ -147,11 +149,13 @@ class ModelViewSet(viewsets.ModelViewSet):
             'filter_fields': self.filterset_fields
         })
 
+
     @action(detail=False, methods=[GET])
     def sorting_fields(self, request, *args, **kwargs):
         return Response({
             'sorting_fields': self.ordering_fields
         })
+
 
     @action(detail=True, methods=[GET])
     def can_delete(self, request, *args, **kwargs):
@@ -202,9 +206,11 @@ class InstanceViewSet(viewsets.ModelViewSet):
             serializer_class = InstanceSerializer
         return serializer_class
 
+
     ordering_fields = INSTANCE_ORDERING_FILTERING_FIELDS
     ordering = ['-id']
     filterset_fields = INSTANCE_ORDERING_FILTERING_FIELDS
+
 
     filter_backends = [OrderingFilter,
                        DjangoFiltersBackend,
@@ -265,7 +271,6 @@ class InstanceViewSet(viewsets.ModelViewSet):
     def filter_fields(self, request, *args, **kwargs):
         fields = ['model', 'vendor', 'model_number', 'hostname', 'rack', 'rack_u', 'owner_username', 'comment',
                   'rack_num_start', 'rack_num_end']
-
         return Response({
             'filter_fields': fields
         })
@@ -275,6 +280,7 @@ class InstanceViewSet(viewsets.ModelViewSet):
         return Response({
             'sorting_fields': self.ordering_fields
         })
+
 
     @action(detail=False, methods=[GET])
     def model_names(self, request, *args, **kwargs):
@@ -300,12 +306,11 @@ class RackViewSet(viewsets.ModelViewSet):
 
     ordering_fields = RACK_ORDERING_FILTERING_FIELDS
     ordering = ['rack_number']
-
     filter_backends = [OrderingFilter,
                        DjangoFiltersBackend,
                        RackFilter]
-    filterset_fields = RACK_ORDERING_FILTERING_FIELDS
 
+    filterset_fields = RACK_ORDERING_FILTERING_FIELDS
     def get_serializer_class(self):
         if self.request.method == GET:
             serializer_class = RackFetchSerializer
@@ -434,6 +439,7 @@ class RackViewSet(viewsets.ModelViewSet):
         })
 
 
+
 # Custom actions below
 
 @api_view([GET])
@@ -488,4 +494,4 @@ def report(request):
         'vendors_allocated': vendor_dict,
         'owners_allocated': owner_dict_by_username
     })
-
+  
