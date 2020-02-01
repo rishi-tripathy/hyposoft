@@ -298,15 +298,11 @@ class RackViewSet(viewsets.ModelViewSet):
     queryset = Rack.objects.all()
 
     ordering_fields = RACK_ORDERING_FILTERING_FIELDS
-    ordering = RACK_ORDERING_FILTERING_FIELDS
-    filter_backends = [OrderingFilter,
-                       DjangoFiltersBackend,
-                       RackFilter]
+    ordering = ['rack_number']
 
     filter_backends = [OrderingFilter,
                        DjangoFiltersBackend,
                        RackFilter]
-
     filterset_fields = RACK_ORDERING_FILTERING_FIELDS
 
     def get_serializer_class(self):
