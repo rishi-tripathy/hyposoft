@@ -2,7 +2,6 @@
     max-height: 3px;
     width:auto;
     padding: 2px; 
-    
   }
 
   #entries1 td2 {
@@ -46,14 +45,14 @@
 
 #entries1 td { 
   background: whitesmoke;
-  max-height: min-content;
+  /* max-height: min-content; */
 }
 
 #entries1 tr:hover {background-color: #ddd;}
-
+/* 
 #entries1 tr {
   width: 500px;  
-}
+} */
 
 #entries1 th {
   text-align: center;
