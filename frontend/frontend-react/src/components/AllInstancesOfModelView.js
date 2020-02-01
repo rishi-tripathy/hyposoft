@@ -35,17 +35,16 @@ export class AllInstancesOfModelView extends Component {
 
   renderTableData() {
     return this.state.instances.map((instance) => {
-        const { id, model, hostname, rack, owner, rack_u } = instance //destructuring
-        
-        return (
-          <tr key={id}>
-            <td>{id}</td>
-            <td>{hostname}</td>
-            <td>{rack ? rack.rack_number : null}</td>
-            <td>{rack_u}</td>
-            <td><button onClick={ () => this.showDetailedInstance(id) }>More details</button></td>
-          </tr>
-        )
+      const { id, model, hostname, rack, owner, rack_u } = instance //destructuring
+      return (
+        <tr key={id}>
+          <td>{id}</td>
+          <td>{hostname}</td>
+          <td>{rack ? rack.rack_number : null}</td>
+          <td>{rack_u}</td>
+          <td><button onClick={ () => this.showDetailedInstance(id) }>More details</button></td>
+        </tr>
+      )
     })
   }
 
