@@ -29,7 +29,7 @@ class InstanceFilter(filters.FilterSet):
     vendor = filters.CharFilter(field_name='model__vendor', lookup_expr='icontains')
     model_number = filters.CharFilter(field_name='model__model_number', lookup_expr='icontains')
     hostname = filters.CharFilter(field_name='hostname', lookup_expr='icontains')
-    owner = filters.CharFilter(field_name='owner__username', lookup_expr='icontains')
+    owner_username = filters.CharFilter(field_name='owner__username', lookup_expr='icontains')
     comment = filters.CharFilter(field_name='comment', lookup_expr='icontains')
 
     class Meta:
@@ -39,15 +39,14 @@ class InstanceFilter(filters.FilterSet):
 
 class InstanceFilterByRack(rest_filters.BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
-        # If this filter is not being invoked:
-        if not request.query_params.get('rack_num_start') or not request.query_params.get('rack_num_end'):
-            return queryset
-
-        # If it is being invoked:
-        start_letter = request.query_params.get('rack_num_start')[0]
-        start_number = request.query_params.get('rack_num_start')[1:]
-        end_letter = request.query_params.get('rack_num_end')[0]
-        end_number = request.query_params.get('rack_num_end')[1:]
+        start_letter = request.query_params.get('rack_num_start')[0].upper() if request.query_params.get(
+            'rack_num_start') else 'A'
+        start_number = request.query_params.get('rack_num_start')[1:] if request.query_params.get(
+            'rack_num_start') else '0'
+        end_letter = request.query_params.get('rack_num_end')[0].upper() if request.query_params.get('rack_num_end') \
+            else 'Z'
+        end_number = request.query_params.get('rack_num_end')[1:] if request.query_params.get('rack_num_end') \
+            else '999'
         return queryset \
             .annotate(rack_num_letter=Substr('rack__rack_number', 1, 1)) \
             .annotate(rack_num_number=Substr('rack__rack_number', 2, None)) \
@@ -57,15 +56,14 @@ class InstanceFilterByRack(rest_filters.BaseFilterBackend):
 
 class RackFilter(rest_filters.BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
-        # If this filter is not being invoked:
-        if not request.query_params.get('rack_num_start') or not request.query_params.get('rack_num_end'):
-            return queryset
-
-        # If it is being invoked:
-        start_letter = request.query_params.get('rack_num_start')[0]
-        start_number = request.query_params.get('rack_num_start')[1:]
-        end_letter = request.query_params.get('rack_num_end')[0]
-        end_number = request.query_params.get('rack_num_end')[1:]
+        start_letter = request.query_params.get('rack_num_start')[0].upper() if request.query_params.get(
+            'rack_num_start') else 'A'
+        start_number = request.query_params.get('rack_num_start')[1:] if request.query_params.get(
+            'rack_num_start') else '0'
+        end_letter = request.query_params.get('rack_num_end')[0].upper() if request.query_params.get('rack_num_end') \
+            else 'Z'
+        end_number = request.query_params.get('rack_num_end')[1:] if request.query_params.get('rack_num_end') \
+            else '999'
         return queryset\
             .annotate(rack_num_letter=Substr('rack_number', 1, 1))\
             .annotate(rack_num_number=Substr('rack_number', 2, None))\
