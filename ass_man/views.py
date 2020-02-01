@@ -84,6 +84,7 @@ class ModelViewSet(viewsets.ModelViewSet):
         return serializer_class
 
     ordering_fields = MODEL_ORDERING_FILTERING_FIELDS
+    ordering = ['vendor', 'model_number']  # default ordering
 
     filterset_fields = MODEL_ORDERING_FILTERING_FIELDS
 
@@ -202,7 +203,7 @@ class InstanceViewSet(viewsets.ModelViewSet):
         return serializer_class
 
     ordering_fields = INSTANCE_ORDERING_FILTERING_FIELDS
-
+    ordering = ['-id']
     filterset_fields = INSTANCE_ORDERING_FILTERING_FIELDS
 
     filter_backends = [OrderingFilter,
@@ -297,7 +298,7 @@ class RackViewSet(viewsets.ModelViewSet):
     queryset = Rack.objects.all()
 
     ordering_fields = RACK_ORDERING_FILTERING_FIELDS
-
+    ordering = ['rack_number']
     filter_backends = [OrderingFilter,
                        DjangoFiltersBackend,
                        RackFilter]
