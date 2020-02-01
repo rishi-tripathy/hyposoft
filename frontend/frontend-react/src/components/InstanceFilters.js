@@ -122,7 +122,7 @@ export class InstanceFilters extends Component {
 
   createQuery = () => {
     const { modelID, modelNumber, modelVendor, hostname, rackID, rack_u, ownerID } = this.state.identifiers;
-    let q = '?' + 
+    let q = '' + 
             'model=' + modelID + '&' +
             'model__model_number=' + modelNumber + '&' +
             'model__vendor=' + modelVendor + '&' +

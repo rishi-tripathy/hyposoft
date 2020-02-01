@@ -5,6 +5,7 @@ import DetailedInstance from './DetailedInstance';
 import CreateInstanceForm from './CreateInstanceForm';
 import EditInstanceForm from './EditInstanceForm';
 import InstanceFilters from './InstanceFilters';
+import InstanceSort from './InstanceSort';
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 export class InstanceController extends Component {
@@ -28,6 +29,7 @@ export class InstanceController extends Component {
       prevPage: null,
       nextPage: null,
       filterQuery: '',
+      sortQuery: '',
     };
 
     this.getShowTable = this.getShowTable.bind(this);
@@ -83,10 +85,11 @@ export class InstanceController extends Component {
   }
 
   getInstances() {
-    
-    let dst = '/api/instances/' + this.state.filterQuery;
+    let dst = '/api/instances/' + '?' + this.state.filterQuery + '&' + this.state.sortQuery;
+    console.log('QUERY')
+    console.log(dst)
     axios.get(dst).then(res => {
-      console.log(res.data.next)
+      // console.log(res.data.next)
       this.setState({ 
         instances: res.data.results,
         prevPage: res.data.previous,
@@ -100,10 +103,12 @@ export class InstanceController extends Component {
   }
 
   getFilterQuery = (q) => {
-    this.setState({
-      filterQuery: q,
-    });
-    console.log(this.state.filterQuery);
+    this.setState({ filterQuery: q });
+  }
+
+  getSortQuery = (q) => {
+    this.setState({ sortQuery: q })
+    console.log(this.state.sortQuery);
   }
 
   componentDidMount() {
@@ -113,6 +118,11 @@ export class InstanceController extends Component {
   componentDidUpdate(prevProps, prevState) {
     // Once filter changes, rerender
     if (prevState.filterQuery !== this.state.filterQuery) {
+      this.getInstances();
+    }
+
+    // Once sort changes, rerender
+    if (prevState.sortQuery !== this.state.sortQuery) {
       this.getInstances();
     }
   }
@@ -188,16 +198,20 @@ export class InstanceController extends Component {
     }
 
     let filters = <InstanceFilters sendFilterQuery={ this.getFilterQuery } />
+    let sorting = <InstanceSort sendSortQuery={ this.getSortQuery } />
 
-    // if we're not on the table, then don't show pagination or filters
+    // if we're not on the table, then don't show pagination or filters or sorting
     if (! this.state.showTableView) {
       paginateNavigation = <p></p>;
       filters = <p></p>;
+      sorting = <p></p>;
     }
 
     return (
       <div>
         { filters }
+        <br></br>
+        { sorting }
         <br></br>
         { paginateNavigation }
         <br></br>

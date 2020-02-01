@@ -188,8 +188,6 @@ export class ModelController extends Component {
                   sendShowEdit={this.getShowEdit}
                   sendEditID={this.getEditID}
                   sendShowDelete={this.getShowDelete} /></div>
-
-      
     }
     else if (this.state.showCreateView){
         content = <CreateModelForm 

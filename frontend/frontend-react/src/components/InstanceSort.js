@@ -4,8 +4,8 @@ import Select from 'react-select';
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
-export class ModelSort extends Component {
-  
+export class InstanceSort extends Component {
+
   constructor() {
     super();
     this.state = {
@@ -15,7 +15,7 @@ export class ModelSort extends Component {
   }
 
   mountSortables = () => {
-    let dst = '/api/models/sorting_fields/';
+    let dst = '/api/instances/sorting_fields/';
     axios.get(dst).then(res => {
       let myOptions = []; 
       for (let i = 0; i < res.data.sorting_fields.length; i++) {
@@ -54,16 +54,16 @@ export class ModelSort extends Component {
 
   handleSubmit = (e) => {
     e.preventDefault();
-    // console.log(this.state.selectedSortableOptions);
-    // console.log(this.createQuery());
+    console.log(this.state.selectedSortableOptions);
+    console.log(this.createQuery());
     this.props.sendSortQuery(this.createQuery());
   }
-  
+
   render() {
     return (
-      <div> 
+      <div>
         <form onSubmit={this.handleSubmit}>
-          <h4>Model Sort</h4>
+          <h4>Instance Sort</h4>
           <Select
             value = { this.state.selectedSortableOptions }
             onChange={ this.handleChangeSortable }
@@ -78,4 +78,4 @@ export class ModelSort extends Component {
   }
 }
 
-export default ModelSort
+export default InstanceSort
