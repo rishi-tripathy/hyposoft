@@ -121,9 +121,7 @@ export class InstanceFilters extends Component {
   };
 
   createQuery = () => {
-
     const { modelID, modelNumber, modelVendor, hostname, rackID, rack_u, ownerID } = this.state.identifiers;
-
     let q = '?' + 
             'model=' + modelID + '&' +
             'model__model_number=' + modelNumber + '&' +
@@ -132,11 +130,7 @@ export class InstanceFilters extends Component {
             'rack=' + rackID + '&' +
             'rack_u=' + rack_u + '&' +
             'owner=' + ownerID;
-    
-    this.setState({
-      query: q,
-    })
-
+    this.setState({ query: q });
     return q;
   }
 

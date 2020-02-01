@@ -83,7 +83,7 @@ export class InstanceController extends Component {
   }
 
   getInstances() {
-    console.log('retrieving instnaces')
+    
     let dst = '/api/instances/' + this.state.filterQuery;
     axios.get(dst).then(res => {
       console.log(res.data.next)
@@ -111,11 +111,10 @@ export class InstanceController extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
+    // Once filter changes, rerender
     if (prevState.filterQuery !== this.state.filterQuery) {
-      console.log('instnace controller update')
       this.getInstances();
     }
-    
   }
 
   paginateNext = () => {
@@ -190,7 +189,7 @@ export class InstanceController extends Component {
 
     let filters = <InstanceFilters sendFilterQuery={ this.getFilterQuery } />
 
-    // if we're not on the table, then don't show pagination
+    // if we're not on the table, then don't show pagination or filters
     if (! this.state.showTableView) {
       paginateNavigation = <p></p>;
       filters = <p></p>;

@@ -3,6 +3,7 @@ import ModelTable from './ModelTable'
 import CreateModelForm from './CreateModelForm'
 import axios from 'axios'
 import EditModelForm from './EditModelForm';
+import ModelFilters from './ModelFilters';
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 export class ModelController extends Component {
@@ -32,10 +33,11 @@ export class ModelController extends Component {
       deleteID: 0,
       prevPage: null,
       nextPage: null,
+      filterQuery: '',
     };
-    //this.refreshTable = this.refreshTable.bind(this);
+
+    // I don't think i need this bind here; but too scared to take it out lol
     this.getShowTable = this.getShowTable.bind(this);
-    //this.getShowCreate = this.getShowCreate.bind(this);
   }
   
 
@@ -96,20 +98,35 @@ export class ModelController extends Component {
     }) 
   }
 
+  getFilterQuery = (q) => {
+    this.setState({
+      filterQuery: q,
+    });
+    console.log(this.state.filterQuery);
+  }
+
   componentDidMount() {
-    this.refreshTable();
-    
+    this.getModels();
   }
 
   componentDidUpdate(prevProps, prevState) {
+
     if (prevState.showTableView === false && this.state.showTableView === true) {
+      // I actually don't think this does anything
       console.log('rerending table, must refresh')
-      this.refreshTable();
+      this.getModels();
     }
+    
+    // Once filter changes, rerender
+    if (prevState.filterQuery !== this.state.filterQuery) {
+      this.getModels();
+    }
+    
   }
 
-  refreshTable = () => {
-    axios.get('/api/models/?shortform=true').then(res => {
+  getModels = () => {
+    let dst = '/api/models/' + this.state.filterQuery;
+    axios.get(dst).then(res => {
       this.setState({ 
         models: res.data.results,
         prevPage: res.data.previous,
@@ -186,13 +203,18 @@ export class ModelController extends Component {
       paginateNavigation = <div><button onClick={ this.paginatePrev }>prev page</button><button onClick={ this.paginateNext }>next page</button></div>;
     }
 
-    // if we're not on the table, then don't show pagination
+    let filters = <ModelFilters sendFilterQuery={ this.getFilterQuery } />
+
+    // if we're not on the table, then don't show pagination or filters
     if (! this.state.showTableView) {
       paginateNavigation = <p></p>;
+      filters = <p></p>;
     }
   
     return (
       <div>
+        { filters }
+        <br></br>
         { paginateNavigation }
         <br></br>
         {content}
