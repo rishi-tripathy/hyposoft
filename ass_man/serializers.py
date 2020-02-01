@@ -63,14 +63,18 @@ class InstanceSerializer(serializers.HyperlinkedModelSerializer):
         height = model.height
         invalid_list = []
         if (rack_u+height-1) > 42:
-            raise serializers.ValidationError("Height conflict: this instance does not fit in the rack at this location.")
+            raise serializers.ValidationError({
+                'Height conflict': 'this instance would exceed past the top of the rack.'
+            })
         for i in range(rack_u, rack_u+height):
             if eval('rack.u{} and (rack.u{} != instance)'.format(i, i)):
                 invalid_list.append('Conflict: host ' +
                                     eval('rack.u{}.__str__()'.format(i)) +
                                     ' conflicts at U{}'.format(i))
         if len(invalid_list) > 0:
-            raise serializers.ValidationError(invalid_list)
+            raise serializers.ValidationError({
+                'Invalid Rack U': invalid_list
+            })
         return
 
     def create(self, validated_data):
