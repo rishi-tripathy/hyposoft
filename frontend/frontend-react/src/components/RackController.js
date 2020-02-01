@@ -3,6 +3,7 @@ import RacksView from './RacksView';
 import CreateRackForm from './CreateRackForm'
 import EditRackForm from './EditRackForm'
 import axios from 'axios'
+import CreateMultipleRacksForm from './CreateMultipleRacksForm';
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 export class RackController extends Component {
@@ -14,6 +15,7 @@ export class RackController extends Component {
       racks: [],
       showRacksView: true,
       showCreateView: false,
+      showMassCreateView: false,
       showEditView: false,
       showDeleteView: false,
       editID: 0,
@@ -29,6 +31,7 @@ export class RackController extends Component {
     show ? this.setState({
       showRacksView: true,
       showCreateView : false,
+      showMassCreateView: false,
       showEditView: false,
       showDeleteView: false,
     })
@@ -37,19 +40,11 @@ export class RackController extends Component {
     }) 
   }
 
-  handleCreateClick = () => {
-    this.setState({
-      showRacksView: false,
-      showCreateView : true,
-      showEditView: false,
-      showDeleteView: false,
-    })
-  }
-
   getShowCreate = (show) => {
     show ? this.setState({
       showRacksView: false,
       showCreateView : true,
+      showMassCreateView: false,
       showEditView: false,
       showDeleteView: false,
     })
@@ -58,10 +53,24 @@ export class RackController extends Component {
     }) 
   }
 
+  getShowMassCreate = (show) => {
+    show ? this.setState({
+      showRacksView: false,
+      showCreateView : false,
+      showMassCreateView: true,
+      showEditView: false,
+      showDeleteView: false,
+    })
+    : this.setState({
+      showCreateView : false,
+    })    
+  }
+
   getShowEdit = (show) => {
     show ? this.setState({
       showRacksView: false,
       showCreateView : false,
+      showMassCreateView: false,
       showEditView: true,
       showDeleteView: false,
     })
@@ -80,6 +89,7 @@ export class RackController extends Component {
     show ? this.setState({
       showTableView: false,
       showCreateView : false,
+      showMassCreateView: false,
       showEditView: false,
       showDeleteView: true,
     })
@@ -154,6 +164,7 @@ export class RackController extends Component {
       content = 
         <RacksView rack={this.state.racks}
                   sendShowCreate={this.getShowCreate}
+                  sendShowMassCreate={this.getShowMassCreate}
                   sendShowEdit={this.getShowEdit}
                   sendEditID={this.getEditID}
                   sendShowDelete={this.getShowDelete} />
@@ -161,10 +172,14 @@ export class RackController extends Component {
     else if (this.state.showCreateView){
         content = <CreateRackForm sendShowTable={this.getShowRacks} /> 
     }
+    else if (this.state.showMassCreateView){
+      content = <CreateMultipleRacksForm sendShowTable={this.getShowRacks} /> 
+    }
     else if (this.state.showEditView){
         content= <EditRackForm editID={this.state.editID} 
                     sendShowTable={ this.getShowRacks } 
                     sendShowCreate={this.getShowCreate}
+                    sendShowMassCreate={this.getShowMassCreate}
                     sendShowEdit={this.getShowEdit}
                     sendShowDelete={this.getShowDelete}/> 
     }
