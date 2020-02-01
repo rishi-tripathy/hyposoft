@@ -133,6 +133,11 @@ export class ModelController extends Component {
     }
   }
 
+  exportData = () => {
+    let dst = '/api/instances/' + '?' + this.state.filterQuery + '&' + this.state.sortQuery;
+    console.log('exporting to:  ' + dst);
+  }
+
   getModels = () => {
     let dst = '/api/models/' + '?' + this.state.filterQuery + '&' + this.state.sortQuery;
     console.log('QUERY')
@@ -231,6 +236,8 @@ export class ModelController extends Component {
         { paginateNavigation }
         <br></br>
         {content}
+        <br></br>
+        <button onClick={ this.exportData } >Export</button>
       </div>
     )
   }

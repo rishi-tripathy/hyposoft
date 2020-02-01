@@ -156,7 +156,7 @@ export class InstanceController extends Component {
   }
 
   exportData = () => {
-    let dst = '/api/instances/' + this.state.filterQuery;
+    let dst = '/api/instances/' + '?' + this.state.filterQuery + '&' + this.state.sortQuery;
     console.log('exporting to:  ' + dst);
   }
 
