@@ -248,7 +248,7 @@ class InstanceViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['GET'])
     def filter_fields(self, request, *args, **kwargs):
-        fields = self.filterset_fields
+        fields = self.filterset_fields.copy()
         fields.extend(('start_rack_num', 'end_rack_num'))
         return Response({
             'filter_fields': fields
@@ -325,7 +325,7 @@ class RackViewSet(viewsets.ModelViewSet):
     # New Actions
     @action(detail=False, methods=['GET'])
     def filter_fields(self, request, *args, **kwargs):
-        fields = self.filterset_fields
+        fields = self.filterset_fields.copy()
         fields.extend(('start_rack_num', 'end_rack_num'))
         return Response({
             'filter_fields': fields
@@ -478,4 +478,4 @@ def report(request):
         'vendors_allocated': vendor_dict,
         'owners_allocated': owner_dict_by_username
     })
-  
+
