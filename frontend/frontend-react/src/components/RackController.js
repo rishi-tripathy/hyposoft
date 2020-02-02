@@ -1,31 +1,23 @@
 import React, { Component } from 'react'
-import ModelTable from './ModelTable'
-import CreateModelForm from './CreateModelForm'
+import RacksView from './RacksView';
+import CreateRackForm from './CreateRackForm'
+import EditRackForm from './EditRackForm'
+import DeleteMultipleRacksForm from './DeleteMultipleRacksForm'
 import axios from 'axios'
-import EditModelForm from './EditModelForm';
+import CreateMultipleRacksForm from './CreateMultipleRacksForm';
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
-export class ModelController extends Component {
+export class RackController extends Component {
+
   constructor() {
     super();
+
     this.state = {
-      models: [ {}
-        // {
-        //   'id': 99,
-        //   'vendor': 'default',
-        //   'model_number': 'default',
-        //   'height': 2,
-        //   'display_color': 'Red',
-        //   'ethernet_ports': 1,
-        //   'power_ports': 1,
-        //   'cpu': 'Intel CPU',
-        //   'memory': 3,
-        //   'storage': 'Lots of Raid',
-        //   'comment': 'First Model'
-        // }
-      ],
-      showTableView: true,
+      racks: [],
+      showRacksView: true,
       showCreateView: false,
+      showMassCreateView: false,
+      showMassDeleteView: false,
       showEditView: false,
       showDeleteView: false,
       editID: 0,
@@ -33,43 +25,70 @@ export class ModelController extends Component {
       prevPage: null,
       nextPage: null,
     };
-    //this.refreshTable = this.refreshTable.bind(this);
-    this.getShowTable = this.getShowTable.bind(this);
-    //this.getShowCreate = this.getShowCreate.bind(this);
+    this.getShowRacks = this.getShowRacks.bind(this);
   }
-  
 
-  getShowTable = (show) => {
-    console.log('showing talbe')
+  getShowRacks = (show) => {
+    console.log('showing racks')
     show ? this.setState({
-      showTableView: true,
+      showRacksView: true,
       showCreateView : false,
+      showMassCreateView: false,
+      sendMassDeleteView: false,
       showEditView: false,
       showDeleteView: false,
     })
     : this.setState({
-      showTableView : false,
+      showRacksView : false,
     }) 
   }
 
   getShowCreate = (show) => {
-    console.log(this.state)
     show ? this.setState({
-      showTableView: false,
+      showRacksView: false,
       showCreateView : true,
+      showMassCreateView: false,
+      sendMassDeleteView: false, 
       showEditView: false,
       showDeleteView: false,
     })
     : this.setState({
       showCreateView : false,
     }) 
-    console.log(this.state)
+  }
+
+  getShowMassCreate = (show) => {
+    show ? this.setState({
+      showRacksView: false,
+      showCreateView : false,
+      showMassCreateView: true,
+      showEditView: false,
+      showDeleteView: false,
+    })
+    : this.setState({
+      showCreateView : false,
+    })    
+  }
+
+  getShowMassDelete = (show) => {
+    show ? this.setState({
+      showRacksView: false,
+      showCreateView : false,
+      showMassCreateView: false,
+      showMassDeleteView: true,
+      showEditView: false,
+      showDeleteView: false,
+    })
+    : this.setState({
+      showCreateView : false,
+    })    
   }
 
   getShowEdit = (show) => {
     show ? this.setState({
-      showTableView: false,
+      showRacksView: false,
       showCreateView : false,
+      showMassCreateView: false,
       showEditView: true,
       showDeleteView: false,
     })
@@ -88,6 +107,7 @@ export class ModelController extends Component {
     show ? this.setState({
       showTableView: false,
       showCreateView : false,
+      showMassCreateView: false,
       showEditView: false,
       showDeleteView: true,
     })
@@ -97,24 +117,19 @@ export class ModelController extends Component {
   }
 
   componentDidMount() {
-    this.refreshTable();
+    this.refreshRacks();
     
   }
-
-  componentDidUpdate(prevProps, prevState) {
-    if (prevState.showTableView === false && this.state.showTableView === true) {
-      console.log('rerending table, must refresh')
-      this.refreshTable();
-    }
-  }
-
-  refreshTable = () => {
-    axios.get('/api/models/?shortform=true').then(res => {
+    
+  refreshRacks = () => {
+    axios.get('/api/racks/').then(res => {
       this.setState({ 
-        models: res.data.results,
+        racks: res.data.results,
         prevPage: res.data.previous,
         nextPage: res.data.next,
       });
+
+      console.log(this.state.racks);
     })
     .catch(function (error) {
       // TODO: handle error
@@ -123,23 +138,30 @@ export class ModelController extends Component {
   }
 
   paginateNext = () => {
+    console.log("next has been pushed");
+    this.state.racks = null;
     axios.get(this.state.nextPage).then(res => {
       this.setState({ 
-        models: res.data.results,
+        racks: res.data.results,
         prevPage: res.data.previous,
         nextPage: res.data.next,
       });
+
+      console.log(this.state.racks);
+
     })
     .catch(function (error) {
       // TODO: handle error
       console.log(error.response);
     });
+
+    console.log(this.state.racks);
   }
 
   paginatePrev = () => {
     axios.get(this.state.prevPage).then(res => {
       this.setState({ 
-        models: res.data.results,
+        racks: res.data.results,
         prevPage: res.data.previous,
         nextPage: res.data.next,
       });
@@ -150,27 +172,37 @@ export class ModelController extends Component {
     });
   }
 
-  render() {
-    let content;
-    console.log('rerender')
+  render() { 
+    let content; 
 
-    if (this.state.showTableView){
-      content = <div><h2>Model Table</h2><ModelTable models={ this.state.models } 
+    console.log("render again");
+    console.log(this.state);
+
+    if (this.state.showRacksView){
+      content = 
+        <RacksView rack={this.state.racks}
                   sendShowCreate={this.getShowCreate}
+                  sendShowMassCreate={this.getShowMassCreate}
+                  sendShowMassDelete={this.getShowMassDelete}
                   sendShowEdit={this.getShowEdit}
                   sendEditID={this.getEditID}
-                  sendShowDelete={this.getShowDelete} /></div>
-
-      
+                  sendShowDelete={this.getShowDelete} />
     }
     else if (this.state.showCreateView){
-        content = <CreateModelForm 
-                    sendShowTable={this.getShowTable} /> 
+        content = <CreateRackForm sendShowTable={this.getShowRacks} /> 
+    }
+    else if (this.state.showMassCreateView){
+      content = <CreateMultipleRacksForm sendShowTable={this.getShowRacks} /> 
+    }
+    else if (this.state.showMassDeleteView){
+      content = <DeleteMultipleRacksForm sendShowTable={this.getShowRacks} /> 
     }
     else if (this.state.showEditView){
-        content= <EditModelForm editID={this.state.editID} 
-                    sendShowTable={ this.getShowTable } 
+        content= <EditRackForm editID={this.state.editID} 
+                    sendShowTable={ this.getShowRacks } 
                     sendShowCreate={this.getShowCreate}
+                    sendShowMassCreate={this.getShowMassCreate}
+                    sendShowMassDelete={this.getShowMassDelete}
                     sendShowEdit={this.getShowEdit}
                     sendShowDelete={this.getShowDelete}/> 
     }
@@ -187,18 +219,19 @@ export class ModelController extends Component {
     }
 
     // if we're not on the table, then don't show pagination
-    if (! this.state.showTableView) {
+    if (! this.state.showRacksView) {
       paginateNavigation = <p></p>;
     }
   
-    return (
-      <div>
-        { paginateNavigation }
-        <br></br>
-        {content}
-      </div>
-    )
+      return (
+        <div>
+          { paginateNavigation }
+          <br></br>
+            {content}
+        </div>
+      )
+    }
   }
-}
+//}
 
-export default ModelController
+export default RackController
