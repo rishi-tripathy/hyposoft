@@ -9,7 +9,8 @@ from rest_framework import viewsets
 from usr_man.filters import UserFilter
 
 ADMIN_ACTIONS = {'create', 'update', 'partial_update', 'destroy'}
-
+GET = 'GET'
+USER_ORDERING_FILTERING_FIELDS = ['username', 'first_name', 'last_name', 'email']
 
 class UserViewSet(viewsets.ModelViewSet):
     # API endpoint that allows users to be viewed or edited.
@@ -25,20 +26,21 @@ class UserViewSet(viewsets.ModelViewSet):
         return [permission() for permission in permission_classes]
 
     # permission_classes = [AllowAny]
-    queryset = User.objects.all().order_by('-date_joined')
+    queryset = User.objects.all().order_by('last_name')
 
     serializer_class = UserSerializer
-
     filterset_class = UserFilter
-    ordering_fields = ['username', 'first_name', 'last_name', 'email']
+    filterset_fields = USER_ORDERING_FILTERING_FIELDS
 
+
+    ordering_fields = USER_ORDERING_FILTERING_FIELDS
     # Override default actions here
 
     # Implement custom actions below
     @action(detail=False, methods=['GET'])
     def filter_fields(self, request, *args, **kwargs):
         return Response({
-            'filter_fields': ['username', 'first_name', 'last_name', 'email']
+            'filter_fields': self.filterset_fields
         })
 
     @action(detail=False, methods=['GET'])
@@ -56,6 +58,8 @@ class UserViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['GET'])
     def who_am_i(self, request, *args, **kwargs):
         return Response({
-            'current_user': request.user.username
+            'current_user': request.user.username,
+            'first_name': request.user.first_name,
+            'last_name': request.user.last_name
         })
 

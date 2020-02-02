@@ -1,7 +1,9 @@
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
-from django.db.models.functions import Concat
+from django.db.models.fields import IntegerField
+from django.db.models.functions import Concat, Substr, Cast
+from django.db.models.deletion import ProtectedError
 from django.db.models import CharField
 from django.http import HttpResponse
 # API
@@ -15,8 +17,7 @@ from ass_man.serializers import (InstanceShortSerializer,
                                  RackFetchSerializer,
                                  InstanceOfModelSerializer,
                                  VendorsSerializer,
-                                 UniqueModelsSerializer,
-                                 VendorsSerializer)
+                                 UniqueModelsSerializer)
 
 # Auth
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
@@ -31,11 +32,37 @@ from rest_framework.request import Request, HttpRequest
 import json
 import csv, io
 
-
+JSON_TRUE = 'true'
 ADMIN_ACTIONS = {'create', 'update', 'partial_update', 'destroy'}
+GET = 'GET'
+POST = 'POST'
+DELETE = 'DELETE'
+PUT = 'PUT'
+
+MODEL_ORDERING_FILTERING_FIELDS = ['vendor', 'model_number', 'height', 'display_color',
+                                   'ethernet_ports', 'power_ports', 'cpu', 'memory', 'storage']
+MODEL_HEIGHT_UPDATE_ERROR_MSG = \
+    'This update fails- the height of models may not be changed if instances of the model exist.'
+MODEL_DESTROY_ERROR_MSG = 'Cannot delete this model as there are associated instances: '
+MODEL_EXPORT_FIELDS = ['vendor', 'model_number', 'height', 'display_color', 'ethernet_ports',
+                       'power_ports', 'cpu', 'memory', 'storage', 'comment']
+
+INSTANCE_ORDERING_FILTERING_FIELDS = ['model', 'model__model_number', 'model__vendor',
+                                      'hostname', 'rack', 'rack_u', 'owner']
+INSTANCE_EXPORT_FIELDS = ['hostname', 'rack', 'rack_position', 'vendor', 'model_number', 'owner', 'comment']
+
+RACK_ORDERING_FILTERING_FIELDS = ['rack_number']
+RACK_DESTROY_SINGLE_ERR_MSG = 'Cannot delete rack as it contains the following instances:'
+RACK_MANY_INCOMPLETE_QUERY_PARAMS_ERROR_MSG = 'Invalid rack range- must specify start and end rack number'
+RACK_MANY_BAD_LETTER_ERROR_MSG = 'Your start letter must be less than or equal to your end letter'
+RACK_MANY_BAD_NUMBER_ERROR_MSG = 'Your start number must be less than or equal to your end number'
+RACK_MANY_CREATE_EXISTING_RACK_WARNING_MSG = 'Warning: skipping rack {} as it already exists.'
+RACK_MANY_DELETE_NONEXISTENT_ERROR_MSG = 'Error: rack {} cannot be deleted as it does not exist. Continuing...'
+RACK_MANY_DELETE_NOT_EMPTY_ERROR_MSG = 'Error: rack {} cannot be deleted as it is not empty. Continuing...'
 
 
 # Docs for ModelViewSet: https://www.django-rest-framework.org/api-guide/viewsets/#modelviewset
+
 
 class ModelViewSet(viewsets.ModelViewSet):
 
@@ -49,19 +76,16 @@ class ModelViewSet(viewsets.ModelViewSet):
 
     queryset = Model.objects.all()
 
-
     def get_serializer_class(self):
-        if self.request.method == 'GET':
+        if self.request.method == GET:
             serializer_class = ModelSerializer if self.detail else ModelShortSerializer
         else:
             serializer_class = ModelSerializer
         return serializer_class
 
-    ordering_fields = ['vendor', 'model_number', 'height', 'display_color',
-                       'ethernet_ports', 'power_ports', 'cpu', 'memory', 'storage']
-
-    filterset_fields = ['vendor', 'model_number', 'height', 'display_color',
-                        'ethernet_ports', 'power_ports', 'cpu', 'memory', 'storage']
+    ordering_fields = MODEL_ORDERING_FILTERING_FIELDS
+    ordering = ['vendor', 'model_number']  # default ordering
+    filterset_fields = MODEL_ORDERING_FILTERING_FIELDS
 
     # Overriding of super functions
     def update(self, request, *args, **kwargs):
@@ -74,10 +98,9 @@ class ModelViewSet(viewsets.ModelViewSet):
         new_height = int(request.data['height'])
 
         if prev_height != new_height and instances.exists():
-            return Response(
-              'This update fails- the height of models may not be changed if instances of the model exist.',
-              status=status.HTTP_400_BAD_REQUEST)
-
+            return Response({
+                'Error': MODEL_HEIGHT_UPDATE_ERROR_MSG
+            }, status=status.HTTP_400_BAD_REQUEST)
 
         serializer.save()  # Save updates to the model
 
@@ -93,32 +116,32 @@ class ModelViewSet(viewsets.ModelViewSet):
                                            match.rack.rack_number.__str__() +
                                            ' U' +
                                            match.rack_u.__str__())
-            return Response('Cannot delete this model as there are associated instances: ' +
+
+            return Response(MODEL_DESTROY_ERROR_MSG +
                             ', '.join(offending_instances),
                             status=status.HTTP_400_BAD_REQUEST)
         return super().destroy(self, request, *args, **kwargs)
 
     def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())
 
-        if request.query_params.get('export') == 'true':
-        #    vendor,model_number,height,display_color,ethernet_ports,power_ports,cpu,memory,storage,comment
+        if request.query_params.get('export') == JSON_TRUE:
+            # vendor,model_number,height,display_color,ethernet_ports,power_ports,cpu,memory,storage,comment
+            queryset = self.filter_queryset(self.get_queryset())
             response = HttpResponse(content_type='text/csv')
             response['Content-Disposition'] = 'attachment; filename="models.csv"'
 
             writer = csv.writer(response)
-            writer.writerow(['vendor', 'model_number', 'height', 'display_color', 'ethernet_ports', 'power_ports', 'cpu', 'memory', 'storage', 'comment'])
+            writer.writerow(MODEL_EXPORT_FIELDS)
             for model in queryset:
-                writer.writerow([model.vendor, model.model_number, model.height, model.display_color, model.ethernet_ports, model.power_ports, model.cpu, model.memory, model.storage, model.comment])
+                writer.writerow([model.vendor, model.model_number, model.height,
+                                 model.display_color, model.ethernet_ports, model.power_ports,
+                                 model.cpu, model.memory, model.storage, model.comment])
             return response
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
+
+        return super().list(self, request, *args, *kwargs)
 
     # Custom actions below
+
     @action(detail=False, methods=['POST'])
     def import_file(self, request, *args, **kwargs):
         file = request.FILES['file']
@@ -235,19 +258,19 @@ class ModelViewSet(viewsets.ModelViewSet):
         'updated': overriden
         })
 
-    @action(detail=False, methods=['GET'])
+    @action(detail=False, methods=[GET])
     def filter_fields(self, request, *args, **kwargs):
         return Response({
             'filter_fields': self.filterset_fields
         })
 
-    @action(detail=False, methods=['GET'])
+    @action(detail=False, methods=[GET])
     def sorting_fields(self, request, *args, **kwargs):
         return Response({
             'sorting_fields': self.ordering_fields
         })
 
-    @action(detail=True, methods=['GET'])
+    @action(detail=True, methods=[GET])
     def can_delete(self, request, *args, **kwargs):
         matches = Instance.objects.all().filter(model=self.get_object())
         if matches.count() > 0:
@@ -258,15 +281,16 @@ class ModelViewSet(viewsets.ModelViewSet):
             'can_delete': 'true'
         })
 
-    @action(detail=False, methods=['GET'])
+    @action(detail=False, methods=[GET])
     def vendors(self, request, *args, **kwargs):
         vendor_typed = self.request.query_params.get('vendor') or ''
-        vendors = list(Model.objects.values_list('vendor', flat=True).filter(vendor__istartswith=vendor_typed).distinct())
+        vendors = list(
+            Model.objects.values_list('vendor', flat=True).filter(vendor__istartswith=vendor_typed).distinct())
         return Response({
             'vendors': vendors
         })
 
-    @action(detail=True, methods=['GET'])
+    @action(detail=True, methods=[GET])
     def instances(self, request, *args, **kwargs):
         instances = Instance.objects.all().filter(model=self.get_object())
         page = self.paginate_queryset(instances)
@@ -290,21 +314,20 @@ class InstanceViewSet(viewsets.ModelViewSet):
     queryset = Instance.objects.all()
 
     def get_serializer_class(self):
-        if self.request.method == 'GET':
+        if self.request.method == GET:
             serializer_class = InstanceFetchSerializer if self.detail else InstanceShortSerializer
         else:
             serializer_class = InstanceSerializer
         return serializer_class
 
-    ordering_fields = ['model', 'model__model_number', 'model__vendor',
-                       'hostname', 'rack', 'rack_u', 'owner']
-
-    filterset_fields = ['model', 'model__model_number', 'model__vendor',
-                        'hostname', 'rack', 'rack_u', 'owner']
+    ordering_fields = INSTANCE_ORDERING_FILTERING_FIELDS
+    ordering = ['-id']
+    filterset_fields = INSTANCE_ORDERING_FILTERING_FIELDS
 
     filter_backends = [OrderingFilter,
                        DjangoFiltersBackend,
                        InstanceFilterByRack]
+
     # Overriding of super functions
 
     def create(self, request, *args, **kwargs):
@@ -312,7 +335,7 @@ class InstanceViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         instance = serializer.save()
         rack = instance.rack
-        for i in range(instance.rack_u, instance.rack_u+instance.model.height):
+        for i in range(instance.rack_u, instance.rack_u + instance.model.height):
             exec('rack.u{} = instance'.format(i))
         rack.save()
         headers = self.get_success_headers(serializer.data)
@@ -331,7 +354,7 @@ class InstanceViewSet(viewsets.ModelViewSet):
         self.perform_update(serializer)
         instance = self.get_object()
         new_rack = instance.rack
-        for i in range(instance.rack_u, instance.rack_u+instance.model.height):
+        for i in range(instance.rack_u, instance.rack_u + instance.model.height):
             exec('new_rack.u{} = instance'.format(i))
         new_rack.save()
         if getattr(instance, '_prefetched_objects_cache', None):
@@ -341,24 +364,20 @@ class InstanceViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
     def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())
-
         if request.query_params.get('export') == 'true':
-        #    hostname,rack,rack_position,vendor,model_number,owner,comment
+            # hostname,rack,rack_position,vendor,model_number,owner,comment
+            queryset = self.filter_queryset(self.get_queryset())
             response = HttpResponse(content_type='text/csv')
             response['Content-Disposition'] = 'attachment; filename="models.csv"'
 
             writer = csv.writer(response)
-            writer.writerow(['hostname', 'rack', 'rack_position', 'vendor', 'model_number', 'owner', 'comment'])
+            writer.writerow(INSTANCE_EXPORT_FIELDS)
             for instance in queryset:
-                writer.writerow([instance.hostname, instance.rack.rack_number, instance.rack_u, instance.model.vendor, instance.model.model_number, instance.owner.username, instance.comment])
+                writer.writerow([instance.hostname, instance.rack.rack_number, instance.rack_u, instance.model.vendor,
+                                 instance.model.model_number, instance.owner.username, instance.comment])
             return response
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
+
+        return super().list(self, request, *args, **kwargs)
 
     # Custom actions below
     @action(detail=False, methods=['POST'])
@@ -559,25 +578,25 @@ class InstanceViewSet(viewsets.ModelViewSet):
         })
 
 
-    @action(detail=False, methods=['GET'])
+    @action(detail=False, methods=[GET])
     def filter_fields(self, request, *args, **kwargs):
-        fields = self.filterset_fields
-        fields.extend(('start_rack_num', 'end_rack_num'))
+        fields = ['model', 'vendor', 'model_number', 'hostname', 'rack', 'rack_u', 'owner_username', 'comment',
+                  'rack_num_start', 'rack_num_end']
         return Response({
             'filter_fields': fields
         })
 
-    @action(detail=False, methods=['GET'])
+    @action(detail=False, methods=[GET])
     def sorting_fields(self, request, *args, **kwargs):
         return Response({
             'sorting_fields': self.ordering_fields
         })
 
-    @action(detail=False, methods=['GET'])
+    @action(detail=False, methods=[GET])
     def model_names(self, request, *args, **kwargs):
         name_typed = self.request.query_params.get('name') or ''
         models = Model.objects.annotate(
-            unique_name=Concat('vendor', 'model_number')).\
+            unique_name=Concat('vendor', 'model_number')). \
             filter(unique_name__icontains=name_typed).all()
         serializer = UniqueModelsSerializer(models, many=True, context={'request': request})
         return Response(serializer.data)
@@ -593,24 +612,21 @@ class RackViewSet(viewsets.ModelViewSet):
             permission_classes = [IsAuthenticated]
         return [permission() for permission in permission_classes]
 
-    queryset = Rack.objects.all()
+    queryset = Rack.objects.all() \
+        .annotate(rack_letter=Substr('rack_number', 1, 1)) \
+        .annotate(numstr_in_rack=Substr('rack_number', 2))
+    queryset = queryset.annotate(number_in_rack=Cast('numstr_in_rack', IntegerField()))
 
-    ordering_fields = ['rack_number']
+    ordering = ['rack_letter', 'number_in_rack']
+    ordering_fields = RACK_ORDERING_FILTERING_FIELDS
 
     filter_backends = [OrderingFilter,
                        DjangoFiltersBackend,
                        RackFilter]
-
-
-    filter_backends = [OrderingFilter,
-                       DjangoFiltersBackend,
-                       RackFilter]
-
-
-    filterset_fields = ['rack_number']
+    filterset_fields = RACK_ORDERING_FILTERING_FIELDS
 
     def get_serializer_class(self):
-        if self.request.method == 'GET':
+        if self.request.method == GET:
             serializer_class = RackFetchSerializer
         else:
             serializer_class = RackSerializer
@@ -629,36 +645,36 @@ class RackViewSet(viewsets.ModelViewSet):
                                            ' ' +
                                            slot.__str__())
         if len(offending_instances) > 0:
-            err_message = 'Cannot delete this rack as it contains instances: ' +', '.join(offending_instances)
+            err_message = RACK_DESTROY_SINGLE_ERR_MSG + ', '.join(offending_instances)
             return Response({
                 'Error:', err_message
             }, status=status.HTTP_400_BAD_REQUEST)
         return super().destroy(self, request, *args, **kwargs)
 
     # New Actions
-    @action(detail=False, methods=['GET'])
+    @action(detail=False, methods=[GET])
     def filter_fields(self, request, *args, **kwargs):
-        fields = self.filterset_fields
-        fields.extend(('start_rack_num', 'end_rack_num'))
+        fields = RACK_ORDERING_FILTERING_FIELDS.copy()
+        fields.extend(['rack_num_start', 'rack_num_end'])
         return Response({
             'filter_fields': fields
         })
 
-    @action(detail=False, methods=['GET'])
+    @action(detail=False, methods=[GET])
     def sorting_fields(self, request, *args, **kwargs):
         return Response({
             'sorting_fields': self.ordering_fields
         })
 
-    @action(detail=False, methods=['POST', 'DELETE'])
+    @action(detail=False, methods=[POST, DELETE])
     def many(self, request, *args, **kwargs):
         try:
-            srn = request.data['start_rack_num']
-            ern = request.data['end_rack_num']
+            srn = request.data['rack_num_start']
+            ern = request.data['rack_num_end']
         except KeyError:
             return Response({
-                'Error': 'Invalid rack range- must specify start and end rack number'
-            },status=status.HTTP_400_BAD_REQUEST)
+                'Error': RACK_MANY_INCOMPLETE_QUERY_PARAMS_ERROR_MSG
+            }, status=status.HTTP_400_BAD_REQUEST)
         try:
             s_letter = srn[0].upper()
             e_letter = ern[0].upper()
@@ -666,16 +682,16 @@ class RackViewSet(viewsets.ModelViewSet):
             e_number = int(ern[1:])
 
             try:
-                assert(s_letter <= e_letter)
+                assert (s_letter <= e_letter)
             except AssertionError:
                 return Response({
-                    'Error': 'Your start letter must be less than or equal to your end letter'
+                    'Error': RACK_MANY_BAD_LETTER_ERROR_MSG
                 }, status=status.HTTP_400_BAD_REQUEST)
             try:
-                assert(s_number <= e_number)
+                assert (s_number <= e_number)
             except AssertionError:
                 return Response({
-                    'Error': 'Your start number must be less than or equal to your end number'
+                    'Error': RACK_MANY_BAD_NUMBER_ERROR_MSG
                 }, status=status.HTTP_400_BAD_REQUEST)
 
             rack_numbers = [x + y
@@ -689,26 +705,25 @@ class RackViewSet(viewsets.ModelViewSet):
                 rn_request_data = {
                     "rack_number": rn
                 }
-                if request.method == 'POST':
+                if request.method == POST:
                     try:
                         serializer = self.get_serializer(data=rn_request_data)
                         serializer.is_valid(raise_exception=True)
                         serializer.save()
                         results.append(rn + ' successfully created')
                     except ValidationError:
-                        results.append('Warning: skipping rack ' + rn + ' as it already exists')
+                        results.append(RACK_MANY_CREATE_EXISTING_RACK_WARNING_MSG.format(rn))
 
-                elif request.method == 'DELETE':
+                elif request.method == DELETE:
                     try:
                         rack = self.queryset.get(rack_number__iexact=rn)
-                    except AssertionError:
-                        results.append(('Error: rack ' + rn + ' cannot be deleted as it does not exist. Continuing...'))
+                    except self.queryset.model.DoesNotExist:
+                        results.append((RACK_MANY_DELETE_NONEXISTENT_ERROR_MSG.format(rn)))
                         continue
                     try:
-                        resp = rack.delete()
-                        assert (resp.status != status.HTTP_400_BAD_REQUEST)
-                    except AssertionError:
-                        results.append('Error: rack ' + rn + ' cannot be deleted as it is not empty. Continuing...')
+                        rack.delete()
+                    except ProtectedError:
+                        results.append(RACK_MANY_DELETE_NOT_EMPTY_ERROR_MSG.format(rn))
                         continue
                     results.append(rn + ' successfully deleted')
 
@@ -718,10 +733,10 @@ class RackViewSet(viewsets.ModelViewSet):
             }, status=status.HTTP_400_BAD_REQUEST)
 
         return Response({
-            'results': results
+            'results': ', '.join(results)
         }, status=status.HTTP_207_MULTI_STATUS)
 
-    @action(detail=True, methods=['GET'])
+    @action(detail=True, methods=[GET])
     def is_empty(self, request, *args, **kwargs):
         u_filled = 0
         slots = ['u{}'.format(i) for i in range(1, 43)]
@@ -739,7 +754,7 @@ class RackViewSet(viewsets.ModelViewSet):
 
 # Custom actions below
 
-@api_view(['GET'])
+@api_view([GET])
 @permission_classes([IsAuthenticated])
 def report(request):
     racks = Rack.objects.all()
@@ -753,8 +768,8 @@ def report(request):
             total += 1
     if total == 0:
         total += 1
-    percentage_occupied = occupied/total*100
-    percentage_free = (total-occupied)/total*100
+    percentage_occupied = occupied / total * 100
+    percentage_free = (total - occupied) / total * 100
 
     instances = Instance.objects.all()
     vendor_dict = {}
@@ -791,3 +806,4 @@ def report(request):
         'vendors_allocated': vendor_dict,
         'owners_allocated': owner_dict_by_username
     })
+
