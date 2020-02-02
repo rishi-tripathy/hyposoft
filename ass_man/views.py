@@ -1,7 +1,9 @@
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
-from django.db.models.functions import Concat
+from django.db.models.fields import IntegerField
+from django.db.models.functions import Concat, Substr, Cast
+from django.db.models.deletion import ProtectedError
 from django.db.models import CharField
 from django.http import HttpResponse
 # API
@@ -50,13 +52,13 @@ INSTANCE_ORDERING_FILTERING_FIELDS = ['model', 'model__model_number', 'model__ve
 INSTANCE_EXPORT_FIELDS = ['hostname', 'rack', 'rack_position', 'vendor', 'model_number', 'owner', 'comment']
 
 RACK_ORDERING_FILTERING_FIELDS = ['rack_number']
-RACK_DESTROY_SINGLE_ERR_MSG = 'Cannot delete this rack as it contains instances:'
+RACK_DESTROY_SINGLE_ERR_MSG = 'Cannot delete rack as it contains the following instances:'
 RACK_MANY_INCOMPLETE_QUERY_PARAMS_ERROR_MSG = 'Invalid rack range- must specify start and end rack number'
 RACK_MANY_BAD_LETTER_ERROR_MSG = 'Your start letter must be less than or equal to your end letter'
 RACK_MANY_BAD_NUMBER_ERROR_MSG = 'Your start number must be less than or equal to your end number'
-RACK_MANY_CREATE_EXISTING_RACK_WARNING_MSG = 'Warning: skipping this rack as it already exists: '
-RACK_MANY_DELETE_NONEXISTENT_ERROR_MSG = 'Error: this rack cannot be deleted as it does not exist. Continuing... : '
-RACK_MANY_DELETE_NOT_EMPTY_ERROR_MSG = 'Error: this rack cannot be deleted as it is not empty. Continuing... : '
+RACK_MANY_CREATE_EXISTING_RACK_WARNING_MSG = 'Warning: skipping rack {} as it already exists.'
+RACK_MANY_DELETE_NONEXISTENT_ERROR_MSG = 'Error: rack {} cannot be deleted as it does not exist. Continuing...'
+RACK_MANY_DELETE_NOT_EMPTY_ERROR_MSG = 'Error: rack {} cannot be deleted as it is not empty. Continuing...'
 
 # Docs for ModelViewSet: https://www.django-rest-framework.org/api-guide/viewsets/#modelviewset
 
@@ -301,15 +303,19 @@ class RackViewSet(viewsets.ModelViewSet):
             permission_classes = [IsAuthenticated]
         return [permission() for permission in permission_classes]
 
-    queryset = Rack.objects.all()
+    queryset = Rack.objects.all()\
+        .annotate(rack_letter=Substr('rack_number', 1, 1))\
+        .annotate(numstr_in_rack=Substr('rack_number', 2))
+    queryset = queryset.annotate(number_in_rack=Cast('numstr_in_rack', IntegerField()))
 
+    ordering = ['rack_letter', 'number_in_rack']
     ordering_fields = RACK_ORDERING_FILTERING_FIELDS
-    ordering = ['rack_number']
+
     filter_backends = [OrderingFilter,
                        DjangoFiltersBackend,
                        RackFilter]
-
     filterset_fields = RACK_ORDERING_FILTERING_FIELDS
+
     def get_serializer_class(self):
         if self.request.method == GET:
             serializer_class = RackFetchSerializer
@@ -397,19 +403,18 @@ class RackViewSet(viewsets.ModelViewSet):
                         serializer.save()
                         results.append(rn + ' successfully created')
                     except ValidationError:
-                        results.append(RACK_MANY_CREATE_EXISTING_RACK_WARNING_MSG + rn)
+                        results.append(RACK_MANY_CREATE_EXISTING_RACK_WARNING_MSG.format(rn))
 
                 elif request.method == DELETE:
                     try:
                         rack = self.queryset.get(rack_number__iexact=rn)
-                    except AssertionError:
-                        results.append((RACK_MANY_DELETE_NONEXISTENT_ERROR_MSG + rn))
+                    except self.queryset.model.DoesNotExist:
+                        results.append((RACK_MANY_DELETE_NONEXISTENT_ERROR_MSG.format(rn)))
                         continue
                     try:
-                        resp = rack.delete()
-                        assert (resp.status != status.HTTP_400_BAD_REQUEST)
-                    except AssertionError:
-                        results.append(RACK_MANY_DELETE_NOT_EMPTY_ERROR_MSG + rn)
+                        rack.delete()
+                    except ProtectedError:
+                        results.append(RACK_MANY_DELETE_NOT_EMPTY_ERROR_MSG.format(rn))
                         continue
                     results.append(rn + ' successfully deleted')
 
@@ -419,7 +424,7 @@ class RackViewSet(viewsets.ModelViewSet):
             }, status=status.HTTP_400_BAD_REQUEST)
 
         return Response({
-            'results': results
+            'results': ', '.join(results)
         }, status=status.HTTP_207_MULTI_STATUS)
 
     @action(detail=True, methods=[GET])
