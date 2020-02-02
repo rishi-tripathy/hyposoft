@@ -44,7 +44,9 @@ export class DeleteMultipleRacksForm extends Component {
         // for(var i: )
         console.log(stateToSend);
         
-        axios.delete('/api/racks/many/', stateToSend)
+        axios.delete('/api/racks/many/', {
+            data: stateToSend
+          })
         .then(function (response) {
           console.log(response);
           let message = response.data.results;
