@@ -72,16 +72,12 @@ export class ModelTable extends Component {
 
 	handleImport = (e) => {
 		e.preventDefault();
-
 		let f = this.state.file;
-
-
 		this.fileUpload(this.state.file).then((response)=>{
       console.log(response.data);
 		})
 		.catch(function (error) {
 			console.log(error.response)
-
 			const fileUploadOverride = (file) => {
 				const url = '/api/models/import_file/?override=true';
 				const formData = new FormData();
@@ -94,8 +90,7 @@ export class ModelTable extends Component {
 				}
 				return post(url, formData, config)
 			}
-		
-			//alert();
+
 			if (window.confirm('Import was not successful.\n' + JSON.stringify(error.response.data))) {
 				fileUploadOverride(f).then((response)=>{
 					console.log(response.data);
@@ -104,14 +99,9 @@ export class ModelTable extends Component {
 					console.log(error.response)
 					alert('Import was not successful.\n' + JSON.stringify(error.response.data));
 				});
-
-
 			}
-
 		});
 	}
-
-	
 
 	handleFileUpload = (e) => {
 		console.log(e.target.files[0])
@@ -133,13 +123,11 @@ export class ModelTable extends Component {
     return post(url, formData, config)
 	}
 
-	
-
   render() {
     return (
       <div>
 				<div>
-				<button onClick={ this.showCreateForm }>Add Model</button>
+					<button onClick={ this.showCreateForm }>Add Model</button>
 				</div>
 				<form onSubmit={this.handleImport} >
 					<input type="file" name="file" onChange={this.handleFileUpload}/>
