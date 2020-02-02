@@ -370,6 +370,10 @@ class InstanceViewSet(viewsets.ModelViewSet):
         should_override = request.query_params.get('override') or False
         overriden = 0
         ignored = 0
+        uncreated_objects = {}
+        uncreated_objects['model'] = []
+        uncreated_objects['rack'] = []
+        uncreated_objects['user'] = []
         fields_overriden = {}
         for row in reader:
             override = False
@@ -378,76 +382,91 @@ class InstanceViewSet(viewsets.ModelViewSet):
                 instance = Instance.objects.get(hostname=row['hostname'])
             except Instance.DoesNotExist:
                 instance = None
-            if model is None:
-                model = Model.objects.get(url=row['model'])
-                print(row['model'])
-                inatances_to_create.append(Instance(model=row['model'], model_number=row['model_number'],height=row['height'], \
-                display_color=disp_col, ethernet_ports=row['ethernet_ports'], power_ports=row['power_ports'], \
-                cpu=row['cpu'], memory=row['memory'], storage=row['storage'], comment=row['comment']))
+            if instance is None:
+                dont_add = False
+                try:
+                    model = Model.objects.get(vendor=row['vendor'], model_number=row['model_number'])
+                except Model.DoesNotExist:
+                    uncreated_objects['model'].append((row['vendor'] + row['model_number']))
+                    dont_add = True
+                try:
+                    rack = Rack.objects.get(rack_number=row['rack'])
+                except Rack.DoesNotExist:
+                    uncreated_objects['rack'].append(row['rack'])
+                    dont_add = True
+                try:
+                    owner = User.objects.get(username=row['owner'])
+                except User.DoesNotExist:
+                    uncreated_objects['user'].append(row['owner'])
+                    dont_add = True
+                if not dont_add:
+                    instances_to_create.append(Instance(model=model, hostname=row['hostname'],\
+                    rack=rack, rack_u=row['rack_position'], owner=owner, comment=row['comment']))
                 continue
-            if str(model.height) != row['height']:
+
+            uniq_model_name = instance.model.vendor + instance.model.model_number
+            if uniq_model_name != (row['vendor'] + row['model_number']):
+                try:
+                    model = Model.objects.get(vendor=row['vendor'], model_number=row['model_number'])
+                except Model.DoesNotExist:
+                    uncreated_objects['model'].append((row['vendor'] + row['model_number']))
+                    model = None
                 if should_override:
-                    model.height = row['height']
+                    instance.model = model
                     should_update = True
                 else:
-                    key = model.vendor + model.model_number + "_height"
-                    fields_overriden[key] = [model.height, row['height']]
+                    key = instance.hostname + "_model"
+                    orig = instance.model.vendor + " " + instance.model.model_number
+                    new = model.vendor + " " + model.model_number
+                    fields_overriden[key] = [orig, new]
                 override = True
-            if model.display_color != disp_col:
+            if instance.rack.rack_number != row['rack']:
+                try:
+                    rack = Rack.objects.get(rack_numbers=row['rack'])
+                except Model.DoesNotExist:
+                    uncreated_objects['rack'].append(row['rack'])
+                    rack = None
+
                 if should_override:
-                    model.display_color = disp_col
+                    instance.rack = rack
                     should_update = True
                 else:
-                    key = model.vendor + model.model_number + "_display_color"
-                    fields_overriden[key] = [model.display_color, disp_col]
+                    key = instance.hostname + "_rack"
+                    orig = instance.rack.rack_number
+                    new = rack.rack_number
+                    fields_overriden[key] = [orig, new]
                 override = True
-            if str(model.ethernet_ports) != row['ethernet_ports']:
+            if str(instance.rack_u) != row['rack_position']:
                 if should_override:
-                    model.ethernet_ports = row['ethernet_ports']
+                    instance.rack_u = row['rack_position']
                     should_update = True
                 else:
-                    key = model.vendor + model.model_number + "_ethernet_ports"
-                    fields_overriden[key] = [model.ethernet_ports, row['ethernet_ports']]
+                    key = instance.hostname + "_rack_position"
+                    fields_overriden[key] = [model.rack_u, row['rack_position']]
                 override = True
-            if str(model.power_ports) != row['power_ports']:
+            if instance.owner.username != row['owner']:
+                try:
+                    owner = User.objects.get(username=row['owner'])
+                except Model.DoesNotExist:
+                    uncreated_objects['user'].append(row['owner'])
+                    owner = None
+
                 if should_override:
-                    model.power_ports = row['power_ports']
+                    instance.owner = owner
                     should_update = True
                 else:
-                    key = model.vendor + model.model_number + "_power_ports"
-                    fields_overriden[key] = [model.power_ports, row['power_ports']]
+                    key = instance.hostname + "_owner"
+                    orig = instance.owner.username
+                    new = owner.username
+                    fields_overriden[key] = [orig, new]
                 override = True
-            if model.cpu != row['cpu']:
+            if instance.comment != row['comment']:
                 if should_override:
-                    model.cpu = row['cpu']
+                    instance.comment = row['comment']
                     should_update = True
                 else:
-                    key = model.vendor + model.model_number + "_cpu"
-                    fields_overriden[key] = [model.cpu, row['cpu']]
-                override = True
-            if str(model.memory) != row['memory']:
-                if should_override:
-                    model.memory = row['memory']
-                    should_update = True
-                else:
-                    key = model.vendor + model.model_number + "_memory"
-                    fields_overriden[key] = [model.memory, row['memory']]
-                override = True
-            if model.storage != row['storage']:
-                if should_override:
-                    model.storage = row['storage']
-                    should_update = True
-                else:
-                    key = model.vendor + model.model_number + "_storage"
-                    fields_overriden[key] = [model.storage, row['storage']]
-                override = True
-            if model.comment != row['comment']:
-                if should_override:
-                    model.comment = row['comment']
-                    should_update = True
-                else:
-                    key = model.vendor + model.model_number + "_comment"
-                    fields_overriden[key] = [model.comment, row['comment']]
+                    key = instance.hostname
+                    fields_overriden[key] = [instance.comment, row['comment']]
                 override = True
             if should_update:
                 models_to_create.append(model)
@@ -455,6 +474,17 @@ class InstanceViewSet(viewsets.ModelViewSet):
                 overriden+=1
             else:
                 ignored+=1
+
+        if len(uncreated_objects['model']) > 0 or len(uncreated_objects['rack']) > 0 or len(uncreated_objects['user']) > 0:
+            err_message = "The following objects were referenced, but have not been created. "
+            for i in uncreated_objects.keys():
+                err_message+= i + ": "
+                for j in uncreated_objects[i]:
+                    err_message+= j + ", "
+                err_message+=". "
+            return Response({
+                'Warning' : err_message,
+            }, status=status.HTTP_400_BAD_REQUEST)
 
         if overriden > 0 and not should_override:
             err_message = "Do you want to overwrite the following "\
@@ -468,10 +498,10 @@ class InstanceViewSet(viewsets.ModelViewSet):
                 'Warning' : err_message,
             }, status=status.HTTP_400_BAD_REQUEST)
 
-        for model in models_to_create:
-            model.save()
+        for instance in instances_to_create:
+            instance.save()
         return Response({
-        'created': (len(models_to_create)-overriden),
+        'created': (len(instances_to_create)-overriden),
         'ignored': ignored,
         'updated': overriden
         })
