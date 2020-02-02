@@ -141,6 +141,26 @@ class ModelViewSet(viewsets.ModelViewSet):
 
         return super().list(self, request, *args, *kwargs)
 
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        if request.query_params.get('export') == 'true':
+        #    vendor,model_number,height,display_color,ethernet_ports,power_ports,cpu,memory,storage,comment
+            response = HttpResponse(content_type='text/csv')
+            response['Content-Disposition'] = 'attachment; filename="models.csv"'
+
+            writer = csv.writer(response)
+            writer.writerow(['vendor', 'model_number', 'height', 'display_color', 'ethernet_ports', 'power_ports', 'cpu', 'memory', 'storage', 'comment'])
+            for model in queryset:
+                writer.writerow([model.vendor, model.model_number, model.height, model.display_color, model.ethernet_ports, model.power_ports, model.cpu, model.memory, model.storage, model.comment])
+            return response
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
     # Custom actions below
     @action(detail=False, methods=[GET])
     def filter_fields(self, request, *args, **kwargs):
@@ -308,7 +328,6 @@ class RackViewSet(viewsets.ModelViewSet):
     filter_backends = [OrderingFilter,
                        DjangoFiltersBackend,
                        RackFilter]
-
     filterset_fields = RACK_ORDERING_FILTERING_FIELDS
     def get_serializer_class(self):
         if self.request.method == GET:
@@ -322,6 +341,11 @@ class RackViewSet(viewsets.ModelViewSet):
         slots = ['u{}'.format(i) for i in range(1, 43)]
         offending_instances = []
         for slot in slots:
+            if getattr(self.get_object(), slot):
+                u_filled += 1
+        if u_filled > 0:
+            return Response('Cannot delete this rack as it is not empty.',
+                            status=status.HTTP_400_BAD_REQUEST)
             match = getattr(self.get_object(), slot)
             if match:
                 offending_instances.append(match.hostname.__str__()
@@ -442,6 +466,61 @@ class RackViewSet(viewsets.ModelViewSet):
 # Custom actions below
 
 @api_view([GET])
+@permission_classes([IsAuthenticated])
+def report(request):
+    racks = Rack.objects.all()
+    total = 0
+    occupied = 0
+    slots = ['u{}'.format(i) for i in range(1, 43)]
+    for rack in racks:
+        for field_name in slots:
+            if getattr(rack, field_name):
+                occupied += 1
+            total += 1
+    if total == 0:
+        total += 1
+    percentage_occupied = occupied/total*100
+    percentage_free = (total-occupied)/total*100
+
+    instances = Instance.objects.all()
+    vendor_dict = {}
+    model_dict = {}
+    owner_dict = {}
+    for instance in instances:
+        if instance.model_id in model_dict:
+            model_dict[instance.model_id] += 1
+        else:
+            model_dict[instance.model_id] = 1
+        if instance.owner_id in owner_dict:
+            owner_dict[instance.owner_id] += 1
+        else:
+            owner_dict[instance.owner_id] = 1
+
+    model_dict_by_model_number = {}
+    for model in model_dict.keys():
+        model_obj = Model.objects.get(pk=model)
+        model_dict_by_model_number[model_obj.model_number] = model_dict[model]
+        if model_obj.vendor in vendor_dict:
+            vendor_dict[model_obj.vendor] += model_dict[model]
+        else:
+            vendor_dict[model_obj.vendor] = model_dict[model]
+
+    owner_dict_by_username = {}
+    for owner_id in owner_dict.keys():
+        owner = User.objects.get(pk=owner_id)
+        owner_dict_by_username[owner.username] = owner_dict[owner_id]
+
+    return Response({
+        'rackspace_used': percentage_occupied,
+        'rackspace_free': percentage_free,
+        'models_allocated': model_dict_by_model_number,
+        'vendors_allocated': vendor_dict,
+        'owners_allocated': owner_dict_by_username
+    })
+
+# Custom actions below
+
+@api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def report(request):
     racks = Rack.objects.all()

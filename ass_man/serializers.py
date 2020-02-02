@@ -37,7 +37,7 @@ class ModelShortSerializer(serializers.HyperlinkedModelSerializer):
 class UniqueModelsSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Model
-        fields = ['url', 'vendor', 'model_number']
+        fields = ['id', 'url', 'vendor', 'model_number']
 
 
 class ModelInstanceSerializer(serializers.HyperlinkedModelSerializer):
@@ -50,7 +50,6 @@ class VendorsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Model
         fields = ['vendor', 'url']
-
 
 class InstanceSerializer(serializers.HyperlinkedModelSerializer):
     hostname = serializers.CharField(validators=[UniqueValidator(queryset=Instance.objects.all())])
@@ -156,7 +155,7 @@ class InstanceOfModelSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Instance
-        fields = ['url', 'hostname', 'rack', 'rack_u', 'owner']
+        fields = ['id', 'url', 'hostname', 'rack', 'rack_u', 'owner']
 
 
 class RackInstanceSerializer(serializers.ModelSerializer):
