@@ -226,7 +226,7 @@ class ModelViewSet(viewsets.ModelViewSet):
             return Response({
                 'Warning' : err_message,
             }, status=status.HTTP_400_BAD_REQUEST)
-        
+
         for model in models_to_create:
             model.save()
         return Response({
@@ -361,6 +361,121 @@ class InstanceViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
     # Custom actions below
+    @action(detail=False, methods=['POST'])
+    def import_file(self, request, *args, **kwargs):
+        file = request.FILES['file']
+        #reader = csv.reader(file)
+        reader = csv.DictReader(io.StringIO(file.read().decode('utf-8-sig')))
+        instances_to_create = []
+        should_override = request.query_params.get('override') or False
+        overriden = 0
+        ignored = 0
+        fields_overriden = {}
+        for row in reader:
+            override = False
+            should_update = False
+            try:
+                instance = Instance.objects.get(hostname=row['hostname'])
+            except Instance.DoesNotExist:
+                instance = None
+            if model is None:
+                model = Model.objects.get(url=row['model'])
+                print(row['model'])
+                inatances_to_create.append(Instance(model=row['model'], model_number=row['model_number'],height=row['height'], \
+                display_color=disp_col, ethernet_ports=row['ethernet_ports'], power_ports=row['power_ports'], \
+                cpu=row['cpu'], memory=row['memory'], storage=row['storage'], comment=row['comment']))
+                continue
+            if str(model.height) != row['height']:
+                if should_override:
+                    model.height = row['height']
+                    should_update = True
+                else:
+                    key = model.vendor + model.model_number + "_height"
+                    fields_overriden[key] = [model.height, row['height']]
+                override = True
+            if model.display_color != disp_col:
+                if should_override:
+                    model.display_color = disp_col
+                    should_update = True
+                else:
+                    key = model.vendor + model.model_number + "_display_color"
+                    fields_overriden[key] = [model.display_color, disp_col]
+                override = True
+            if str(model.ethernet_ports) != row['ethernet_ports']:
+                if should_override:
+                    model.ethernet_ports = row['ethernet_ports']
+                    should_update = True
+                else:
+                    key = model.vendor + model.model_number + "_ethernet_ports"
+                    fields_overriden[key] = [model.ethernet_ports, row['ethernet_ports']]
+                override = True
+            if str(model.power_ports) != row['power_ports']:
+                if should_override:
+                    model.power_ports = row['power_ports']
+                    should_update = True
+                else:
+                    key = model.vendor + model.model_number + "_power_ports"
+                    fields_overriden[key] = [model.power_ports, row['power_ports']]
+                override = True
+            if model.cpu != row['cpu']:
+                if should_override:
+                    model.cpu = row['cpu']
+                    should_update = True
+                else:
+                    key = model.vendor + model.model_number + "_cpu"
+                    fields_overriden[key] = [model.cpu, row['cpu']]
+                override = True
+            if str(model.memory) != row['memory']:
+                if should_override:
+                    model.memory = row['memory']
+                    should_update = True
+                else:
+                    key = model.vendor + model.model_number + "_memory"
+                    fields_overriden[key] = [model.memory, row['memory']]
+                override = True
+            if model.storage != row['storage']:
+                if should_override:
+                    model.storage = row['storage']
+                    should_update = True
+                else:
+                    key = model.vendor + model.model_number + "_storage"
+                    fields_overriden[key] = [model.storage, row['storage']]
+                override = True
+            if model.comment != row['comment']:
+                if should_override:
+                    model.comment = row['comment']
+                    should_update = True
+                else:
+                    key = model.vendor + model.model_number + "_comment"
+                    fields_overriden[key] = [model.comment, row['comment']]
+                override = True
+            if should_update:
+                models_to_create.append(model)
+            if override:
+                overriden+=1
+            else:
+                ignored+=1
+
+        if overriden > 0 and not should_override:
+            err_message = "Do you want to overwrite the following "\
+            "fields: "
+            count = 0
+            for field in fields_overriden.keys():
+                err_message += "For " + field + " overwrite " + str(fields_overriden[field][0]) \
+                + " with " + fields_overriden[field][1] + ". "
+
+            return Response({
+                'Warning' : err_message,
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        for model in models_to_create:
+            model.save()
+        return Response({
+        'created': (len(models_to_create)-overriden),
+        'ignored': ignored,
+        'updated': overriden
+        })
+
 
     @action(detail=False, methods=['GET'])
     def filter_fields(self, request, *args, **kwargs):

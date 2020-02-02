@@ -80,7 +80,7 @@ export class ModelTable extends Component {
 		});
 	}
 
-	
+
 
 	handleFileUpload = (e) => {
 		console.log(e.target.files[0])
