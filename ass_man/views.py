@@ -1,7 +1,9 @@
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
-from django.db.models.functions import Concat
+from django.db.models.fields import IntegerField
+from django.db.models.functions import Concat, Substr, Cast
+from django.db.models.deletion import ProtectedError
 from django.db.models import CharField
 from django.http import HttpResponse
 # API
@@ -50,20 +52,19 @@ INSTANCE_ORDERING_FILTERING_FIELDS = ['model', 'model__model_number', 'model__ve
 INSTANCE_EXPORT_FIELDS = ['hostname', 'rack', 'rack_position', 'vendor', 'model_number', 'owner', 'comment']
 
 RACK_ORDERING_FILTERING_FIELDS = ['rack_number']
-RACK_DESTROY_SINGLE_ERR_MSG = 'Cannot delete this rack as it contains instances:'
+RACK_DESTROY_SINGLE_ERR_MSG = 'Cannot delete rack as it contains the following instances:'
 RACK_MANY_INCOMPLETE_QUERY_PARAMS_ERROR_MSG = 'Invalid rack range- must specify start and end rack number'
 RACK_MANY_BAD_LETTER_ERROR_MSG = 'Your start letter must be less than or equal to your end letter'
 RACK_MANY_BAD_NUMBER_ERROR_MSG = 'Your start number must be less than or equal to your end number'
-RACK_MANY_CREATE_EXISTING_RACK_WARNING_MSG = 'Warning: skipping this rack as it already exists: '
-RACK_MANY_DELETE_NONEXISTENT_ERROR_MSG = 'Error: this rack cannot be deleted as it does not exist. Continuing... : '
-RACK_MANY_DELETE_NOT_EMPTY_ERROR_MSG = 'Error: this rack cannot be deleted as it is not empty. Continuing... : '
+RACK_MANY_CREATE_EXISTING_RACK_WARNING_MSG = 'Warning: skipping rack {} as it already exists.'
+RACK_MANY_DELETE_NONEXISTENT_ERROR_MSG = 'Error: rack {} cannot be deleted as it does not exist. Continuing...'
+RACK_MANY_DELETE_NOT_EMPTY_ERROR_MSG = 'Error: rack {} cannot be deleted as it is not empty. Continuing...'
+
 
 # Docs for ModelViewSet: https://www.django-rest-framework.org/api-guide/viewsets/#modelviewset
 
 
 class ModelViewSet(viewsets.ModelViewSet):
-
-
 
     # View Housekeeping (permissions, serializers, filter fields, etc
     def get_permissions(self):
@@ -75,14 +76,12 @@ class ModelViewSet(viewsets.ModelViewSet):
 
     queryset = Model.objects.all()
 
-
     def get_serializer_class(self):
         if self.request.method == GET:
             serializer_class = ModelSerializer if self.detail else ModelShortSerializer
         else:
             serializer_class = ModelSerializer
         return serializer_class
-
 
     ordering_fields = MODEL_ORDERING_FILTERING_FIELDS
     ordering = ['vendor', 'model_number']  # default ordering
@@ -100,7 +99,7 @@ class ModelViewSet(viewsets.ModelViewSet):
 
         if prev_height != new_height and instances.exists():
             return Response({
-              'Error': MODEL_HEIGHT_UPDATE_ERROR_MSG
+                'Error': MODEL_HEIGHT_UPDATE_ERROR_MSG
             }, status=status.HTTP_400_BAD_REQUEST)
 
         serializer.save()  # Save updates to the model
@@ -148,13 +147,11 @@ class ModelViewSet(viewsets.ModelViewSet):
             'filter_fields': self.filterset_fields
         })
 
-
     @action(detail=False, methods=[GET])
     def sorting_fields(self, request, *args, **kwargs):
         return Response({
             'sorting_fields': self.ordering_fields
         })
-
 
     @action(detail=True, methods=[GET])
     def can_delete(self, request, *args, **kwargs):
@@ -170,7 +167,8 @@ class ModelViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=[GET])
     def vendors(self, request, *args, **kwargs):
         vendor_typed = self.request.query_params.get('vendor') or ''
-        vendors = list(Model.objects.values_list('vendor', flat=True).filter(vendor__istartswith=vendor_typed).distinct())
+        vendors = list(
+            Model.objects.values_list('vendor', flat=True).filter(vendor__istartswith=vendor_typed).distinct())
         return Response({
             'vendors': vendors
         })
@@ -205,15 +203,14 @@ class InstanceViewSet(viewsets.ModelViewSet):
             serializer_class = InstanceSerializer
         return serializer_class
 
-
     ordering_fields = INSTANCE_ORDERING_FILTERING_FIELDS
     ordering = ['-id']
     filterset_fields = INSTANCE_ORDERING_FILTERING_FIELDS
 
-
     filter_backends = [OrderingFilter,
                        DjangoFiltersBackend,
                        InstanceFilterByRack]
+
     # Overriding of super functions
 
     def create(self, request, *args, **kwargs):
@@ -221,7 +218,7 @@ class InstanceViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         instance = serializer.save()
         rack = instance.rack
-        for i in range(instance.rack_u, instance.rack_u+instance.model.height):
+        for i in range(instance.rack_u, instance.rack_u + instance.model.height):
             exec('rack.u{} = instance'.format(i))
         rack.save()
         headers = self.get_success_headers(serializer.data)
@@ -240,7 +237,7 @@ class InstanceViewSet(viewsets.ModelViewSet):
         self.perform_update(serializer)
         instance = self.get_object()
         new_rack = instance.rack
-        for i in range(instance.rack_u, instance.rack_u+instance.model.height):
+        for i in range(instance.rack_u, instance.rack_u + instance.model.height):
             exec('new_rack.u{} = instance'.format(i))
         new_rack.save()
         if getattr(instance, '_prefetched_objects_cache', None):
@@ -259,7 +256,8 @@ class InstanceViewSet(viewsets.ModelViewSet):
             writer = csv.writer(response)
             writer.writerow(INSTANCE_EXPORT_FIELDS)
             for instance in queryset:
-                writer.writerow([instance.hostname, instance.rack.rack_number, instance.rack_u, instance.model.vendor, instance.model.model_number, instance.owner.username, instance.comment])
+                writer.writerow([instance.hostname, instance.rack.rack_number, instance.rack_u, instance.model.vendor,
+                                 instance.model.model_number, instance.owner.username, instance.comment])
             return response
 
         return super().list(self, request, *args, **kwargs)
@@ -280,12 +278,11 @@ class InstanceViewSet(viewsets.ModelViewSet):
             'sorting_fields': self.ordering_fields
         })
 
-
     @action(detail=False, methods=[GET])
     def model_names(self, request, *args, **kwargs):
         name_typed = self.request.query_params.get('name') or ''
         models = Model.objects.annotate(
-            unique_name=Concat('vendor', 'model_number')).\
+            unique_name=Concat('vendor', 'model_number')). \
             filter(unique_name__icontains=name_typed).all()
         serializer = UniqueModelsSerializer(models, many=True, context={'request': request})
         return Response(serializer.data)
@@ -301,15 +298,19 @@ class RackViewSet(viewsets.ModelViewSet):
             permission_classes = [IsAuthenticated]
         return [permission() for permission in permission_classes]
 
-    queryset = Rack.objects.all()
+    queryset = Rack.objects.all() \
+        .annotate(rack_letter=Substr('rack_number', 1, 1)) \
+        .annotate(numstr_in_rack=Substr('rack_number', 2))
+    queryset = queryset.annotate(number_in_rack=Cast('numstr_in_rack', IntegerField()))
 
+    ordering = ['rack_letter', 'number_in_rack']
     ordering_fields = RACK_ORDERING_FILTERING_FIELDS
-    ordering = ['rack_number']
+
     filter_backends = [OrderingFilter,
                        DjangoFiltersBackend,
                        RackFilter]
-
     filterset_fields = RACK_ORDERING_FILTERING_FIELDS
+
     def get_serializer_class(self):
         if self.request.method == GET:
             serializer_class = RackFetchSerializer
@@ -359,7 +360,7 @@ class RackViewSet(viewsets.ModelViewSet):
         except KeyError:
             return Response({
                 'Error': RACK_MANY_INCOMPLETE_QUERY_PARAMS_ERROR_MSG
-            },status=status.HTTP_400_BAD_REQUEST)
+            }, status=status.HTTP_400_BAD_REQUEST)
         try:
             s_letter = srn[0].upper()
             e_letter = ern[0].upper()
@@ -367,13 +368,13 @@ class RackViewSet(viewsets.ModelViewSet):
             e_number = int(ern[1:])
 
             try:
-                assert(s_letter <= e_letter)
+                assert (s_letter <= e_letter)
             except AssertionError:
                 return Response({
                     'Error': RACK_MANY_BAD_LETTER_ERROR_MSG
                 }, status=status.HTTP_400_BAD_REQUEST)
             try:
-                assert(s_number <= e_number)
+                assert (s_number <= e_number)
             except AssertionError:
                 return Response({
                     'Error': RACK_MANY_BAD_NUMBER_ERROR_MSG
@@ -397,19 +398,18 @@ class RackViewSet(viewsets.ModelViewSet):
                         serializer.save()
                         results.append(rn + ' successfully created')
                     except ValidationError:
-                        results.append(RACK_MANY_CREATE_EXISTING_RACK_WARNING_MSG + rn)
+                        results.append(RACK_MANY_CREATE_EXISTING_RACK_WARNING_MSG.format(rn))
 
                 elif request.method == DELETE:
                     try:
                         rack = self.queryset.get(rack_number__iexact=rn)
-                    except AssertionError:
-                        results.append((RACK_MANY_DELETE_NONEXISTENT_ERROR_MSG + rn))
+                    except self.queryset.model.DoesNotExist:
+                        results.append((RACK_MANY_DELETE_NONEXISTENT_ERROR_MSG.format(rn)))
                         continue
                     try:
-                        resp = rack.delete()
-                        assert (resp.status != status.HTTP_400_BAD_REQUEST)
-                    except AssertionError:
-                        results.append(RACK_MANY_DELETE_NOT_EMPTY_ERROR_MSG + rn)
+                        rack.delete()
+                    except ProtectedError:
+                        results.append(RACK_MANY_DELETE_NOT_EMPTY_ERROR_MSG.format(rn))
                         continue
                     results.append(rn + ' successfully deleted')
 
@@ -419,7 +419,7 @@ class RackViewSet(viewsets.ModelViewSet):
             }, status=status.HTTP_400_BAD_REQUEST)
 
         return Response({
-            'results': results
+            'results': ', '.join(results)
         }, status=status.HTTP_207_MULTI_STATUS)
 
     @action(detail=True, methods=[GET])
@@ -438,7 +438,6 @@ class RackViewSet(viewsets.ModelViewSet):
         })
 
 
-
 # Custom actions below
 
 @api_view([GET])
@@ -455,8 +454,8 @@ def report(request):
             total += 1
     if total == 0:
         total += 1
-    percentage_occupied = occupied/total*100
-    percentage_free = (total-occupied)/total*100
+    percentage_occupied = occupied / total * 100
+    percentage_free = (total - occupied) / total * 100
 
     instances = Instance.objects.all()
     vendor_dict = {}
@@ -493,4 +492,4 @@ def report(request):
         'vendors_allocated': vendor_dict,
         'owners_allocated': owner_dict_by_username
     })
-  
+
