@@ -12,17 +12,18 @@ export class DetailedModel extends Component {
     super();
     this.state = {
       model: {
-        'id': 37,
-        'vendor': 'Dell',
-        'model_number': '34d',
-        'height': 3,
-        'display_color': '000000',
-        'ethernet_ports': null,
-        'power_ports': null,
-        'cpu': '',
-        'memory': null,
-        'storage': '',
-        'comment': ''
+        // 'id': 37,
+        // 'vendor': 'Dell',
+        // 'model_number': '34d',
+        // 'height': 3,
+        // 'display_color': '000000',
+        // 'ethernet_ports': null,
+        // 'power_ports': null,
+        // 'cpu': '',
+        // 'memory': null,
+        // 'storage': '',
+        // 'comment': '',
+        
       },
       detailedInstanceID: 0,
       showIndividualInstanceView: false,
@@ -46,17 +47,30 @@ export class DetailedModel extends Component {
   }
 
   loadModelData = () => {
-    let dst = '/api/models/'.concat(this.props.modelID).concat('/');
-    axios.get(dst).then(res => {
-      this.setState({
-        model: res.data
+    if (this.props.modelID !== undefined) {
+      let dst = '/api/models/'.concat(this.props.modelID).concat('/');
+      console.log(dst);
+      axios.get(dst).then(res => {
+        this.setState({
+          model: res.data
+        });
+      })
+      .catch(function (error) {
+        // TODO: handle error
+        console.log(error.response);
       });
-    });
+    }
   }
 
   componentDidMount() {
     this.loadModelData();
   }
+
+  // componentDidUpdate(prevProps, prevState) {
+  //   if (this.props.modelID !== undefined) {
+  //     this.loadModelData();
+  //   }
+  // }
 
   render() {
 

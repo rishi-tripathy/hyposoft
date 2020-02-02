@@ -17,13 +17,30 @@ export class AllInstancesOfModelView extends Component {
     this.props.sendInstanceID(id);
   }
 
-  componentDidMount() {
-    let dst = '/api/models/'.concat(this.props.modelID).concat('/instances/');
-    axios.get(dst).then(res => {
-      this.setState({
-        instances: res.data.results
+  loadInstances = () => {
+    if (this.props.modelID !== undefined) {
+      let dst = '/api/models/'.concat(this.props.modelID).concat('/instances/');
+      console.log(dst)
+      axios.get(dst).then(res => {
+        this.setState({
+          instances: res.data.results
+        });
+      })
+      .catch(function (error) {
+        // TODO: handle error
+        console.log(error.response);
       });
-    });
+    }
+  }
+
+  componentDidMount() {
+    this.loadInstances();
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (prevProps.modelID !== this.props.modelID) {
+      this.loadInstances();
+    }
   }
 
   renderTableHeader() {
@@ -34,6 +51,7 @@ export class AllInstancesOfModelView extends Component {
   }
 
   renderTableData() {
+    //if (this.state.instances == null) return;
     return this.state.instances.map((instance) => {
       const { id, model, hostname, rack, owner, rack_u } = instance //destructuring
       return (
