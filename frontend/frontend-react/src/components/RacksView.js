@@ -12,6 +12,7 @@ export class RacksView extends Component {
 	    super();
         this.showCreateForm = this.showCreateForm.bind(this);
         this.showMassCreateForm = this.showMassCreateForm.bind(this);
+        this.showMassDeleteForm = this.showMassDeleteForm.bind(this);
         this.showEditForm = this.showEditForm.bind(this);
         this.showEditForm = this.showEditForm.bind(this);
 	}
@@ -22,6 +23,10 @@ export class RacksView extends Component {
    
    showMassCreateForm = () => {
        this.props.sendShowMassCreate(true);
+   }
+
+   showMassDeleteForm = () => {
+       this.props.sendShowMassDelete(true);
    }
       
    showEditForm = (id) => {
@@ -54,6 +59,7 @@ export class RacksView extends Component {
                 
             <p>gonna put filters and stuff here</p><button onClick={ this.showCreateForm }>Add Single Rack</button>
             <button onClick={ this.showMassCreateForm }>Add Multiple Racks</button>
+            <button onClick={ this.showMassDeleteForm }>Delete Multiple Racks</button>
                 { this.props.rack.map((item, key) =>
                 <div id="rackContainer">
                     {/* {console.log(item.id)} */}

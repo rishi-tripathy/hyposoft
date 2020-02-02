@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import axios from 'axios'
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
-export class CreateMultipleRacksForm extends Component {
+export class DeleteMultipleRacksForm extends Component {
     constructor() {
         super();
         this.state = {
@@ -35,16 +35,16 @@ export class CreateMultipleRacksForm extends Component {
         console.log(validNumRegex);
 
         if(validNumRegex.test(start_rack) && validNumRegex.test(end_rack)){
-          console.log("we in this bitch");
-      }
-      else {
-          alert("Rack Numbers must be specified by a Single Letter Followed by Multiple Numbers.");
-      }
+            console.log("we in this bitch");
+        }
+        else {
+            alert("Rack Numbers must be specified by a Single Letter Followed by Multiple Numbers.");
+        }
 
         // for(var i: )
         console.log(stateToSend);
         
-        axios.post('/api/racks/many/', stateToSend)
+        axios.delete('/api/racks/many/', stateToSend)
         .then(function (response) {
           console.log(response);
           let message = response.data.results;
@@ -60,10 +60,10 @@ export class CreateMultipleRacksForm extends Component {
     let end_rack;
     return (
       <form onSubmit={this.handleSubmit}>
-        <h3>Create Racks</h3>
-        <p>Start Rack Number </p> <input type="text" onChange={e => this.setState({rack_num_start: e.target.value})} />
+        <h3>Delete Racks</h3>
+        <p>Start Rack Letter </p> <input type="text" onChange={e => this.setState({rack_num_start: e.target.value})} />
         {/* validate that it's one letter followed by numbers */}
-        <p>End Rack Number </p> <input type="text" onChange={e => this.setState({rack_num_end: e.target.value})} />
+        <p>End Rack Letter </p> <input type="text" onChange={e => this.setState({rack_num_end: e.target.value})} />
         {console.log(this.state)}
         <input type="submit" value="Submit" />
       </form>
@@ -72,4 +72,4 @@ export class CreateMultipleRacksForm extends Component {
 
 }
 
-export default CreateMultipleRacksForm
+export default DeleteMultipleRacksForm
