@@ -328,7 +328,6 @@ class RackViewSet(viewsets.ModelViewSet):
     filter_backends = [OrderingFilter,
                        DjangoFiltersBackend,
                        RackFilter]
-
     filterset_fields = RACK_ORDERING_FILTERING_FIELDS
     def get_serializer_class(self):
         if self.request.method == GET:
