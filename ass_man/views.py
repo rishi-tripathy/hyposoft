@@ -367,6 +367,7 @@ class InstanceViewSet(viewsets.ModelViewSet):
         #reader = csv.reader(file)
         reader = csv.DictReader(io.StringIO(file.read().decode('utf-8-sig')))
         instances_to_create = []
+        racks_to_save = []
         should_override = request.query_params.get('override') or False
         overriden = 0
         ignored = 0
@@ -375,6 +376,7 @@ class InstanceViewSet(viewsets.ModelViewSet):
         uncreated_objects['rack'] = []
         uncreated_objects['user'] = []
         fields_overriden = {}
+        blocked_instances = {}
         for row in reader:
             override = False
             should_update = False
@@ -400,8 +402,19 @@ class InstanceViewSet(viewsets.ModelViewSet):
                     uncreated_objects['user'].append(row['owner'])
                     dont_add = True
                 if not dont_add:
-                    instances_to_create.append(Instance(model=model, hostname=row['hostname'],\
-                    rack=rack, rack_u=row['rack_position'], owner=owner, comment=row['comment']))
+                    instance = Instance(model=model, hostname=row['hostname'],\
+                    rack=rack, rack_u=row['rack_position'], owner=owner, comment=row['comment'])
+                    for i in range(int(row['rack_position']), int(row['rack_position'])+instance.model.height+1):
+                        curr_instance = getattr(rack, 'u{}'.format(row['rack_position']))
+                        if curr_instance is not None:
+                            blocked = True
+                            blocked_instances[instance.hostname] =row['rack']+"_u"+row['rack_position']
+
+                    for i in range(int(row['rack_position']), int(row['rack_position'])+instance.model.height+1):
+                        setattr(rack, 'u{}'.format(row['rack_position']), instance)
+                    racks_to_save.append(rack)
+
+                    instances_to_create.append(instance)
                 continue
 
             uniq_model_name = instance.model.vendor + instance.model.model_number
@@ -422,13 +435,25 @@ class InstanceViewSet(viewsets.ModelViewSet):
                 override = True
             if instance.rack.rack_number != row['rack']:
                 try:
-                    rack = Rack.objects.get(rack_numbers=row['rack'])
-                except Model.DoesNotExist:
+                    rack = Rack.objects.get(rack_number=row['rack'])
+                except Rack.DoesNotExist:
                     uncreated_objects['rack'].append(row['rack'])
                     rack = None
 
                 if should_override:
-                    instance.rack = rack
+                    blocked = False
+                    for i in range(int(row['rack_position']), int(row['rack_position'])+instance.model.height+1):
+                        curr_instance = getattr(rack, 'u{}'.format(row['rack_position']))
+                        if curr_instance is not None:
+                            blocked = True
+                            blocked_instances[instance.hostname] =row['rack']+"_u"+row['rack_position']
+                    if not blocked:
+                        instance.rack = rack
+                        for i in range(old_u, old_u+instance.model.height+1):
+                            setattr(rack, 'u{}'.format(row['rack_position']), None)
+                        for i in range(int(row['rack_position']), int(row['rack_position'])+instance.model.height+1):
+                            setattr(rack, 'u{}'.format(row['rack_position']), instance)
+                        racks_to_save.append(rack)
                     should_update = True
                 else:
                     key = instance.hostname + "_rack"
@@ -438,11 +463,28 @@ class InstanceViewSet(viewsets.ModelViewSet):
                 override = True
             if str(instance.rack_u) != row['rack_position']:
                 if should_override:
-                    instance.rack_u = row['rack_position']
+                    try:
+                        rack = Rack.objects.get(rack_number=row['rack'])
+                    except Rack.DoesNotExist:
+                        rack = None
+                    blocked = False
+                    for i in range(int(row['rack_position']), int(row['rack_position'])+instance.model.height+1):
+                        curr_instance = getattr(rack, 'u{}'.format(row['rack_position']))
+                        if curr_instance is not None:
+                            blocked = True
+                            blocked_instances[instance.hostname] =row['rack']+"_u"+row['rack_position']
+                    if not blocked:
+                        old_u = instance.rack_u
+                        instance.rack_u = row['rack_position']
+                        for i in range(old_u, old_u+instance.model.height+1):
+                            setattr(rack, 'u{}'.format(row['rack_position']), None)
+                        for i in range(int(row['rack_position']), int(row['rack_position'])+instance.model.height+1):
+                            setattr(rack, 'u{}'.format(row['rack_position']), instance)
+                        racks_to_save.append(rack)
                     should_update = True
                 else:
                     key = instance.hostname + "_rack_position"
-                    fields_overriden[key] = [model.rack_u, row['rack_position']]
+                    fields_overriden[key] = [instance.rack_u, row['rack_position']]
                 override = True
             if instance.owner.username != row['owner']:
                 try:
@@ -469,7 +511,7 @@ class InstanceViewSet(viewsets.ModelViewSet):
                     fields_overriden[key] = [instance.comment, row['comment']]
                 override = True
             if should_update:
-                models_to_create.append(model)
+                instances_to_create.append(instance)
             if override:
                 overriden+=1
             else:
@@ -482,6 +524,14 @@ class InstanceViewSet(viewsets.ModelViewSet):
                 for j in uncreated_objects[i]:
                     err_message+= j + ", "
                 err_message+=". "
+            return Response({
+                'Warning' : err_message,
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        err_message = "The following instances are blocked for placement: "
+        if len(blocked_instances.keys()) > 0:
+            for inst in blocked_instances.keys():
+                err_message+=inst + " at " + blocked_instances[inst] + ". "
             return Response({
                 'Warning' : err_message,
             }, status=status.HTTP_400_BAD_REQUEST)
@@ -500,6 +550,8 @@ class InstanceViewSet(viewsets.ModelViewSet):
 
         for instance in instances_to_create:
             instance.save()
+        for rack in racks_to_save:
+            rack.save()
         return Response({
         'created': (len(instances_to_create)-overriden),
         'ignored': ignored,
