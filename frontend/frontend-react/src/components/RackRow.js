@@ -14,18 +14,6 @@ export class RackRow extends Component {
         if(this.props.displayColor !== null){
             objectIsNull = false;
         }
-
-        //only return somethin
-
-       // console.log(this.props.displayColor);
-
-        //let color = parseInt(this.props.displayColor, 10);
-        let color = 'red';//'#ffffb2';
-        //console.log(color);
-
-        // const styleObj = {
-        //     backgroundColor: color,
-        // }
         let content; 
         let dispColor = '#';
         dispColor = dispColor.concat(this.props.displayColor);
@@ -35,10 +23,9 @@ export class RackRow extends Component {
             content = 
              <td style={{
                 fontSize: 10,
-                background: dispColor, //need to pass a function in
+                background: dispColor, 
                 color: bcolor,
              }}>
-            {/* { console.log(this.props.displayColor) } */}
                 <pre>
                     { this.props.model }       { this.props.hostname } 
                 </pre>
