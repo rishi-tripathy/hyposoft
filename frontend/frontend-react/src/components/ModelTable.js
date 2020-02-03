@@ -1,11 +1,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types';
 import '../stylesheets/TableView.css'
-<<<<<<< HEAD
 import axios from 'axios'
-=======
-import axios, { post } from 'axios'
->>>>>>> 03e3a9c43312cf02201cfac700ba54be32741cc6
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 export class ModelTable extends Component {

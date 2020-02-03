@@ -50,10 +50,6 @@ class VendorsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Model
         fields = ['vendor', 'url']
-<<<<<<< HEAD
-=======
-
->>>>>>> 03e3a9c43312cf02201cfac700ba54be32741cc6
 
 class InstanceSerializer(serializers.HyperlinkedModelSerializer):
     hostname = serializers.CharField(validators=[UniqueValidator(queryset=Instance.objects.all())])

@@ -10,7 +10,6 @@ export class DetailedInstance extends Component {
     this.state = {
       instance: 
         {
-<<<<<<< HEAD
           // 'id': 999,
           // 'model': {
           //     'url': 'http://localhost:5000/api/models/10/',
@@ -29,31 +28,10 @@ export class DetailedInstance extends Component {
           //     'username': 'adsfd'
           // },
           // 'comment': 'default'
-=======
-          'id': 999,
-          'model': {
-              'url': 'http://localhost:5000/api/models/10/',
-              'vendor': 'default',
-              'model_number': 'df',
-              'display_color': 'adf'
-          },
-          'hostname': 'default',
-          'rack': {
-              'url': 'http://localhost:5000/api/racks/1/',
-              'rack_number': 'A111'
-          },
-          'rack_u': 4,
-          'owner': {
-              'url': 'http://localhost:5000/api/users/6/',
-              'username': 'adsfd'
-          },
-          'comment': 'default'
->>>>>>> 03e3a9c43312cf02201cfac700ba54be32741cc6
         }
     }
   }
 
-<<<<<<< HEAD
   loadInstance = () => {
     if (this.props.instanceID !== undefined) {
       let dst = '/api/instances/'.concat(this.props.instanceID).concat('/');
@@ -73,15 +51,6 @@ export class DetailedInstance extends Component {
     if (prevProps.instanceID !== this.props.instanceID) {
       this.loadInstance();
     }
-=======
-  componentDidMount() {
-    let dst = '/api/instances/'.concat(this.props.instanceID).concat('/');
-    axios.get(dst).then(res => {
-      this.setState({
-        instance: res.data
-      });
-    });
->>>>>>> 03e3a9c43312cf02201cfac700ba54be32741cc6
   }
 
   render() {

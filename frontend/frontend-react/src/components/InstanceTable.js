@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import '../stylesheets/TableView.css'
-import axios from 'axios'
+import axios, { post } from 'axios'
 import InstanceFilters from './InstanceFilters';
 
 

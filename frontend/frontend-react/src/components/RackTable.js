@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react'
+import React, { Component } from 'react'
 import '../stylesheets/RackTable.css'
 import '../stylesheets/RacksView.css'
 import RackRow from './RackRow'
@@ -22,13 +22,9 @@ export class RackTable extends Component {
    fixRows() {
       let temp_rows = [];
       temp_rows = this.props.rack;
-      // delete rows["id"];
-      // delete rows["rack_number"];
-
-      //console.log(this.props.rack);
 
       for(var i of Object.keys(temp_rows)){
-         if(i!=="id" && i!=="rack_number" && i!=="url"){
+         if(i.substring(0,1) == "u" && i!="url"){
             temp_rows[i.substring(1,3)] = temp_rows[i]; //replace key
             delete temp_rows[i];
          }
@@ -101,10 +97,10 @@ export class RackTable extends Component {
             }
          }
       }
-      console.log(rackInstances);
-      console.log(modelInfo);
-      console.log(displayColors);
-      console.log(hostnameInfo);
+      // console.log(rackInstances);
+      // console.log(modelInfo);
+      // console.log(displayColors);
+      // console.log(hostnameInfo);
 
       return rackUs.reverse().map((row, index) => {
          return (

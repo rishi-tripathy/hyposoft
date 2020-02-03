@@ -2,7 +2,6 @@ import React, { Component, Fragment } from 'react'
 import '../stylesheets/RacksView.css'
 import '../stylesheets/RackTable.css'
 import RackTable from './RackTable'
-import RackRow from './RackRow'
 import axios from 'axios'
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
@@ -57,15 +56,18 @@ export class RacksView extends Component {
     render(){
         return(
             <div>
-                
-            <p>gonna put filters and stuff here</p><button onClick={ this.showCreateForm }>Add Single Rack</button>
+            <button onClick={ this.showCreateForm }>Add Single Rack</button>
             <button onClick={ this.showMassCreateForm }>Add Multiple Racks</button>
             <button onClick={ this.showMassDeleteForm }>Delete Multiple Racks</button>
+            <br></br>
+                
+            <p>gonna put filters and stuff here</p>
                 { this.props.rack.map((item, key) =>
                 <div id="rackContainer">
                     {/* {console.log(item.id)} */}
                     <button onClick={ () => this.showEditForm(item.id) }>Edit this Rack</button>
                     <button onClick={ () => this.showDeleteForm(item.id) }>Delete this Rack</button>
+                    <br></br>
                     <RackTable rack={item} />                    
                     </div> 
                 )}

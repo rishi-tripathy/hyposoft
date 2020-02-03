@@ -190,7 +190,6 @@ export class RackController extends Component {
     console.log("render again");
     console.log(this.state);
 
-    let filters = <RackFilters sendFilterQuery={ this.getFilterQuery } />
    // let sorting = <InstanceSort sendSortQuery={ this.getSortQuery } />
 
     if (this.state.showRacksView){
@@ -222,7 +221,7 @@ export class RackController extends Component {
                     sendShowDelete={this.getShowDelete}/> 
     }
 
-    let paginateNavigation = <p></p>;
+    let paginateNavigation = <p><RackFilters sendFilterQuery={ this.getFilterQuery } /></p>;
     if (this.state.prevPage == null && this.state.nextPage != null) {
       paginateNavigation = <div><button onClick={ this.paginateNext }>next page</button></div>;
     } 
@@ -241,8 +240,6 @@ export class RackController extends Component {
       return (
         <div>
           { paginateNavigation }
-          <br></br>
-          {filters}
             {content}
         </div>
       )

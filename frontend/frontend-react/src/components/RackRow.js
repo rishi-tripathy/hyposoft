@@ -3,13 +3,7 @@ import '../stylesheets/RackTable.css'
 
 export class RackRow extends Component {
     render() {
-       // console.log(this.props.displayColor);
-
         let objectIsNull = true;
-
-        console.log(this.props.row);
-        console.log(this.props.instanceUrl);
-        console.log(this.props.displayColor);
 
         if(this.props.displayColor !== null){
             objectIsNull = false;
@@ -17,7 +11,6 @@ export class RackRow extends Component {
         let content; 
         let dispColor = '#';
         dispColor = dispColor.concat(this.props.displayColor);
-        console.log(dispColor)
         let bcolor = 'black';
         if(!objectIsNull){
             content = 
@@ -26,9 +19,7 @@ export class RackRow extends Component {
                 background: dispColor, 
                 color: bcolor,
              }}>
-                <pre>
-                    { this.props.model }       { this.props.hostname } 
-                </pre>
+                <pre>{ this.props.model }       { this.props.hostname }</pre>
             </td> 
         }
         else{
@@ -40,9 +31,7 @@ export class RackRow extends Component {
                 <td>
                     { this.props.row }   
                 </td> 
-
                { content }
-
                 <td>
                     {this.props.row}    
                 </td>                

@@ -1,6 +1,6 @@
 import React from 'react';
 import './App.css';
-import { BrowserRouter as Router, Route, Link, Switch } from 'react-router-dom'
+import { BrowserRouter as Router } from 'react-router-dom'
 import SideBar from './components/SideBar';
 import axios from 'axios'
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
@@ -23,10 +23,6 @@ class App extends React.Component {
           const r = res.data.is_admin;
           this.setState({logged_in: r});
           console.log(r);
-<<<<<<< HEAD
-=======
-          console.log(this.state.admin);
->>>>>>> 03e3a9c43312cf02201cfac700ba54be32741cc6
 
       })
       .then(response => { 
