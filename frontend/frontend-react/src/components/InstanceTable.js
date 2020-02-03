@@ -6,9 +6,11 @@ axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 export class InstanceTable extends Component {
 
-  constructor() {
-    super();
-    //this.passUP = this.showDetailedInstance.bind(this);
+  constructor(props) {
+    super(props);
+    this.state = {
+			file: null,
+		}
   }
 
   showDetailedInstance = (id) => {
@@ -30,13 +32,18 @@ export class InstanceTable extends Component {
       let dst = '/api/instances/'.concat(id).concat('/');
       axios.delete(dst)
       .then(function (response) {
-        console.log(response);
+        alert('Delete was successful');
+        
       })
       .catch(function (error) {
-        // TODO: handle error
-        console.log(error.response);
+        alert('Delete was not successful.\n' + JSON.stringify(error.response.data));
       });
     }
+    this.showRerender();
+  }
+
+  showRerender = () => {
+    this.props.sendRerender(true);
   }
 
   renderTableHeader() {

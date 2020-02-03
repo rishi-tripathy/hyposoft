@@ -37,10 +37,17 @@ export class ModelController extends Component {
       nextPage: null,
       filterQuery: '',
       sortQuery: '',
+      rerender: false,
     };
 
     // I don't think i need this bind here; but too scared to take it out lol
     this.getShowTable = this.getShowTable.bind(this);
+  }
+
+  getRerender = (re) => {
+    if (re) {
+      this.setState({ rerender: true })
+    }
   }
 
   getDetailedModelID = (id) => {
@@ -137,6 +144,12 @@ export class ModelController extends Component {
     if (prevState.sortQuery !== this.state.sortQuery) {
       this.getModels();
     }
+
+    // After crud, rerender
+    if (prevState.rerender === false && this.state.rerender === true) {
+      this.getModels();
+      this.setState({ rerender: false });
+    }
   }
 
   exportData = () => {
@@ -216,6 +229,7 @@ export class ModelController extends Component {
 
     if (this.state.showTableView){
       content = <div><h2>Model Table</h2><ModelTable models={ this.state.models } 
+                  sendRerender={ this.getRerender }
                   sendShowTable={ this.getShowTable }
                   sendShowDetailedModel={ this.getShowDetailedModel }
                   sendModelID={ this.getDetailedModelID }

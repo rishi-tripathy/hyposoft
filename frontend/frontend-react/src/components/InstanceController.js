@@ -30,11 +30,19 @@ export class InstanceController extends Component {
       nextPage: null,
       filterQuery: '',
       sortQuery: '',
+      rerender: false,
     };
 
     this.getShowTable = this.getShowTable.bind(this);
     this.getDetailedInstanceID = this.getDetailedInstanceID.bind(this);
     this.getFilterQuery = this.getFilterQuery.bind(this);
+    //this.getRerender = this.getRerender.bind(this);
+  }
+
+  getRerender = (re) => {
+    if (re) {
+      this.setState({ rerender: true })
+    }
   }
 
   getShowTable = (show) => {
@@ -142,6 +150,12 @@ export class InstanceController extends Component {
     if (prevState.sortQuery !== this.state.sortQuery) {
       this.getInstances();
     }
+
+    // After crud, rerender
+    if (prevState.rerender === false && this.state.rerender === true) {
+      this.getInstances();
+      this.setState({ rerender: false });
+    }
   }
   paginateNext = () => {
     axios.get(this.state.nextPage).then(res => {
@@ -204,6 +218,7 @@ export class InstanceController extends Component {
     if (this.state.showTableView) {
       content = <InstanceTable 
                   instances={ this.state.instances } 
+                  sendRerender={ this.getRerender }
                   sendShowTable={ this.getShowTable } 
                   sendShowDetailedInstance= { this.getShowDetailedInstance }
                   sendInstanceID={ this.getDetailedInstanceID }
