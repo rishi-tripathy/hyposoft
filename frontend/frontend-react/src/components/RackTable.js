@@ -118,6 +118,7 @@ export class RackTable extends Component {
 
       let rackNumber = this.getRackNum();
 
+
       return (
            <table id="entries1">
                <tbody>
