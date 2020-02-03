@@ -86,6 +86,8 @@ export class DetailedModel extends Component {
 
     return (
       <div>
+        <button onClick={() => this.props.sendShowTable(true)} >Back</button>
+        <br></br>
         <ModelCard model={ this.state.model } />
         <br></br>
         <br></br>
