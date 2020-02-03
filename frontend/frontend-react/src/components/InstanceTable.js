@@ -67,6 +67,59 @@ export class InstanceTable extends Component {
     })
   }
 
+  handleImport = (e) => {
+		e.preventDefault();
+		let f = this.state.file;
+		this.fileUpload(this.state.file).then((response)=>{
+      console.log(response.data);
+		})
+		.catch(function (error) {
+			console.log(error.response)
+			const fileUploadOverride = (file) => {
+				const url = '/api/instances/import_file/?override=true';
+				const formData = new FormData();
+				formData.append('file', file)
+				//formData.append('name', 'sup')
+				const config = {
+						headers: {
+								'content-type': 'multipart/form-data'
+						}
+				}
+				return post(url, formData, config)
+			}
+
+			if (window.confirm('Import was not successful.\n' + JSON.stringify(error.response.data))) {
+				fileUploadOverride(f).then((response)=>{
+					console.log(response.data);
+				})
+				.catch(function (error) {
+					console.log(error.response)
+					alert('Import was not successful.\n' + JSON.stringify(error.response.data));
+				});
+			}
+		});
+	}
+
+	handleFileUpload = (e) => {
+		console.log(e.target.files[0])
+		this.setState({
+      file: e.target.files[0],
+		});
+	}
+
+	fileUpload = (file) => {
+		const url = '/api/instances/import_file/';
+    const formData = new FormData();
+		formData.append('file', file)
+		//formData.append('name', 'sup')
+    const config = {
+        headers: {
+            'content-type': 'multipart/form-data'
+        }
+    }
+    return post(url, formData, config)
+	}
+
   render() {
     return (
         <div>

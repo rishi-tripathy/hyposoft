@@ -23,6 +23,10 @@ class App extends React.Component {
           const r = res.data.is_admin;
           this.setState({logged_in: r});
           console.log(r);
+<<<<<<< HEAD
+=======
+          console.log(this.state.admin);
+>>>>>>> 03e3a9c43312cf02201cfac700ba54be32741cc6
 
       })
       .then(response => { 
