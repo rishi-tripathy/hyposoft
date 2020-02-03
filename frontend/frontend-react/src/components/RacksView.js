@@ -1,11 +1,10 @@
 import React, { Component } from 'react'
+import ReactDOMServer from 'react-dom'
 import '../stylesheets/RacksView.css'
 import '../stylesheets/RackTable.css'
 import RackTable from './RackTable'
-import RackRow from './RackRow'
-import ReactToPrint from 'react-to-print';
+import * as jsPDF from 'jspdf'
 import axios from 'axios'
-import PrintableRacks from './PrintableRacks'
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 export class RacksView extends Component {
@@ -58,24 +57,12 @@ export class RacksView extends Component {
       }
   }
 
-  printOrder = (rack) => {
-    console.log('printing')
-    var mywindow = window.open('', 'PRINT', 'height=400,width=600');
-    console.log(rack)
+  generatePDF = () => {
+    let doc = new jsPDF('landscape');
+    doc.fromHTML(ReactDOMServer.renderToStaticMarkup(<RackTable rack={this.props.rack[0]} />));
+    doc.save("pdf");
+ }
 
-    mywindow.document.write('<html><head><title>' + document.title  + '</title>');
-    mywindow.document.write('</head><body>');
-    mywindow.document.write(document.getElementById("rackContainer").innerHTML);
-    mywindow.document.write('</body></html>');
-
-  //  mywindow.document.close(); // necessary for IE >= 10
-    //mywindow.focus(); // necessary for IE >= 10*/
-
-    mywindow.print();
-   // mywindow.close();
-
-    return true;
-}
   handleCondensation = () => {
     this.setState({condensedView: true});
   }
@@ -90,28 +77,17 @@ export class RacksView extends Component {
             <button onClick={ this.showCreateForm }>Add Single Rack</button>
             <button onClick={ this.showMassCreateForm }>Add Multiple Racks</button>
             <button onClick={ this.showMassDeleteForm }>Delete Multiple Racks</button>
-<<<<<<< HEAD
-            <button onClick={ () => this.printOrder(this.state.rack) }>Print Racks</button>;
+            <button onClick={ this.generatePDF }>Print Racks</button>
             <br></br>
-=======
-            <button onClick={ this.handleCondensation }>Condensed Rack View</button>
-            <button onClick={ this.handleCondensationOff }>Full Rack View</button>
-            <br></br>
-                
-            <p>gonna put filters and stuff here</p>
->>>>>>> 0b85f24f6d003da47ba039ff9d8cad5d679b2670
                 { this.props.rack.map((item, key) =>
                 <div id="rackContainer">
                     <button onClick={ () => this.showEditForm(item.id) }>Edit this Rack</button>
                     <button onClick={ () => this.showDeleteForm(item.id) }>Delete this Rack</button>
-<<<<<<< HEAD
                     <div id="print">
                         <RackTable rack={item} /> 
                     </div>                   
-=======
                     <br></br>
                     <RackTable rack={item} condensedState={this.state.condensedView} />                    
->>>>>>> 0b85f24f6d003da47ba039ff9d8cad5d679b2670
                     </div> 
                 )}
             </div>
