@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import RacksView from './RacksView';
 import CreateRackForm from './CreateRackForm'
 import EditRackForm from './EditRackForm'
+import RackFilters from './RackFilters'
 import axios from 'axios'
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
@@ -16,12 +17,14 @@ export class RackController extends Component {
       showCreateView: false,
       showEditView: false,
       showDeleteView: false,
+      filterQuery: null,
       editID: 0,
       deleteID: 0,
       prevPage: null,
       nextPage: null,
     };
     this.getShowRacks = this.getShowRacks.bind(this);
+    this.getFilterQuery = this.getFilterQuery.bind(this);
   }
 
   getShowRacks = (show) => {
@@ -88,6 +91,15 @@ export class RackController extends Component {
     }) 
   }
 
+  getFilterQuery = (q) => {
+    this.setState({ filterQuery: q });
+  }
+
+  getSortQuery = (q) => {
+    this.setState({ sortQuery: q })
+    console.log(this.state.sortQuery);
+  }
+
   componentDidMount() {
     this.refreshRacks();
     
@@ -150,6 +162,9 @@ export class RackController extends Component {
     console.log("render again");
     console.log(this.state);
 
+    let filters = <RackFilters sendFilterQuery={ this.getFilterQuery } />
+   // let sorting = <InstanceSort sendSortQuery={ this.getSortQuery } />
+
     if (this.state.showRacksView){
       content = 
         <RacksView rack={this.state.racks}
@@ -189,6 +204,7 @@ export class RackController extends Component {
         <div>
           { paginateNavigation }
           <br></br>
+          {filters}
             {content}
         </div>
       )
