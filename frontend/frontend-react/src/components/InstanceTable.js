@@ -8,6 +8,9 @@ export class InstanceTable extends Component {
 
   constructor() {
     super();
+    this.state = {
+			file: null,
+    }
     //this.passUP = this.showDetailedInstance.bind(this);
   }
 
