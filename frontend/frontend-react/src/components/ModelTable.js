@@ -86,7 +86,7 @@ export class ModelTable extends Component {
 		e.preventDefault();
 		let f = this.state.file;
 		this.fileUpload(this.state.file).then((response)=>{
-      console.log(response.data);
+			alert("Import was successful.");
 		})
 		.catch(function (error) {
 			console.log(error.response)
@@ -113,6 +113,7 @@ export class ModelTable extends Component {
 				});
 			}
 		});
+		this.showRerender();
 	}
 
 	handleFileUpload = (e) => {
