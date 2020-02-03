@@ -9,7 +9,6 @@ export class RackFilters extends Component {
   constructor() {
     super();
     this.state = {
-
       identifiers: {
         rackStart: '',
         rackEnd: '',
@@ -21,62 +20,16 @@ export class RackFilters extends Component {
   removeEmpty = (obj) => {
     Object.keys(obj).forEach((k) => (!obj[k] && obj[k] !== undefined) && delete obj[k]);
     return obj;
-  };
-
-  mountModelNames = () => {
-    // MODEL NAMES
-    let dst = '/api/instances/model_names/';
-    axios.get(dst).then(res => {
-      let myOptions = []; 
-      for (let i = 0; i < res.data.length; i++) {
-        myOptions.push({ value: res.data[i].id, label: res.data[i].vendor + ' ' + res.data[i].model_number });
-      }
-      //console.log(res.data)
-      this.setState({ modelOptions: myOptions });
-    })
-    .catch(function (error) {
-      // TODO: handle error
-      console.log(error.response);
-    });
-  }
-
-  mountRacks = () => {
-    // RACK
-    let dst = '/api/racks/?show_all=true';
-    axios.get(dst).then(res => {
-      let myOptions = []; 
-      for (let i = 0; i < res.data.length; i++) {
-        myOptions.push({ value: res.data[i].id, label: res.data[i].rack_number });
-      }
-      //console.log(res.data)
-      this.setState({ rackOptions: myOptions });
-    })
-    .catch(function (error) {
-      // TODO: handle error
-      console.log(error.response);
-    });
-  }
-
-
-  componentDidMount() {
-    this.mountRacks();
-  }
-  
-  handleChangeRack = selectedRackOption => {
-    let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
-    identifiersCopy.rackID = selectedRackOption.value
-    this.setState({
-      selectedRackOption, 
-      identifiers: identifiersCopy,
-    })
-  };
+    }
 
   createQuery = () => {
     const { rackStart, rackEnd } = this.state.identifiers;
     let q = '' + 
             'rack_num_start=' + rackStart + '&' + 
             'rack_num_end=' + rackEnd;
+      console.log(q)
     this.setState({ query: q });
+    console.log(this.state.query);
     return q;
   }
 
@@ -87,9 +40,9 @@ export class RackFilters extends Component {
     let stateToSend = this.removeEmpty(stateCopy);
     
     console.log(stateToSend)
-    console.log(this.createQuery())
 
     this.props.sendFilterQuery(this.createQuery());
+    console.log(this.createQuery())
   }
 
   render() {
@@ -104,6 +57,7 @@ export class RackFilters extends Component {
             this.setState({
               identifiers: identifiersCopy 
             }) 
+            console.log(this.state);
           } } />
 
           <p>Rack End</p>
@@ -113,6 +67,8 @@ export class RackFilters extends Component {
             this.setState({
               identifiers: identifiersCopy 
             }) 
+            console.log(this.state);
+
           } } />
           <input type="submit" value="Apply Filters" />
         </form>

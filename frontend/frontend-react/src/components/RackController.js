@@ -21,7 +21,7 @@ export class RackController extends Component {
       showMassDeleteView: false,
       showEditView: false,
       showDeleteView: false,
-      filterQuery: null,
+      filterQuery: '',
       editID: 0,
       deleteID: 0,
       prevPage: null,
@@ -121,6 +121,7 @@ export class RackController extends Component {
 
   getFilterQuery = (q) => {
     this.setState({ filterQuery: q });
+    console.log(this.state.filterQuery);
   }
 
   getSortQuery = (q) => {
@@ -132,9 +133,23 @@ export class RackController extends Component {
     this.refreshRacks();
     
   }
+
+  componentDidUpdate(prevProps, prevState) {
+    // Once filter changes, rerender
+    if (prevState.filterQuery !== this.state.filterQuery) {
+      this.refreshRacks();
+    }
+    // Once sort changes, rerender
+    // if (prevState.sortQuery !== this.state.sortQuery) {
+    //   this.getInstances();
+    // }
+  }
     
   refreshRacks = () => {
-    axios.get('/api/racks/').then(res => {
+    let dst = '/api/racks/'+ '?' + this.state.filterQuery; //+ '&' + this.state.sortQuery
+    console.log('querryyyyy');
+    console.log(dst);
+    axios.get(dst).then(res => {
       this.setState({ 
         racks: res.data.results,
         prevPage: res.data.previous,
@@ -150,7 +165,6 @@ export class RackController extends Component {
   }
 
   paginateNext = () => {
-    console.log("next has been pushed");
     this.state.racks = null;
     axios.get(this.state.nextPage).then(res => {
       this.setState({ 
@@ -220,8 +234,10 @@ export class RackController extends Component {
                     sendShowEdit={this.getShowEdit}
                     sendShowDelete={this.getShowDelete}/> 
     }
-
-    let paginateNavigation = <p><RackFilters sendFilterQuery={ this.getFilterQuery } /></p>;
+    
+    let filters = <RackFilters sendFilterQuery={ this.getFilterQuery } />;
+    let paginateNavigation;
+    let sorting;
     if (this.state.prevPage == null && this.state.nextPage != null) {
       paginateNavigation = <div><button onClick={ this.paginateNext }>next page</button></div>;
     } 
@@ -235,11 +251,13 @@ export class RackController extends Component {
     // if we're not on the table, then don't show pagination
     if (! this.state.showRacksView) {
       paginateNavigation = <p></p>;
+      filters = <p></p>;
+      sorting = <p></p>;
     }
   
       return (
         <div>
-          { paginateNavigation }
+          { paginateNavigation } { filters }
             {content}
         </div>
       )
