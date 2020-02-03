@@ -4,10 +4,16 @@ import '../stylesheets/RackTable.css'
 export class RackRow extends Component {
     render() {
         let objectIsNull = true;
-
+        let isCondensed = false;
+        console.log(this.props.row)
         if(this.props.displayColor !== null){
             objectIsNull = false;
         }
+
+        if(this.props.condensedView){
+            isCondensed = true;
+        }
+
         let content; 
         let dispColor = '#';
         dispColor = dispColor.concat(this.props.displayColor);
@@ -21,6 +27,10 @@ export class RackRow extends Component {
              }}>
                 <pre>{ this.props.model }       { this.props.hostname }</pre>
             </td> 
+        }
+        else if(objectIsNull && isCondensed){
+            //dots
+            content = <td style = {{ textAlign: 'center'}}>{ this.props.hostname }</td>
         }
         else{
             content = <td></td>;

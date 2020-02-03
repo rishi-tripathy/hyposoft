@@ -21,6 +21,9 @@ export class RackController extends Component {
       showMassDeleteView: false,
       showEditView: false,
       showDeleteView: false,
+      showIndividualInstanceView: false,
+      showCondensedView: false,
+      detailedInstanceID: 0,
       filterQuery: '',
       editID: 0,
       deleteID: 0,
@@ -29,21 +32,41 @@ export class RackController extends Component {
     };
     this.getShowRacks = this.getShowRacks.bind(this);
     this.getFilterQuery = this.getFilterQuery.bind(this);
+    this.getDetailedInstanceID = this.getDetailedInstanceID.bind(this);
   }
 
-  getShowRacks = (show) => {
-    console.log('showing racks')
-    show ? this.setState({
-      showRacksView: true,
-      showCreateView : false,
-      showMassCreateView: false,
-      sendMassDeleteView: false,
-      showEditView: false,
-      showDeleteView: false,
-    })
-    : this.setState({
+  getShowRacks = (show, condensed) => {
+    if(show && condensed){
+      console.log(' racks condensed');
+      this.setState({
+        showRacksView: true,
+        showCreateView : false,
+        showMassCreateView: false,
+        sendMassDeleteView: false,
+        showIndividualInstanceView: false,
+        showCondensedView: true,
+        showEditView: false,
+        showDeleteView: false,
+      })
+    } 
+    else if(show && !condensed){
+      console.log("racks not condensed");
+      this.setState({
+        showRacksView: true,
+        showCreateView : false,
+        showMassCreateView: false,
+        sendMassDeleteView: false,
+        showIndividualInstanceView: false,
+        showCondensedView: false,
+        showEditView: false,
+        showDeleteView: false,
+      })
+    }
+    else{
+      this.setState({
       showRacksView : false,
     }) 
+    }
   }
 
   getShowCreate = (show) => {
@@ -52,6 +75,7 @@ export class RackController extends Component {
       showCreateView : true,
       showMassCreateView: false,
       sendMassDeleteView: false, 
+      showIndividualInstanceView: false,
       showEditView: false,
       showDeleteView: false,
     })
@@ -65,11 +89,12 @@ export class RackController extends Component {
       showRacksView: false,
       showCreateView : false,
       showMassCreateView: true,
+      showIndividualInstanceView: false,
       showEditView: false,
       showDeleteView: false,
     })
     : this.setState({
-      showCreateView : false,
+      showMassCreateView : false,
     })    
   }
 
@@ -79,11 +104,12 @@ export class RackController extends Component {
       showCreateView : false,
       showMassCreateView: false,
       showMassDeleteView: true,
+      showIndividualInstanceView: false,
       showEditView: false,
       showDeleteView: false,
     })
     : this.setState({
-      showCreateView : false,
+      showMassDeleteView : false,
     })    
   }
 
@@ -92,11 +118,40 @@ export class RackController extends Component {
       showRacksView: false,
       showCreateView : false,
       showMassCreateView: false,
+      showIndividualInstanceView: false,
       showEditView: true,
       showDeleteView: false,
     })
     : this.setState({
       showEditView : false,
+    }) 
+  }
+
+  getShowDelete = (show) => {
+    show ? this.setState({
+      showTableView: false,
+      showCreateView : false,
+      showMassCreateView: false,
+      showIndividualInstanceView: false,
+      showEditView: false,
+      showDeleteView: true,
+    })
+    : this.setState({
+      showDeleteView : false,
+    }) 
+  }
+
+  getShowDetailedInstance = (show) => {
+    show ? this.setState({
+      showTableView: false,
+      showCreateView : false,
+      showMassCreateView: false,
+      showIndividualInstanceView: true,
+      showEditView: false,
+      showDeleteView: false,
+    })
+    : this.setState({
+      showIndividualInstanceView : false,
     }) 
   }
 
@@ -106,17 +161,8 @@ export class RackController extends Component {
     });
   }
 
-  getShowDelete = (show) => {
-    show ? this.setState({
-      showTableView: false,
-      showCreateView : false,
-      showMassCreateView: false,
-      showEditView: false,
-      showDeleteView: true,
-    })
-    : this.setState({
-      showDeleteView : false,
-    }) 
+  getDetailedInstanceID = (id) => {
+    this.setState({ detailedInstanceID: id});
   }
 
   getFilterQuery = (q) => {
@@ -212,9 +258,14 @@ export class RackController extends Component {
                   sendShowCreate={this.getShowCreate}
                   sendShowMassCreate={this.getShowMassCreate}
                   sendShowMassDelete={this.getShowMassDelete}
+                  sendShowDetailedInstance={this.getShowDetailedInstance}
+                  sendInstanceID={ this.getDetailedInstanceID }
                   sendShowEdit={this.getShowEdit}
                   sendEditID={this.getEditID}
                   sendShowDelete={this.getShowDelete} />
+    }
+    else if (this.state.showIndividualInstanceView) {
+     //insert here
     }
     else if (this.state.showCreateView){
         content = <CreateRackForm sendShowTable={this.getShowRacks} /> 
@@ -231,6 +282,8 @@ export class RackController extends Component {
                     sendShowCreate={this.getShowCreate}
                     sendShowMassCreate={this.getShowMassCreate}
                     sendShowMassDelete={this.getShowMassDelete}
+                    sendShowDetailedInstance={this.getShowDetailedInstance}
+                    sendInstanceID={ this.getDetailedInstanceID }
                     sendShowEdit={this.getShowEdit}
                     sendShowDelete={this.getShowDelete}/> 
     }
