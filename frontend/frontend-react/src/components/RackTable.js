@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react'
+import React, { Component } from 'react'
 import '../stylesheets/RackTable.css'
 import '../stylesheets/RacksView.css'
 import RackRow from './RackRow'
@@ -22,13 +22,9 @@ export class RackTable extends Component {
    fixRows() {
       let temp_rows = [];
       temp_rows = this.props.rack;
-      // delete rows["id"];
-      // delete rows["rack_number"];
-
-      //console.log(this.props.rack);
 
       for(var i of Object.keys(temp_rows)){
-         if(i!=="id" && i!=="rack_number" && i!=="url"){
+         if(i.substring(0,1) == "u" && i!="url"){
             temp_rows[i.substring(1,3)] = temp_rows[i]; //replace key
             delete temp_rows[i];
          }
@@ -50,16 +46,19 @@ export class RackTable extends Component {
       let displayColors = [];
       let hostnameInfo = []; //has hostname String or null
 
+      let condensed = this.props.condensedState;
+      console.log(condensed)
+
       let rows = [];
       
       rows = this.fixRows();
 
-      for(var i of Object.keys(rows)){
-         if(i!=="id" && i!=="rack_number" && i!=="url"){
-            let previousRackU;
-            let nextRackU;
-            let currentRackU;
+      let previousRackU;
+      let nextRackU;
+      let currentRackU;
 
+      for(var i of Object.keys(rows)){
+         if(i!=="id" && i!=="rack_number" && i!=="url" && !condensed){
             rackUs.push(i);
 
             if(i!==1 && rows[i] !== null){
@@ -82,8 +81,8 @@ export class RackTable extends Component {
                //console.log(previousRackU);
                //console.log(nextRackU);
 
-               if(previousRackU === null){
-                  //the previous one is null and this is the first U of the thing
+               if(previousRackU === null || previousRackU.instanceUrl!==currentRackU.instanceUrl){
+                  //the previous one is null and this is the first U of the thing // 
                   modelInfo.push(currentRackU.model.vendor +  " " + currentRackU.model.model_number);
                   hostnameInfo.push(currentRackU.hostname);
                }
@@ -91,7 +90,6 @@ export class RackTable extends Component {
                   modelInfo.push(null);
                   hostnameInfo.push(null);
                }
-                  
             }
             else {
                rackInstances.push(rows[i]); 
@@ -100,15 +98,67 @@ export class RackTable extends Component {
                hostnameInfo.push(rows[i]); //push rackInstance -- null in this case lol, no need to break it apart
             }
          }
+
+         //CONDENSED
+         else if(i!=="id" && i!=="rack_number" && i!=="url" && condensed){
+            previousRackU = rows[i-1];
+            nextRackU = rows[i+1];
+            currentRackU = rows[i];
+            //NOT NULL
+            if(currentRackU!==null){
+               //not null, render like normal
+               //push row number
+               rackUs.push(i);
+               rackInstances.push(currentRackU.url); //push rackInstance
+               displayColors.push(currentRackU.model.display_color);
+
+               //only want to display things if FIRST (which is last backwards)... 
+               if(previousRackU === null || previousRackU.instanceUrl!==currentRackU.instanceUrl){
+                  //the previous one is null or a diff instance and this is the first U of the thing // 
+                  modelInfo.push(currentRackU.model.vendor +  " " + currentRackU.model.model_number);
+                  hostnameInfo.push(currentRackU.hostname);
+               }
+               else{                  
+                  //part of the rack, but not the last one where we need text
+                  modelInfo.push(null);
+                  hostnameInfo.push(null);
+               }
+            }
+
+
+            //NULL
+            else{
+               if(i==='42' || i ==='1'){
+                  //display first and last always
+                  rackUs.push(i);
+                  rackInstances.push(rows[i]); 
+                  modelInfo.push(rows[i]); 
+                  displayColors.push(rows[i]);
+                  hostnameInfo.push(rows[i]); 
+               }
+               else if(previousRackU===null && nextRackU === null){
+                  //skip
+               }
+               else if(previousRackU !== null && nextRackU === null){
+                  rackUs.push(i);
+                  rackInstances.push(rows[i]); 
+                  modelInfo.push(rows[i]); 
+                  displayColors.push(rows[i]);
+                  let dots = "...";
+                  hostnameInfo.push(dots); 
+               }
+            }
+
+         }
       }
-      console.log(rackInstances);
-      console.log(modelInfo);
-      console.log(displayColors);
-      console.log(hostnameInfo);
+      // console.log(rackInstances);
+      // console.log(modelInfo);
+      // console.log(displayColors);
+      // console.log(hostnameInfo);
 
       return rackUs.reverse().map((row, index) => {
          return (
-          <RackRow row={row} /*instanceUrl ={rackInstances[rackUs.length-index-1]}*/ model= {modelInfo[rackUs.length-index-1]} displayColor= {displayColors[rackUs.length-index-1] } hostname={hostnameInfo[rackUs.length-index-1]}/>
+          <RackRow condensedView = {condensed} row={row} instanceUrl ={rackInstances[rackUs.length-index-1]} model= {modelInfo[rackUs.length-index-1]} displayColor= {displayColors[rackUs.length-index-1] } hostname={hostnameInfo[rackUs.length-index-1]}/>
          //<div></div>
           ) 
       })
@@ -117,6 +167,7 @@ export class RackTable extends Component {
    render() {
 
       let rackNumber = this.getRackNum();
+
 
       return (
            <table id="entries1">

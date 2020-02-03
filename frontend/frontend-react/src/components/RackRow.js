@@ -3,21 +3,20 @@ import '../stylesheets/RackTable.css'
 
 export class RackRow extends Component {
     render() {
-       // console.log(this.props.displayColor);
-
         let objectIsNull = true;
-
-        console.log(this.props.row);
-        console.log(this.props.instanceUrl);
-        console.log(this.props.displayColor);
-
+        let isCondensed = false;
+        console.log(this.props.row)
         if(this.props.displayColor !== null){
             objectIsNull = false;
         }
+
+        if(this.props.condensedView){
+            isCondensed = true;
+        }
+
         let content; 
         let dispColor = '#';
         dispColor = dispColor.concat(this.props.displayColor);
-        console.log(dispColor)
         let bcolor = 'black';
         if(!objectIsNull){
             content = 
@@ -26,10 +25,12 @@ export class RackRow extends Component {
                 background: dispColor, 
                 color: bcolor,
              }}>
-                <pre>
-                    { this.props.model }       { this.props.hostname } 
-                </pre>
+                <pre>{ this.props.model }       { this.props.hostname }</pre>
             </td> 
+        }
+        else if(objectIsNull && isCondensed){
+            //dots
+            content = <td style = {{ textAlign: 'center'}}>{ this.props.hostname }</td>
         }
         else{
             content = <td></td>;
@@ -40,9 +41,7 @@ export class RackRow extends Component {
                 <td>
                     { this.props.row }   
                 </td> 
-
                { content }
-
                 <td>
                     {this.props.row}    
                 </td>                

@@ -10,7 +10,6 @@ export class InstanceCard extends Component {
   componentDidMount() {
 
   }
-
   render() {
     const { id, model, hostname, rack, rack_u, owner, comment } = this.props.inst;
     return (

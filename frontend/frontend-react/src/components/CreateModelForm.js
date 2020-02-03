@@ -63,6 +63,7 @@ export class CreateModelForm extends Component {
     .catch(function (error) {
       alert('Creation was not successful.\n' + JSON.stringify(error.response.data));
     });
+    this.props.sendShowTable(true);
   }
 
   handleChangeVendor = selectedVendorOption => {
