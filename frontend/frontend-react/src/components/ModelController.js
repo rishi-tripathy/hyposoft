@@ -129,9 +129,8 @@ export class ModelController extends Component {
 
   componentDidUpdate(prevProps, prevState) {
 
+    // When showing table again, rerender
     if (prevState.showTableView === false && this.state.showTableView === true) {
-      // I actually don't think this does anything
-      console.log('rerending table, must refresh')
       this.getModels();
     }
     
@@ -242,14 +241,14 @@ export class ModelController extends Component {
     }
     else if (this.state.showCreateView){
         content = <CreateModelForm 
+                    
                     sendShowTable={this.getShowTable} /> 
     }
     else if (this.state.showEditView){
         content= <EditModelForm editID={this.state.editID} 
                     sendShowTable={ this.getShowTable } 
                     sendShowCreate={this.getShowCreate}
-                    sendShowEdit={this.getShowEdit}
-                    sendShowDelete={this.getShowDelete}/> 
+                    sendShowEdit={this.getShowEdit} /> 
     }
 
     let paginateNavigation = <p></p>;
@@ -265,12 +264,14 @@ export class ModelController extends Component {
 
     let filters = <ModelFilters sendFilterQuery={ this.getFilterQuery } />
     let sorting = <ModelSort sendSortQuery={ this.getSortQuery } />
+    let exp = <button onClick={ this.exportData } >Export</button>
 
     // if we're not on the table, then don't show pagination or filters or sort
     if (! this.state.showTableView) {
       paginateNavigation = <p></p>;
       filters = <p></p>;
       sorting = <p></p>;
+      exp = <p></p>
     }
   
     return (
@@ -283,7 +284,7 @@ export class ModelController extends Component {
         <br></br>
         {content}
         <br></br>
-        <button onClick={ this.exportData } >Export</button>
+        { exp }
       </div>
     )
   }

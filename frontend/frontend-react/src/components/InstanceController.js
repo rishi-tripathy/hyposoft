@@ -141,6 +141,12 @@ export class InstanceController extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
+
+    // When showing table again, rerender
+    if (prevState.showTableView === false && this.state.showTableView === true) {
+      this.getInstances();
+    }
+
     // Once filter changes, rerender
     if (prevState.filterQuery !== this.state.filterQuery) {
       this.getInstances();
@@ -230,10 +236,12 @@ export class InstanceController extends Component {
       content = <DetailedInstance instanceID={ this.state.detailedInstanceID } /> ;
     }
     else if (this.state.showCreateView) {
-      content = <CreateInstanceForm sendShowTable={this.getShowTable } />
+      content = <CreateInstanceForm sendRerender={ this.getRerender }
+                                    sendShowTable={this.getShowTable } />
     }
     else if (this.state.showEditView) {
       content = <EditInstanceForm editID={this.state.editID} 
+                  sendRerender={ this.getRerender }
                   sendShowTable={ this.getShowTable } 
                   sendShowCreate={this.getShowCreate }
                   sendShowEdit={this.getShowEdit } />
@@ -252,6 +260,7 @@ export class InstanceController extends Component {
 
     let filters = <InstanceFilters sendFilterQuery={ this.getFilterQuery } />
     let sorting = <InstanceSort sendSortQuery={ this.getSortQuery } />
+    let exp = <button onClick={ this.exportData } >Export</button>
 
     // if we're not on the table, then don't show pagination or filters or sorting
     if (! this.state.showTableView) {
@@ -270,7 +279,7 @@ export class InstanceController extends Component {
         <br></br>
         { content }
         <br></br>
-        <button onClick={ this.exportData } >Export</button>
+        { exp }
       </div>
     )
   }
