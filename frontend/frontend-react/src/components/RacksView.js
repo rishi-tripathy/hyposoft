@@ -12,12 +12,16 @@ export class RacksView extends Component {
     //rack isn't variable/no other API endpoint for individual rack
 
     constructor() {
-	    super();
+        super();
+        this.state = {
+            condensedView: false,
+        }
         this.showCreateForm = this.showCreateForm.bind(this);
         this.showMassCreateForm = this.showMassCreateForm.bind(this);
         this.showMassDeleteForm = this.showMassDeleteForm.bind(this);
         this.showEditForm = this.showEditForm.bind(this);
         this.showEditForm = this.showEditForm.bind(this);
+        this.showCondensedView = this.showEditForm.bind(this);
 	}
 
     showCreateForm = () => {
@@ -72,6 +76,13 @@ export class RacksView extends Component {
 
     return true;
 }
+  handleCondensation = () => {
+    this.setState({condensedView: true});
+  }
+
+  handleCondensationOff = () => {
+      this.setState({condensedView: false});
+  }
 
     render(){
         return(
@@ -79,16 +90,28 @@ export class RacksView extends Component {
             <button onClick={ this.showCreateForm }>Add Single Rack</button>
             <button onClick={ this.showMassCreateForm }>Add Multiple Racks</button>
             <button onClick={ this.showMassDeleteForm }>Delete Multiple Racks</button>
+<<<<<<< HEAD
             <button onClick={ () => this.printOrder(this.state.rack) }>Print Racks</button>;
             <br></br>
+=======
+            <button onClick={ this.handleCondensation }>Condensed Rack View</button>
+            <button onClick={ this.handleCondensationOff }>Full Rack View</button>
+            <br></br>
+                
+            <p>gonna put filters and stuff here</p>
+>>>>>>> 0b85f24f6d003da47ba039ff9d8cad5d679b2670
                 { this.props.rack.map((item, key) =>
                 <div id="rackContainer">
-                    {/* {console.log(item.id)} */}
                     <button onClick={ () => this.showEditForm(item.id) }>Edit this Rack</button>
                     <button onClick={ () => this.showDeleteForm(item.id) }>Delete this Rack</button>
+<<<<<<< HEAD
                     <div id="print">
                         <RackTable rack={item} /> 
                     </div>                   
+=======
+                    <br></br>
+                    <RackTable rack={item} condensedState={this.state.condensedView} />                    
+>>>>>>> 0b85f24f6d003da47ba039ff9d8cad5d679b2670
                     </div> 
                 )}
             </div>
