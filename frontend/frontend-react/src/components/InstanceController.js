@@ -70,7 +70,7 @@ export class InstanceController extends Component {
       showTableView: false,
       showIndividualInstanceView: false,
       showEditView: false,
-      
+
     })
     : this.setState({
       showCreateView : false,
@@ -101,6 +101,7 @@ export class InstanceController extends Component {
   }
 
   getInstances() {
+
     let dst = '/api/instances/' + '?' + this.state.filterQuery + '&' + this.state.sortQuery;
     console.log('QUERY')
     console.log(dst)
@@ -142,7 +143,6 @@ export class InstanceController extends Component {
       this.getInstances();
     }
   }
-
   paginateNext = () => {
     axios.get(this.state.nextPage).then(res => {
       this.setState({ 

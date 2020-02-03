@@ -2,6 +2,7 @@ import React, { Component, Fragment } from 'react'
 import '../stylesheets/RacksView.css'
 import '../stylesheets/RackTable.css'
 import RackTable from './RackTable'
+import RackRow from './RackRow'
 import axios from 'axios'
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
