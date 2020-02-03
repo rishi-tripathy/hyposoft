@@ -39,6 +39,8 @@ export class DetailedInstance extends Component {
   render() {
     return (
       <div>
+        <button onClick={() => this.props.sendShowTable(true)} >Back</button>
+        <br></br>
         <InstanceCard inst={ this.state.instance } />
       </div>
     )

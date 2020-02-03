@@ -51,11 +51,10 @@ export class CreateUserForm extends Component {
 
     axios.post('/api/users/', this.state)
     .then(function (response) {
-      console.log(response);
+      alert('Created successfully');
     })
     .catch(function (error) {
-      // TODO: handle error
-      console.log(error.response);
+      alert('Creation was not successful.\n' + JSON.stringify(error.response.data));
     });
 
     event.preventDefault();

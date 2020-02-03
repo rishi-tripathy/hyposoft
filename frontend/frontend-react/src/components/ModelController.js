@@ -203,7 +203,8 @@ export class ModelController extends Component {
                   sendEditID={this.getEditID} /></div>
     }
     else if (this.state.showIndividualModelView) {
-      content = <DetailedModel modelID={ this.state.detailedModelID } /> ;
+      content = <DetailedModel modelID={ this.state.detailedModelID }
+                              sendShowTable={ this.getShowTable } /> ;
     }
     else if (this.state.showCreateView){
         content = <CreateModelForm 
