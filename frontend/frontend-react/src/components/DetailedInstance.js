@@ -10,35 +10,47 @@ export class DetailedInstance extends Component {
     this.state = {
       instance: 
         {
-          'id': 999,
-          'model': {
-              'url': 'http://localhost:5000/api/models/10/',
-              'vendor': 'default',
-              'model_number': 'df',
-              'display_color': 'adf'
-          },
-          'hostname': 'default',
-          'rack': {
-              'url': 'http://localhost:5000/api/racks/1/',
-              'rack_number': 'A111'
-          },
-          'rack_u': 4,
-          'owner': {
-              'url': 'http://localhost:5000/api/users/6/',
-              'username': 'adsfd'
-          },
-          'comment': 'default'
+          // 'id': 999,
+          // 'model': {
+          //     'url': 'http://localhost:5000/api/models/10/',
+          //     'vendor': 'default',
+          //     'model_number': 'df',
+          //     'display_color': 'adf'
+          // },
+          // 'hostname': 'default',
+          // 'rack': {
+          //     'url': 'http://localhost:5000/api/racks/1/',
+          //     'rack_number': 'A111'
+          // },
+          // 'rack_u': 4,
+          // 'owner': {
+          //     'url': 'http://localhost:5000/api/users/6/',
+          //     'username': 'adsfd'
+          // },
+          // 'comment': 'default'
         }
     }
   }
 
-  componentDidMount() {
-    let dst = '/api/instances/'.concat(this.props.instanceID).concat('/');
-    axios.get(dst).then(res => {
-      this.setState({
-        instance: res.data
+  loadInstance = () => {
+    if (this.props.instanceID !== undefined) {
+      let dst = '/api/instances/'.concat(this.props.instanceID).concat('/');
+      axios.get(dst).then(res => {
+        this.setState({
+          instance: res.data
+        });
       });
-    });
+    }
+  }
+
+  componentDidMount() {
+    this.loadInstance();
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (prevProps.instanceID !== this.props.instanceID) {
+      this.loadInstance();
+    }
   }
 
   render() {

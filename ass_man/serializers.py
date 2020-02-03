@@ -37,7 +37,7 @@ class ModelShortSerializer(serializers.HyperlinkedModelSerializer):
 class UniqueModelsSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Model
-        fields = ['url', 'vendor', 'model_number']
+        fields = ['id', 'url', 'vendor', 'model_number']
 
 
 class ModelInstanceSerializer(serializers.HyperlinkedModelSerializer):
@@ -51,7 +51,6 @@ class VendorsSerializer(serializers.ModelSerializer):
         model = Model
         fields = ['vendor', 'url']
 
-
 class InstanceSerializer(serializers.HyperlinkedModelSerializer):
     hostname = serializers.CharField(validators=[UniqueValidator(queryset=Instance.objects.all())])
     rack_u = serializers.IntegerField(validators=[MinValueValidator(1)])
@@ -64,14 +63,18 @@ class InstanceSerializer(serializers.HyperlinkedModelSerializer):
         height = model.height
         invalid_list = []
         if (rack_u+height-1) > 42:
-            raise serializers.ValidationError("Height conflict: this instance does not fit in the rack at this location.")
+            raise serializers.ValidationError({
+                'Height conflict': 'this instance would exceed past the top of the rack.'
+            })
         for i in range(rack_u, rack_u+height):
             if eval('rack.u{} and (rack.u{} != instance)'.format(i, i)):
                 invalid_list.append('Conflict: host ' +
                                     eval('rack.u{}.__str__()'.format(i)) +
                                     ' conflicts at U{}'.format(i))
         if len(invalid_list) > 0:
-            raise serializers.ValidationError(invalid_list)
+            raise serializers.ValidationError({
+                'Invalid Rack U': invalid_list
+            })
         return
 
     def create(self, validated_data):
@@ -152,7 +155,7 @@ class InstanceOfModelSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Instance
-        fields = ['url', 'hostname', 'rack', 'rack_u', 'owner']
+        fields = ['id', 'url', 'hostname', 'rack', 'rack_u', 'owner']
 
 
 class RackInstanceSerializer(serializers.ModelSerializer):

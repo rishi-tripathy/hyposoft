@@ -14,7 +14,6 @@ export class Landing extends Component {
   render() {
     return (
       <div>
-        <h1>This is a dummy landing page!</h1>
         <AddUserModal />
         <div id="LogoutButton">
           <button onClick={this.handleLogout}>Log Out</button>
