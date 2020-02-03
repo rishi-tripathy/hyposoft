@@ -30,11 +30,19 @@ export class InstanceController extends Component {
       nextPage: null,
       filterQuery: '',
       sortQuery: '',
+      rerender: false,
     };
 
     this.getShowTable = this.getShowTable.bind(this);
     this.getDetailedInstanceID = this.getDetailedInstanceID.bind(this);
     this.getFilterQuery = this.getFilterQuery.bind(this);
+    //this.getRerender = this.getRerender.bind(this);
+  }
+
+  getRerender = (re) => {
+    if (re) {
+      this.setState({ rerender: true })
+    }
   }
 
   getShowTable = (show) => {
@@ -133,6 +141,12 @@ export class InstanceController extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
+
+    // When showing table again, rerender
+    if (prevState.showTableView === false && this.state.showTableView === true) {
+      this.getInstances();
+    }
+
     // Once filter changes, rerender
     if (prevState.filterQuery !== this.state.filterQuery) {
       this.getInstances();
@@ -141,6 +155,12 @@ export class InstanceController extends Component {
     // Once sort changes, rerender
     if (prevState.sortQuery !== this.state.sortQuery) {
       this.getInstances();
+    }
+
+    // After crud, rerender
+    if (prevState.rerender === false && this.state.rerender === true) {
+      this.getInstances();
+      this.setState({ rerender: false });
     }
   }
   paginateNext = () => {
@@ -172,8 +192,29 @@ export class InstanceController extends Component {
   }
 
   exportData = () => {
-    let dst = '/api/instances/' + '?' + this.state.filterQuery + '&' + this.state.sortQuery;
+    let filter = this.state.filterQuery;
+    let sort = this.state.sortQuery;
+
+    if (this.state.filterQuery.length !== 0) {
+      filter = filter + '&';
+    }
+
+    if (this.state.sortQuery.length !== 0) {
+      sort = sort + '&'
+    }
+
+    let dst = '/api/instances/' + '?' + filter + sort + 'export=true';
     console.log('exporting to:  ' + dst);
+    const FileDownload = require('js-file-download');
+    axios.get(dst).then(res => {
+      // console.log(res.data.next)
+      FileDownload(res.data, 'instance_export.csv');
+      alert("Export was successful.");
+    })
+    .catch(function (error) {
+      // TODO: handle error
+      alert('Export was not successful.\n' + JSON.stringify(error.response.data));
+    });
   }
 
 
@@ -183,6 +224,7 @@ export class InstanceController extends Component {
     if (this.state.showTableView) {
       content = <InstanceTable 
                   instances={ this.state.instances } 
+                  sendRerender={ this.getRerender }
                   sendShowTable={ this.getShowTable } 
                   sendShowDetailedInstance= { this.getShowDetailedInstance }
                   sendInstanceID={ this.getDetailedInstanceID }
@@ -195,10 +237,12 @@ export class InstanceController extends Component {
                                   sendShowTable={ this.getShowTable }  /> ;
     }
     else if (this.state.showCreateView) {
-      content = <CreateInstanceForm sendShowTable={this.getShowTable } />
+      content = <CreateInstanceForm sendRerender={ this.getRerender }
+                                    sendShowTable={this.getShowTable } />
     }
     else if (this.state.showEditView) {
       content = <EditInstanceForm editID={this.state.editID} 
+                  sendRerender={ this.getRerender }
                   sendShowTable={ this.getShowTable } 
                   sendShowCreate={this.getShowCreate }
                   sendShowEdit={this.getShowEdit } />
@@ -217,6 +261,7 @@ export class InstanceController extends Component {
 
     let filters = <InstanceFilters sendFilterQuery={ this.getFilterQuery } />
     let sorting = <InstanceSort sendSortQuery={ this.getSortQuery } />
+    let exp = <button onClick={ this.exportData } >Export</button>
 
     // if we're not on the table, then don't show pagination or filters or sorting
     if (! this.state.showTableView) {
@@ -235,7 +280,7 @@ export class InstanceController extends Component {
         <br></br>
         { content }
         <br></br>
-        <button onClick={ this.exportData } >Export</button>
+        { exp }
       </div>
     )
   }

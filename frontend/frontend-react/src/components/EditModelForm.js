@@ -46,6 +46,7 @@ export class EditModelForm extends Component {
     .catch(function (error) {
       alert('Edit was not successful.\n' + JSON.stringify(error.response.data));
     });
+    this.props.sendShowTable(true);
   }
 
   componentDidMount() {
@@ -56,6 +57,7 @@ export class EditModelForm extends Component {
       let modelCopy = JSON.parse(JSON.stringify(this.state.model));
       modelCopy.vendor = res.data.vendor;
       modelCopy.model_number = res.data.model_number;
+      modelCopy.height = res.data.height;
       modelCopy.display_color = res.data.display_color;
       modelCopy.ethernet_ports = res.data.ethernet_ports;
       modelCopy.power_ports = res.data.power_ports;
