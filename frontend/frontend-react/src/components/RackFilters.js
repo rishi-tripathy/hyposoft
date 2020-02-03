@@ -45,6 +45,10 @@ export class RackFilters extends Component {
     console.log(this.createQuery())
   }
 
+  resetFilters = () => {
+    window.location.reload();
+  }
+
   render() {
     return (
       <div>
@@ -72,6 +76,7 @@ export class RackFilters extends Component {
           } } />
           <input type="submit" value="Apply Filters" />
         </form>
+        <button onClick={ this.resetFilters }>Reset Filters</button>
       </div>
     )
   }
