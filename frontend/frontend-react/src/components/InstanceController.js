@@ -233,7 +233,8 @@ export class InstanceController extends Component {
                   sendEditID={this.getEditID } />;
     }
     else if (this.state.showIndividualInstanceView) {
-      content = <DetailedInstance instanceID={ this.state.detailedInstanceID } /> ;
+      content = <DetailedInstance instanceID={ this.state.detailedInstanceID }
+                                  sendShowTable={ this.getShowTable }  /> ;
     }
     else if (this.state.showCreateView) {
       content = <CreateInstanceForm sendRerender={ this.getRerender }

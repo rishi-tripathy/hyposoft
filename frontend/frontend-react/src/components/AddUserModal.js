@@ -3,11 +3,11 @@ import Popup from "reactjs-popup";
 import CreateUserForm from './CreateUserForm';
 
 const AddUserModal = () => (
-  <Popup trigger={<button>Add User</button>} position="right center">
+  <Popup trigger={<button>Add User</button>} position="bottom center">
     {close => (
       <div className="modal">
         <a className="close" onClick={close}> &times; </a>
-        <div className="header"> Modal Title </div>
+        <div className="header"> Create User Below </div>
         <div className="content">
           <CreateUserForm />
         </div>
