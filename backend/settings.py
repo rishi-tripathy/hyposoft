@@ -104,7 +104,8 @@ REST_FRAMEWORK = {
         'rest_framework.filters.OrderingFilter',
         'django_filters.rest_framework.DjangoFilterBackend',
     ),
-    'PAGE_SIZE': 10
+
+    'PAGE_SIZE': 3
 }
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
@@ -145,6 +146,7 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/

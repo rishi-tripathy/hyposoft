@@ -1,0 +1,53 @@
+import React, { Component } from 'react'
+import '../stylesheets/RackTable.css'
+
+export class RackRow extends Component {
+    render() {
+        let objectIsNull = true;
+        let isCondensed = false;
+        console.log(this.props.row)
+        if(this.props.displayColor !== null){
+            objectIsNull = false;
+        }
+
+        if(this.props.condensedView){
+            isCondensed = true;
+        }
+
+        let content; 
+        let dispColor = '#';
+        dispColor = dispColor.concat(this.props.displayColor);
+        let bcolor = 'black';
+        if(!objectIsNull){
+            content = 
+             <td style={{
+                fontSize: 10,
+                background: dispColor, 
+                color: bcolor,
+             }}>
+                <pre>{ this.props.model }       { this.props.hostname }</pre>
+            </td> 
+        }
+        else if(objectIsNull && isCondensed){
+            //dots
+            content = <td style = {{ textAlign: 'center'}}>{ this.props.hostname }</td>
+        }
+        else{
+            content = <td></td>;
+        }
+
+        return (
+            <tr>
+                <td>
+                    { this.props.row }   
+                </td> 
+               { content }
+                <td>
+                    {this.props.row}    
+                </td>                
+            </tr>
+        )
+    }
+}
+
+export default RackRow
