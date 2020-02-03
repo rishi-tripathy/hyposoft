@@ -143,6 +143,7 @@ export class EditInstanceForm extends Component {
     .catch(function (error) {
       alert('Edit was not successful.\n' + JSON.stringify(error.response.data));
     });
+    this.props.sendShowTable(true);
   }
 
   render() {

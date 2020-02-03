@@ -15,7 +15,6 @@ export class ModelTable extends Component {
 		this.showCreateForm = this.showCreateForm.bind(this);
 		this.showEditForm = this.showEditForm.bind(this);
 		this.showEditForm = this.showEditForm.bind(this);
-		//this.fileUploadOverride = this.fileUploadOverride.bind(this);
 	}
 
 	showCreateForm = () => {
@@ -44,7 +43,12 @@ export class ModelTable extends Component {
 				alert('Delete was not successful.\n' + JSON.stringify(error.response.data));
 			});
 		}
+		this.showRerender();
 	}
+
+	showRerender = () => {
+    this.props.sendRerender(true);
+  }
 
   renderTableHeader() {
 		let header = ['id', 'vendor', 'model_number', 'height',
@@ -82,7 +86,7 @@ export class ModelTable extends Component {
 		e.preventDefault();
 		let f = this.state.file;
 		this.fileUpload(this.state.file).then((response)=>{
-      console.log(response.data);
+			alert("Import was successful.");
 		})
 		.catch(function (error) {
 			console.log(error.response)
@@ -109,6 +113,7 @@ export class ModelTable extends Component {
 				});
 			}
 		});
+		this.showRerender();
 	}
 
 	handleFileUpload = (e) => {
