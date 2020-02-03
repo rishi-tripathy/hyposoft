@@ -140,8 +140,29 @@ export class ModelController extends Component {
   }
 
   exportData = () => {
-    let dst = '/api/instances/' + '?' + this.state.filterQuery + '&' + this.state.sortQuery;
+    let filter = this.state.filterQuery;
+    let sort = this.state.sortQuery;
+
+    if (this.state.filterQuery.length !== 0) {
+      filter = filter + '&';
+    }
+
+    if (this.state.sortQuery.length !== 0) {
+      sort = sort + '&'
+    }
+
+    let dst = '/api/models/' + '?' + filter + sort + 'export=true';
     console.log('exporting to:  ' + dst);
+    const FileDownload = require('js-file-download');
+
+    axios.get(dst).then(res => {
+      // console.log(res.data.next)
+      FileDownload(res.data, 'model_export.csv');
+      alert("Export was successful.");
+    })
+    .catch(function (error) {
+      alert('Export was not successful.\n' + JSON.stringify(error.response.data));
+    });
   }
 
   getModels = () => {

@@ -172,8 +172,29 @@ export class InstanceController extends Component {
   }
 
   exportData = () => {
-    let dst = '/api/instances/' + '?' + this.state.filterQuery + '&' + this.state.sortQuery;
+    let filter = this.state.filterQuery;
+    let sort = this.state.sortQuery;
+
+    if (this.state.filterQuery.length !== 0) {
+      filter = filter + '&';
+    }
+
+    if (this.state.sortQuery.length !== 0) {
+      sort = sort + '&'
+    }
+
+    let dst = '/api/instances/' + '?' + filter + sort + 'export=true';
     console.log('exporting to:  ' + dst);
+    const FileDownload = require('js-file-download');
+    axios.get(dst).then(res => {
+      // console.log(res.data.next)
+      FileDownload(res.data, 'instance_export.csv');
+      alert("Export was successful.");
+    })
+    .catch(function (error) {
+      // TODO: handle error
+      alert('Export was not successful.\n' + JSON.stringify(error.response.data));
+    });
   }
 
 
