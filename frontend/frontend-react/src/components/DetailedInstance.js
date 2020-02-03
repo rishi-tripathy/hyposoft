@@ -10,24 +10,6 @@ export class DetailedInstance extends Component {
     this.state = {
       instance: 
         {
-          // 'id': 999,
-          // 'model': {
-          //     'url': 'http://localhost:5000/api/models/10/',
-          //     'vendor': 'default',
-          //     'model_number': 'df',
-          //     'display_color': 'adf'
-          // },
-          // 'hostname': 'default',
-          // 'rack': {
-          //     'url': 'http://localhost:5000/api/racks/1/',
-          //     'rack_number': 'A111'
-          // },
-          // 'rack_u': 4,
-          // 'owner': {
-          //     'url': 'http://localhost:5000/api/users/6/',
-          //     'username': 'adsfd'
-          // },
-          // 'comment': 'default'
         }
     }
   }
@@ -51,6 +33,7 @@ export class DetailedInstance extends Component {
     if (prevProps.instanceID !== this.props.instanceID) {
       this.loadInstance();
     }
+
   }
 
   render() {

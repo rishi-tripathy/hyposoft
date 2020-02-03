@@ -31,7 +31,6 @@ export class ModelController extends Component {
       showIndividualModelView: false,
       showCreateView: false,
       showEditView: false,
-      
       editID: 0,
       deleteID: 0,
       prevPage: null,
@@ -85,7 +84,7 @@ export class ModelController extends Component {
     })
     : this.setState({
       showCreateView : false,
-    }) 
+    })
   }
 
   getShowEdit = (show) => {
@@ -196,7 +195,7 @@ export class ModelController extends Component {
 
     if (this.state.showTableView){
       content = <div><h2>Model Table</h2><ModelTable models={ this.state.models } 
-                  sendShowTable={ this.getShowTable } 
+                  sendShowTable={ this.getShowTable }
                   sendShowDetailedModel={ this.getShowDetailedModel }
                   sendModelID={ this.getDetailedModelID }
                   sendShowCreate={this.getShowCreate}

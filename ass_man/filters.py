@@ -2,7 +2,8 @@ from rest_framework import generics
 from django_filters import rest_framework as filters
 from ass_man.models import Model, Instance, Rack
 from rest_framework import filters as rest_filters
-from django.db.models.functions import Substr
+from django.db.models.fields import IntegerField
+from django.db.models.functions import Substr, Cast
 from rest_framework.validators import ValidationError
 from rest_framework.response import Response
 
@@ -47,11 +48,15 @@ class InstanceFilterByRack(rest_filters.BaseFilterBackend):
             else 'Z'
         end_number = request.query_params.get('rack_num_end')[1:] if request.query_params.get('rack_num_end') \
             else '999'
+
+        queryset = queryset \
+            .annotate(rack_letter=Substr('rack__rack_number', 1, 1)) \
+            .annotate(rack_numstr=Substr('rack__rack_number', 2, None))
+        queryset = queryset.annotate(rack_number_int=Cast('rack_numstr', IntegerField()))
+
         return queryset \
-            .annotate(rack_num_letter=Substr('rack__rack_number', 1, 1)) \
-            .annotate(rack_num_number=Substr('rack__rack_number', 2, None)) \
-            .filter(rack_num_letter__range=(start_letter, end_letter)) \
-            .filter(rack_num_number__range=(start_number, end_number))
+            .filter(rack_letter__range=(start_letter, end_letter)) \
+            .filter(rack_number_int__range=(start_number, end_number))
 
 
 class RackFilter(rest_filters.BaseFilterBackend):
@@ -65,8 +70,6 @@ class RackFilter(rest_filters.BaseFilterBackend):
         end_number = request.query_params.get('rack_num_end')[1:] if request.query_params.get('rack_num_end') \
             else '999'
         return queryset\
-            .annotate(rack_num_letter=Substr('rack_number', 1, 1))\
-            .annotate(rack_num_number=Substr('rack_number', 2, None))\
-            .filter(rack_num_letter__range=(start_letter, end_letter))\
-            .filter(rack_num_number__range=(start_number, end_number))
+            .filter(rack_letter__range=(start_letter, end_letter))\
+            .filter(number_in_rack__range=(start_number, end_number))
 

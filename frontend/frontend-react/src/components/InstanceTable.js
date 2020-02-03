@@ -1,13 +1,16 @@
 import React, { Component } from 'react'
 import '../stylesheets/TableView.css'
-import axios from 'axios'
-import InstanceFilters from './InstanceFilters';
+import axios, { post } from 'axios'
+axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 
 export class InstanceTable extends Component {
 
   constructor() {
     super();
+    this.state = {
+			file: null,
+    }
     //this.passUP = this.showDetailedInstance.bind(this);
   }
 
@@ -24,7 +27,7 @@ export class InstanceTable extends Component {
     this.props.sendShowEdit(true);
     this.props.sendEditID(id);
   }
- 
+
   showDeleteForm = (id) => {
     if (window.confirm('Are you sure you want to delete?')) {
       let dst = '/api/instances/'.concat(id).concat('/');
@@ -49,7 +52,7 @@ export class InstanceTable extends Component {
   renderTableData() {
     return this.props.instances.map((instance) => {
         const { id, model, hostname, rack, owner, rack_u } = instance //destructuring
-        
+
         return (
           <tr key={id}>
             <td>{id}</td>
@@ -67,13 +70,69 @@ export class InstanceTable extends Component {
     })
   }
 
+  handleImport = (e) => {
+		e.preventDefault();
+		let f = this.state.file;
+		this.fileUpload(this.state.file).then((response)=>{
+      console.log(response.data);
+		})
+		.catch(function (error) {
+			console.log(error.response)
+			const fileUploadOverride = (file) => {
+				const url = '/api/instances/import_file/?override=true';
+				const formData = new FormData();
+				formData.append('file', file)
+				//formData.append('name', 'sup')
+				const config = {
+						headers: {
+								'content-type': 'multipart/form-data'
+						}
+				}
+				return post(url, formData, config)
+			}
+
+			if (window.confirm('Import was not successful.\n' + JSON.stringify(error.response.data))) {
+				fileUploadOverride(f).then((response)=>{
+					console.log(response.data);
+				})
+				.catch(function (error) {
+					console.log(error.response)
+					alert('Import was not successful.\n' + JSON.stringify(error.response.data));
+				});
+			}
+		});
+	}
+
+	handleFileUpload = (e) => {
+		console.log(e.target.files[0])
+		this.setState({
+      file: e.target.files[0],
+		});
+	}
+
+	fileUpload = (file) => {
+		const url = '/api/instances/import_file/';
+    const formData = new FormData();
+		formData.append('file', file)
+		//formData.append('name', 'sup')
+    const config = {
+        headers: {
+            'content-type': 'multipart/form-data'
+        }
+    }
+    return post(url, formData, config)
+	}
+
   render() {
     return (
         <div>
           <div>
             <button onClick={ this.showCreateForm }>Add Instance</button>
           </div>
-
+          <form onSubmit={this.handleImport} >
+            <input type="file" name="file" onChange={this.handleFileUpload}/>
+            <button type="submit">Import File</button>
+          </form>
           <table id="entries">
               <tbody>
                 <tr>{this.renderTableHeader()}</tr>

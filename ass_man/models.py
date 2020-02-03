@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 
 class Model(models.Model):
     vendor = models.CharField(max_length=50)
-    model_number = models.CharField(max_length=10)
+    model_number = models.CharField(max_length=50)
     height = models.PositiveIntegerField()
     display_color = models.CharField(max_length=6, default='777777')
     ethernet_ports = models.PositiveIntegerField(blank=True, null=True)
