@@ -172,6 +172,7 @@ export class RackController extends Component {
     });
   }
 
+
   render() { 
     let content; 
 
@@ -208,6 +209,7 @@ export class RackController extends Component {
     }
 
     let paginateNavigation = <p></p>;
+
     if (this.state.prevPage == null && this.state.nextPage != null) {
       paginateNavigation = <div><button onClick={ this.paginateNext }>next page</button></div>;
     } 

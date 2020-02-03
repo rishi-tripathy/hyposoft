@@ -10,7 +10,9 @@
     "npm": "6.13.4"
   },
   "dependencies": {
+    "node-sass": "^4.13.1",
     "react-router-dom": "^5.1.2",
+    "react-to-print": "^2.5.1",
     "reactjs-popup": "^1.5.0"
   }
 }

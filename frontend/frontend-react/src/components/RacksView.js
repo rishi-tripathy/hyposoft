@@ -1,9 +1,11 @@
-import React, { Component, Fragment } from 'react'
+import React, { Component } from 'react'
 import '../stylesheets/RacksView.css'
 import '../stylesheets/RackTable.css'
 import RackTable from './RackTable'
 import RackRow from './RackRow'
+import ReactToPrint from 'react-to-print';
 import axios from 'axios'
+import PrintableRacks from './PrintableRacks'
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 export class RacksView extends Component {
@@ -50,23 +52,43 @@ export class RacksView extends Component {
               alert('Delete was not successful.\n' + JSON.stringify(error.response.data));
           });
       }
-
-      //this.props.sendShowDelete(true);
   }
+
+  printOrder = (rack) => {
+    console.log('printing')
+    var mywindow = window.open('', 'PRINT', 'height=400,width=600');
+    console.log(rack)
+
+    mywindow.document.write('<html><head><title>' + document.title  + '</title>');
+    mywindow.document.write('</head><body>');
+    mywindow.document.write(document.getElementById("rackContainer").innerHTML);
+    mywindow.document.write('</body></html>');
+
+  //  mywindow.document.close(); // necessary for IE >= 10
+    //mywindow.focus(); // necessary for IE >= 10*/
+
+    mywindow.print();
+   // mywindow.close();
+
+    return true;
+}
 
     render(){
         return(
             <div>
-                
-            <p>gonna put filters and stuff here</p><button onClick={ this.showCreateForm }>Add Single Rack</button>
+            <button onClick={ this.showCreateForm }>Add Single Rack</button>
             <button onClick={ this.showMassCreateForm }>Add Multiple Racks</button>
             <button onClick={ this.showMassDeleteForm }>Delete Multiple Racks</button>
+            <button onClick={ () => this.printOrder(this.state.rack) }>Print Racks</button>;
+            <br></br>
                 { this.props.rack.map((item, key) =>
                 <div id="rackContainer">
                     {/* {console.log(item.id)} */}
                     <button onClick={ () => this.showEditForm(item.id) }>Edit this Rack</button>
                     <button onClick={ () => this.showDeleteForm(item.id) }>Delete this Rack</button>
-                    <RackTable rack={item} />                    
+                    <div id="print">
+                        <RackTable rack={item} /> 
+                    </div>                   
                     </div> 
                 )}
             </div>
