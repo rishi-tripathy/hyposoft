@@ -656,6 +656,7 @@ class RackViewSet(viewsets.ModelViewSet):
     def destroy(self, request, *args, **kwargs):
         slots = ['u{}'.format(i) for i in range(1, 43)]
         offending_instances = []
+        u_filled = 0
         for slot in slots:
             if getattr(self.get_object(), slot):
                 u_filled += 1
