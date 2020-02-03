@@ -796,7 +796,10 @@ def report(request):
 
     owner_dict_by_username = {}
     for owner_id in owner_dict.keys():
-        owner = User.objects.get(pk=owner_id)
+        try:
+            owner = User.objects.get(pk=owner_id)
+        except User.DoesNotExist:
+            continue
         owner_dict_by_username[owner.username] = owner_dict[owner_id]
 
     return Response({
