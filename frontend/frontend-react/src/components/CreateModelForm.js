@@ -14,7 +14,7 @@ export class CreateModelForm extends Component {
         'vendor': null,
         'model_number': null,
         'height': null,
-        'display_color': '000000',
+        'display_color': 'ffffff',
         'ethernet_ports': null,
         'power_ports': null,
         'cpu': null,
