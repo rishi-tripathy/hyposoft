@@ -25,7 +25,7 @@ export class EditRackForm extends Component {
     let stateCopy = Object.assign({}, this.state);
     let stateToSend = this.removeEmpty(stateCopy);
     
-    axios.patch(dst, stateToSend)
+    axios.put(dst, stateToSend)
     .then(function (response) {
       alert('Edit was successful');
     })

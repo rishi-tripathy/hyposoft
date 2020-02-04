@@ -5,6 +5,9 @@ import EditRackForm from './EditRackForm'
 import RackFilters from './RackFilters'
 import DeleteMultipleRacksForm from './DeleteMultipleRacksForm'
 import axios from 'axios'
+import '../stylesheets/Printing.css'
+import '../stylesheets/RackTable.css'
+import '../stylesheets/RacksView.css'
 import CreateMultipleRacksForm from './CreateMultipleRacksForm';
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
@@ -23,6 +26,7 @@ export class RackController extends Component {
       showDeleteView: false,
       showIndividualInstanceView: false,
       showCondensedView: false,
+      showAllRacks: false,
       detailedInstanceID: 0,
       filterQuery: '',
       editID: 0,
@@ -47,6 +51,7 @@ export class RackController extends Component {
         showCondensedView: true,
         showEditView: false,
         showDeleteView: false,
+        showAllRacks: false,
       })
     } 
     else if(show && !condensed){
@@ -60,6 +65,7 @@ export class RackController extends Component {
         showCondensedView: false,
         showEditView: false,
         showDeleteView: false,
+        showAllRacks: false
       })
     }
     else{
@@ -78,6 +84,7 @@ export class RackController extends Component {
       showIndividualInstanceView: false,
       showEditView: false,
       showDeleteView: false,
+      showAllRacks: false,
     })
     : this.setState({
       showCreateView : false,
@@ -92,6 +99,7 @@ export class RackController extends Component {
       showIndividualInstanceView: false,
       showEditView: false,
       showDeleteView: false,
+      showAllRacks: false,
     })
     : this.setState({
       showMassCreateView : false,
@@ -107,6 +115,7 @@ export class RackController extends Component {
       showIndividualInstanceView: false,
       showEditView: false,
       showDeleteView: false,
+      showAllRacks: false,
     })
     : this.setState({
       showMassDeleteView : false,
@@ -121,6 +130,7 @@ export class RackController extends Component {
       showIndividualInstanceView: false,
       showEditView: true,
       showDeleteView: false,
+      showAllRacks: false,
     })
     : this.setState({
       showEditView : false,
@@ -135,6 +145,7 @@ export class RackController extends Component {
       showIndividualInstanceView: false,
       showEditView: false,
       showDeleteView: true,
+      showAllRacks: false,
     })
     : this.setState({
       showDeleteView : false,
@@ -149,9 +160,25 @@ export class RackController extends Component {
       showIndividualInstanceView: true,
       showEditView: false,
       showDeleteView: false,
+      showAllRacks: false,
     })
     : this.setState({
       showIndividualInstanceView : false,
+    }) 
+  }
+
+  getShowAllRacks = (show) => {
+    show ? this.setState({
+      showTableView: true,
+      showCreateView : false,
+      showMassCreateView: false,
+      showIndividualInstanceView: false,
+      showEditView: false,
+      showDeleteView: false,
+      showAllRacks: true,
+    })
+    : this.setState({
+      showDeleteView : false,
     }) 
   }
 
@@ -182,9 +209,14 @@ export class RackController extends Component {
 
   componentDidUpdate(prevProps, prevState) {
     // Once filter changes, rerender
-    if (prevState.filterQuery !== this.state.filterQuery) {
+    if (prevState.filterQuery !== this.state.filterQuery){
       this.refreshRacks();
     }
+
+    if( prevState.showAllRacks !== this.state.showAllRacks) {
+      this.refreshRacks();
+    }
+
     // Once sort changes, rerender
     // if (prevState.sortQuery !== this.state.sortQuery) {
     //   this.getInstances();
@@ -192,10 +224,10 @@ export class RackController extends Component {
   }
     
   refreshRacks = () => {
-    let dst = '/api/racks/'+ '?' + this.state.filterQuery; //+ '&' + this.state.sortQuery
-    console.log('querryyyyy');
-    console.log(dst);
-    axios.get(dst).then(res => {
+    if(!this.state.showAllRacks){
+      let dst = '/api/racks/'+ '?' + this.state.filterQuery;
+      
+      axios.get(dst).then(res => {
       this.setState({ 
         racks: res.data.results,
         prevPage: res.data.previous,
@@ -208,6 +240,25 @@ export class RackController extends Component {
       // TODO: handle error
       console.log(error.response);
     });
+    }
+    else {
+      //show all racks
+        let dst = '/api/racks/?show_all=true';
+
+        axios.get(dst).then(res => {
+          console.log(res);
+          this.setState({
+            racks: res.data,
+            prevPage: null,
+            nextPage: null,
+          });
+          console.log(this.state.racks);
+        })
+        .catch(function (error) {
+          console.log(error.response);
+        });
+    }
+    
   }
 
   paginateNext = () => {
@@ -244,6 +295,10 @@ export class RackController extends Component {
     });
   }
 
+  print() {
+    window.print();
+  }
+
 
   render() { 
     let content; 
@@ -263,7 +318,8 @@ export class RackController extends Component {
                   sendInstanceID={ this.getDetailedInstanceID }
                   sendShowEdit={this.getShowEdit}
                   sendEditID={this.getEditID}
-                  sendShowDelete={this.getShowDelete} />
+                  sendShowDelete={this.getShowDelete} 
+                  sendShowAllRacks={this.getShowAllRacks}/>
     }
     else if (this.state.showIndividualInstanceView) {
      //insert here
@@ -290,8 +346,9 @@ export class RackController extends Component {
     }
     
     let filters = <RackFilters sendFilterQuery={ this.getFilterQuery } />;
+    let printButton = <button onClick={ this.print }>Print Racks</button>;
     let paginateNavigation;
-    let sorting;
+
     if (this.state.prevPage == null && this.state.nextPage != null) {
       paginateNavigation = <div><button onClick={ this.paginateNext }>next page</button></div>;
     } 
@@ -306,12 +363,14 @@ export class RackController extends Component {
     if (! this.state.showRacksView) {
       paginateNavigation = <p></p>;
       filters = <p></p>;
-      sorting = <p></p>;
+      printButton = <p></p>;
     }
   
       return (
         <div>
-          { paginateNavigation } { filters }
+          <div id="hideOnPrint">
+          { paginateNavigation } { filters } { printButton }
+          </div>
             {content}
         </div>
       )

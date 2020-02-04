@@ -74,13 +74,15 @@ class SideBar extends React.Component{
                         </div>
                         {content}
                     </div>
-                    <div id="Side-bar">
-                        <ul>
-                            <div className="myButton" onClick={this.showRacks}> Racks</div>
-                            <div className="myButton" onClick={this.showModels}> Models</div>
-                            <div className="myButton" onClick={this.showInstances}> Instances</div>
-                        </ul>
-                </div>
+                    <div id="hideOnPrint">
+                        <div id="Side-bar">
+                            <ul>
+                                <div className="myButton" onClick={this.showRacks}> Racks</div>
+                                <div className="myButton" onClick={this.showModels}> Models</div>
+                                <div className="myButton" onClick={this.showInstances}> Instances</div>
+                            </ul>
+                        </div>
+                    </div>
             </div>
         );
     }

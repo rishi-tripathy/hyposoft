@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import TestAPI from './TestAPI'
 import AddUserModal from './AddUserModal'
+import '../stylesheets/Printing.css'
 
 
 export class Landing extends Component {
@@ -13,7 +14,7 @@ export class Landing extends Component {
 
   render() {
     return (
-      <div>
+      <div id='hideOnPrint'>
         <AddUserModal />
         <div id="LogoutButton">
           <button onClick={this.handleLogout}>Log Out</button>

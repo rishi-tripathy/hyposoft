@@ -1,0 +1,19 @@
+@media print {
+  #hideOnPrint {
+      display: none;
+    }
+    body {
+      margin: 0;
+      -webkit-print-color-adjust: exact !important;
+    }
+    #header{
+      display: none;
+    }
+}
+@page { 
+  margin: 0;
+  size: 'A4';
+ }
+ @page :first {
+  margin-top: 0mm    /* Top margin on first page 10cm */
+}
