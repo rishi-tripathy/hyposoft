@@ -70,7 +70,7 @@ export class DetailedModel extends Component {
       })
       .catch(function (error) {
         // TODO: handle error
-        console.log(error.response);
+        alert('Cannot load models. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
       });
     }
   }

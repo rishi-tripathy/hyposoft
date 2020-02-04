@@ -67,7 +67,7 @@ export class UserController extends Component {
       });
     })
     .catch(function (error) {
-      alert('Could not get users.\n' + JSON.stringify(error.response.data));
+      alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
     });
   }
 
@@ -85,7 +85,7 @@ export class UserController extends Component {
     })
     .catch(function (error) {
       // TODO: handle error
-      console.log(error.response);
+      alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
     });
   }
 
@@ -99,7 +99,7 @@ export class UserController extends Component {
     })
     .catch(function (error) {
       // TODO: handle error
-      console.log(error.response);
+      alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
     });
   }
   

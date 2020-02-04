@@ -123,7 +123,7 @@ export class InstanceController extends Component {
     })
     .catch(function (error) {
       // TODO: handle error
-      console.log(error.response);
+      alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
     });
   }
 
@@ -153,7 +153,7 @@ export class InstanceController extends Component {
     })
     .catch(function (error) {
       // TODO: handle error
-      console.log(error.response);
+      alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
     });
   }
 
@@ -203,7 +203,7 @@ export class InstanceController extends Component {
     })
     .catch(function (error) {
       // TODO: handle error
-      console.log(error.response);
+      alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
     });
   }
 
@@ -217,7 +217,7 @@ export class InstanceController extends Component {
     })
     .catch(function (error) {
       // TODO: handle error
-      console.log(error.response);
+      alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
     });
   }
 
@@ -243,7 +243,7 @@ export class InstanceController extends Component {
     })
     .catch(function (error) {
       // TODO: handle error
-      alert('Export was not successful.\n' + JSON.stringify(error.response.data));
+      alert('Export was not successful.\n' + JSON.stringify(error.response.data, null, 2));
     });
   }
 

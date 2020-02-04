@@ -26,7 +26,7 @@ export class DetailedModelFromInstance extends Component {
       })
       .catch(function (error) {
         // TODO: handle error
-        console.log(error.response);
+        alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
       });
     }
   }

@@ -38,7 +38,7 @@ export class InstanceTable extends Component {
         
       })
       .catch(function (error) {
-        alert('Delete was not successful.\n' + JSON.stringify(error.response.data));
+        alert('Delete was not successful.\n' + JSON.stringify(error.response.data, null, 2));
       });
     }
     this.showRerender();
@@ -101,13 +101,13 @@ export class InstanceTable extends Component {
 				return post(url, formData, config)
 			}
 
-			if (window.confirm('Import was not successful.\n' + JSON.stringify(error.response.data))) {
+			if (window.confirm('Import was not successful.\n' + JSON.stringify(error.response.data, null, 2))) {
 				fileUploadOverride(f).then((response)=>{
 					console.log(response.data);
 				})
 				.catch(function (error) {
 					console.log(error.response)
-					alert('Import was not successful.\n' + JSON.stringify(error.response.data));
+					alert('Import was not successful.\n' + JSON.stringify(error.response.data, null, 2));
 				});
 			}
     });

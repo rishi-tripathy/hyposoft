@@ -49,7 +49,7 @@ export class CreateInstanceForm extends Component {
       alert('Created successfully');
     })
     .catch(function (error) {
-      alert('Creation was not successful.\n' + JSON.stringify(error.response.data));
+      alert('Creation was not successful.\n' + JSON.stringify(error.response.data, null, 2));
     });
     this.props.sendShowTable(true);
   }
@@ -67,7 +67,7 @@ export class CreateInstanceForm extends Component {
     })
     .catch(function (error) {
       // TODO: handle error
-      console.log(error.response);
+      alert('Could not load model names. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
     });
 
     // RACK
@@ -82,7 +82,7 @@ export class CreateInstanceForm extends Component {
     })
     .catch(function (error) {
       // TODO: handle error
-      console.log(error.response);
+      alert('Could not load racks. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
     });
 
     // OWNER
@@ -97,7 +97,7 @@ export class CreateInstanceForm extends Component {
     })
     .catch(function (error) {
       // TODO: handle error
-      console.log(error.response);
+      alert('Could not load owners. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
     });
   }
 
