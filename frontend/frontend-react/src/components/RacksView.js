@@ -6,7 +6,9 @@ import '../stylesheets/Printing.css'
 import RackTable from './RackTable'
 import * as jsPDF from 'jspdf'
 import axios from 'axios'
-import html2canvas from 'html2canvas'
+import { Button } from 'reactstrap'
+import ButtonToolbar from "reactstrap/es/ButtonToolbar";
+import ButtonGroup from "reactstrap/es/ButtonGroup";
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 export class RacksView extends Component {
@@ -99,23 +101,34 @@ export class RacksView extends Component {
     render(){
         return(
             <div>
+            <ButtonToolbar>
+                <ButtonGroup>
                 <div id='hideOnPrint'>
-                    <button onClick={ this.showCreateForm }>Add Single Rack</button>
-                    <button onClick={ this.showMassCreateForm }>Add Multiple Racks</button>
-                    <button onClick={ this.showMassDeleteForm }>Delete Multiple Racks</button>
-                    <button onClick={ this.showAllRacks }>Show All Racks</button>
+                    <Button color='success' size="sm" onClick={ this.showCreateForm }>Add Single Rack +</Button>{' '}
+                    <Button color='success' size="sm" onClick={ this.showMassCreateForm }>Add Multiple Racks ++</Button>{' '}
                 </div>
-            <br></br>
-                { this.props.rack.map((item, key) =>
-                <div id="rackContainer">
-                    <div id='hideOnPrint'>
-                        <button onClick={ () => this.showEditForm(item.id) }>Edit this Rack</button>
-                        <button onClick={ () => this.showDeleteForm(item.id) }>Delete this Rack</button> 
-                    </div>                 
+                </ButtonGroup>
+                    <Button color='danger' size="sm" onClick={ this.showMassDeleteForm }>Delete Multiple Racks --</Button>{' '}
+                    <ButtonGroup>
+                        <Button size="sm" onClick={ this.handleCondensation }>Condensed Rack View</Button>{' '}
+                        <Button size="sm" onClick={ this.handleCondensationOff }>Full Rack View</Button>{' '}
+                    </ButtonGroup>
+            </ButtonToolbar>
                     <br></br>
-                    <RackTable rack={item} condensedState={this.state.condensedView} />    
-                </div>                
+                        <h1>Racks</h1>
+                    <div>
+                        { this.props.rack.map((item, key) =>
+                        <div id="rackContainer">
+                            <div id='hideOnPrint'>
+                                <Button color="warning" size="sm" onClick={ () => this.showEditForm(item.id) }>Edit this Rack</Button>{' '}
+                                <Button color="danger" size="sm" onClick={ () => this.showDeleteForm(item.id) }>Delete this Rack</Button>{' '}
+                            </div>
+                            <br></br>
+                            <br></br>
+                            <RackTable rack={item} condensedState={this.state.condensedView} />    
+                        </div>  
                 )}
+                </div>  
             </div>
         )
     }

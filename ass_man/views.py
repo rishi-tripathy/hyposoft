@@ -140,26 +140,6 @@ class ModelViewSet(viewsets.ModelViewSet):
 
         return super().list(self, request, *args, *kwargs)
 
-    def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())
-
-        if request.query_params.get('export') == 'true':
-        #    vendor,model_number,height,display_color,ethernet_ports,power_ports,cpu,memory,storage,comment
-            response = HttpResponse(content_type='text/csv')
-            response['Content-Disposition'] = 'attachment; filename="models.csv"'
-
-            writer = csv.writer(response)
-            writer.writerow(['vendor', 'model_number', 'height', 'display_color', 'ethernet_ports', 'power_ports', 'cpu', 'memory', 'storage', 'comment'])
-            for model in queryset:
-                writer.writerow([model.vendor, model.model_number, model.height, model.display_color, model.ethernet_ports, model.power_ports, model.cpu, model.memory, model.storage, model.comment])
-            return response
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
-
     # Custom actions below
 
     @action(detail=False, methods=['POST'])
@@ -393,8 +373,12 @@ class InstanceViewSet(viewsets.ModelViewSet):
             writer = csv.writer(response)
             writer.writerow(INSTANCE_EXPORT_FIELDS)
             for instance in queryset:
+                try:
+                    owner_name = instance.owner.username
+                except AttributeError:
+                    owner_name = None
                 writer.writerow([instance.hostname, instance.rack.rack_number, instance.rack_u, instance.model.vendor,
-                                 instance.model.model_number, instance.owner.username, instance.comment])
+                                 instance.model.model_number, owner_name, instance.comment])
             return response
 
         return super().list(self, request, *args, **kwargs)
@@ -457,6 +441,10 @@ class InstanceViewSet(viewsets.ModelViewSet):
                 continue
 
             uniq_model_name = instance.model.vendor + instance.model.model_number
+            try:
+                owner_name = instance.owner.username
+            except AttributeError:
+                owner_name = None
             if uniq_model_name != (row['vendor'] + row['model_number']):
                 try:
                     model = Model.objects.get(vendor=row['vendor'], model_number=row['model_number'])
@@ -525,11 +513,13 @@ class InstanceViewSet(viewsets.ModelViewSet):
                     key = instance.hostname + "_rack_position"
                     fields_overriden[key] = [instance.rack_u, row['rack_position']]
                 override = True
-            if instance.owner.username != row['owner']:
+
+            if owner_name != row['owner'] and (owner_name or row['owner']):
                 try:
                     owner = User.objects.get(username=row['owner'])
-                except Model.DoesNotExist:
-                    uncreated_objects['user'].append(row['owner'])
+                except User.DoesNotExist:
+                    if row['owner']:
+                        uncreated_objects['user'].append(row['owner'])
                     owner = None
 
                 if should_override:
@@ -537,8 +527,11 @@ class InstanceViewSet(viewsets.ModelViewSet):
                     should_update = True
                 else:
                     key = instance.hostname + "_owner"
-                    orig = instance.owner.username
-                    new = owner.username
+                    orig = owner_name
+                    try:
+                        new = owner.username
+                    except AttributeError:
+                        new = None
                     fields_overriden[key] = [orig, new]
                 override = True
             if instance.comment != row['comment']:
@@ -579,6 +572,7 @@ class InstanceViewSet(viewsets.ModelViewSet):
             err_message = "Do you want to overwrite the following "\
             "fields: "
             count = 0
+            print(fields_overriden)
             for field in fields_overriden.keys():
                 err_message += "For " + field + " overwrite " + str(fields_overriden[field][0]) \
                 + " with " + fields_overriden[field][1] + ". "
@@ -656,13 +650,7 @@ class RackViewSet(viewsets.ModelViewSet):
     def destroy(self, request, *args, **kwargs):
         slots = ['u{}'.format(i) for i in range(1, 43)]
         offending_instances = []
-        u_filled = 0
         for slot in slots:
-            if getattr(self.get_object(), slot):
-                u_filled += 1
-        if u_filled > 0:
-            return Response('Cannot delete this rack as it is not empty.',
-                            status=status.HTTP_400_BAD_REQUEST)
             match = getattr(self.get_object(), slot)
             if match:
                 offending_instances.append(match.hostname.__str__()
@@ -822,7 +810,10 @@ def report(request):
 
     owner_dict_by_username = {}
     for owner_id in owner_dict.keys():
-        owner = User.objects.get(pk=owner_id)
+        try:
+            owner = User.objects.get(pk=owner_id)
+        except User.DoesNotExist:
+            continue
         owner_dict_by_username[owner.username] = owner_dict[owner_id]
 
     return Response({
@@ -832,61 +823,3 @@ def report(request):
         'vendors_allocated': vendor_dict,
         'owners_allocated': owner_dict_by_username
     })
-
-
-# Custom actions below
-
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def report(request):
-    racks = Rack.objects.all()
-    total = 0
-    occupied = 0
-    slots = ['u{}'.format(i) for i in range(1, 43)]
-    for rack in racks:
-        for field_name in slots:
-            if getattr(rack, field_name):
-                occupied += 1
-            total += 1
-    if total == 0:
-        total += 1
-    percentage_occupied = occupied/total*100
-    percentage_free = (total-occupied)/total*100
-
-    instances = Instance.objects.all()
-    vendor_dict = {}
-    model_dict = {}
-    owner_dict = {}
-    for instance in instances:
-        if instance.model_id in model_dict:
-            model_dict[instance.model_id] += 1
-        else:
-            model_dict[instance.model_id] = 1
-        if instance.owner_id in owner_dict:
-            owner_dict[instance.owner_id] += 1
-        else:
-            owner_dict[instance.owner_id] = 1
-
-    model_dict_by_model_number = {}
-    for model in model_dict.keys():
-        model_obj = Model.objects.get(pk=model)
-        model_dict_by_model_number[model_obj.model_number] = model_dict[model]
-        if model_obj.vendor in vendor_dict:
-            vendor_dict[model_obj.vendor] += model_dict[model]
-        else:
-            vendor_dict[model_obj.vendor] = model_dict[model]
-
-    owner_dict_by_username = {}
-    for owner_id in owner_dict.keys():
-        owner = User.objects.get(pk=owner_id)
-        owner_dict_by_username[owner.username] = owner_dict[owner_id]
-
-    return Response({
-        'rackspace_used': percentage_occupied,
-        'rackspace_free': percentage_free,
-        'models_allocated': model_dict_by_model_number,
-        'vendors_allocated': vendor_dict,
-        'owners_allocated': owner_dict_by_username
-    })
-  
-

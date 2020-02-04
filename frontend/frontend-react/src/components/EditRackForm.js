@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types';
 import axios from 'axios'
+import {Button, Form, FormGroup, FormText, Input, Label} from 'reactstrap'
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 export class EditRackForm extends Component {
@@ -52,11 +53,17 @@ export class EditRackForm extends Component {
 
   render() {
     return (
-      <form onSubmit={this.handleSubmit}>
-        <h3>Edit Rack Form</h3>
-        <p>Rack Number</p> <input type="text" value={this.state.rack_number} onChange={e => this.setState({rack_number: e.target.value})} />
-        <input type="submit" value="Submit" />
-      </form>
+        <Form onSubmit={this.handleSubmit}>
+      <FormGroup>
+        <Label for="Edit Rack">Updated Rack Number</Label>
+        <Input type="text" value={this.state.rack_number} onChange={e => this.setState({rack_number: e.target.value})} />
+      </FormGroup>
+          <FormGroup>
+       <Button>Submit</Button>
+      </FormGroup>
+      <FormGroup>
+      </FormGroup>
+    </Form>
     )
   }
 }

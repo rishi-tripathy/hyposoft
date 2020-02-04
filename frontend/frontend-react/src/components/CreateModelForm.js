@@ -13,7 +13,7 @@ export class CreateModelForm extends Component {
         'vendor': null,
         'model_number': null,
         'height': null,
-        'display_color': null,
+        'display_color': '000000',
         'ethernet_ports': null,
         'power_ports': null,
         'cpu': null,
@@ -63,6 +63,7 @@ export class CreateModelForm extends Component {
     .catch(function (error) {
       alert('Creation was not successful.\n' + JSON.stringify(error.response.data));
     });
+    this.props.sendShowTable(true);
   }
 
   handleChangeVendor = selectedVendorOption => {
@@ -105,13 +106,23 @@ export class CreateModelForm extends Component {
         } } />
 
         <p>Display color</p> 
-        <input type="text" onChange={e => {
+        {/* <input type="text" onChange={e => {
           let modelCopy = JSON.parse(JSON.stringify(this.state.model))
           modelCopy.display_color = e.target.value
           this.setState({
             model: modelCopy 
           }) 
-        } } />
+        } } /> */}
+
+        <input type="color" 
+          value={'#' + this.state.model.display_color} 
+          onChange={e => { 
+            let modelCopy = JSON.parse(JSON.stringify(this.state.model))
+            modelCopy.display_color = e.target.value.replace('#', '');
+            this.setState({
+              model: modelCopy 
+            }) 
+          }} />
 
         <p>Ethernet ports</p> 
         <input type="number" onChange={e => {

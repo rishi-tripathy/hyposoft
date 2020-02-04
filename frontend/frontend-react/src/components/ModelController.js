@@ -37,10 +37,17 @@ export class ModelController extends Component {
       nextPage: null,
       filterQuery: '',
       sortQuery: '',
+      rerender: false,
     };
 
     // I don't think i need this bind here; but too scared to take it out lol
     this.getShowTable = this.getShowTable.bind(this);
+  }
+
+  getRerender = (re) => {
+    if (re) {
+      this.setState({ rerender: true })
+    }
   }
 
   getDetailedModelID = (id) => {
@@ -122,9 +129,8 @@ export class ModelController extends Component {
 
   componentDidUpdate(prevProps, prevState) {
 
+    // When showing table again, rerender
     if (prevState.showTableView === false && this.state.showTableView === true) {
-      // I actually don't think this does anything
-      console.log('rerending table, must refresh')
       this.getModels();
     }
     
@@ -137,11 +143,38 @@ export class ModelController extends Component {
     if (prevState.sortQuery !== this.state.sortQuery) {
       this.getModels();
     }
+
+    // After crud, rerender
+    if (prevState.rerender === false && this.state.rerender === true) {
+      this.getModels();
+      this.setState({ rerender: false });
+    }
   }
 
   exportData = () => {
-    let dst = '/api/instances/' + '?' + this.state.filterQuery + '&' + this.state.sortQuery;
+    let filter = this.state.filterQuery;
+    let sort = this.state.sortQuery;
+
+    if (this.state.filterQuery.length !== 0) {
+      filter = filter + '&';
+    }
+
+    if (this.state.sortQuery.length !== 0) {
+      sort = sort + '&'
+    }
+
+    let dst = '/api/models/' + '?' + filter + sort + 'export=true';
     console.log('exporting to:  ' + dst);
+    const FileDownload = require('js-file-download');
+
+    axios.get(dst).then(res => {
+      // console.log(res.data.next)
+      FileDownload(res.data, 'model_export.csv');
+      alert("Export was successful.");
+    })
+    .catch(function (error) {
+      alert('Export was not successful.\n' + JSON.stringify(error.response.data));
+    });
   }
 
   getModels = () => {
@@ -153,6 +186,35 @@ export class ModelController extends Component {
         models: res.data.results,
         prevPage: res.data.previous,
         nextPage: res.data.next,
+      });
+    })
+    .catch(function (error) {
+      // TODO: handle error
+      console.log(error.response);
+    });
+  }
+
+  getAllModels = () => {
+    let filter = this.state.filterQuery;
+    let sort = this.state.sortQuery;
+
+    if (this.state.filterQuery.length !== 0) {
+      filter = filter + '&';
+    }
+
+    if (this.state.sortQuery.length !== 0) {
+      sort = sort + '&'
+    }
+
+    let dst = '/api/models/' + '?' + filter + sort + 'show_all=true';
+    
+    console.log('QUERY')
+    console.log(dst)
+    axios.get(dst).then(res => {
+      this.setState({ 
+        models: res.data,
+        prevPage: null,
+        nextPage: null,
       });
     })
     .catch(function (error) {
@@ -195,6 +257,7 @@ export class ModelController extends Component {
 
     if (this.state.showTableView){
       content = <div><h2>Model Table</h2><ModelTable models={ this.state.models } 
+                  sendRerender={ this.getRerender }
                   sendShowTable={ this.getShowTable }
                   sendShowDetailedModel={ this.getShowDetailedModel }
                   sendModelID={ this.getDetailedModelID }
@@ -203,18 +266,19 @@ export class ModelController extends Component {
                   sendEditID={this.getEditID} /></div>
     }
     else if (this.state.showIndividualModelView) {
-      content = <DetailedModel modelID={ this.state.detailedModelID } /> ;
+      content = <DetailedModel modelID={ this.state.detailedModelID }
+                              sendShowTable={ this.getShowTable } /> ;
     }
     else if (this.state.showCreateView){
         content = <CreateModelForm 
+                    
                     sendShowTable={this.getShowTable} /> 
     }
     else if (this.state.showEditView){
         content= <EditModelForm editID={this.state.editID} 
                     sendShowTable={ this.getShowTable } 
                     sendShowCreate={this.getShowCreate}
-                    sendShowEdit={this.getShowEdit}
-                    sendShowDelete={this.getShowDelete}/> 
+                    sendShowEdit={this.getShowEdit} /> 
     }
 
     let paginateNavigation = <p></p>;
@@ -230,12 +294,14 @@ export class ModelController extends Component {
 
     let filters = <ModelFilters sendFilterQuery={ this.getFilterQuery } />
     let sorting = <ModelSort sendSortQuery={ this.getSortQuery } />
+    let exp = <button onClick={ this.exportData } >Export</button>
 
     // if we're not on the table, then don't show pagination or filters or sort
     if (! this.state.showTableView) {
       paginateNavigation = <p></p>;
       filters = <p></p>;
       sorting = <p></p>;
+      exp = <p></p>
     }
   
     return (
@@ -246,9 +312,11 @@ export class ModelController extends Component {
         <br></br>
         { paginateNavigation }
         <br></br>
+        <button onClick={this.getAllModels } >Show All</button>
+        <br></br>
         {content}
         <br></br>
-        <button onClick={ this.exportData } >Export</button>
+        { exp }
       </div>
     )
   }

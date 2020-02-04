@@ -47,18 +47,18 @@ export class CreateUserForm extends Component {
   }
 
   handleSubmit = (event) => {
+    event.preventDefault();
     console.log(this.state);
 
     axios.post('/api/users/', this.state)
     .then(function (response) {
-      console.log(response);
+      alert('Created successfully');
     })
     .catch(function (error) {
-      // TODO: handle error
-      console.log(error.response);
+      alert('Creation was not successful.\n' + JSON.stringify(error.response.data));
     });
 
-    event.preventDefault();
+    this.props.sendShowTable(true);
   }
 
   render() {
@@ -84,7 +84,7 @@ export class CreateUserForm extends Component {
           <label>Password</label>
           <input type='password' value={ this.state.password } onChange={ this.handlePasswordChange } />
         </div>
-        <button type="submit">Submit</button>
+        <button type="submit">Create</button>
       </form>
     )
   }

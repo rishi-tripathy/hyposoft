@@ -46,6 +46,7 @@ export class EditModelForm extends Component {
     .catch(function (error) {
       alert('Edit was not successful.\n' + JSON.stringify(error.response.data));
     });
+    this.props.sendShowTable(true);
   }
 
   componentDidMount() {
@@ -56,6 +57,7 @@ export class EditModelForm extends Component {
       let modelCopy = JSON.parse(JSON.stringify(this.state.model));
       modelCopy.vendor = res.data.vendor;
       modelCopy.model_number = res.data.model_number;
+      modelCopy.height = res.data.height;
       modelCopy.display_color = res.data.display_color;
       modelCopy.ethernet_ports = res.data.ethernet_ports;
       modelCopy.power_ports = res.data.power_ports;
@@ -130,7 +132,7 @@ export class EditModelForm extends Component {
         } } />
 
         <p>Display color</p>
-        <input type="text" 
+        {/* <input type="text" 
           value={this.state.model.display_color}
           onChange={e => {
             let modelCopy = JSON.parse(JSON.stringify(this.state.model))
@@ -138,7 +140,17 @@ export class EditModelForm extends Component {
             this.setState({
               model: modelCopy 
             }) 
-        } } />
+        } } /> */}
+
+        <input type="color" 
+          value={'#' + this.state.model.display_color} 
+          onChange={e => { 
+            let modelCopy = JSON.parse(JSON.stringify(this.state.model))
+            modelCopy.display_color = e.target.value.replace('#', '');
+            this.setState({
+              model: modelCopy 
+            }) 
+          }} />
         
         <p>Ethernet ports</p> 
         <input type="number" 
