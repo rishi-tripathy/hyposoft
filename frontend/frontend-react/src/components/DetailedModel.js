@@ -3,6 +3,7 @@ import axios from 'axios'
 import ModelCard from './ModelCard'
 import DetailedInstance from './DetailedInstance'
 import AllInstancesOfModelView from './AllInstancesOfModelView';
+import DetailedInstanceFromModel from './DetailedInstanceFromModel';
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 
@@ -40,6 +41,17 @@ export class DetailedModel extends Component {
     : this.setState({
       showIndividualInstanceView : false,
     }) 
+  }
+
+  getShowTableView = (show) => {
+    show ? this.setState({
+      showTableView : true,
+      // everything else false
+      showIndividualInstanceView: false,
+    })
+    : this.setState({
+      showTableView : false,
+    })
   }
 
   getDetailedInstanceID = (id) => {
@@ -81,7 +93,8 @@ export class DetailedModel extends Component {
                   sendShowDetailedInstance={ this.getShowDetailedInstance } />;
     }
     else if (this.state.showIndividualInstanceView) {
-      content = <DetailedInstance instanceID={ this.state.detailedInstanceID } /> ;
+      content = <DetailedInstanceFromModel instanceID={ this.state.detailedInstanceID }
+                  sendShowTable={ this.getShowTableView }  /> ;
     }
 
     return (

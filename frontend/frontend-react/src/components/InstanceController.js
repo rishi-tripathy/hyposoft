@@ -108,8 +108,7 @@ export class InstanceController extends Component {
     this.setState({ detailedInstanceID: id});
   }
 
-  getInstances() {
-
+  getInstances = () => {
     let dst = '/api/instances/' + '?' + this.state.filterQuery + '&' + this.state.sortQuery;
     console.log('QUERY')
     console.log(dst)
@@ -119,6 +118,36 @@ export class InstanceController extends Component {
         instances: res.data.results,
         prevPage: res.data.previous,
         nextPage: res.data.next,
+      });
+    })
+    .catch(function (error) {
+      // TODO: handle error
+      console.log(error.response);
+    });
+  }
+
+  getAllInstances = () =>  {
+    let filter = this.state.filterQuery;
+    let sort = this.state.sortQuery;
+
+    if (this.state.filterQuery.length !== 0) {
+      filter = filter + '&';
+    }
+
+    if (this.state.sortQuery.length !== 0) {
+      sort = sort + '&'
+    }
+
+    let dst = '/api/instances/' + '?' + filter + sort + 'show_all=true';
+    
+    console.log('QUERY')
+    console.log(dst)
+    axios.get(dst).then(res => {
+      // console.log(res.data.next)
+      this.setState({ 
+        instances: res.data,
+        prevPage: null,
+        nextPage: null,
       });
     })
     .catch(function (error) {
@@ -277,6 +306,8 @@ export class InstanceController extends Component {
         { sorting }
         <br></br>
         { paginateNavigation }
+        <br></br>
+        <button onClick={this.getAllInstances } >Show All</button>
         <br></br>
         { content }
         <br></br>

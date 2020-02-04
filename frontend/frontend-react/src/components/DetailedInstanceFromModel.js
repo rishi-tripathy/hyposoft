@@ -3,9 +3,7 @@ import axios from 'axios'
 import InstanceCard from './InstanceCard';
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
-
-export class DetailedInstance extends Component {
-
+export class DetailedInstanceFromModel extends Component {
   constructor() {
     super();
     // keep this default here so InstanceCard doesn't freak out
@@ -53,4 +51,4 @@ export class DetailedInstance extends Component {
   }
 }
 
-export default DetailedInstance
+export default DetailedInstanceFromModel

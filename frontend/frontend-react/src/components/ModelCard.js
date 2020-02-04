@@ -11,7 +11,16 @@ export class ModelCard extends Component {
           <h4>Vendor: {vendor}</h4>
           <p>Model Number: {model_number}</p> 
           <p>Height: {height}</p> 
-          <p>Display Color: {display_color}</p> 
+          <p>Display Color: {display_color} 
+            <div style={{
+							width: 12,
+							height: 12,
+							backgroundColor: '#' + display_color,
+							left: 5,
+							top: 5,
+							}}>
+            </div>
+          </p> 
           <p>Ethernet Ports: {ethernet_ports}</p> 
           <p>Power Ports: {power_ports}</p> 
           <p>CPU: {cpu}</p> 
