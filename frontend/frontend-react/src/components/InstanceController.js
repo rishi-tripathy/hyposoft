@@ -6,6 +6,7 @@ import CreateInstanceForm from './CreateInstanceForm';
 import EditInstanceForm from './EditInstanceForm';
 import InstanceFilters from './InstanceFilters';
 import InstanceSort from './InstanceSort';
+import { UncontrolledCollapse, Button, ButtonGroup, Container, Card } from 'reactstrap';
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 export class InstanceController extends Component {
@@ -300,7 +301,7 @@ export class InstanceController extends Component {
     }
 
     return (
-      <div>
+      <Container className="themed-container">
         { filters }
         <br></br>
         { sorting }
@@ -312,7 +313,7 @@ export class InstanceController extends Component {
         { content }
         <br></br>
         { exp }
-      </div>
+      </Container>
     )
   }
 }

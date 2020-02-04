@@ -6,6 +6,8 @@ import EditModelForm from './EditModelForm';
 import ModelFilters from './ModelFilters';
 import ModelSort from './ModelSort';
 import DetailedModel from './DetailedModel';
+import { UncontrolledCollapse, Button, ButtonGroup, Container, Card } from 'reactstrap';
+
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 export class ModelController extends Component {
@@ -305,7 +307,7 @@ export class ModelController extends Component {
     }
   
     return (
-      <div>
+      <Container className="themed-container">
         { filters }
         <br></br>
         { sorting }
@@ -317,7 +319,7 @@ export class ModelController extends Component {
         {content}
         <br></br>
         { exp }
-      </div>
+      </Container>
     )
   }
 }

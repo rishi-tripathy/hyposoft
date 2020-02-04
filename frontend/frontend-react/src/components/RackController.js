@@ -6,7 +6,7 @@ import RackFilters from './RackFilters'
 import DeleteMultipleRacksForm from './DeleteMultipleRacksForm'
 import axios from 'axios'
 import CreateMultipleRacksForm from './CreateMultipleRacksForm';
-import { UncontrolledCollapse, Button, CardBody, Card } from 'reactstrap';
+import { UncontrolledCollapse, Button, CardBody, Card, Container } from 'reactstrap';
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 export class RackController extends Component {
@@ -316,11 +316,11 @@ export class RackController extends Component {
     }
 
       return (
-        <div>
+        <Container className="themed-container">
           {filters}
           { paginateNavigation }
           {content}
-        </div>
+        </Container>
       )
     }
   }

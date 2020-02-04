@@ -1,6 +1,8 @@
 import React, { Component } from 'react'
 import '../stylesheets/TableView.css'
 import axios, { post } from 'axios'
+import { UncontrolledCollapse, Button, Table, ButtonGroup, Container, Card } from 'reactstrap';
+
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 
@@ -66,9 +68,9 @@ export class InstanceTable extends Component {
             <td>{rack ? rack.rack_number : null}</td>
             <td>{rack_u}</td>
             <td>{owner ? owner.username : null}</td>
-            <td><button onClick={ () => this.showDetailedInstance(id) }>More details</button></td>
-            <td><button onClick={ () => this.showEditForm(id) }>Edit</button></td>
-            <td><button onClick={ () => this.showDeleteForm(id) }>Delete</button></td>
+            <td><Button color="info" size="sm" onClick={ () => this.showDetailedInstance(id) }>Details</Button></td>
+            <td><Button color="warning" size="sm" onClick={ () => this.showEditForm(id) }>Edit</Button></td>
+            <td><Button color="danger" size="sm" onClick={ () => this.showDeleteForm(id) }>Delete</Button></td>
           </tr>
         )
     })
@@ -138,12 +140,12 @@ export class InstanceTable extends Component {
             <input type="file" name="file" onChange={this.handleFileUpload}/>
             <button type="submit">Import File</button>
           </form>
-          <table id="entries">
+          <Table hover striped>
               <tbody>
                 <tr>{this.renderTableHeader()}</tr>
                 { this.renderTableData() }
               </tbody>
-          </table>
+          </Table>
         </div>
     )
   }

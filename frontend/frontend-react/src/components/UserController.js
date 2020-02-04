@@ -3,6 +3,8 @@ import AddUserModal from './AddUserModal'
 import axios from 'axios'
 import UserTable from './UserTable';
 import CreateUserForm from './CreateUserForm';
+import { UncontrolledCollapse, Button, ButtonGroup, Container, Card } from 'reactstrap';
+
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 export class UserController extends Component {
@@ -106,7 +108,6 @@ export class UserController extends Component {
 
     if (this.state.showTableView){
       content = <div>
-                  <h2>User Table</h2>
                   <UserTable users={ this.state.users } 
                     sendRerender={ this.getRerender }
                     sendShowCreate={this.getShowCreate}
@@ -122,13 +123,13 @@ export class UserController extends Component {
 
     let paginateNavigation = <p></p>;
     if (this.state.prevPage == null && this.state.nextPage != null) {
-      paginateNavigation = <div><button onClick={ this.paginateNext }>next page</button></div>;
+      paginateNavigation = <div><Button onClick={ this.paginateNext }>next page</Button></div>;
     } 
     else if (this.state.prevPage != null && this.state.nextPage == null) {
-      paginateNavigation = <div><button onClick={ this.paginatePrev }>prev page</button></div>;
+      paginateNavigation = <div><Button onClick={ this.paginatePrev }>prev page</Button></div>;
     }
     else if (this.state.prevPage != null && this.state.nextPage != null) {
-      paginateNavigation = <div><button onClick={ this.paginatePrev }>prev page</button><button onClick={ this.paginateNext }>next page</button></div>;
+      paginateNavigation = <div><ButtonGroup><Button onClick={ this.paginatePrev }>prev page</Button><Button onClick={ this.paginateNext }>next page</Button></ButtonGroup></div>;
     }
 
     if (! this.state.showTableView) {
@@ -136,20 +137,13 @@ export class UserController extends Component {
     }
 
     return (
-      <div>
-        <div>
-          { paginateNavigation }
-          <br></br>
-          { content }
-          <br></br>
-          
-        </div>
-
-        <div>
-          {/* <AddUserModal /> */}
-          <br></br>
-        </div>
-      </div>
+      <Container className="themed-container">
+        <h2>User Table</h2>
+        { paginateNavigation }
+        <br></br>
+        { content }
+        <br></br>
+      </Container>
     )
   }
 }
