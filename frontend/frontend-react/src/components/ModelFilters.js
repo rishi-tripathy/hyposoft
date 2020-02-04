@@ -88,13 +88,23 @@ export class ModelFilters extends Component {
           } } />
 
           <p>Display Color</p>
-          <input type="text" onChange={e => {
+          {/* <input type="text" onChange={e => {
             let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
             identifiersCopy.display_color = e.target.value
             this.setState({
               identifiers: identifiersCopy 
             }) 
-          } } />
+          } } /> */}
+
+          <input type="color" 
+            // value={'#' + this.state.model.display_color} 
+            onChange={e => { 
+              let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
+              identifiersCopy.display_color = e.target.value.replace('#', '');
+              this.setState({
+                identifiers: identifiersCopy 
+              }) 
+            }} />
 
           <p>Ethernet Ports</p>
           <input type="number" onChange={e => {

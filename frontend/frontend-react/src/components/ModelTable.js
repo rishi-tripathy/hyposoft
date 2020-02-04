@@ -51,8 +51,8 @@ export class ModelTable extends Component {
   }
 
   renderTableHeader() {
-		let header = ['id', 'vendor', 'model_number', 'height',
-		'display_color', 'ethernet_ports,', 'power_ports', 'cpu', 'memory', 'storage'];
+		let header = ['id', 'vendor', 'model number', 'height',
+		'display color', 'ethernet ports', 'power ports', 'cpu', 'memory', 'storage'];
     return header.map((key, index) => {
         return <th key={index}>{key.toUpperCase()}</th>
     })
@@ -68,7 +68,13 @@ export class ModelTable extends Component {
 						<td>{vendor}</td>
 						<td>{model_number}</td>
 						<td>{height}</td>
-						<td>{display_color}</td>
+						<td><div style={{
+							width: 12,
+							height: 12,
+							backgroundColor: '#' + display_color,
+							left: 5,
+							top: 5,
+							}}></div>{display_color}</td>
 						<td>{ethernet_ports}</td>
 						<td>{power_ports}</td>
 						<td>{cpu}</td>
