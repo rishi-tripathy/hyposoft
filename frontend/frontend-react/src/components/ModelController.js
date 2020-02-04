@@ -297,13 +297,15 @@ export class ModelController extends Component {
     let filters = <ModelFilters sendFilterQuery={ this.getFilterQuery } />
     let sorting = <ModelSort sendSortQuery={ this.getSortQuery } />
     let exp = <Button onClick={ this.exportData } >Export</Button>
+    let showAll = <Button onClick={this.getAllModels } >Show All</Button>
 
     // if we're not on the table, then don't show pagination or filters or sort
     if (! this.state.showTableView) {
       paginateNavigation = <p></p>;
       filters = <p></p>;
       sorting = <p></p>;
-      exp = <p></p>
+      exp = <p></p>;
+      showAll = <p></p>;
     }
   
     return (
@@ -314,7 +316,7 @@ export class ModelController extends Component {
         <br></br>
         { paginateNavigation }
         <br></br>
-        <Button onClick={this.getAllModels } >Show All</Button>
+        { showAll }
         <br></br>
         {content}
         <br></br>

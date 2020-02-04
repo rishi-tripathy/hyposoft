@@ -292,12 +292,15 @@ export class InstanceController extends Component {
     let filters = <InstanceFilters sendFilterQuery={ this.getFilterQuery } />
     let sorting = <InstanceSort sendSortQuery={ this.getSortQuery } />
     let exp = <Button onClick={ this.exportData } >Export</Button>
+    let showAll = <Button onClick={this.getAllInstances } >Show All</Button>
 
     // if we're not on the table, then don't show pagination or filters or sorting
     if (! this.state.showTableView) {
       paginateNavigation = <p></p>;
       filters = <p></p>;
       sorting = <p></p>;
+      showAll = <p></p>;
+      exp = <p></p>;
     }
 
     return (
@@ -308,7 +311,7 @@ export class InstanceController extends Component {
         <br></br>
         { paginateNavigation }
         <br></br>
-        <Button onClick={this.getAllInstances } >Show All</Button>
+        { showAll }
         <br></br>
         { content }
         <br></br>
