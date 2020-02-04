@@ -194,6 +194,35 @@ export class ModelController extends Component {
     });
   }
 
+  getAllModels = () => {
+    let filter = this.state.filterQuery;
+    let sort = this.state.sortQuery;
+
+    if (this.state.filterQuery.length !== 0) {
+      filter = filter + '&';
+    }
+
+    if (this.state.sortQuery.length !== 0) {
+      sort = sort + '&'
+    }
+
+    let dst = '/api/models/' + '?' + filter + sort + 'show_all=true';
+    
+    console.log('QUERY')
+    console.log(dst)
+    axios.get(dst).then(res => {
+      this.setState({ 
+        models: res.data,
+        prevPage: null,
+        nextPage: null,
+      });
+    })
+    .catch(function (error) {
+      // TODO: handle error
+      console.log(error.response);
+    });
+  }
+
   paginateNext = () => {
     axios.get(this.state.nextPage).then(res => {
       this.setState({ 
@@ -282,6 +311,8 @@ export class ModelController extends Component {
         { sorting }
         <br></br>
         { paginateNavigation }
+        <br></br>
+        <button onClick={this.getAllModels } >Show All</button>
         <br></br>
         {content}
         <br></br>
