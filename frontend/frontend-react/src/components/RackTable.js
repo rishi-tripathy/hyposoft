@@ -152,10 +152,10 @@ export class RackTable extends Component {
 
          }
       }
-      console.log(rackInstances);
-      console.log(modelInfo);
-      console.log(displayColors);
-      console.log(hostnameInfo);
+      // console.log(rackInstances);
+      // console.log(modelInfo);
+      // console.log(displayColors);
+      // console.log(hostnameInfo);
 
       return rackUs.reverse().map((row, index) => {
          return (

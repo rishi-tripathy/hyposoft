@@ -90,7 +90,6 @@ export class RacksView extends Component {
             </div>
                     <br></br>
                         <h1>Racks</h1>
-                    <div>
                         { this.props.rack.map((item, key) =>
                         <div id="rackContainer">
                             <div id='hideOnPrint'>
@@ -102,7 +101,6 @@ export class RacksView extends Component {
                             <RackTable rack={item} condensedState={this.state.condensedView} />    
                         </div>  
                 )}
-                </div>  
             </div>
         )
     }

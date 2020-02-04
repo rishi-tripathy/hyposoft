@@ -11,19 +11,13 @@ export class RackRow extends Component {
         vendor = vendor.concat(this.props.model);
         let maxLength = 40;
 
-        console.log(name);
-        console.log(vendor);
-
         if(this.props.hostname !== null){
             if(name.length + vendor.length > maxLength){
                 let lengthOvf = maxLength - vendor.length - 10; //10 is space between 2
                 name = name.substring(0, lengthOvf).concat('...');
             }
+        }
             return name;
-        }
-        else {
-            return this.props.hostname;
-        }
     }
 
     render() {
@@ -42,25 +36,31 @@ export class RackRow extends Component {
         let content; 
         let dispColor = '#';
         dispColor = dispColor.concat(this.props.displayColor);
-        if(!objectIsNull){
+        if(!objectIsNull && this.props.hostname !== null){
             content = 
              <td style={{
                 fontSize: 7,
                 background: dispColor,
+                verticalAlign: 'bottom',
              }}>
-                <pre>{ this.props.model }          { this.displayName() }</pre>
-            </td> 
+                { this.props.model }          { this.displayName() }
+            </td>;
         }
-        else if(objectIsNull && isCondensed){
-            //dots
-            content = <td style = {{ textAlign: 'center'}}>{ this.props.hostname }</td>
+        else if(!objectIsNull && this.props.hostname == null){
+            content = 
+            <td style={{
+                fontSize: 7,
+                background: dispColor,
+            }}>
+
+            </td>;
         }
         else{
             content = <td></td>;
         }
 
         return (
-            <tr style={{maxHeight: '2px'}}>
+            <tr>
                 <td>
                     { this.props.row }   
                 </td> 
