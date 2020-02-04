@@ -132,7 +132,7 @@ export class EditModelForm extends Component {
         } } />
 
         <p>Display color</p>
-        <input type="text" 
+        {/* <input type="text" 
           value={this.state.model.display_color}
           onChange={e => {
             let modelCopy = JSON.parse(JSON.stringify(this.state.model))
@@ -140,7 +140,17 @@ export class EditModelForm extends Component {
             this.setState({
               model: modelCopy 
             }) 
-        } } />
+        } } /> */}
+
+        <input type="color" 
+          value={'#' + this.state.model.display_color} 
+          onChange={e => { 
+            let modelCopy = JSON.parse(JSON.stringify(this.state.model))
+            modelCopy.display_color = e.target.value.replace('#', '');
+            this.setState({
+              model: modelCopy 
+            }) 
+          }} />
         
         <p>Ethernet ports</p> 
         <input type="number" 
