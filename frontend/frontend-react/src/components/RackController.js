@@ -9,7 +9,7 @@ import '../stylesheets/Printing.css'
 import '../stylesheets/RackTable.css'
 import '../stylesheets/RacksView.css'
 import CreateMultipleRacksForm from './CreateMultipleRacksForm';
-import { UncontrolledCollapse, Button, CardBody, Card } from 'reactstrap';
+import { UncontrolledCollapse, Button, CardBody, Card, Container } from 'reactstrap';
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 export class RackController extends Component {
@@ -373,14 +373,14 @@ export class RackController extends Component {
     }
 
       return (
-        <div>
+        <Container className="themed-container">
           <div id="hideOnPrint">
             {filters}
             { printButton }
             { paginateNavigation }
           </div>
           {content}
-        </div>
+        </Container>
       )
     }
   }

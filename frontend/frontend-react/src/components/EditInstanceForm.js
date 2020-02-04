@@ -136,7 +136,7 @@ export class EditInstanceForm extends Component {
     let stateToSend = this.removeEmpty(stateCopy);
     console.log(stateToSend)
     
-    axios.patch(dst, stateToSend)
+    axios.put(dst, stateToSend)
     .then(function (response) {
       alert('Edit was successful');
     })

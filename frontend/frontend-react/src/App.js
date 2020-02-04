@@ -1,9 +1,10 @@
-import React from 'react';
+ import React from 'react';
 import './App.css';
 import { BrowserRouter as Router } from 'react-router-dom'
 import SideBar from './components/SideBar';
 import axios from 'axios'
 import './stylesheets/Printing.css'
+import { UncontrolledCollapse, Button, Jumbotron,CardBody, Card } from 'reactstrap';
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 class App extends React.Component {
@@ -42,6 +43,8 @@ class App extends React.Component {
   render() {
 
     let content;
+
+    
 
     if(!this.state.logged_in){
       content = <button onClick={this.handleOnClick}>Log In!</button>

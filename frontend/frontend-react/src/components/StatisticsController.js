@@ -4,6 +4,8 @@ import { CircularProgressbar } from 'react-circular-progressbar';
 import { CircularProgressbarWithChildren } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import '../stylesheets/TableView.css'
+import { UncontrolledCollapse, Button, ButtonGroup, Table, Container, Card, Row, Col} from 'reactstrap';
+
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 export class StatisticsController extends Component {
@@ -75,63 +77,91 @@ export class StatisticsController extends Component {
   render() {
     
     return (
-      <div>
-  
-        <div style={{ width: "30%" }}>
-          <CircularProgressbarWithChildren value={this.state.rackspace_used}>
-            {/* Put any JSX content in here that you'd like. It'll be vertically and horizonally centered. */}
-            <div style={{ width: 60, fontSize: 20, marginTop: -5 }}>
-              <strong>{this.state.rackspace_used}</strong> Rack-space used
+      <Container className="themed-container">
+        <h2>Statistics</h2>
+        <Row>
+          <Col xs="6">
+            <div style={{ width: "60%" }}>
+              <CircularProgressbarWithChildren value={this.state.rackspace_used}>
+                {/* Put any JSX content in here that you'd like. It'll be vertically and horizonally centered. */}
+                <div style={{ width: 60, fontSize: 20, marginTop: -5 }}>
+                  <strong>{this.state.rackspace_used + '%'}</strong> Rack-space used
+                </div>
+              </CircularProgressbarWithChildren>
             </div>
-          </CircularProgressbarWithChildren>
-        </div>
-
-        <div style={{ width: "30%" }}>
-          <CircularProgressbarWithChildren value={this.state.rackspace_free}>
-            {/* Put any JSX content in here that you'd like. It'll be vertically and horizonally centered. */}
-            <div style={{ width: 60, fontSize: 20, marginTop: -5 }}>
-              <strong>{this.state.rackspace_free}</strong> Rack-space free
+          </Col>
+          <Col xs="6">
+            <div style={{ width: "60%" }}>
+              <CircularProgressbarWithChildren value={this.state.rackspace_free}>
+                {/* Put any JSX content in here that you'd like. It'll be vertically and horizonally centered. */}
+                <div style={{ width: 60, fontSize: 20, marginTop: -5 }}>
+                  <strong>{this.state.rackspace_free + '%'}</strong> Rack-space free
+                </div>
+              </CircularProgressbarWithChildren>
             </div>
-          </CircularProgressbarWithChildren>
-        </div>
+          </Col>
+        </Row>
 
-        <div>
-          <table id="entries">
-            <tbody>
-              <tr>
-                <th>Models Allocated</th>
-                <th>Number (#)</th>
-              </tr>
-              { this.renderModelsData() }
-            </tbody>
-          </table>
-        </div>
+        <br></br>
+        <br></br>
 
-        <div>
-          <table id="entries">
-            <tbody>
-              <tr>
-                <th>Vendors Allocated</th>
-                <th>Number (#)</th>
-              </tr>
-              { this.renderVendorsData() }
-            </tbody>
-          </table>
-        </div>
+        <h3>Model Allocation</h3>
+        <Row>
+          <Col xs="6">
+            <div>
+              <Table hover striped>
+                <tbody>
+                  <tr>
+                    <th>Models Allocated</th>
+                    <th>Number (#)</th>
+                  </tr>
+                  { this.renderModelsData() }
+                </tbody>
+              </Table>
+            </div>
+          </Col>
+        </Row>
 
-        <div>
-          <table id="entries">
-            <tbody>
-              <tr>
-                <th>Owners Allocated</th>
-                <th>Number (#)</th>
-              </tr>
-              { this.renderOwnersData() }
-            </tbody>
-          </table>
-        </div>
-        
-      </div>
+        <br></br>
+        <br></br>
+
+        <h3>Vendor Allocation</h3>
+        <Row>
+          <Col xs="6">
+            <div>
+              <Table hover striped>
+                <tbody>
+                  <tr>
+                    <th>Vendors Allocated</th>
+                    <th>Number (#)</th>
+                  </tr>
+                  { this.renderVendorsData() }
+                </tbody>
+              </Table>
+            </div>
+          </Col>
+        </Row>
+
+        <br></br>
+        <br></br>
+
+        <h3>Owner Allocation</h3>
+        <Row>
+          <Col xs="6">
+            <div>
+              <Table hover striped>
+                <tbody>
+                  <tr>
+                    <th>Owners Allocated</th>
+                    <th>Number (#)</th>
+                  </tr>
+                  { this.renderOwnersData() }
+                </tbody>
+              </Table>
+            </div>
+          </Col>
+        </Row>
+      </Container>
     )
   }
 }
