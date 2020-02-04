@@ -31,7 +31,7 @@ export class EditRackForm extends Component {
       alert('Edit was successful');
     })
     .catch(function (error) {
-      alert('Edit was not successful.\n' + JSON.stringify(error.response.data));
+      alert('Edit was not successful.\n' + JSON.stringify(error.response.data, null, 2));
     });
   }
 
@@ -48,6 +48,7 @@ export class EditRackForm extends Component {
     .catch(function (error) {
       // TODO: handle error
      // console.log(error.response);
+      alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
     });
   }
 

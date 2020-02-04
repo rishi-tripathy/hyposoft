@@ -44,7 +44,7 @@ export class ModelTable extends Component {
 				alert('Delete was successful');
 			})
 			.catch(function (error) {
-				alert('Delete was not successful.\n' + JSON.stringify(error.response.data));
+				alert('Delete was not successful.\n' + JSON.stringify(error.response.data, null, 2));
 			});
 		}
 		this.showRerender();
@@ -118,13 +118,13 @@ export class ModelTable extends Component {
 				return post(url, formData, config)
 			}
 
-			if (window.confirm('Import was not successful.\n' + JSON.stringify(error.response.data))) {
+			if (window.confirm('Import was not successful.\n' + JSON.stringify(error.response.data, null, 2))) {
 				fileUploadOverride(f).then((response)=>{
-					alert("Import was successful.\n" + JSON.stringify(response));
+					alert("Import was successful.\n" + JSON.stringify(response, null, 2));
 				})
 				.catch(function (error) {
 					console.log(error.response)
-					alert('Import was not successful.\n' + JSON.stringify(error.response.data));
+					alert('Import was not successful.\n' + JSON.stringify(error.response.data, null, 2));
 				});
 			}
 		});
