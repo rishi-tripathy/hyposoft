@@ -52,7 +52,7 @@ export class EditInstanceForm extends Component {
     })
     .catch(function (error) {
       // TODO: handle error
-      console.log(error.response);
+      alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
     });
 
     // MODEL
@@ -71,7 +71,7 @@ export class EditInstanceForm extends Component {
     })
     .catch(function (error) {
       // TODO: handle error
-      console.log(error.response);
+      alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
     });
 
     // RACK
@@ -89,7 +89,7 @@ export class EditInstanceForm extends Component {
     })
     .catch(function (error) {
       // TODO: handle error
-      console.log(error.response);
+      alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
     });
 
     // OWNER
@@ -107,7 +107,7 @@ export class EditInstanceForm extends Component {
     })
     .catch(function (error) {
       // TODO: handle error
-      console.log(error.response);
+      alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
     });
   }
 
@@ -142,7 +142,7 @@ export class EditInstanceForm extends Component {
       alert('Edit was successful');
     })
     .catch(function (error) {
-      alert('Edit was not successful.\n' + JSON.stringify(error.response.data));
+      alert('Edit was not successful.\n' + JSON.stringify(error.response.data, null, 2));
     });
     this.props.sendShowTable(true);
   }
