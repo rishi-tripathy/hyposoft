@@ -393,8 +393,12 @@ class InstanceViewSet(viewsets.ModelViewSet):
             writer = csv.writer(response)
             writer.writerow(INSTANCE_EXPORT_FIELDS)
             for instance in queryset:
+                try:
+                    owner_name = instance.owner.username
+                except AttributeError:
+                    owner_name = None
                 writer.writerow([instance.hostname, instance.rack.rack_number, instance.rack_u, instance.model.vendor,
-                                 instance.model.model_number, instance.owner.username, instance.comment])
+                                 instance.model.model_number, owner_name, instance.comment])
             return response
 
         return super().list(self, request, *args, **kwargs)
@@ -457,6 +461,10 @@ class InstanceViewSet(viewsets.ModelViewSet):
                 continue
 
             uniq_model_name = instance.model.vendor + instance.model.model_number
+            try:
+                owner_name = instance.owner.username
+            except AttributeError:
+                owner_name = None
             if uniq_model_name != (row['vendor'] + row['model_number']):
                 try:
                     model = Model.objects.get(vendor=row['vendor'], model_number=row['model_number'])
@@ -525,11 +533,13 @@ class InstanceViewSet(viewsets.ModelViewSet):
                     key = instance.hostname + "_rack_position"
                     fields_overriden[key] = [instance.rack_u, row['rack_position']]
                 override = True
-            if instance.owner.username != row['owner']:
+
+            if owner_name != row['owner'] and (owner_name or row['owner']):
                 try:
                     owner = User.objects.get(username=row['owner'])
-                except Model.DoesNotExist:
-                    uncreated_objects['user'].append(row['owner'])
+                except User.DoesNotExist:
+                    if row['owner']:
+                        uncreated_objects['user'].append(row['owner'])
                     owner = None
 
                 if should_override:
@@ -537,8 +547,11 @@ class InstanceViewSet(viewsets.ModelViewSet):
                     should_update = True
                 else:
                     key = instance.hostname + "_owner"
-                    orig = instance.owner.username
-                    new = owner.username
+                    orig = owner_name
+                    try:
+                        new = owner.username
+                    except AttributeError:
+                        new = None
                     fields_overriden[key] = [orig, new]
                 override = True
             if instance.comment != row['comment']:
@@ -579,6 +592,7 @@ class InstanceViewSet(viewsets.ModelViewSet):
             err_message = "Do you want to overwrite the following "\
             "fields: "
             count = 0
+            print(fields_overriden)
             for field in fields_overriden.keys():
                 err_message += "For " + field + " overwrite " + str(fields_overriden[field][0]) \
                 + " with " + fields_overriden[field][1] + ". "
@@ -822,7 +836,10 @@ def report(request):
 
     owner_dict_by_username = {}
     for owner_id in owner_dict.keys():
-        owner = User.objects.get(pk=owner_id)
+        try:
+            owner = User.objects.get(pk=owner_id)
+        except User.DoesNotExist:
+            continue
         owner_dict_by_username[owner.username] = owner_dict[owner_id]
 
     return Response({
