@@ -329,7 +329,7 @@ export class ModelController extends Component {
   
     return (
       <Container className="themed-container">
-        <h2>Model Table</h2>
+        <h2>Model</h2>
         <Row>
           <Col>{ filters_sorts }</Col>
         </Row>

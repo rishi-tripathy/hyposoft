@@ -46,7 +46,7 @@ export class DetailedInstanceFromModel extends Component {
       <div>
         <Button onClick={() => this.props.sendShowTable(true)} >Back</Button>
         <br></br>
-        <InstanceCard inst={ this.state.instance } />
+        <InstanceCard inst={ [this.state.instance] } />
       </div>
     )
   }

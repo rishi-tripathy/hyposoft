@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import axios from 'axios'
-import Button from "reactstrap/es/Button";
+import { UncontrolledCollapse, Button, Table, FormGroup, Input, Form, ButtonGroup, Container, Card, Row, Col } from 'reactstrap';
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 
@@ -70,13 +70,14 @@ export class AllInstancesOfModelView extends Component {
   render() {
     return (
       <div>
-        <h3>Instances of this Model</h3>
-        <table id="entries">
+        {/* <h3>Instances of this Model</h3> */}
+        <Table striped hover>
           <tbody>
             <tr>{this.renderTableHeader()}</tr>
             { this.renderTableData() }
           </tbody>
-         </table>
+        </Table>
+          
       </div>
     )
   }

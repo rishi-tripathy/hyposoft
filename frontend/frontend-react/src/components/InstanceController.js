@@ -6,7 +6,7 @@ import CreateInstanceForm from './CreateInstanceForm';
 import EditInstanceForm from './EditInstanceForm';
 import InstanceFilters from './InstanceFilters';
 import InstanceSort from './InstanceSort';
-import { UncontrolledCollapse, Button, ButtonGroup, Container, Card } from 'reactstrap';
+import { UncontrolledCollapse, Button, ButtonGroup, Container, Card, ButtonToolbar, Row, Col } from 'reactstrap';
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 export class InstanceController extends Component {
@@ -281,42 +281,50 @@ export class InstanceController extends Component {
 
     let paginateNavigation = <p></p>;
     if (this.state.prevPage == null && this.state.nextPage != null) {
-      paginateNavigation = <div><Button onClick={ this.paginateNext }>next page</Button></div>;
-    } 
+      paginateNavigation = <div><ButtonGroup><Button disabled>prev page</Button>{'  '}<Button onClick={ this.paginateNext }>next page</Button></ButtonGroup></div>;
+    }
     else if (this.state.prevPage != null && this.state.nextPage == null) {
-      paginateNavigation = <div><Button onClick={ this.paginatePrev }>prev page</Button></div>;
+    paginateNavigation = <div><ButtonGroup><Button onClick={ this.paginatePrev }>prev page</Button>{'  '}<Button disabled>next page</Button></ButtonGroup></div>;
     }
     else if (this.state.prevPage != null && this.state.nextPage != null) {
-      paginateNavigation = <div><ButtonGroup><Button onClick={ this.paginatePrev }>prev page</Button><Button onClick={ this.paginateNext }>next page</Button></ButtonGroup></div>;
+      paginateNavigation = <div><ButtonGroup><Button onClick={ this.paginatePrev }>prev page</Button>{'  '}<Button onClick={ this.paginateNext }>next page</Button></ButtonGroup></div>;
     }
 
-    let filters = <InstanceFilters sendFilterQuery={ this.getFilterQuery } />
-    let sorting = <InstanceSort sendSortQuery={ this.getSortQuery } />
+    let filters_sorts = <div><Button color="primary" id="toggler" style={{ marginBottom: '1rem' }}> Toggle Filtering and Sorting Dialog </Button>
+      <UncontrolledCollapse toggler="#toggler">
+        <InstanceFilters sendFilterQuery={ this.getFilterQuery } />
+        <InstanceSort sendSortQuery={ this.getSortQuery } />
+     </UncontrolledCollapse>{' '}
+    </div>;
+
+    // let filters = <InstanceFilters sendFilterQuery={ this.getFilterQuery } />
+    // let sorting = <InstanceSort sendSortQuery={ this.getSortQuery } />
     let exp = <Button onClick={ this.exportData } >Export</Button>
     let showAll = <Button onClick={this.getAllInstances } >Show All</Button>
 
     // if we're not on the table, then don't show pagination or filters or sorting
     if (! this.state.showTableView) {
       paginateNavigation = <p></p>;
-      filters = <p></p>;
-      sorting = <p></p>;
+      filters_sorts = <p></p>;
+      // filters = <p></p>;
+      // sorting = <p></p>;
       showAll = <p></p>;
       exp = <p></p>;
     }
 
     return (
       <Container className="themed-container">
-        { filters }
-        <br></br>
-        { sorting }
-        <br></br>
-        { paginateNavigation }
-        <br></br>
-        { showAll }
-        <br></br>
-        { content }
-        <br></br>
-        { exp }
+        <h2>Instance</h2>
+        <Row>
+          <Col>{ filters_sorts }</Col>
+        </Row>
+        <Row>
+          <Col>{ showAll }</Col>
+          <Col>{ exp }</Col>
+          <Col>{ paginateNavigation }</Col>
+          <Col></Col>
+        </Row>
+        {content}
       </Container>
     )
   }
