@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { Component, useState } from 'react'
 import RacksView from './RacksView';
 import CreateRackForm from './CreateRackForm'
 import EditRackForm from './EditRackForm'
@@ -6,6 +6,7 @@ import RackFilters from './RackFilters'
 import DeleteMultipleRacksForm from './DeleteMultipleRacksForm'
 import axios from 'axios'
 import CreateMultipleRacksForm from './CreateMultipleRacksForm';
+import { UncontrolledCollapse, Button, CardBody, Card } from 'reactstrap';
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 export class RackController extends Component {
@@ -287,18 +288,24 @@ export class RackController extends Component {
                     sendShowEdit={this.getShowEdit}
                     sendShowDelete={this.getShowDelete}/> 
     }
-    
-    let filters = <RackFilters sendFilterQuery={ this.getFilterQuery } />;
+
+    let filters =
+  <div><Button color="primary" id="toggler" style={{ marginBottom: '1rem' }}> Toggle Filtering Dialog </Button>
+      <UncontrolledCollapse toggler="#toggler">
+        <RackFilters sendFilterQuery={ this.getFilterQuery } />
+       </UncontrolledCollapse>
+  </div>;
+
     let paginateNavigation;
     let sorting;
     if (this.state.prevPage == null && this.state.nextPage != null) {
-      paginateNavigation = <div><button onClick={ this.paginateNext }>next page</button></div>;
+      paginateNavigation = <div><Button color="link" disabled>prev page</Button>{'  '}<Button color="link" onClick={ this.paginateNext }>next page</Button></div>;
     } 
     else if (this.state.prevPage != null && this.state.nextPage == null) {
-      paginateNavigation = <div><button onClick={ this.paginatePrev }>prev page</button></div>;
+    paginateNavigation = <div><Button color="link" onClick={ this.paginatePrev }>prev page</Button>{'  '}<Button color="link" disabled>next page</Button></div>;
     }
     else if (this.state.prevPage != null && this.state.nextPage != null) {
-      paginateNavigation = <div><button onClick={ this.paginatePrev }>prev page</button><button onClick={ this.paginateNext }>next page</button></div>;
+      paginateNavigation = <div><Button color="link" onClick={ this.paginatePrev }>prev page</Button>{'  '}<Button color="link" onClick={ this.paginateNext }>next page</Button></div>;
     }
 
     // if we're not on the table, then don't show pagination
@@ -307,11 +314,12 @@ export class RackController extends Component {
       filters = <p></p>;
       sorting = <p></p>;
     }
-  
+
       return (
         <div>
-          { paginateNavigation } { filters }
-            {content}
+          {filters}
+          { paginateNavigation }
+          {content}
         </div>
       )
     }

@@ -7,6 +7,7 @@ import Landing from './Landing'
 import axios from 'axios'
 import UserController from './UserController';
 import StatisticsController from './StatisticsController';
+import { Button } from 'reactstrap'
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 class SideBar extends React.Component{
@@ -127,11 +128,11 @@ class SideBar extends React.Component{
                     </div>
                     <div id="Side-bar">
                         <ul>
-                            <div className="myButton" onClick={this.showRacks}> Racks</div>
-                            <div className="myButton" onClick={this.showModels}> Models</div>
-                            <div className="myButton" onClick={this.showInstances}> Instances</div>
-                            <div className="myButton" onClick={this.showUsers}> Users</div>
-                            <div className="myButton" onClick={this.showStatistics}> Statistics</div>
+                            <Button color="success" onClick={this.showRacks} size="lg" block>Racks</Button>
+                            <Button color="success" onClick={this.showModels} size="lg" block>Models</Button>
+                            <Button color="success" onClick={this.showInstances} size="lg" block>Instances</Button>
+                            <Button color="success" onClick={this.showUsers} size="lg" block>Users</Button>
+                            <Button color="success" onClick={this.showStatistics} size="lg" block>Statistics</Button>
                         </ul>
                 </div>
             </div>
