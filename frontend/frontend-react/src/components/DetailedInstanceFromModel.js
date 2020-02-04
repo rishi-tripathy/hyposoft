@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import axios from 'axios'
 import InstanceCard from './InstanceCard';
+import Button from "reactstrap/es/Button";
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 export class DetailedInstanceFromModel extends Component {
@@ -43,7 +44,7 @@ export class DetailedInstanceFromModel extends Component {
   render() {
     return (
       <div>
-        <button onClick={() => this.props.sendShowTable(true)} >Back</button>
+        <Button onClick={() => this.props.sendShowTable(true)} >Back</Button>
         <br></br>
         <InstanceCard inst={ this.state.instance } />
       </div>

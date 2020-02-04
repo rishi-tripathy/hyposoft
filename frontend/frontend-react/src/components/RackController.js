@@ -377,7 +377,8 @@ export class RackController extends Component {
         <Container className="themed-container">
           <div id="hideOnPrint">
             {filters}
-            { printButton }
+            { printButton }{' '}
+            <br></br>
             { paginateNavigation }
           </div>
           {content}

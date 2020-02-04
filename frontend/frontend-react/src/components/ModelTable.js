@@ -2,7 +2,9 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types';
 import '../stylesheets/TableView.css'
 import axios, { post } from 'axios'
-import { UncontrolledCollapse, Button, Table, ButtonGroup, Container, Card } from 'reactstrap';
+import { UncontrolledCollapse, Button, Table, Input, Form, ButtonGroup, Container, Card } from 'reactstrap';
+import FormGroup from "reactstrap/es/FormGroup";
+import ButtonToolbar from "reactstrap/es/ButtonToolbar";
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
@@ -155,15 +157,19 @@ export class ModelTable extends Component {
       <div>
 		  { this.props.is_admin ? (
 				<div>
-					<button onClick={ this.showCreateForm }>Add Model</button>
-				</div>)
-				:
-				(<p></p>) }
-				
-				<form onSubmit={this.handleImport} >
-					<input type="file" name="file" onChange={this.handleFileUpload}/>
-					<button type="submit">Import File</button>
-				</form>
+				<ButtonToolbar>
+					<ButtonGroup>
+					<Button color="success" onClick={ this.showCreateForm }>Add Model +</Button> {'  '}
+				<Form onSubmit={this.handleImport} >
+					<FormGroup>
+					<Input type="file" name="file" onChange={this.handleFileUpload}/>{' '}
+					</FormGroup>
+					<Button>Import</Button>{' '}
+				</Form>{' '}
+					</ButtonGroup>
+				</ButtonToolbar>
+				</div>) : (<p></p>)}
+		  <br></br>
          <Table hover striped>
             <tbody>
                <tr>{this.renderTableHeader()}</tr>

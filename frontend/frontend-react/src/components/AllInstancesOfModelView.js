@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import axios from 'axios'
+import Button from "reactstrap/es/Button";
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 
@@ -60,7 +61,7 @@ export class AllInstancesOfModelView extends Component {
           <td>{hostname}</td>
           <td>{rack ? rack.rack_number : null}</td>
           <td>{rack_u}</td>
-          <td><button onClick={ () => this.showDetailedInstance(id) }>More details</button></td>
+          <td><Button onClick={ () => this.showDetailedInstance(id) }>More details</Button></td>
         </tr>
       )
     })
