@@ -82,9 +82,14 @@ export class ModelTable extends Component {
 						<td>{cpu}</td>
 						<td>{memory}</td>
 						<td>{storage}</td>
-						<td><Button color="info" size="sm" onClick={ () => this.showDetailedModel(id) }>Details</Button></td>
-						<td><Button color="warning" size="sm" onClick={ () => this.showEditForm(id) }>Edit</Button></td>
-            <td><Button color="danger" size="sm" onClick={ () => this.showDeleteForm(id) }>Delete</Button></td>
+						{this.props.is_admin ? (
+							<div>
+								<td><Button color="info" size="sm" onClick={ () => this.showDetailedModel(id) }>Details</Button></td>
+								<td><Button color="warning" size="sm" onClick={ () => this.showEditForm(id) }>Edit</Button></td>
+								<td><Button color="danger" size="sm" onClick={ () => this.showDeleteForm(id) }>Delete</Button></td>
+							</div>
+						):
+						(<p></p>)}
           </tr>
        )
     })
@@ -148,14 +153,17 @@ export class ModelTable extends Component {
   render() {
     return (
       <div>
+		  { this.props.is_admin ? (
 				<div>
 					<button onClick={ this.showCreateForm }>Add Model</button>
-				</div>
+				</div>)
+				:
+				(<p></p>) }
+				
 				<form onSubmit={this.handleImport} >
 					<input type="file" name="file" onChange={this.handleFileUpload}/>
 					<button type="submit">Import File</button>
 				</form>
-
          <Table hover striped>
             <tbody>
                <tr>{this.renderTableHeader()}</tr>

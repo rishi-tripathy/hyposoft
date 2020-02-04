@@ -320,7 +320,8 @@ export class RackController extends Component {
                   sendShowEdit={this.getShowEdit}
                   sendEditID={this.getEditID}
                   sendShowDelete={this.getShowDelete} 
-                  sendShowAllRacks={this.getShowAllRacks}/>
+                  sendShowAllRacks={this.getShowAllRacks}
+                  is_admin={this.props.is_admin}/>
     }
     else if (this.state.showIndividualInstanceView) {
      //insert here

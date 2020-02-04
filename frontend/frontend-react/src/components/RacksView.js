@@ -23,11 +23,10 @@ export class RacksView extends Component {
         this.showMassCreateForm = this.showMassCreateForm.bind(this);
         this.showMassDeleteForm = this.showMassDeleteForm.bind(this);
         this.showEditForm = this.showEditForm.bind(this);        this.showAllRacks = this.showAllRacks.bind(this);
-	}
-
+    }
     showCreateForm = () => {
 		this.props.sendShowCreate(true);
-   }
+    }
    
    showMassCreateForm = () => {
        this.props.sendShowMassCreate(true);
@@ -72,15 +71,24 @@ export class RacksView extends Component {
   }
 
     render(){
+        let adminTools;
+        if(this.props.is_admin){
+            adminTools =                
+            <ButtonGroup>
+                <Button color='success' size="sm" onClick={ this.showCreateForm }>Add Single Rack +</Button>{' '}
+                <Button color='success' size="sm" onClick={ this.showMassCreateForm }>Add Multiple Racks ++</Button>{' '}
+                <Button color='danger' size="sm" onClick={ this.showMassDeleteForm }>Delete Multiple Racks --</Button>{' '}
+            </ButtonGroup>
+        }
+        else{
+            adminTools = <p></p>;
+        }
+
         return(
             <div>
             <div id='hideOnPrint'>
             <ButtonToolbar>
-                <ButtonGroup>
-                    <Button color='success' size="sm" onClick={ this.showCreateForm }>Add Single Rack +</Button>{' '}
-                    <Button color='success' size="sm" onClick={ this.showMassCreateForm }>Add Multiple Racks ++</Button>{' '}
-                </ButtonGroup>
-                    <Button color='danger' size="sm" onClick={ this.showMassDeleteForm }>Delete Multiple Racks --</Button>{' '}
+                    { adminTools }
                     <ButtonGroup>
                         <Button size="sm" onClick={ this.handleCondensation }>Condensed Rack View</Button>{' '}
                         <Button size="sm" onClick={ this.handleCondensationOff }>Full Rack View</Button>{' '}
@@ -93,12 +101,18 @@ export class RacksView extends Component {
                         { this.props.rack.map((item, key) =>
                         <div id="rackContainer">
                             <div id='hideOnPrint'>
-                                <Button color="warning" size="sm" onClick={ () => this.showEditForm(item.id) }>Edit this Rack</Button>{' '}
-                                <Button color="danger" size="sm" onClick={ () => this.showDeleteForm(item.id) }>Delete this Rack</Button>{' '}
+                                 { this.props.is_admin ? (
+                                <ButtonGroup>
+                                 <Button color="warning" size="sm" onClick={ () => this.showEditForm(item.id) }>Edit this Rack</Button>{' '}
+                                 <Button color="danger" size="sm" onClick={ () => this.showDeleteForm(item.id) }>Delete this Rack</Button>{' '}
+                                 </ButtonGroup>
+                                 )
+                                :
+                                (<p></p>)} 
                             </div>
                             <br></br>
                             <br></br>
-                            <RackTable rack={item} condensedState={this.state.condensedView} />    
+                            <RackTable rack={item} condensedState={this.state.condensedView} is_admin={this.props.is_admin} />    
                         </div>  
                 )}
             </div>
