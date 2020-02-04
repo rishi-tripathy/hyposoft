@@ -7,6 +7,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
 from .serializers import UserSerializer
 from rest_framework import viewsets
 from usr_man.filters import UserFilter
+import rest_framework.status
 
 ADMIN_ACTIONS = {'create', 'update', 'partial_update', 'destroy'}
 GET = 'GET'
@@ -57,9 +58,17 @@ class UserViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['GET'])
     def who_am_i(self, request, *args, **kwargs):
+        try:
+            un = request.user.username
+            fn = request.user.first_name or None
+            ln = request.user.last_name or None
+        except AttributeError:
+            return Response({
+                'current_user': None
+            }, status=status.HTTP_400_BAD_REQUEST)
         return Response({
-            'current_user': request.user.username,
-            'first_name': request.user.first_name,
-            'last_name': request.user.last_name
+            'current_user': un,
+            'first_name': fn,
+            'last_name': ln
         })
 

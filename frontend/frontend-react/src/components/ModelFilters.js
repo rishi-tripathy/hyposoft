@@ -1,4 +1,6 @@
 import React, { Component } from 'react'
+import {Button, Form, FormGroup, FormText, Input, Label, Row, Col} from "reactstrap";
+import Creatable from "react-select/creatable/dist/react-select.esm";
 
 export class ModelFilters extends Component {
 
@@ -57,102 +59,114 @@ export class ModelFilters extends Component {
   render() {
     return (
       <div>
-        <form onSubmit={this.handleSubmit}>
-          <h4>Model Filters</h4>
-          
-          <p>Vendor</p>
-          <input type="text" onChange={e => {
-            let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
-            identifiersCopy.vendor = e.target.value
-            this.setState({
-              identifiers: identifiersCopy 
-            }) 
-          } } />
+        <Form onSubmit={this.handleSubmit}>
+          <h4>Filters</h4>
+          <Row>
+            <Col xs="6" sm="4">
+            <FormGroup>
+              <Label for="vendor">Vendor</Label>
+              <Input type="text" onChange={e => {
+                  let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
+                  identifiersCopy.vendor = e.target.value
+                  this.setState({
+                    identifiers: identifiersCopy
+                  })
+                } } />{' '}
+            </FormGroup>
+            <FormGroup>
+              <Label for="model number">Model Number</Label>
+              <Input type="text" onChange={e => {
+                  let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
+                  identifiersCopy.model_number = e.target.value
+                  this.setState({
+                    identifiers: identifiersCopy
+                  })
+                } } />{' '}
+              </FormGroup>
+            <FormGroup>
+              <Label for="height">Height (in U)</Label>
+              <Input type="number" onChange={e => {
+                  let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
+                  identifiersCopy.height = e.target.value
+                  this.setState({
+                    identifiers: identifiersCopy
+                  })
+                } } />{' '}
+            </FormGroup>
+            </Col>
+            <Col xs="6" sm="4">
+            <FormGroup>
+              <Label for="color">Display Color</Label>
+                <Input type="color"
+                    // value={'#' + this.state.model.display_color}
+                    onChange={e => {
+                      let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
+                      identifiersCopy.display_color = e.target.value.replace('#', '');
+                      this.setState({
+                        identifiers: identifiersCopy
+                      })
+                    }} />{' '}
+            </FormGroup>
+          <FormGroup>
+          <Label for="ethernet">Ethernet Ports</Label>
+            <Input type="number" onChange={e => {
+                let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
+                identifiersCopy.ethernet_ports = e.target.value
+                this.setState({
+                  identifiers: identifiersCopy
+                })
+              } } />{' '}
+            </FormGroup>
+          <FormGroup>
+            <Label for="powerports">Power Ports</Label>
+            <Input type="number" onChange={e => {
+                let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
+                identifiersCopy.power_ports = e.target.value
+                this.setState({
+                  identifiers: identifiersCopy
+                })
+              } } />{' '}
+          </FormGroup>
 
-          <p>Model Number</p>
-          <input type="text" onChange={e => {
-            let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
-            identifiersCopy.model_number = e.target.value
-            this.setState({
-              identifiers: identifiersCopy 
-            }) 
-          } } />
+            </Col>
+            <Col sm="4">
+            <FormGroup>
+              <Label for="cpu">CPU</Label>
+              <Input type="text" onChange={e => {
+                  let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
+                  identifiersCopy.cpu = e.target.value
+                  this.setState({
+                    identifiers: identifiersCopy
+                  })
+                } } />{' '}
+              </FormGroup>
+                <FormGroup>
+            <Label for="Memory">Memory</Label>
+              <Input type="number" onChange={e => {
+                  let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
+                  identifiersCopy.memory = e.target.value
+                  this.setState({
+                    identifiers: identifiersCopy
+                  })
+                } } />{' '}
+              </FormGroup>
+                <FormGroup>
+              <Label for="Storage">Storage</Label>
+              <Input type="text" onChange={e => {
+                  let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
+                  identifiersCopy.storage = e.target.value
+                  this.setState({
+                    identifiers: identifiersCopy
+                  })
+                } } />{' '}
+              </FormGroup>
+              <FormGroup>
+              <Input type="submit" value="Apply Filters" />
+            </FormGroup>
+            </Col>
+          </Row>
+        </Form>
 
-          <p>Height</p>
-          <input type="number" onChange={e => {
-            let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
-            identifiersCopy.height = e.target.value
-            this.setState({
-              identifiers: identifiersCopy 
-            }) 
-          } } />
-
-          <p>Display Color</p>
-          {/* <input type="text" onChange={e => {
-            let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
-            identifiersCopy.display_color = e.target.value
-            this.setState({
-              identifiers: identifiersCopy 
-            }) 
-          } } /> */}
-
-          <input type="color" 
-            // value={'#' + this.state.model.display_color} 
-            onChange={e => { 
-              let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
-              identifiersCopy.display_color = e.target.value.replace('#', '');
-              this.setState({
-                identifiers: identifiersCopy 
-              }) 
-            }} />
-
-          <p>Ethernet Ports</p>
-          <input type="number" onChange={e => {
-            let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
-            identifiersCopy.ethernet_ports = e.target.value
-            this.setState({
-              identifiers: identifiersCopy 
-            }) 
-          } } />
-
-          <p>Power Ports</p>
-          <input type="number" onChange={e => {
-            let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
-            identifiersCopy.power_ports = e.target.value
-            this.setState({
-              identifiers: identifiersCopy 
-            }) 
-          } } />
-
-          <p>CPU</p>
-          <input type="text" onChange={e => {
-            let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
-            identifiersCopy.cpu = e.target.value
-            this.setState({
-              identifiers: identifiersCopy 
-            }) 
-          } } />
-
-          <p>Memory</p>
-          <input type="number" onChange={e => {
-            let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
-            identifiersCopy.memory = e.target.value
-            this.setState({
-              identifiers: identifiersCopy 
-            }) 
-          } } />
-
-          <p>Storage</p>
-          <input type="text" onChange={e => {
-            let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
-            identifiersCopy.storage = e.target.value
-            this.setState({
-              identifiers: identifiersCopy 
-            }) 
-          } } />
-
-          <input type="submit" value="Apply Filters" />
-        </form>
       </div>
     )
   }

@@ -5,21 +5,23 @@
 }
 
 #Side-bar {
-    background: slategrey;
-    height: 100vh;
-    width: 15%;
-    position:absolute; 
-    left:0px; 
-    top:0px;
-  }
+  width: 130px;
+  position: fixed;
+  z-index: 1;
+  top: 20px;
+  left: 10px;
+  background: slategrey;
+  overflow-x: hidden;
+  padding: 8px 0;
+}
+
+#Side-bar ul {
+  padding: 6px 8px 6px 8px;
+}
   
   #Content {
-    position:relative;
-    left: 15%;
-    padding-left: 5%; 
-    background-color: white;
-    height: 100vh;
-    width: 75%;
+    margin-left: 140px;
+    padding: 6px, 6px, 6px, 6px
   }
   
   .myButton {

@@ -4,6 +4,7 @@ import ModelCard from './ModelCard'
 import DetailedInstance from './DetailedInstance'
 import AllInstancesOfModelView from './AllInstancesOfModelView';
 import DetailedInstanceFromModel from './DetailedInstanceFromModel';
+import Button from "reactstrap/es/Button";
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 
@@ -99,11 +100,13 @@ export class DetailedModel extends Component {
 
     return (
       <div>
-        <button onClick={() => this.props.sendShowTable(true)} >Back</button>
+        <Button onClick={() => this.props.sendShowTable(true)} >Back</Button>
         <br></br>
-        <ModelCard model={ this.state.model } />
+        {/* // TODO: this is such bad code lmao */}
+        <ModelCard model={ [this.state.model] } />
         <br></br>
         <br></br>
+        <h4>Instances of this Model</h4>
         { content }
       </div>
     )

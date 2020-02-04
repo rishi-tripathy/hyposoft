@@ -1,6 +1,9 @@
 import React, { Component } from 'react'
 import TestAPI from './TestAPI'
 import AddUserModal from './AddUserModal'
+import '../stylesheets/Printing.css'
+import { Button, ButtonGroup, Navbar, NavbarBrand, NavbarText, Nav } from 'reactstrap';
+
 
 
 const headerStyle = {
@@ -19,14 +22,15 @@ export class Landing extends Component {
 
   render() {
     return (
-      <div>
-        <div style={headerStyle}>
-          a header
-          <div id="LogoutButton">
-            <button onClick={this.handleLogout}>Log Out</button>
-          </div>
-        </div>
-        
+      <div id='hideOnPrint'>
+        <Navbar color="light" light expand="md">
+          <Nav>
+            <NavbarBrand href="/">Hyposoft</NavbarBrand>
+          </Nav>
+          
+          <NavbarText><Button onClick={this.handleLogout}>Log Out</Button></NavbarText>
+          
+        </Navbar>
        </div>
     )
   }

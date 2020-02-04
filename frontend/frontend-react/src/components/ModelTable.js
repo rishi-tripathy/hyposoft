@@ -2,6 +2,10 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types';
 import '../stylesheets/TableView.css'
 import axios, { post } from 'axios'
+import { UncontrolledCollapse, Button, Table, Input, Form, ButtonGroup, Container, Card, Row, Col } from 'reactstrap';
+import FormGroup from "reactstrap/es/FormGroup";
+import ButtonToolbar from "reactstrap/es/ButtonToolbar";
+
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 export class ModelTable extends Component {
@@ -80,9 +84,14 @@ export class ModelTable extends Component {
 						<td>{cpu}</td>
 						<td>{memory}</td>
 						<td>{storage}</td>
-						<td><button onClick={ () => this.showDetailedModel(id) }>More details</button></td>
-						<td><button onClick={ () => this.showEditForm(id) }>Edit</button></td>
-            <td><button onClick={ () => this.showDeleteForm(id) }>Delete</button></td>
+						{this.props.is_admin ? (
+							<div>
+								<td><Button color="info" size="sm" onClick={ () => this.showDetailedModel(id) }>Details</Button></td>
+								<td><Button color="warning" size="sm" onClick={ () => this.showEditForm(id) }>Edit</Button></td>
+								<td><Button color="danger" size="sm" onClick={ () => this.showDeleteForm(id) }>Delete</Button></td>
+							</div>
+						):
+						(<p></p>)}
           </tr>
        )
     })
@@ -92,7 +101,7 @@ export class ModelTable extends Component {
 		e.preventDefault();
 		let f = this.state.file;
 		this.fileUpload(this.state.file).then((response)=>{
-			alert("Import was successful.");
+			alert("Import was successful.\n" + JSON.stringify(response));
 		})
 		.catch(function (error) {
 			console.log(error.response)
@@ -111,7 +120,7 @@ export class ModelTable extends Component {
 
 			if (window.confirm('Import was not successful.\n' + JSON.stringify(error.response.data))) {
 				fileUploadOverride(f).then((response)=>{
-					console.log(response.data);
+					alert("Import was successful.\n" + JSON.stringify(response));
 				})
 				.catch(function (error) {
 					console.log(error.response)
@@ -146,20 +155,34 @@ export class ModelTable extends Component {
   render() {
     return (
       <div>
+		  { this.props.is_admin ? (
 				<div>
-					<button onClick={ this.showCreateForm }>Add Model</button>
-				</div>
-				<form onSubmit={this.handleImport} >
-					<input type="file" name="file" onChange={this.handleFileUpload}/>
-					<button type="submit">Import File</button>
-				</form>
-
-         <table id="entries">
+					<Row>
+						<Col><Button color="primary" onClick={ this.showCreateForm }>Add Model +</Button></Col>
+						<Col>	
+							<Card>
+								<Form onSubmit={this.handleImport} >
+									<FormGroup>
+										<Input type="file" name="file" onChange={this.handleFileUpload}/>{' '}
+									</FormGroup>
+									<Button>Import</Button>{' '}
+								</Form>
+							</Card>
+						</Col>
+						
+						<Col></Col>
+						<Col></Col>
+					</Row>
+					
+				</div> ) : (<p></p>)}
+		  
+				<br></br>
+         <Table hover striped>
             <tbody>
                <tr>{this.renderTableHeader()}</tr>
                { this.renderTableData() }
             </tbody>
-         </table>
+         </Table>
       </div>
    )
   }

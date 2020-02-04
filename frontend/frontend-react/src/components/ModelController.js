@@ -6,6 +6,9 @@ import EditModelForm from './EditModelForm';
 import ModelFilters from './ModelFilters';
 import ModelSort from './ModelSort';
 import DetailedModel from './DetailedModel';
+import { UncontrolledCollapse, Button, ButtonGroup, Container, Card, ButtonToolbar, Row, Col } from 'reactstrap';
+import RackFilters from "./RackFilters";
+
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 export class ModelController extends Component {
@@ -256,14 +259,15 @@ export class ModelController extends Component {
     console.log('rerender')
 
     if (this.state.showTableView){
-      content = <div><h2>Model Table</h2><ModelTable models={ this.state.models } 
+      content = <div><ModelTable models={ this.state.models }
                   sendRerender={ this.getRerender }
                   sendShowTable={ this.getShowTable }
                   sendShowDetailedModel={ this.getShowDetailedModel }
                   sendModelID={ this.getDetailedModelID }
                   sendShowCreate={this.getShowCreate}
                   sendShowEdit={this.getShowEdit}
-                  sendEditID={this.getEditID} /></div>
+                  sendEditID={this.getEditID} 
+                  is_admin={this.props.is_admin}/></div>
     }
     else if (this.state.showIndividualModelView) {
       content = <DetailedModel modelID={ this.state.detailedModelID }
@@ -283,41 +287,61 @@ export class ModelController extends Component {
 
     let paginateNavigation = <p></p>;
     if (this.state.prevPage == null && this.state.nextPage != null) {
-      paginateNavigation = <div><button onClick={ this.paginateNext }>next page</button></div>;
-    } 
+      paginateNavigation = <div><ButtonGroup><Button disabled>prev page</Button>{'  '}<Button onClick={ this.paginateNext }>next page</Button></ButtonGroup></div>;
+    }
     else if (this.state.prevPage != null && this.state.nextPage == null) {
-      paginateNavigation = <div><button onClick={ this.paginatePrev }>prev page</button></div>;
+    paginateNavigation = <div><ButtonGroup><Button onClick={ this.paginatePrev }>prev page</Button>{'  '}<Button disabled>next page</Button></ButtonGroup></div>;
     }
     else if (this.state.prevPage != null && this.state.nextPage != null) {
-      paginateNavigation = <div><button onClick={ this.paginatePrev }>prev page</button><button onClick={ this.paginateNext }>next page</button></div>;
+      paginateNavigation = <div><ButtonGroup><Button onClick={ this.paginatePrev }>prev page</Button>{'  '}<Button onClick={ this.paginateNext }>next page</Button></ButtonGroup></div>;
     }
 
-    let filters = <ModelFilters sendFilterQuery={ this.getFilterQuery } />
-    let sorting = <ModelSort sendSortQuery={ this.getSortQuery } />
-    let exp = <button onClick={ this.exportData } >Export</button>
 
+    let filters_sorts = <div><Button color="primary" id="toggler" style={{ marginBottom: '1rem' }}> Toggle Filtering and Sorting Dialog </Button>
+      <UncontrolledCollapse toggler="#toggler">
+        <ModelFilters sendFilterQuery={ this.getFilterQuery } />
+        <ModelSort sendSortQuery={ this.getSortQuery }/>
+     </UncontrolledCollapse>{' '}
+  </div>;
+
+    let exp = <Button onClick={ this.exportData } >Export</Button>
+    let showAll = <Button onClick={this.getAllModels } >Show All</Button>
+
+
+//     let buttonToolbar =    	<div>
+//       <h4>Model Table</h4>
+//         <ButtonToolbar>
+//                     <ButtonGroup>
+//                       {paginateNavigation}{' '}
+//                       {exp}{' '}
+//                       {showAll}{' '}
+//                     </ButtonGroup>
+//             </ButtonToolbar>
+// </div>;
     // if we're not on the table, then don't show pagination or filters or sort
     if (! this.state.showTableView) {
       paginateNavigation = <p></p>;
-      filters = <p></p>;
-      sorting = <p></p>;
-      exp = <p></p>
+      filters_sorts = <p></p>;
+      exp = <p></p>;
+      showAll = <p></p>;
+      //buttonToolbar = <p></p>
     }
   
     return (
-      <div>
-        { filters }
-        <br></br>
-        { sorting }
-        <br></br>
-        { paginateNavigation }
-        <br></br>
-        <button onClick={this.getAllModels } >Show All</button>
-        <br></br>
+      <Container className="themed-container">
+        <h2>Model</h2>
+        <Row>
+          <Col>{ filters_sorts }</Col>
+        </Row>
+        <Row>
+          <Col>{ showAll }</Col>
+          <Col>{ exp }</Col>
+          <Col>{ paginateNavigation }</Col>
+          <Col></Col>
+        </Row>
+
         {content}
-        <br></br>
-        { exp }
-      </div>
+      </Container>
     )
   }
 }

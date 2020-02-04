@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import '../stylesheets/RackTable.css'
 import '../stylesheets/RacksView.css'
+import '../stylesheets/Printing.css'
 import RackRow from './RackRow'
 
 export class RackTable extends Component {
@@ -172,9 +173,9 @@ export class RackTable extends Component {
       return (
            <table id="entries1">
                <tbody>
-								 <th></th>
-								 <th>{rackNumber}</th>
-								 <th></th>
+                  <th></th>
+                  <th>{rackNumber}</th>
+                  <th></th>
                  {this.renderRows()}
                </tbody>
            </table>
