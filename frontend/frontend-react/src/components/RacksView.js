@@ -59,33 +59,6 @@ export class RacksView extends Component {
       }
   }
 
-  generatePDF = () => {
-    console.log("in generate")
-    let doc = new jsPDF('landscape');
-    let content = document.getElementById('print');
-    console.log(doc);
-    console.log(content);
-    doc.fromHTML((<RackTable rack={this.props.rack[0]} />));
-    html2canvas(content)
-    .then((canvas) => {
-        const imgData = canvas.toDataURL('image/png');
-        const pdf = new jsPDF();
-        pdf.addImage(imgData, 'JPEG', 0, 0);
-        // pdf.output('dataurlnewwindow');
-        pdf.save("download.pdf");
-      });
-
-    let pdf = new jsPDF();
-    pdf.addJS(content);
-    pdf.save('pdf');
-
- }
-
-//  openNewTab = () => {
-//     <RackTable rack={item} condensedState={this.state.condensedView} /> 
-//  }
-
-
   handleCondensation = () => {
     this.setState({condensedView: true});
   }
@@ -101,19 +74,20 @@ export class RacksView extends Component {
     render(){
         return(
             <div>
+            <div id='hideOnPrint'>
             <ButtonToolbar>
                 <ButtonGroup>
-                <div id='hideOnPrint'>
                     <Button color='success' size="sm" onClick={ this.showCreateForm }>Add Single Rack +</Button>{' '}
                     <Button color='success' size="sm" onClick={ this.showMassCreateForm }>Add Multiple Racks ++</Button>{' '}
-                </div>
                 </ButtonGroup>
                     <Button color='danger' size="sm" onClick={ this.showMassDeleteForm }>Delete Multiple Racks --</Button>{' '}
                     <ButtonGroup>
                         <Button size="sm" onClick={ this.handleCondensation }>Condensed Rack View</Button>{' '}
                         <Button size="sm" onClick={ this.handleCondensationOff }>Full Rack View</Button>{' '}
+                        <Button size="sm" onClick={ this.showAllRacks }>Show All Racks</Button>{' '}
                     </ButtonGroup>
             </ButtonToolbar>
+            </div>
                     <br></br>
                         <h1>Racks</h1>
                     <div>

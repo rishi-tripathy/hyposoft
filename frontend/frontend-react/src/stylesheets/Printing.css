@@ -12,8 +12,5 @@
 }
 @page { 
   margin: 0;
-  size: 'A4';
+  size: landscape;
  }
- @page :first {
-  margin-top: 0mm    /* Top margin on first page 10cm */
-}

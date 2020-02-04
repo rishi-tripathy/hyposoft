@@ -43,7 +43,7 @@
 #entries1 tr:hover {background-color: #ddd;}
 
 #entries1 th {
-  text-align: center;
+  text-align: center !important;
   background-color: black;
   color: white;
   font-size: small;
@@ -56,10 +56,10 @@
 }
 }
 #entries1 td, #entries1 th {
-  max-height: 3px;
+  max-height: 1px !important; 
   width:auto;
   padding: 2px; 
-
+  vertical-align: bottom !important;
 }
 
 #title {
@@ -76,19 +76,15 @@
   padding: 10px;    
 }
 
+#entries1 tr {
+  max-height: 1px !important;
+}
+
 #entries1 td:nth-child(odd){
 background-color: black;
 color: white;
 font-size: 8px;
 border: 1px solid black;
-}
-
-#modelText {
-float: left;
-}
-
-#nameText {
-float: right;
 }
 
 #entries1 td { 

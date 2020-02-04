@@ -42,13 +42,11 @@ export class RackRow extends Component {
         let content; 
         let dispColor = '#';
         dispColor = dispColor.concat(this.props.displayColor);
-        let bcolor = 'black';
         if(!objectIsNull){
             content = 
              <td style={{
                 fontSize: 7,
-                background: dispColor, 
-                color: bcolor,
+                background: dispColor,
              }}>
                 <pre>{ this.props.model }          { this.displayName() }</pre>
             </td> 
@@ -62,12 +60,12 @@ export class RackRow extends Component {
         }
 
         return (
-            <tr>
+            <tr style={{maxHeight: '2px'}}>
                 <td>
                     { this.props.row }   
                 </td> 
                { content }
-                <td>
+               <td>
                     {this.props.row}    
                 </td>                
             </tr>

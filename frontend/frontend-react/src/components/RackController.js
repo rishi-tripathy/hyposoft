@@ -345,20 +345,14 @@ export class RackController extends Component {
                     sendShowEdit={this.getShowEdit}
                     sendShowDelete={this.getShowDelete}/> 
     }
-<<<<<<< HEAD
     
-    let filters = <RackFilters sendFilterQuery={ this.getFilterQuery } />;
-    let printButton = <button onClick={ this.print }>Print Racks</button>;
-=======
-
     let filters =
   <div><Button color="primary" id="toggler" style={{ marginBottom: '1rem' }}> Toggle Filtering Dialog </Button>
       <UncontrolledCollapse toggler="#toggler">
         <RackFilters sendFilterQuery={ this.getFilterQuery } />
        </UncontrolledCollapse>
   </div>;
-
->>>>>>> b75eb2409f63795a64dbd64044615a0a59fafc20
+    let printButton = <Button color="primary" onClick= { this.print }>Print Racks</Button>;
     let paginateNavigation;
 
     if (this.state.prevPage == null && this.state.nextPage != null) {
@@ -382,6 +376,7 @@ export class RackController extends Component {
         <div>
           <div id="hideOnPrint">
             {filters}
+            { printButton }
             { paginateNavigation }
           </div>
           {content}
