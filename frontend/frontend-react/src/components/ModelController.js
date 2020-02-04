@@ -6,7 +6,7 @@ import EditModelForm from './EditModelForm';
 import ModelFilters from './ModelFilters';
 import ModelSort from './ModelSort';
 import DetailedModel from './DetailedModel';
-import { UncontrolledCollapse, Button, ButtonGroup, Container, Card, ButtonToolbar } from 'reactstrap';
+import { UncontrolledCollapse, Button, ButtonGroup, Container, Card, ButtonToolbar, Row, Col } from 'reactstrap';
 import RackFilters from "./RackFilters";
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
@@ -287,13 +287,13 @@ export class ModelController extends Component {
 
     let paginateNavigation = <p></p>;
     if (this.state.prevPage == null && this.state.nextPage != null) {
-      paginateNavigation = <div><Button color="link" disabled>prev page</Button>{'  '}<Button color="link" onClick={ this.paginateNext }>next page</Button></div>;
+      paginateNavigation = <div><ButtonGroup><Button disabled>prev page</Button>{'  '}<Button onClick={ this.paginateNext }>next page</Button></ButtonGroup></div>;
     }
     else if (this.state.prevPage != null && this.state.nextPage == null) {
-    paginateNavigation = <div><Button color="link" onClick={ this.paginatePrev }>prev page</Button>{'  '}<Button color="link" disabled>next page</Button></div>;
+    paginateNavigation = <div><ButtonGroup><Button onClick={ this.paginatePrev }>prev page</Button>{'  '}<Button disabled>next page</Button></ButtonGroup></div>;
     }
     else if (this.state.prevPage != null && this.state.nextPage != null) {
-      paginateNavigation = <div><Button color="link" onClick={ this.paginatePrev }>prev page</Button>{'  '}<Button color="link" onClick={ this.paginateNext }>next page</Button></div>;
+      paginateNavigation = <div><ButtonGroup><Button onClick={ this.paginatePrev }>prev page</Button>{'  '}<Button onClick={ this.paginateNext }>next page</Button></ButtonGroup></div>;
     }
 
 
@@ -308,31 +308,38 @@ export class ModelController extends Component {
     let showAll = <Button onClick={this.getAllModels } >Show All</Button>
 
 
-    let buttonToolbar =    	<div>
-      <h4>Model Table</h4>
-        <ButtonToolbar>
-                    <ButtonGroup>
-                      {paginateNavigation}{' '}
-                      {exp}{' '}
-                      {showAll}{' '}
-                    </ButtonGroup>
-            </ButtonToolbar>
-</div>;
+//     let buttonToolbar =    	<div>
+//       <h4>Model Table</h4>
+//         <ButtonToolbar>
+//                     <ButtonGroup>
+//                       {paginateNavigation}{' '}
+//                       {exp}{' '}
+//                       {showAll}{' '}
+//                     </ButtonGroup>
+//             </ButtonToolbar>
+// </div>;
     // if we're not on the table, then don't show pagination or filters or sort
     if (! this.state.showTableView) {
       paginateNavigation = <p></p>;
       filters_sorts = <p></p>;
       exp = <p></p>;
       showAll = <p></p>;
-      buttonToolbar = <p></p>
+      //buttonToolbar = <p></p>
     }
   
     return (
       <Container className="themed-container">
-        { filters_sorts }
-        <br></br>
-        {buttonToolbar}
-        <br></br>
+        <h2>Model Table</h2>
+        <Row>
+          <Col>{ filters_sorts }</Col>
+        </Row>
+        <Row>
+          <Col>{ showAll }</Col>
+          <Col>{ exp }</Col>
+          <Col>{ paginateNavigation }</Col>
+          <Col></Col>
+        </Row>
+
         {content}
       </Container>
     )

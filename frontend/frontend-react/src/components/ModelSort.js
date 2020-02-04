@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import axios from 'axios'
 import Select from 'react-select';
-import {Button, Form, FormGroup} from "reactstrap";
+import {Button, Form, FormGroup, Input, Row, Col} from "reactstrap";
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
@@ -63,20 +63,27 @@ export class ModelSort extends Component {
   render() {
     return (
       <div> 
+        
         <Form onSubmit={this.handleSubmit}>
-          <h3>Model Sorting</h3>
-          <FormGroup>
-          <Select
-            value = { this.state.selectedSortableOptions }
-            onChange={ this.handleChangeSortable }
-            options={ this.state.sortableOptions }
-            searchable={ true }
-            clearable={ true } 
-            isMulti={ true } />
-          </FormGroup>
-          <FormGroup>
-       <Button value="Apply Sorting">Submit</Button>
-      </FormGroup>
+          <h4>Sorting</h4>
+          <Row>
+            <Col xs="6">
+            <FormGroup>
+              <Select
+                value = { this.state.selectedSortableOptions }
+                onChange={ this.handleChangeSortable }
+                options={ this.state.sortableOptions }
+                searchable={ true }
+                clearable={ true } 
+                isMulti={ true } />
+              </FormGroup>
+            </Col>
+            <Col xs="6">
+              <FormGroup>
+                <Input type="submit" value="Apply Sort" />
+              </FormGroup>
+            </Col>
+          </Row>
         </Form>
       </div>
     )
