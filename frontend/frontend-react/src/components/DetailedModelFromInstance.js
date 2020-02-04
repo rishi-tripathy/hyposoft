@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import axios from 'axios'
-import Button from "reactstrap/es/Button";
+import { UncontrolledCollapse, Button, Table, Input, Form, ButtonGroup, Container, Card, Row, Col } from 'reactstrap';
 import ModelCard from './ModelCard';
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
@@ -42,42 +42,54 @@ export class DetailedModelFromInstance extends Component {
 
   }
 
-  render() {
-    const { id, vendor, model_number, height, display_color, ethernet_ports, power_ports, cpu, memory, storage, comment } = this.state.model;
+  renderTableHeader() {
+		let header = ['id', 'vendor', 'model number', 'height',
+		'display color', 'ethernet ports', 'power ports', 'cpu', 'memory', 'storage', 'comment'];
+    return header.map((key, index) => {
+        return <th key={index}>{key.toUpperCase()}</th>
+    })
+  }
 
+  renderTableData() {
+    return [this.state.model].map((model, index) => {
+       const { id, vendor, model_number, height, display_color } = model //destructuring
+       const { ethernet_ports, power_ports, cpu, memory, storage, comment } = model //more destructuring
+       return (
+          <tr key={id}>
+						<td>{id}</td>
+						<td>{vendor}</td>
+						<td>{model_number}</td>
+						<td>{height}</td>
+						<td><div style={{
+							width: 12,
+							height: 12,
+							backgroundColor: '#' + display_color,
+							left: 5,
+							top: 5,
+							}}></div>{display_color}</td>
+						<td>{ethernet_ports}</td>
+						<td>{power_ports}</td>
+						<td>{cpu}</td>
+						<td>{memory}</td>
+						<td>{storage}</td>
+						<td>{comment}</td>
+          </tr>
+       )
+    })
+	}
+
+  render() {
     return (
       <div>
         <div>
           {/* <Button onClick={() => this.props.sendShowTable(true)} >Back</Button> */}
           <br></br>
-          <div class="card">
-            <div class="container">
-              <h3>Detailed Model</h3>
-              <h4>ID: {id}</h4>
-              <h4>Vendor: {vendor}</h4>
-              <p>Model Number: {model_number}</p> 
-              <p>Height: {height}</p> 
-              <p>Display Color: {display_color} 
-                <div style={{
-                  width: 12,
-                  height: 12,
-                  backgroundColor: '#' + display_color,
-                  left: 5,
-                  top: 5,
-                  }}>
-                </div>
-              </p> 
-              <p>Ethernet Ports: {ethernet_ports}</p> 
-              <p>Power Ports: {power_ports}</p> 
-              <p>CPU: {cpu}</p> 
-              <p>Memory: {memory}</p> 
-              <p>Storage: {storage}</p> 
-              <p>Comment: {comment}</p> 
-              {/* <DetailedModelModal modelURL={model.url} /> */}
-              {/* <button onClick={ this.showModel }>See Detailed Model</button> */}
-            </div>
-          </div>
-          
+          <Table hover striped>
+            <tbody>
+               <tr>{this.renderTableHeader()}</tr>
+               { this.renderTableData() }
+            </tbody>
+         </Table>          
         </div>
       </div>
     )

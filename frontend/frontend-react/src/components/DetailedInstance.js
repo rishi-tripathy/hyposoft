@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import axios from 'axios'
 import InstanceCard from './InstanceCard';
 import DetailedModelFromInstance from './DetailedModelFromInstance'
-import { UncontrolledCollapse, Button, ButtonGroup, Container, Card } from 'reactstrap';
+import { UncontrolledCollapse, Button, Table, FormGroup, Input, Form, ButtonGroup, Container, Card, Row, Col } from 'reactstrap';
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 
@@ -44,33 +44,53 @@ export class DetailedInstance extends Component {
 
   }
 
+  renderTableHeader() {
+    let header = ['id', 'model vendor', 'model number', 'hostname', 'rack', 'rack_u', 'owner_username', 'comment'];
+    return header.map((key, index) => {
+        return <th key={index}>{key.toUpperCase()}</th>
+    })
+  }
+
+  renderTableData() {
+    return [this.state.instance].map((instance) => {
+        const { id, model, hostname, rack, owner, rack_u, comment } = instance //destructuring
+
+        return (
+          <tr key={id}>
+            <td>{id}</td>
+            <td>{model ? model.vendor : null}</td>
+            <td>{model ? model.model_number : null}</td>
+            <td>{hostname}</td>
+            <td>{rack ? rack.rack_number : null}</td>
+            <td>{rack_u}</td>
+            <td>{owner ? owner.username : null}</td>
+            <td>{comment}</td>
+          </tr>
+        )
+    })
+  }
+
   render() {
     const { id, model, hostname, rack, rack_u, owner, comment } = this.state.instance;
     return (
       <div>
         <Button onClick={() => this.props.sendShowTable(true)} >Back</Button>
         <br></br>
-        <div class="card">
-          <div class="container">
-            <h3>Detailed Instance</h3>
-            <h4>ID: {id}</h4>
-            <h4>Model Vendor: {model ? model.vendor : null}</h4>
-            <p>Hostname: {hostname}</p> 
-            <p>Rack Number: {rack ? rack.rack_number : null}</p> 
-            <p>Rack_U: {rack_u}</p> 
-            <p>Owner Username: {owner ? owner.username : null}</p> 
-            <p>Comment: {comment}</p> 
-            <div>
-              <Button color="primary" id="toggler" style={{ marginBottom: '1rem' }}> See Model Details </Button>
-              <UncontrolledCollapse toggler="#toggler">
-                <DetailedModelFromInstance modelURL={model ? model.url : null}/>
-              </UncontrolledCollapse>{' '}
-            </div>
-            
-            {/* <DetailedModelModal modelURL={model ? model.url : null} /> */}
-            {/* <button onClick={ this.showModel }>See Detailed Model</button> */}
-          </div>
+        <Table hover striped>
+            <tbody>
+               <tr>{this.renderTableHeader()}</tr>
+               { this.renderTableData() }
+            </tbody>
+         </Table>
+
+         <div>
+          <Button color="primary" id="toggler" style={{ marginBottom: '1rem' }}> See Model Details </Button>
+          <UncontrolledCollapse toggler="#toggler">
+            <DetailedModelFromInstance modelURL={model ? model.url : null}/>
+          </UncontrolledCollapse>{' '}
         </div>
+
+        
         {/* <InstanceCard inst={ this.state.instance } /> */}
       </div>
     )
