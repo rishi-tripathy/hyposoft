@@ -4,7 +4,6 @@ import '../stylesheets/RacksView.css'
 import '../stylesheets/RackTable.css'
 import '../stylesheets/Printing.css'
 import RackTable from './RackTable'
-import * as jsPDF from 'jspdf'
 import axios from 'axios'
 import { Button } from 'reactstrap'
 import ButtonToolbar from "reactstrap/es/ButtonToolbar";
