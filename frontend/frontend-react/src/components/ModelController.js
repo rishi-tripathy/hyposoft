@@ -285,18 +285,18 @@ export class ModelController extends Component {
 
     let paginateNavigation = <p></p>;
     if (this.state.prevPage == null && this.state.nextPage != null) {
-      paginateNavigation = <div><button onClick={ this.paginateNext }>next page</button></div>;
+      paginateNavigation = <div><Button onClick={ this.paginateNext }>next page</Button></div>;
     } 
     else if (this.state.prevPage != null && this.state.nextPage == null) {
-      paginateNavigation = <div><button onClick={ this.paginatePrev }>prev page</button></div>;
+      paginateNavigation = <div><Button onClick={ this.paginatePrev }>prev page</Button></div>;
     }
     else if (this.state.prevPage != null && this.state.nextPage != null) {
-      paginateNavigation = <div><button onClick={ this.paginatePrev }>prev page</button><button onClick={ this.paginateNext }>next page</button></div>;
+      paginateNavigation = <div><ButtonGroup><Button onClick={ this.paginatePrev }>prev page</Button><Button onClick={ this.paginateNext }>next page</Button></ButtonGroup></div>;
     }
 
     let filters = <ModelFilters sendFilterQuery={ this.getFilterQuery } />
     let sorting = <ModelSort sendSortQuery={ this.getSortQuery } />
-    let exp = <button onClick={ this.exportData } >Export</button>
+    let exp = <Button onClick={ this.exportData } >Export</Button>
 
     // if we're not on the table, then don't show pagination or filters or sort
     if (! this.state.showTableView) {
@@ -314,7 +314,7 @@ export class ModelController extends Component {
         <br></br>
         { paginateNavigation }
         <br></br>
-        <button onClick={this.getAllModels } >Show All</button>
+        <Button onClick={this.getAllModels } >Show All</Button>
         <br></br>
         {content}
         <br></br>
