@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import axios from 'axios'
+import {Button, Form, FormGroup, Input, Label} from "reactstrap";
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 export class CreateMultipleRacksForm extends Component {
@@ -59,14 +60,22 @@ export class CreateMultipleRacksForm extends Component {
     let start_rack;
     let end_rack;
     return (
-      <form onSubmit={this.handleSubmit}>
-        <h3>Create Racks</h3>
-        <p>Start Rack Number </p> <input type="text" onChange={e => this.setState({rack_num_start: e.target.value})} />
-        {/* validate that it's one letter followed by numbers */}
-        <p>End Rack Number </p> <input type="text" onChange={e => this.setState({rack_num_end: e.target.value})} />
-        {console.log(this.state)}
-        <input type="submit" value="Submit" />
-      </form>
+        <Form onSubmit={this.handleSubmit}>
+            <h1>Create Multiple Racks</h1>
+      <FormGroup>
+        <Label for="Start of Range">Creation Range Start</Label>
+        <Input type="text" onChange={e => this.setState({rack_num_start: e.target.value})} />{' '}
+
+         <Label for="End of Range">Creation Range End</Label>
+        <Input type="text" onChange={e => this.setState({rack_num_end: e.target.value})} />{' '}
+      </FormGroup>
+          <FormGroup>
+       <Button>Submit</Button>
+      </FormGroup>
+     {console.log(this.state)}
+    </Form>
+
+
     )
   }
 
