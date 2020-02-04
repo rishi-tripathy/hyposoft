@@ -68,9 +68,12 @@ export class InstanceTable extends Component {
             <td>{rack ? rack.rack_number : null}</td>
             <td>{rack_u}</td>
             <td>{owner ? owner.username : null}</td>
-            <td><Button color="info" size="sm" onClick={ () => this.showDetailedInstance(id) }>Details</Button></td>
-            <td><Button color="warning" size="sm" onClick={ () => this.showEditForm(id) }>Edit</Button></td>
-            <td><Button color="danger" size="sm" onClick={ () => this.showDeleteForm(id) }>Delete</Button></td>
+            {this.props.is_admin &&
+              <div>
+                <td><Button color="info" size="sm" onClick={ () => this.showDetailedInstance(id) }>Details</Button></td>
+                <td><Button color="warning" size="sm" onClick={ () => this.showEditForm(id) }>Edit</Button></td>
+                <td><Button color="danger" size="sm" onClick={ () => this.showDeleteForm(id) }>Delete</Button></td>
+              </div>}
           </tr>
         )
     })
@@ -134,7 +137,7 @@ export class InstanceTable extends Component {
     return (
         <div>
           <div>
-            <button onClick={ this.showCreateForm }>Add Instance</button>
+    {this.props.is_admin && <button onClick={ this.showCreateForm }>Add Instance</button> }
           </div>
           <form onSubmit={this.handleImport} >
             <input type="file" name="file" onChange={this.handleFileUpload}/>

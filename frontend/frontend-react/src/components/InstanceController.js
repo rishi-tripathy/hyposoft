@@ -260,7 +260,8 @@ export class InstanceController extends Component {
                   sendInstanceID={ this.getDetailedInstanceID }
                   sendShowCreate={this.getShowCreate }
                   sendShowEdit={this.getShowEdit }
-                  sendEditID={this.getEditID } />;
+                  sendEditID={this.getEditID } 
+                  is_admin={this.props.is_admin}/>;
     }
     else if (this.state.showIndividualInstanceView) {
       content = <DetailedInstance instanceID={ this.state.detailedInstanceID }
