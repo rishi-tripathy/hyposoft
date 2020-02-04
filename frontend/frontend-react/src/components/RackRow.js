@@ -20,6 +20,15 @@ export class RackRow extends Component {
             return name;
     }
 
+      // handleInstanceClick = (url) => {
+   handleInstanceClick = (id) => {
+
+       if(id !== null){
+            console.log("in an instance");
+            console.log(id);
+            this.props.sendFromRow(true, id);
+            }
+        }
     render() {
 
         let objectIsNull = true;
@@ -51,6 +60,7 @@ export class RackRow extends Component {
             <td style={{
                 fontSize: 7,
                 background: dispColor,
+                cursor: 'pointer',
             }}>
 
             </td>;
@@ -58,9 +68,8 @@ export class RackRow extends Component {
         else{
             content = <td></td>;
         }
-
         return (
-            <tr>
+            <tr onClick={() => this.handleInstanceClick(this.props.id)}>
                 <td>
                     { this.props.row }   
                 </td> 

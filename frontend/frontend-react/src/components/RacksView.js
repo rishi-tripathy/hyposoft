@@ -4,7 +4,6 @@ import '../stylesheets/RacksView.css'
 import '../stylesheets/RackTable.css'
 import '../stylesheets/Printing.css'
 import RackTable from './RackTable'
-import * as jsPDF from 'jspdf'
 import axios from 'axios'
 import { Button } from 'reactstrap'
 import ButtonToolbar from "reactstrap/es/ButtonToolbar";
@@ -22,7 +21,8 @@ export class RacksView extends Component {
         this.showCreateForm = this.showCreateForm.bind(this);
         this.showMassCreateForm = this.showMassCreateForm.bind(this);
         this.showMassDeleteForm = this.showMassDeleteForm.bind(this);
-        this.showEditForm = this.showEditForm.bind(this);        this.showAllRacks = this.showAllRacks.bind(this);
+        this.showEditForm = this.showEditForm.bind(this);        
+        this.showAllRacks = this.showAllRacks.bind(this);
     }
     showCreateForm = () => {
 		this.props.sendShowCreate(true);
@@ -70,6 +70,13 @@ export class RacksView extends Component {
       this.props.sendShowAllRacks(true);
   }
 
+  sendFromRow= (show, id) => {
+    console.log('sending detailed show and id in rack view')
+    this.props.sendViewsToController(show, id);
+}
+
+sendDetailedInstanceUrl
+
     render(){
         let adminTools;
         if(this.props.is_admin){
@@ -98,6 +105,7 @@ export class RacksView extends Component {
             </div>
                     <br></br>
                         <h1>Racks</h1>
+                        
                         { this.props.rack.map((item, key) =>
                         <div id="rackContainer">
                             <div id='hideOnPrint'>
@@ -112,7 +120,12 @@ export class RacksView extends Component {
                             </div>
                             <br></br>
                             <br></br>
-                            <RackTable rack={item} condensedState={this.state.condensedView} is_admin={this.props.is_admin} />    
+                            <RackTable 
+                                sending = {this.sendFromRow} 
+                                sendUrl = {this.sendUrlInView}
+                                rack={item} 
+                                condensedState={this.state.condensedView} 
+                                is_admin={this.props.is_admin} />    
                         </div>  
                 )}
             </div>
