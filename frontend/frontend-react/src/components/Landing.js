@@ -22,7 +22,7 @@ export class Landing extends Component {
 
   render() {
     return (
-      <div id='hideOnPrint'>>
+      <div id='hideOnPrint'>
         <Navbar color="light" light expand="md">
           <Nav>
             <NavbarBrand href="/">Hyposoft</NavbarBrand>
