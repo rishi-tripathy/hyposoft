@@ -1,4 +1,6 @@
 import React, { Component } from 'react'
+import { Table, UncontrolledCollapse, Button, Container, CardBody, Card } from 'reactstrap';
+
 
 export class UserTable extends Component {
 
@@ -34,16 +36,23 @@ export class UserTable extends Component {
   render() {
     return (
       <div>
-        <div>
-					<button onClick={ this.showCreateForm }>Add User</button>
-				</div>
+        
+          <div>
+            <Button color="primary" onClick={ this.showCreateForm }>Add User</Button>
+          </div>
 
-        <table id="entries">
-          <tbody>
-            <tr>{this.renderTableHeader()}</tr>
-            { this.renderTableData() }
-          </tbody>
-         </table>
+          <br></br>
+
+          <Table hover striped>
+            <tbody>
+              <tr>{this.renderTableHeader()}</tr>
+              { this.renderTableData() }
+            </tbody>
+          </Table>
+        
+        
+
+        
       </div>
     )
   }

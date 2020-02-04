@@ -6,6 +6,8 @@ import EditModelForm from './EditModelForm';
 import ModelFilters from './ModelFilters';
 import ModelSort from './ModelSort';
 import DetailedModel from './DetailedModel';
+import { UncontrolledCollapse, Button, ButtonGroup, Container, Card } from 'reactstrap';
+
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 export class ModelController extends Component {
@@ -283,41 +285,43 @@ export class ModelController extends Component {
 
     let paginateNavigation = <p></p>;
     if (this.state.prevPage == null && this.state.nextPage != null) {
-      paginateNavigation = <div><button onClick={ this.paginateNext }>next page</button></div>;
+      paginateNavigation = <div><Button onClick={ this.paginateNext }>next page</Button></div>;
     } 
     else if (this.state.prevPage != null && this.state.nextPage == null) {
-      paginateNavigation = <div><button onClick={ this.paginatePrev }>prev page</button></div>;
+      paginateNavigation = <div><Button onClick={ this.paginatePrev }>prev page</Button></div>;
     }
     else if (this.state.prevPage != null && this.state.nextPage != null) {
-      paginateNavigation = <div><button onClick={ this.paginatePrev }>prev page</button><button onClick={ this.paginateNext }>next page</button></div>;
+      paginateNavigation = <div><ButtonGroup><Button onClick={ this.paginatePrev }>prev page</Button><Button onClick={ this.paginateNext }>next page</Button></ButtonGroup></div>;
     }
 
     let filters = <ModelFilters sendFilterQuery={ this.getFilterQuery } />
     let sorting = <ModelSort sendSortQuery={ this.getSortQuery } />
-    let exp = <button onClick={ this.exportData } >Export</button>
+    let exp = <Button onClick={ this.exportData } >Export</Button>
+    let showAll = <Button onClick={this.getAllModels } >Show All</Button>
 
     // if we're not on the table, then don't show pagination or filters or sort
     if (! this.state.showTableView) {
       paginateNavigation = <p></p>;
       filters = <p></p>;
       sorting = <p></p>;
-      exp = <p></p>
+      exp = <p></p>;
+      showAll = <p></p>;
     }
   
     return (
-      <div>
+      <Container className="themed-container">
         { filters }
         <br></br>
         { sorting }
         <br></br>
         { paginateNavigation }
         <br></br>
-        <button onClick={this.getAllModels } >Show All</button>
+        { showAll }
         <br></br>
         {content}
         <br></br>
         { exp }
-      </div>
+      </Container>
     )
   }
 }

@@ -2,6 +2,8 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types';
 import '../stylesheets/TableView.css'
 import axios, { post } from 'axios'
+import { UncontrolledCollapse, Button, Table, ButtonGroup, Container, Card } from 'reactstrap';
+
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 export class ModelTable extends Component {
@@ -80,9 +82,9 @@ export class ModelTable extends Component {
 						<td>{cpu}</td>
 						<td>{memory}</td>
 						<td>{storage}</td>
-						<td><button onClick={ () => this.showDetailedModel(id) }>More details</button></td>
-						<td><button onClick={ () => this.showEditForm(id) }>Edit</button></td>
-            <td><button onClick={ () => this.showDeleteForm(id) }>Delete</button></td>
+						<td><Button color="info" size="sm" onClick={ () => this.showDetailedModel(id) }>Details</Button></td>
+						<td><Button color="warning" size="sm" onClick={ () => this.showEditForm(id) }>Edit</Button></td>
+            <td><Button color="danger" size="sm" onClick={ () => this.showDeleteForm(id) }>Delete</Button></td>
           </tr>
        )
     })
@@ -92,7 +94,7 @@ export class ModelTable extends Component {
 		e.preventDefault();
 		let f = this.state.file;
 		this.fileUpload(this.state.file).then((response)=>{
-			alert("Import was successful.");
+			alert("Import was successful.\n" + JSON.stringify(response));
 		})
 		.catch(function (error) {
 			console.log(error.response)
@@ -111,7 +113,7 @@ export class ModelTable extends Component {
 
 			if (window.confirm('Import was not successful.\n' + JSON.stringify(error.response.data))) {
 				fileUploadOverride(f).then((response)=>{
-					console.log(response.data);
+					alert("Import was successful.\n" + JSON.stringify(response));
 				})
 				.catch(function (error) {
 					console.log(error.response)
@@ -154,12 +156,12 @@ export class ModelTable extends Component {
 					<button type="submit">Import File</button>
 				</form>
 
-         <table id="entries">
+         <Table hover striped>
             <tbody>
                <tr>{this.renderTableHeader()}</tr>
                { this.renderTableData() }
             </tbody>
-         </table>
+         </Table>
       </div>
    )
   }
