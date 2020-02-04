@@ -63,7 +63,7 @@ export class StatisticsController extends Component {
   }
   
   renderOwnersData() {
-    const owners = Object.keys(this.state.owners_allocated);
+    const owners = Object.entries(this.state.owners_allocated);
     return owners.map((owner) => {
        return (
           <tr>
