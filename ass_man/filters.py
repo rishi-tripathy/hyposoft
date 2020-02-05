@@ -27,6 +27,7 @@ class ModelFilter(filters.FilterSet):
 
 
 class InstanceFilter(filters.FilterSet):
+    model = filters.NumberFilter(field_name='model__pk', lookup_expr='exact')
     vendor = filters.CharFilter(field_name='model__vendor', lookup_expr='icontains')
     model_number = filters.CharFilter(field_name='model__model_number', lookup_expr='icontains')
     hostname = filters.CharFilter(field_name='hostname', lookup_expr='icontains')
