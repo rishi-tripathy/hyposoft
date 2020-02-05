@@ -71,7 +71,6 @@ export class EditModelForm extends Component {
     })
     .catch(function (error) {
       // TODO: handle error
-      console.log(error.response)
       alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
     });
 
@@ -82,7 +81,6 @@ export class EditModelForm extends Component {
       for (let i = 0; i < res.data.length; i++) {
         myOptions.push({ value: res.data[i].vendor, label: res.data[i].vendor });
       }
-      console.log(res.data)
       this.setState({ 
         vendorOptions: myOptions, 
         selectedVendorOption: { value: this.state.model.vendor, label: this.state.model.vendor } 
@@ -90,14 +88,12 @@ export class EditModelForm extends Component {
     })
     .catch(function (error) {
       // TODO: handle error
-      console.log(error.response)
       alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
     });
   }
 
   handleChangeVendor = selectedVendorOption => {
     this.setState({ selectedVendorOption });
-    console.log(selectedVendorOption)
   };
 
   render() {
