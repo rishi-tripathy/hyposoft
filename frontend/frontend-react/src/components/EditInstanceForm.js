@@ -78,7 +78,6 @@ export class EditInstanceForm extends Component {
       for (let i = 0; i < res.data.length; i++) {
         myOptions.push({ value: res.data[i].url, label: res.data[i].rack_number });
       }
-      console.log(res.data)
       this.setState({ 
         rackOptions: myOptions, 
         selectedRackOption: { value: this.state.instance.rack.url, label: this.state.instance.rack.rack_number },
@@ -86,7 +85,6 @@ export class EditInstanceForm extends Component {
     })
     .catch(function (error) {
       // TODO: handle error
-      console.log(error.response)
       alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
     });
 
@@ -97,7 +95,6 @@ export class EditInstanceForm extends Component {
       for (let i = 0; i < res.data.length; i++) {
         myOptions.push({ value: res.data[i].url, label: res.data[i].username });
       }
-      console.log(res.data)
       this.setState({ 
         ownerOptions: myOptions,
         selectedOwnerOption: { value: this.state.instance.owner ? this.state.instance.owner.url : null, label: this.state.instance.owner ? this.state.instance.owner.username : null}, 
@@ -105,14 +102,12 @@ export class EditInstanceForm extends Component {
     })
     .catch(function (error) {
       // TODO: handle error
-      console.log(error)
       //alert('Cannot load. Re-login.\n' + JSON.stringify(error.response, null, 2));
     });
   }
 
   handleChangeModel = selectedModelOption => {
     this.setState({ selectedModelOption });
-    console.log(selectedModelOption)
   };
 
   handleChangeRack = selectedRackOption => {
