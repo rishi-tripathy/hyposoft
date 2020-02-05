@@ -19,7 +19,7 @@ export class AllInstancesOfModelView extends Component {
   }
 
   loadInstances = () => {
-    if (this.props.modelID !== undefined) {
+    if (this.props.modelID) {
       let dst = '/api/models/'.concat(this.props.modelID).concat('/instances/');
       console.log(dst)
       axios.get(dst).then(res => {
@@ -45,7 +45,7 @@ export class AllInstancesOfModelView extends Component {
   }
 
   renderTableHeader() {
-    let header = ['id', 'hostname', 'rack', 'rack u'];
+    let header = ['hostname', 'rack', 'rack u'];
     return header.map((key, index) => {
         return <th key={index}>{key.toUpperCase()}</th>
     })
@@ -57,7 +57,6 @@ export class AllInstancesOfModelView extends Component {
       const { id, model, hostname, rack, owner, rack_u } = instance //destructuring
       return (
         <tr key={id}>
-          <td>{id}</td>
           <td>{hostname}</td>
           <td>{rack ? rack.rack_number : null}</td>
           <td>{rack_u}</td>

@@ -40,7 +40,6 @@ export class RackTable extends Component {
       this.props.sending(show, id);
    } 
 
-
    renderRows() {
       //these store information per rack, for empty ones, everything is added as null except for rackUs
       let rackUs = [];
