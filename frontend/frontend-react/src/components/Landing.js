@@ -28,8 +28,8 @@ export class Landing extends Component {
             <NavbarBrand href="/">Hyposoft</NavbarBrand>
           </Nav>
           
-          <NavbarText><Button onClick={this.handleLogout}>Log Out</Button></NavbarText>
-          
+          <NavbarText><Button onClick={this.handleLogout}>Log Out</Button></NavbarText> {'     '}
+          <NavbarText> Powered by Django Unchained </NavbarText>
         </Navbar>
        </div>
     )

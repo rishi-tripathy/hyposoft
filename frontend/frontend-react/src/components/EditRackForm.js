@@ -53,7 +53,10 @@ export class EditRackForm extends Component {
 
   render() {
     return (
-        <Form onSubmit={this.handleSubmit}>
+  <div>
+      <Button onClick={() => this.props.sendShowTable(true)} >Back</Button>{' '}
+
+    <Form onSubmit={this.handleSubmit}>
       <FormGroup>
         <Label for="Edit Rack">Updated Rack Number</Label>
         <Input type="text" value={this.state.rack_number} onChange={e => this.setState({rack_number: e.target.value})} />
@@ -64,6 +67,7 @@ export class EditRackForm extends Component {
       <FormGroup>
       </FormGroup>
     </Form>
+  </div>
     )
   }
 }

@@ -41,13 +41,19 @@ export class RackRow extends Component {
 
         let content; 
         let dispColor = '#';
+        let textColor = '#000000';
         dispColor = dispColor.concat(this.props.displayColor);
+        if(parseInt(this.props.displayColor, 10) < 818181) {
+            //too dark 
+            textColor = '#ffffff'
+        }
         if(!objectIsNull && this.props.hostname !== null){
             content = 
              <td style={{
                 fontSize: 7,
                 background: dispColor,
                 verticalAlign: 'bottom',
+                color: textColor,
              }}>
                 { this.props.model }          { this.displayName() }
             </td>;

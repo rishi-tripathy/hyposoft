@@ -10,7 +10,7 @@ export class InstanceCard extends Component {
   }
 
   renderTableHeader() {
-    let header = ['id', 'model vendor', 'model number', 'hostname', 'rack', 'rack_u', 'owner_username', 'comment'];
+    let header = ['id', 'model vendor', 'model number', 'hostname', 'rack', 'rack u', 'owner username', 'comment'];
     return header.map((key, index) => {
         return <th key={index}>{key.toUpperCase()}</th>
     })

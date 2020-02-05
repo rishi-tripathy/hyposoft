@@ -25,7 +25,7 @@ from django.contrib.auth.models import User
 # Project
 from ass_man.models import Model, Instance, Rack
 from rest_framework.filters import OrderingFilter
-from django_filters.rest_framework import DjangoFilterBackend as DjangoFiltersBackend
+from django_filters import rest_framework as djfiltBackend
 from ass_man.filters import InstanceFilter, ModelFilter, RackFilter, InstanceFilterByRack
 from rest_framework.serializers import ValidationError
 from rest_framework.request import Request, HttpRequest
@@ -86,6 +86,9 @@ class ModelViewSet(viewsets.ModelViewSet):
     ordering_fields = MODEL_ORDERING_FILTERING_FIELDS
     ordering = ['vendor', 'model_number']  # default ordering
     filterset_fields = MODEL_ORDERING_FILTERING_FIELDS
+    filter_backends = [OrderingFilter,
+                       djfiltBackend.DjangoFilterBackend]
+    filterset_class = ModelFilter
 
     # Overriding of super functions
     def update(self, request, *args, **kwargs):
@@ -349,8 +352,9 @@ class InstanceViewSet(viewsets.ModelViewSet):
     filterset_fields = INSTANCE_ORDERING_FILTERING_FIELDS
 
     filter_backends = [OrderingFilter,
-                       DjangoFiltersBackend,
+                       djfiltBackend.DjangoFilterBackend,
                        InstanceFilterByRack]
+    filterset_class = InstanceFilter
 
     # Overriding of super functions
 
@@ -676,7 +680,7 @@ class RackViewSet(viewsets.ModelViewSet):
     ordering_fields = RACK_ORDERING_FILTERING_FIELDS
 
     filter_backends = [OrderingFilter,
-                       DjangoFiltersBackend,
+                       djfiltBackend.DjangoFilterBackend,
                        RackFilter]
     filterset_fields = RACK_ORDERING_FILTERING_FIELDS
 

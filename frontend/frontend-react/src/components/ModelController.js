@@ -287,13 +287,13 @@ export class ModelController extends Component {
 
     let paginateNavigation = <p></p>;
     if (this.state.prevPage == null && this.state.nextPage != null) {
-      paginateNavigation = <div><ButtonGroup><Button disabled>prev page</Button>{'  '}<Button onClick={ this.paginateNext }>next page</Button></ButtonGroup></div>;
+      paginateNavigation = <div><ButtonGroup><Button color="link" disabled>prev page</Button>{'  '}<Button color="link" onClick={ this.paginateNext }>next page</Button></ButtonGroup></div>;
     }
     else if (this.state.prevPage != null && this.state.nextPage == null) {
-    paginateNavigation = <div><ButtonGroup><Button onClick={ this.paginatePrev }>prev page</Button>{'  '}<Button disabled>next page</Button></ButtonGroup></div>;
+    paginateNavigation = <div><ButtonGroup><Button color="link" onClick={ this.paginatePrev }>prev page</Button>{'  '}<Button color="link" disabled>next page</Button></ButtonGroup></div>;
     }
     else if (this.state.prevPage != null && this.state.nextPage != null) {
-      paginateNavigation = <div><ButtonGroup><Button onClick={ this.paginatePrev }>prev page</Button>{'  '}<Button onClick={ this.paginateNext }>next page</Button></ButtonGroup></div>;
+      paginateNavigation = <div><ButtonGroup><Button color="link" onClick={ this.paginatePrev }>prev page</Button>{'  '}<Button color="link" onClick={ this.paginateNext }>next page</Button></ButtonGroup></div>;
     }
 
 
@@ -329,7 +329,7 @@ export class ModelController extends Component {
   
     return (
       <Container className="themed-container">
-        <h2>Model</h2>
+        <h2>Models</h2>
         <Row>
           <Col>{ filters_sorts }</Col>
         </Row>
@@ -337,9 +337,9 @@ export class ModelController extends Component {
           <Col>{ showAll }</Col>
           <Col>{ exp }</Col>
           <Col>{ paginateNavigation }</Col>
+          <br></br>
           <Col></Col>
         </Row>
-
         {content}
       </Container>
     )

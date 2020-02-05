@@ -49,7 +49,7 @@ export class InstanceTable extends Component {
   }
 
   renderTableHeader() {
-    let header = ['id', 'model vendor', 'model number', 'hostname', 'rack', 'rack_u', 'owner_username'];
+    let header = ['id', 'model vendor', 'model number', 'hostname', 'rack', 'rack u', 'owner username'];
     return header.map((key, index) => {
         return <th key={index}>{key.toUpperCase()}</th>
     })
@@ -144,7 +144,7 @@ export class InstanceTable extends Component {
 		  { this.props.is_admin ? (
 				<div>
 					<Row>
-						<Col><Button color="primary" onClick={ this.showCreateForm }>Add Instance +</Button></Col>
+						<Col><Button color="success" onClick={ this.showCreateForm }>Add Instance +</Button></Col>
 						<Col>	
 							<Card>
 								<Form onSubmit={this.handleImport} >
