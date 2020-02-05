@@ -4,6 +4,7 @@ from rest_framework import serializers
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from django.contrib.auth.models import User
+from rest_framework.response import Response
 
 
 # class UserSerializer(serializers.HyperlinkedModelSerializer):
@@ -32,11 +33,11 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
     def create(self, validated_data):
         user = User.objects.create_user(validated_data['username'], validated_data['email'],
                                         validated_data['password'])
-        if validated_data['first_name']:
-            user.first_name = validated_data['first_name']
+        if self.data.get('first_name'):
+            user.first_name = self.data.get('first_name')
 
-        if validated_data['last_name']:
-            user.last_name = validated_data['last_name']
+        if self.data.get('last_name'):
+            user.last_name = self.data.get('last_name')
 
         return user
 
