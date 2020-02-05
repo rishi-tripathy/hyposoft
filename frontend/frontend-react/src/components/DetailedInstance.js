@@ -19,7 +19,7 @@ export class DetailedInstance extends Component {
   }
 
   loadInstance = () => {
-    if (this.props.instanceID !== undefined) {
+    if (this.props.instanceID) {
       let dst = '/api/instances/'.concat(this.props.instanceID).concat('/');
       axios.get(dst).then(res => {
         this.setState({

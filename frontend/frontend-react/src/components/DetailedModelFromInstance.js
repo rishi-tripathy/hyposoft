@@ -17,8 +17,9 @@ export class DetailedModelFromInstance extends Component {
   }
 
   loadModel = () => {
-    if (this.props.modelURL !== undefined) {
+    if (this.props.modelURL) {
       // let dst = '/api/models/'.concat(this.props.modelID).concat('/');
+      console.log(this.props.modelURL);
       axios.get(this.props.modelURL).then(res => {
         this.setState({
           model: res.data
@@ -26,6 +27,7 @@ export class DetailedModelFromInstance extends Component {
       })
       .catch(function (error) {
         // TODO: handle error
+        console.log('hello')
         alert('Cannot load. Re-login.\n' + JSON.stringify(error.response, null, 2));
       });
     }

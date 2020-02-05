@@ -19,7 +19,7 @@ export class AllInstancesOfModelView extends Component {
   }
 
   loadInstances = () => {
-    if (this.props.modelID !== undefined) {
+    if (this.props.modelID) {
       let dst = '/api/models/'.concat(this.props.modelID).concat('/instances/');
       console.log(dst)
       axios.get(dst).then(res => {
