@@ -155,10 +155,11 @@ export class ModelTable extends Component {
   render() {
     return (
       <div>
+				<br></br>
 		  { this.props.is_admin ? (
 				<div>
 					<Row>
-						<Col><Button color="primary" onClick={ this.showCreateForm }>Add Model +</Button></Col>
+						<Col><Button color="success" onClick={ this.showCreateForm }>Add Model +</Button></Col>
 						<Col>	
 							<Card>
 								<Form onSubmit={this.handleImport} >
