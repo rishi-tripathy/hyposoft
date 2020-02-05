@@ -51,10 +51,9 @@ export class EditModelForm extends Component {
     this.props.sendShowTable(true);
   }
 
-  componentDidMount() {
+  loadModel = () => {
     let dst = '/api/models/'.concat(this.props.editID).concat('/');
     axios.get(dst).then(res => {
-      
       let modelCopy = JSON.parse(JSON.stringify(this.state.model));
       modelCopy.vendor = res.data.vendor;
       modelCopy.model_number = res.data.model_number;
@@ -74,9 +73,11 @@ export class EditModelForm extends Component {
       // TODO: handle error
       alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
     });
+  }
 
+  loadVendors = () => {
     // VENDOR
-    dst = '/api/models/vendors/';
+    let dst = '/api/models/vendors/';
     axios.get(dst).then(res => {
       let myOptions = []; 
       for (let i = 0; i < res.data.vendors.length; i++) {
@@ -92,6 +93,14 @@ export class EditModelForm extends Component {
       // TODO: handle error
       alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
     });
+  }
+
+  componentDidMount() {
+    const delay = 50;
+    this.loadModel();
+    setTimeout(() => {
+      this.loadVendors();
+    }, delay);  
   }
 
   handleChangeVendor = selectedVendorOption => {
