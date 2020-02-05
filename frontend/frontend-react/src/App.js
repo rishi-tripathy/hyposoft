@@ -24,7 +24,6 @@ class App extends React.Component {
   checkLoginStatus() {
     axios.get('api/users/who_am_i/').then(res => {
       const r = res.data.current_user;
-      console.log(r);
       if(r!= ''){
         this.setState({logged_in: true});
       }
@@ -43,7 +42,6 @@ class App extends React.Component {
     axios.get('api/users/am_i_admin/').then(res => {
         const r = res.data.is_admin;
         this.setState({is_admin: r});
-        console.log(r);
 
     })
     .then(response => { 
@@ -56,7 +54,6 @@ class App extends React.Component {
 
   handleOnClick() {
     window.location = "/accounts/login/";
-    console.log(window.location);
   }
 
   render() {

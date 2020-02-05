@@ -148,6 +148,8 @@ class ModelViewSet(viewsets.ModelViewSet):
         #reader = csv.reader(file)
         reader = csv.DictReader(io.StringIO(file.read().decode('utf-8-sig')))
         models_to_create = []
+        models_to_update = []
+        models_to_ignore = []
         should_override = request.query_params.get('override') or False
         overriden = 0
         ignored = 0
@@ -163,9 +165,17 @@ class ModelViewSet(viewsets.ModelViewSet):
             if disp_col.startswith('#'):
                 disp_col = disp_col[1:]
             if model is None:
-                models_to_create.append(Model(vendor=row['vendor'], model_number=row['model_number'],height=row['height'], \
-                display_color=disp_col, ethernet_ports=row['ethernet_ports'], power_ports=row['power_ports'], \
-                cpu=row['cpu'], memory=row['memory'], storage=row['storage'], comment=row['comment']))
+                new_model = Model(vendor=row['vendor'], model_number=row['model_number'],height=row['height'], \
+                cpu=row['cpu'], storage=row['storage'], comment=row['comment'])
+                if disp_col:
+                    new_model.display_color=disp_col
+                if row['ethernet_ports']:
+                    new_model.ethernet_ports=row['ethernet_ports']
+                if row['power_ports']:
+                    new_model.power_ports=row['power_ports']
+                if row['memory']:
+                    new_model.memory=row['memory']
+                models_to_create.append(new_model)
                 continue
             if str(model.height) != row['height']:
                 if should_override:
@@ -183,7 +193,7 @@ class ModelViewSet(viewsets.ModelViewSet):
                     key = model.vendor + model.model_number + "_display_color"
                     fields_overriden[key] = [model.display_color, disp_col]
                 override = True
-            if str(model.ethernet_ports) != row['ethernet_ports']:
+            if str(model.ethernet_ports) != row['ethernet_ports'] and (model.ethernet_ports or row['ethernet_ports']):
                 if should_override:
                     model.ethernet_ports = row['ethernet_ports']
                     should_update = True
@@ -191,7 +201,7 @@ class ModelViewSet(viewsets.ModelViewSet):
                     key = model.vendor + model.model_number + "_ethernet_ports"
                     fields_overriden[key] = [model.ethernet_ports, row['ethernet_ports']]
                 override = True
-            if str(model.power_ports) != row['power_ports']:
+            if str(model.power_ports) != row['power_ports'] and (model.power_ports or row['power_ports']):
                 if should_override:
                     model.power_ports = row['power_ports']
                     should_update = True
@@ -199,7 +209,7 @@ class ModelViewSet(viewsets.ModelViewSet):
                     key = model.vendor + model.model_number + "_power_ports"
                     fields_overriden[key] = [model.power_ports, row['power_ports']]
                 override = True
-            if model.cpu != row['cpu']:
+            if model.cpu != row['cpu'] and (model.cpu or row['cpu']):
                 if should_override:
                     model.cpu = row['cpu']
                     should_update = True
@@ -207,7 +217,7 @@ class ModelViewSet(viewsets.ModelViewSet):
                     key = model.vendor + model.model_number + "_cpu"
                     fields_overriden[key] = [model.cpu, row['cpu']]
                 override = True
-            if str(model.memory) != row['memory']:
+            if str(model.memory) != row['memory'] and (model.memory or row['memory']):
                 if should_override:
                     model.memory = row['memory']
                     should_update = True
@@ -215,7 +225,7 @@ class ModelViewSet(viewsets.ModelViewSet):
                     key = model.vendor + model.model_number + "_memory"
                     fields_overriden[key] = [model.memory, row['memory']]
                 override = True
-            if model.storage != row['storage']:
+            if model.storage != row['storage'] and (model.storage or row['storage']):
                 if should_override:
                     model.storage = row['storage']
                     should_update = True
@@ -223,7 +233,7 @@ class ModelViewSet(viewsets.ModelViewSet):
                     key = model.vendor + model.model_number + "_storage"
                     fields_overriden[key] = [model.storage, row['storage']]
                 override = True
-            if model.comment != row['comment']:
+            if model.comment != row['comment'] and (model.comment or row['comment']):
                 if should_override:
                     model.comment = row['comment']
                     should_update = True
@@ -232,11 +242,12 @@ class ModelViewSet(viewsets.ModelViewSet):
                     fields_overriden[key] = [model.comment, row['comment']]
                 override = True
             if should_update:
-                models_to_create.append(model)
+                models_to_update.append(model)
             if override:
                 overriden+=1
             else:
                 ignored+=1
+                models_to_ignore.append(model)
 
         if overriden > 0 and not should_override:
             err_message = "Do you want to overwrite the following "\
@@ -250,12 +261,25 @@ class ModelViewSet(viewsets.ModelViewSet):
                 'Warning' : err_message,
             }, status=status.HTTP_400_BAD_REQUEST)
 
+        created_models = ''
         for model in models_to_create:
             model.save()
+            created_models += model.vendor+' '+model.model_number+' ,'
+        updated_models = ''
+        for model in models_to_update:
+            model.save()
+            updated_models += model.vendor+' '+model.model_number+' ,'
+        ignored_models = ''
+        for model in models_to_ignore:
+            ignored_models += model.vendor+' '+model.model_number+' ,'
+
         return Response({
-        'created': (len(models_to_create)-overriden),
-        'ignored': ignored,
-        'updated': overriden
+        'Number of models created': (len(models_to_create)),
+        'Number of models ignored': ignored,
+        'Number of models updated': overriden,
+        'Models created': created_models,
+        'Models updated': updated_models,
+        'Models ignored': ignored_models
         })
 
     @action(detail=False, methods=[GET])
@@ -390,6 +414,8 @@ class InstanceViewSet(viewsets.ModelViewSet):
         #reader = csv.reader(file)
         reader = csv.DictReader(io.StringIO(file.read().decode('utf-8-sig')))
         instances_to_create = []
+        instances_to_update = []
+        instances_to_ignore = []
         racks_to_save = []
         should_override = request.query_params.get('override') or False
         overriden = 0
@@ -422,18 +448,21 @@ class InstanceViewSet(viewsets.ModelViewSet):
                 try:
                     owner = User.objects.get(username=row['owner'])
                 except User.DoesNotExist:
-                    uncreated_objects['user'].append(row['owner'])
-                    dont_add = True
+                    if row['owner']:
+                        uncreated_objects['user'].append(row['owner'])
+                        dont_add = True
+                    else:
+                        owner=None
                 if not dont_add:
                     instance = Instance(model=model, hostname=row['hostname'],\
                     rack=rack, rack_u=row['rack_position'], owner=owner, comment=row['comment'])
-                    for i in range(int(row['rack_position']), int(row['rack_position'])+instance.model.height+1):
+                    for i in range(int(row['rack_position']), int(row['rack_position'])+instance.model.height):
                         curr_instance = getattr(rack, 'u{}'.format(row['rack_position']))
                         if curr_instance is not None:
                             blocked = True
                             blocked_instances[instance.hostname] =row['rack']+"_u"+row['rack_position']
 
-                    for i in range(int(row['rack_position']), int(row['rack_position'])+instance.model.height+1):
+                    for i in range(int(row['rack_position']), int(row['rack_position'])+instance.model.height):
                         setattr(rack, 'u{}'.format(row['rack_position']), instance)
                     racks_to_save.append(rack)
 
@@ -469,7 +498,7 @@ class InstanceViewSet(viewsets.ModelViewSet):
 
                 if should_override:
                     blocked = False
-                    for i in range(int(row['rack_position']), int(row['rack_position'])+instance.model.height+1):
+                    for i in range(int(row['rack_position']), int(row['rack_position'])+instance.model.height):
                         curr_instance = getattr(rack, 'u{}'.format(row['rack_position']))
                         if curr_instance is not None:
                             blocked = True
@@ -543,11 +572,12 @@ class InstanceViewSet(viewsets.ModelViewSet):
                     fields_overriden[key] = [instance.comment, row['comment']]
                 override = True
             if should_update:
-                instances_to_create.append(instance)
+                instances_to_update.append(instance)
             if override:
                 overriden+=1
             else:
                 ignored+=1
+                instances_to_ignore.append(instance)
 
         if len(uncreated_objects['model']) > 0 or len(uncreated_objects['rack']) > 0 or len(uncreated_objects['user']) > 0:
             err_message = "The following objects were referenced, but have not been created. "
@@ -580,15 +610,26 @@ class InstanceViewSet(viewsets.ModelViewSet):
             return Response({
                 'Warning' : err_message,
             }, status=status.HTTP_400_BAD_REQUEST)
-
+        created_instances = ''
+        updated_instances = ''
+        ignored_instances = ''
         for instance in instances_to_create:
             instance.save()
+            created_instances+=instance.hostname + ", "
+        for instance in instances_to_update:
+            instance.save()
+            updated_instances+=instance.hostname + ", "
+        for instance in instances_to_ignore:
+            ignored_instances+=instance.hostname + ", "
         for rack in racks_to_save:
             rack.save()
         return Response({
-        'created': (len(instances_to_create)-overriden),
-        'ignored': ignored,
-        'updated': overriden
+        'Number of instances created': (len(instances_to_create)),
+        'Number of instances ignored': ignored,
+        'Number of instances updated': overriden,
+        'Created instances':created_instances,
+        'Updated instances':updated_instances,
+        'Ignored instances':ignored_instances
         })
 
 

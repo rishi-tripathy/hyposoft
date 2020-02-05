@@ -29,33 +29,31 @@ export class DeleteMultipleRacksForm extends Component {
 
         //validate
 
-        console.log(start_rack);
-        console.log(end_rack);
+        // console.log(start_rack);
+        // console.log(end_rack);
         
         const validNumRegex = new RegExp("^[A-Z]\\d+$", 'i');
-        console.log(validNumRegex);
+       // console.log(validNumRegex);
 
         if(validNumRegex.test(start_rack) && validNumRegex.test(end_rack)){
+        //  console.log(stateToSend);
+        
+          axios.delete('/api/racks/many/', {
+              data: stateToSend
+            })
+          .then(function (response) {
+            console.log(response);
+            let message = response.data.results;
+            alert(response.data.results);
+          })
+          .catch(function (error) {
+            alert('Creation was not successful.\n' + JSON.stringify(error.response.data, null, 2));
+      });
         }
         else {
             alert("Rack Numbers must be specified by a Single Capital Letter Followed by Multiple Numbers.");
             return
         }
-
-        // for(var i: )
-        console.log(stateToSend);
-        
-        axios.delete('/api/racks/many/', {
-            data: stateToSend
-          })
-        .then(function (response) {
-          console.log(response);
-          let message = response.data.results;
-          alert(response.data.results);
-        })
-        .catch(function (error) {
-          alert('Creation was not successful.\n' + JSON.stringify(error.response.data, null, 2));
-    });
     this.props.sendShowTable(true);
   }
   
