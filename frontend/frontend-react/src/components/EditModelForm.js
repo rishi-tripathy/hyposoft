@@ -38,6 +38,7 @@ export class EditModelForm extends Component {
     let dst = '/api/models/'.concat(this.props.editID).concat('/');
 
     let stateCopy = Object.assign({}, this.state.model);
+    stateCopy.vendor = this.state.selectedVendorOption ? this.state.selectedVendorOption.value : null;
     let stateToSend = this.removeEmpty(stateCopy);
     
     axios.put(dst, stateToSend)
@@ -78,9 +79,10 @@ export class EditModelForm extends Component {
     dst = '/api/models/vendors/';
     axios.get(dst).then(res => {
       let myOptions = []; 
-      for (let i = 0; i < res.data.length; i++) {
-        myOptions.push({ value: res.data[i].vendor, label: res.data[i].vendor });
+      for (let i = 0; i < res.data.vendors.length; i++) {
+        myOptions.push({ value: res.data.vendors[i], label: res.data.vendors[i] });
       }
+      console.log(myOptions)
       this.setState({ 
         vendorOptions: myOptions, 
         selectedVendorOption: { value: this.state.model.vendor, label: this.state.model.vendor } 
