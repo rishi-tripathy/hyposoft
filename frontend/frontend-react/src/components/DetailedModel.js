@@ -3,6 +3,8 @@ import axios from 'axios'
 import ModelCard from './ModelCard'
 import DetailedInstance from './DetailedInstance'
 import AllInstancesOfModelView from './AllInstancesOfModelView';
+import DetailedInstanceFromModel from './DetailedInstanceFromModel';
+import Button from "reactstrap/es/Button";
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 
@@ -42,6 +44,17 @@ export class DetailedModel extends Component {
     }) 
   }
 
+  getShowTableView = (show) => {
+    show ? this.setState({
+      showTableView : true,
+      // everything else false
+      showIndividualInstanceView: false,
+    })
+    : this.setState({
+      showTableView : false,
+    })
+  }
+
   getDetailedInstanceID = (id) => {
     this.setState({ detailedInstanceID: id});
   }
@@ -57,7 +70,7 @@ export class DetailedModel extends Component {
       })
       .catch(function (error) {
         // TODO: handle error
-        console.log(error.response);
+        alert('Cannot load models. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
       });
     }
   }
@@ -81,16 +94,19 @@ export class DetailedModel extends Component {
                   sendShowDetailedInstance={ this.getShowDetailedInstance } />;
     }
     else if (this.state.showIndividualInstanceView) {
-      content = <DetailedInstance instanceID={ this.state.detailedInstanceID } /> ;
+      content = <DetailedInstanceFromModel instanceID={ this.state.detailedInstanceID }
+                  sendShowTable={ this.getShowTableView }  /> ;
     }
 
     return (
       <div>
-        <button onClick={() => this.props.sendShowTable(true)} >Back</button>
+        <Button onClick={() => this.props.sendShowTable(true)} >Back</Button>
         <br></br>
-        <ModelCard model={ this.state.model } />
+        {/* // TODO: this is such bad code lmao */}
+        <ModelCard model={ [this.state.model] } />
         <br></br>
         <br></br>
+        <h4>Instances of this Model</h4>
         { content }
       </div>
     )

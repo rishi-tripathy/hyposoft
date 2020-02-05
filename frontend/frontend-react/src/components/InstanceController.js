@@ -6,6 +6,7 @@ import CreateInstanceForm from './CreateInstanceForm';
 import EditInstanceForm from './EditInstanceForm';
 import InstanceFilters from './InstanceFilters';
 import InstanceSort from './InstanceSort';
+import { UncontrolledCollapse, Button, ButtonGroup, Container, Card, ButtonToolbar, Row, Col } from 'reactstrap';
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 export class InstanceController extends Component {
@@ -108,8 +109,7 @@ export class InstanceController extends Component {
     this.setState({ detailedInstanceID: id});
   }
 
-  getInstances() {
-
+  getInstances = () => {
     let dst = '/api/instances/' + '?' + this.state.filterQuery + '&' + this.state.sortQuery;
     console.log('QUERY')
     console.log(dst)
@@ -123,7 +123,37 @@ export class InstanceController extends Component {
     })
     .catch(function (error) {
       // TODO: handle error
-      console.log(error.response);
+      alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+    });
+  }
+
+  getAllInstances = () =>  {
+    let filter = this.state.filterQuery;
+    let sort = this.state.sortQuery;
+
+    if (this.state.filterQuery.length !== 0) {
+      filter = filter + '&';
+    }
+
+    if (this.state.sortQuery.length !== 0) {
+      sort = sort + '&'
+    }
+
+    let dst = '/api/instances/' + '?' + filter + sort + 'show_all=true';
+    
+    console.log('QUERY')
+    console.log(dst)
+    axios.get(dst).then(res => {
+      // console.log(res.data.next)
+      this.setState({ 
+        instances: res.data,
+        prevPage: null,
+        nextPage: null,
+      });
+    })
+    .catch(function (error) {
+      // TODO: handle error
+      alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
     });
   }
 
@@ -173,7 +203,7 @@ export class InstanceController extends Component {
     })
     .catch(function (error) {
       // TODO: handle error
-      console.log(error.response);
+      alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
     });
   }
 
@@ -187,7 +217,7 @@ export class InstanceController extends Component {
     })
     .catch(function (error) {
       // TODO: handle error
-      console.log(error.response);
+      alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
     });
   }
 
@@ -213,7 +243,7 @@ export class InstanceController extends Component {
     })
     .catch(function (error) {
       // TODO: handle error
-      alert('Export was not successful.\n' + JSON.stringify(error.response.data));
+      alert('Export was not successful.\n' + JSON.stringify(error.response.data, null, 2));
     });
   }
 
@@ -230,7 +260,8 @@ export class InstanceController extends Component {
                   sendInstanceID={ this.getDetailedInstanceID }
                   sendShowCreate={this.getShowCreate }
                   sendShowEdit={this.getShowEdit }
-                  sendEditID={this.getEditID } />;
+                  sendEditID={this.getEditID } 
+                  is_admin={this.props.is_admin}/>;
     }
     else if (this.state.showIndividualInstanceView) {
       content = <DetailedInstance instanceID={ this.state.detailedInstanceID }
@@ -250,38 +281,52 @@ export class InstanceController extends Component {
 
     let paginateNavigation = <p></p>;
     if (this.state.prevPage == null && this.state.nextPage != null) {
-      paginateNavigation = <div><button onClick={ this.paginateNext }>next page</button></div>;
-    } 
+      paginateNavigation = <div><ButtonGroup><Button color="link" disabled>prev page</Button>{'  '}<Button color="link" onClick={ this.paginateNext }>next page</Button></ButtonGroup></div>;
+    }
     else if (this.state.prevPage != null && this.state.nextPage == null) {
-      paginateNavigation = <div><button onClick={ this.paginatePrev }>prev page</button></div>;
+    paginateNavigation = <div><ButtonGroup><Button color="link" onClick={ this.paginatePrev }>prev page</Button>{'  '}<Button color="link" disabled>next page</Button></ButtonGroup></div>;
     }
     else if (this.state.prevPage != null && this.state.nextPage != null) {
-      paginateNavigation = <div><button onClick={ this.paginatePrev }>prev page</button><button onClick={ this.paginateNext }>next page</button></div>;
+      paginateNavigation = <div><ButtonGroup><Button color="link" onClick={ this.paginatePrev }>prev page</Button>{'  '}<Button color="link" onClick={ this.paginateNext }>next page</Button></ButtonGroup></div>;
     }
 
-    let filters = <InstanceFilters sendFilterQuery={ this.getFilterQuery } />
-    let sorting = <InstanceSort sendSortQuery={ this.getSortQuery } />
-    let exp = <button onClick={ this.exportData } >Export</button>
+    let filters_sorts = <div><Button color="primary" id="toggler" style={{ marginBottom: '1rem' }}> Toggle Filtering and Sorting Dialog </Button>
+      <UncontrolledCollapse toggler="#toggler">
+        <InstanceFilters sendFilterQuery={ this.getFilterQuery } />
+        <InstanceSort sendSortQuery={ this.getSortQuery } />
+     </UncontrolledCollapse>{' '}
+    </div>;
+
+    // let filters = <InstanceFilters sendFilterQuery={ this.getFilterQuery } />
+    // let sorting = <InstanceSort sendSortQuery={ this.getSortQuery } />
+    let exp = <Button onClick={ this.exportData } >Export</Button>
+    let showAll = <Button onClick={this.getAllInstances } >Show All</Button>
 
     // if we're not on the table, then don't show pagination or filters or sorting
     if (! this.state.showTableView) {
       paginateNavigation = <p></p>;
-      filters = <p></p>;
-      sorting = <p></p>;
+      filters_sorts = <p></p>;
+      // filters = <p></p>;
+      // sorting = <p></p>;
+      showAll = <p></p>;
+      exp = <p></p>;
     }
 
     return (
-      <div>
-        { filters }
+      <Container className="themed-container">
+        <h2>Instances</h2>
+        <Row>
+          <Col>{ filters_sorts }</Col>
+        </Row>
+        <Row>
+          <Col>{ showAll }</Col>
+          <Col>{ exp }</Col>
+          <Col>{ paginateNavigation }</Col>
+          <Col></Col>
+        </Row>
         <br></br>
-        { sorting }
-        <br></br>
-        { paginateNavigation }
-        <br></br>
-        { content }
-        <br></br>
-        { exp }
-      </div>
+        {content}
+      </Container>
     )
   }
 }

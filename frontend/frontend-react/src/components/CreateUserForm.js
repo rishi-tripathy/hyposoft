@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import axios from 'axios'
+import {Button, Form, FormGroup, Label, Input}  from "reactstrap";
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 export class CreateUserForm extends Component {
@@ -47,6 +48,7 @@ export class CreateUserForm extends Component {
   }
 
   handleSubmit = (event) => {
+    event.preventDefault();
     console.log(this.state);
 
     axios.post('/api/users/', this.state)
@@ -54,37 +56,37 @@ export class CreateUserForm extends Component {
       alert('Created successfully');
     })
     .catch(function (error) {
-      alert('Creation was not successful.\n' + JSON.stringify(error.response.data));
+      alert('Creation was not successful.\n' + JSON.stringify(error.response.data, null, 2));
     });
 
-    event.preventDefault();
+    this.props.sendShowTable(true);
   }
 
   render() {
     return (
-      <form onSubmit={ this.handleSubmit }>
-        <div>
-          <label>Username</label>
-          <input type='text' value={ this.state.username } onChange={ this.handleUsernameChange } />
-        </div>
-        <div>
-          <label>First name</label>
-          <input type='text' value={ this.state.first_name } onChange={ this.handleFirstNameChange } />
-        </div>
-        <div>
-          <label>Last name</label>
-          <input type='text' value={ this.state.last_name } onChange={ this.handleLastNameChange } />
-        </div>
-        <div>
-          <label>Email</label>
-          <input type='text' value={ this.state.email } onChange={ this.handleEmailChange } />
-        </div>
-        <div>
-          <label>Password</label>
-          <input type='password' value={ this.state.password } onChange={ this.handlePasswordChange } />
-        </div>
-        <button type="submit">Submit</button>
-      </form>
+      <Form onSubmit={ this.handleSubmit }>
+        <FormGroup>
+          <Label>Username</Label>
+          <Input type='text' value={ this.state.username } onChange={ this.handleUsernameChange } />
+        </FormGroup>
+        <FormGroup>
+          <Label>First name</Label>
+          <Input type='text' value={ this.state.first_name } onChange={ this.handleFirstNameChange } />
+        </FormGroup>
+        <FormGroup>
+          <Label>Last name</Label>
+          <Input type='text' value={ this.state.last_name } onChange={ this.handleLastNameChange } />
+        </FormGroup>
+        <FormGroup>
+          <Label>Email</Label>
+          <Input type='text' value={ this.state.email } onChange={ this.handleEmailChange } />
+        </FormGroup>
+        <FormGroup>
+          <Label>Password</Label>
+          <Input type='password' value={ this.state.password } onChange={ this.handlePasswordChange } />
+        </FormGroup>
+        <Button color="success" type="submit">Create</Button>
+      </Form>
     )
   }
 }

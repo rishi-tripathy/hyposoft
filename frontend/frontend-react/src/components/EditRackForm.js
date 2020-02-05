@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types';
 import axios from 'axios'
+import {Button, Form, FormGroup, FormText, Input, Label} from 'reactstrap'
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 export class EditRackForm extends Component {
@@ -25,38 +26,48 @@ export class EditRackForm extends Component {
     let stateCopy = Object.assign({}, this.state);
     let stateToSend = this.removeEmpty(stateCopy);
     
-    axios.patch(dst, stateToSend)
+    axios.put(dst, stateToSend)
     .then(function (response) {
       alert('Edit was successful');
     })
     .catch(function (error) {
-      alert('Edit was not successful.\n' + JSON.stringify(error.response.data));
+      alert('Edit was not successful.\n' + JSON.stringify(error.response.data, null, 2));
     });
+    this.props.sendShowTable(true);
   }
 
   componentDidMount() {
     let dst = '/api/racks/'.concat(this.props.editID).concat('/');
     axios.get(dst).then(res => {
-      //console.log('racks edit form results ' + res);
       this.setState({ rack_number: res.data.rack_number });
       //would not change instances
     })
     .then(function (response) {
-      //console.log(response);
     })
     .catch(function (error) {
       // TODO: handle error
-     // console.log(error.response);
+     console.log(error.response);
+      alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
     });
   }
 
   render() {
     return (
-      <form onSubmit={this.handleSubmit}>
-        <h3>Edit Rack Form</h3>
-        <p>Rack Number</p> <input type="text" value={this.state.rack_number} onChange={e => this.setState({rack_number: e.target.value})} />
-        <input type="submit" value="Submit" />
-      </form>
+  <div>
+      <Button onClick={() => this.props.sendShowTable(true)} >Back</Button>{' '}
+
+    <Form onSubmit={this.handleSubmit}>
+      <FormGroup>
+        <Label for="Edit Rack">Updated Rack Number</Label>
+        <Input type="text" value={this.state.rack_number} onChange={e => this.setState({rack_number: e.target.value})} />
+      </FormGroup>
+          <FormGroup>
+       <Button>Submit</Button>
+      </FormGroup>
+      <FormGroup>
+      </FormGroup>
+    </Form>
+  </div>
     )
   }
 }

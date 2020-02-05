@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import axios from 'axios'
+import {Button, Form, FormGroup, Input, Label} from "reactstrap";
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 export class DeleteMultipleRacksForm extends Component {
@@ -28,47 +29,54 @@ export class DeleteMultipleRacksForm extends Component {
 
         //validate
 
-        console.log(start_rack);
-        console.log(end_rack);
+        // console.log(start_rack);
+        // console.log(end_rack);
         
         const validNumRegex = new RegExp("^[A-Z]\\d+$", 'i');
-        console.log(validNumRegex);
+       // console.log(validNumRegex);
 
         if(validNumRegex.test(start_rack) && validNumRegex.test(end_rack)){
-            console.log("we in this bitch");
+        //  console.log(stateToSend);
+        
+          axios.delete('/api/racks/many/', {
+              data: stateToSend
+            })
+          .then(function (response) {
+            console.log(response);
+            let message = response.data.results;
+            alert(response.data.results);
+          })
+          .catch(function (error) {
+            alert('Creation was not successful.\n' + JSON.stringify(error.response.data, null, 2));
+      });
         }
         else {
-            alert("Rack Numbers must be specified by a Single Letter Followed by Multiple Numbers.");
+            alert("Rack Numbers must be specified by a Single Capital Letter Followed by Multiple Numbers.");
+            return
         }
-
-        // for(var i: )
-        console.log(stateToSend);
-        
-        axios.delete('/api/racks/many/', {
-            data: stateToSend
-          })
-        .then(function (response) {
-          console.log(response);
-          let message = response.data.results;
-          alert(response.data.results);
-        })
-        .catch(function (error) {
-        alert('Creation was not successful.\n' + JSON.stringify(error.response.data));
-    });
+    this.props.sendShowTable(true);
   }
   
   render() {
     let start_rack;
     let end_rack;
     return (
-      <form onSubmit={this.handleSubmit}>
-        <h3>Delete Racks</h3>
-        <p>Start Rack Letter </p> <input type="text" onChange={e => this.setState({rack_num_start: e.target.value})} />
-        {/* validate that it's one letter followed by numbers */}
-        <p>End Rack Letter </p> <input type="text" onChange={e => this.setState({rack_num_end: e.target.value})} />
-        {console.log(this.state)}
-        <input type="submit" value="Submit" />
-      </form>
+  <div>
+    <Button onClick={() => this.props.sendShowTable(true)}>Back</Button>{' '}
+         <Form onSubmit={this.handleSubmit}>
+      <FormGroup>
+        <Label for="Start of Range">Deletion Range Start</Label>
+        <Input type="text" onChange={e => this.setState({rack_num_start: e.target.value})} />{' '}
+
+         <Label for="End of Range">Deletion Range End</Label>
+        <Input type="text" onChange={e => this.setState({rack_num_end: e.target.value})} />{' '}
+      </FormGroup>
+          <FormGroup>
+       <Button>Submit</Button>
+      </FormGroup>
+     {console.log(this.state)}
+    </Form>
+  </div>
     )
   }
 

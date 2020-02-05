@@ -7,6 +7,7 @@ import Landing from './Landing'
 import axios from 'axios'
 import UserController from './UserController';
 import StatisticsController from './StatisticsController';
+import { Button } from 'reactstrap'
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 class SideBar extends React.Component{
@@ -100,19 +101,43 @@ class SideBar extends React.Component{
         let content;
 
             if (rackState){
-                content = <RackController />
+                content = <RackController is_admin={this.props.is_admin}/>
               }
               else if (modelState){
-                  content = <ModelController />
+                  content = <ModelController is_admin={this.props.is_admin}/>
               }
               else if (instanceState){
-                  content= <InstanceController />
+                  content= <InstanceController is_admin={this.props.is_admin}/>
               }
               else if (userState){
-                content = <UserController />
+                content = <UserController is_admin={this.props.is_admin}/>
               }
               else if (statisticState) {
-                  content = <StatisticsController />
+                  content = <StatisticsController is_admin={this.props.is_admin}/>
+              }
+
+        let sideBar;
+
+              if(this.props.is_admin){
+                sideBar = <div id="Side-bar">
+                    <ul>
+                        <Button color="success" onClick={this.showRacks} size="lg" block>Racks</Button>
+                        <Button color="success" onClick={this.showModels} size="lg" block>Models</Button>
+                        <Button color="success" onClick={this.showInstances} size="lg" block>Instances</Button>
+                        <Button color="success" onClick={this.showUsers} size="lg" block>Users</Button>
+                        <Button color="success" onClick={this.showStatistics} size="lg" block>Statistics</Button>
+                    </ul>
+                </div>;
+              }
+              else {
+                  sideBar = <div id="Side-bar">
+                  <ul>
+                      <Button color="success" onClick={this.showRacks} size="lg" block>Racks</Button>
+                      <Button color="success" onClick={this.showModels} size="lg" block>Models</Button>
+                      <Button color="success" onClick={this.showInstances} size="lg" block>Instances</Button>
+                      <Button color="success" onClick={this.showStatistics} size="lg" block>Statistics</Button>
+                  </ul>
+              </div>;
               }
 
         return(
@@ -125,15 +150,9 @@ class SideBar extends React.Component{
                         </div>
                         {content}
                     </div>
-                    <div id="Side-bar">
-                        <ul>
-                            <div className="myButton" onClick={this.showRacks}> Racks</div>
-                            <div className="myButton" onClick={this.showModels}> Models</div>
-                            <div className="myButton" onClick={this.showInstances}> Instances</div>
-                            <div className="myButton" onClick={this.showUsers}> Users</div>
-                            <div className="myButton" onClick={this.showStatistics}> Statistics</div>
-                        </ul>
-                </div>
+                    <div id="hideOnPrint">
+                        { sideBar }
+                    </div>
             </div>
         );
     }
