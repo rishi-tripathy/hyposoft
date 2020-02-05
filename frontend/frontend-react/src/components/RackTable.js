@@ -3,6 +3,8 @@ import '../stylesheets/RackTable.css'
 import '../stylesheets/RacksView.css'
 import '../stylesheets/Printing.css'
 import RackRow from './RackRow'
+import axios from 'axios'
+axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 export class RackTable extends Component {
 
@@ -38,7 +40,15 @@ export class RackTable extends Component {
       return this.props.rack;
    }
 
+   sending = (show, id) => {
+      console.log('sending detailed show in rack table')
+      this.props.sending(show, id);
+      console.log('sending id in rack table')
+   } 
+
+
    renderRows() {
+      console.log(this.state);
 
       //these store information per rack, for empty ones, everything is added as null except for rackUs
       let rackUs = [];
@@ -46,6 +56,7 @@ export class RackTable extends Component {
       let modelInfo = []; //has model uri or null
       let displayColors = [];
       let hostnameInfo = []; //has hostname String or null
+      let idList = [];
 
       let condensed = this.props.condensedState;
       console.log(condensed)
@@ -59,11 +70,18 @@ export class RackTable extends Component {
       let currentRackU;
 
       for(var i of Object.keys(rows)){
-         if(i!=="id" && i!=="rack_number" && i!=="url" && !condensed){
+         if(i==="id"){
+            console.log("in id case");
+            //IDs will be null or a number
+           //let id='';
+           // idList.push(id.concat(rows[i].id));
+         }
+         else if(i!=="rack_number" && i!=="url" && !condensed){
             rackUs.push(i);
 
-            if(i!==1 && rows[i] !== null){
-
+            if(rows[i] !== null){
+               idList.push(rows[i].id);
+                console.log(rows[i].id);
                currentRackU = rows[i];
 
                // there is a rack here, need to break keys again
@@ -96,12 +114,13 @@ export class RackTable extends Component {
                rackInstances.push(rows[i]);
                modelInfo.push(rows[i]);
                displayColors.push(rows[i]);
+               idList.push(rows[i]);
                hostnameInfo.push(rows[i]); //push rackInstance -- null in this case lol, no need to break it apart
             }
          }
 
          //CONDENSED
-         else if(i!=="id" && i!=="rack_number" && i!=="url" && condensed){
+         else if(i!=="rack_number" && i!=="url" && condensed){
             previousRackU = rows[i-1];
             nextRackU = rows[i+1];
             currentRackU = rows[i];
@@ -125,7 +144,6 @@ export class RackTable extends Component {
                   hostnameInfo.push(null);
                }
             }
-
 
             //NULL
             else{
@@ -152,15 +170,23 @@ export class RackTable extends Component {
 
          }
       }
-      // console.log(rackInstances);
-      // console.log(modelInfo);
-      // console.log(displayColors);
-      // console.log(hostnameInfo);
+      console.log(rackInstances);
+      console.log(modelInfo);
+      console.log(displayColors);
+      console.log(hostnameInfo);
+      console.log(idList);
 
       return rackUs.reverse().map((row, index) => {
          return (
-          <RackRow condensedView = {condensed} row={row} instanceUrl ={rackInstances[rackUs.length-index-1]} model= {modelInfo[rackUs.length-index-1]} displayColor= {displayColors[rackUs.length-index-1] } hostname={hostnameInfo[rackUs.length-index-1]}/>
-         //<div></div>
+          <RackRow 
+               condensedView = {condensed} 
+               row={row} 
+               instanceUrl ={rackInstances[rackUs.length-index-1]} 
+               model= {modelInfo[rackUs.length-index-1]} 
+               displayColor= {displayColors[rackUs.length-index-1] } 
+               hostname={hostnameInfo[rackUs.length-index-1]} 
+               sendFromRow={ this.sending } 
+               id = {idList[rackUs.length-index-1]}/>
           )
       })
    }

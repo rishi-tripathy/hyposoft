@@ -33,6 +33,7 @@ export class EditRackForm extends Component {
     .catch(function (error) {
       alert('Edit was not successful.\n' + JSON.stringify(error.response.data, null, 2));
     });
+    this.props.sendShowTable(true);
   }
 
   componentDidMount() {
