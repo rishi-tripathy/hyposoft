@@ -41,8 +41,7 @@ export class CreateInstanceForm extends Component {
     stateCopy.rack = this.state.selectedRackOption ? this.state.selectedRackOption.value : null;
     stateCopy.owner = this.state.selectedOwnerOption ? this.state.selectedOwnerOption.value : null;
     let stateToSend = this.removeEmpty(stateCopy);
-    
-    console.log(stateToSend)
+   
 
     axios.post('/api/instances/', stateToSend)
     .then(function (response) {
@@ -62,7 +61,6 @@ export class CreateInstanceForm extends Component {
       for (let i = 0; i < res.data.length; i++) {
         myOptions.push({ value: res.data[i].url, label: res.data[i].vendor + ' ' + res.data[i].model_number });
       }
-      console.log(res.data)
       this.setState({ modelOptions: myOptions });
     })
     .catch(function (error) {
@@ -77,7 +75,6 @@ export class CreateInstanceForm extends Component {
       for (let i = 0; i < res.data.length; i++) {
         myOptions.push({ value: res.data[i].url, label: res.data[i].rack_number });
       }
-      console.log(res.data)
       this.setState({ rackOptions: myOptions });
     })
     .catch(function (error) {
@@ -92,7 +89,6 @@ export class CreateInstanceForm extends Component {
       for (let i = 0; i < res.data.length; i++) {
         myOptions.push({ value: res.data[i].url, label: res.data[i].username });
       }
-      console.log(res.data)
       this.setState({ ownerOptions: myOptions });
     })
     .catch(function (error) {

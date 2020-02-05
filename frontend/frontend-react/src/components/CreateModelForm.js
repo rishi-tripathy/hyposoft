@@ -35,7 +35,6 @@ export class CreateModelForm extends Component {
       for (let i = 0; i < res.data.vendors.length; i++) {
         myOptions.push({ value: res.data.vendors[i], label: res.data.vendors[i] });
       }
-      console.log(res.data)
       this.setState({ vendorOptions: myOptions });
     })
     .catch(function (error) {
@@ -56,7 +55,6 @@ export class CreateModelForm extends Component {
     stateCopy.vendor = this.state.selectedVendorOption ? this.state.selectedVendorOption.value : null;
     let stateToSend = this.removeEmpty(stateCopy);
     
-    console.log(stateToSend)
     axios.post('/api/models/', stateToSend)
     .then(function (response) {
       alert('Created successfully');

@@ -154,6 +154,7 @@ export class InstanceController extends Component {
     })
     .catch(function (error) {
       // TODO: handle error
+      console.log(error.response.data)
       alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
     });
   }
@@ -172,26 +173,36 @@ export class InstanceController extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
+    const delay = 50;
 
     // When showing table again, rerender
     if (prevState.showTableView === false && this.state.showTableView === true) {
-      this.getInstances();
+      setTimeout(() => {
+        this.getInstances();
+      }, delay); 
     }
 
     // Once filter changes, rerender
     if (prevState.filterQuery !== this.state.filterQuery) {
-      this.getInstances();
+      setTimeout(() => {
+        this.getInstances();
+      }, delay); 
     }
 
     // Once sort changes, rerender
     if (prevState.sortQuery !== this.state.sortQuery) {
-      this.getInstances();
+      setTimeout(() => {
+        this.getInstances();
+      }, delay); 
     }
 
     // After crud, rerender
     if (prevState.rerender === false && this.state.rerender === true) {
-      this.getInstances();
-      this.setState({ rerender: false });
+      setTimeout(() => {
+        this.getInstances();
+        this.setState({ rerender: false });
+      }, delay); 
+      
     }
   }
   paginateNext = () => {

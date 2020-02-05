@@ -38,7 +38,6 @@ export class EditInstanceForm extends Component {
   componentDidMount() {
     let dst = '/api/instances/'.concat(this.props.editID).concat('/');
     axios.get(dst).then(res => {
-      console.log(res);
       let instanceCopy = JSON.parse(JSON.stringify(this.state.instance));
       instanceCopy.model = res.data.model;
       instanceCopy.hostname = res.data.hostname;
@@ -62,12 +61,10 @@ export class EditInstanceForm extends Component {
       for (let i = 0; i < res.data.length; i++) {
         myOptions.push({ value: res.data[i].url, label: res.data[i].vendor + ' ' + res.data[i].model_number });
       }
-      console.log(res.data)
       this.setState({ 
         modelOptions: myOptions,
         selectedModelOption: { value: this.state.instance.model.url, label: this.state.instance.model.vendor + ' ' + this.state.instance.model.model_number } 
       });
-      console.log(this.state.modelOptions);
     })
     .catch(function (error) {
       // TODO: handle error
@@ -81,7 +78,6 @@ export class EditInstanceForm extends Component {
       for (let i = 0; i < res.data.length; i++) {
         myOptions.push({ value: res.data[i].url, label: res.data[i].rack_number });
       }
-      console.log(res.data)
       this.setState({ 
         rackOptions: myOptions, 
         selectedRackOption: { value: this.state.instance.rack.url, label: this.state.instance.rack.rack_number },
@@ -99,21 +95,19 @@ export class EditInstanceForm extends Component {
       for (let i = 0; i < res.data.length; i++) {
         myOptions.push({ value: res.data[i].url, label: res.data[i].username });
       }
-      console.log(res.data)
       this.setState({ 
         ownerOptions: myOptions,
-        selectedOwnerOption: { value: this.state.instance.owner.url, label: this.state.instance.owner.username }, 
+        selectedOwnerOption: { value: this.state.instance.owner ? this.state.instance.owner.url : null, label: this.state.instance.owner ? this.state.instance.owner.username : null}, 
       });
     })
     .catch(function (error) {
       // TODO: handle error
-      alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+      //alert('Cannot load. Re-login.\n' + JSON.stringify(error.response, null, 2));
     });
   }
 
   handleChangeModel = selectedModelOption => {
     this.setState({ selectedModelOption });
-    console.log(selectedModelOption)
   };
 
   handleChangeRack = selectedRackOption => {
