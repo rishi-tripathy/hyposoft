@@ -45,7 +45,7 @@ export class AllInstancesOfModelView extends Component {
   }
 
   renderTableHeader() {
-    let header = ['id', 'hostname', 'rack', 'rack_u'];
+    let header = ['id', 'hostname', 'rack', 'rack u'];
     return header.map((key, index) => {
         return <th key={index}>{key.toUpperCase()}</th>
     })

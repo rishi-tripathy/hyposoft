@@ -324,6 +324,7 @@ export class InstanceController extends Component {
           <Col>{ paginateNavigation }</Col>
           <Col></Col>
         </Row>
+        <br></br>
         {content}
       </Container>
     )

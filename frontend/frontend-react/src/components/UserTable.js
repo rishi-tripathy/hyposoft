@@ -38,7 +38,7 @@ export class UserTable extends Component {
       <div>
         
           <div>
-            <Button color="primary" onClick={ this.showCreateForm }>Add User</Button>
+            <Button color="success" onClick={ this.showCreateForm }>Add User +</Button>
           </div>
 
           <br></br>
