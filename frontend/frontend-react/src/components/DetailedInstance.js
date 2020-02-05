@@ -28,7 +28,7 @@ export class DetailedInstance extends Component {
       })
       .catch(function (error) {
         // TODO: handle error
-        alert('Cannot load instances. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+        alert('Cannot load instances. Re-login.\n' + JSON.stringify(error.response, null, 2));
       });
     }
   }

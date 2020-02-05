@@ -82,9 +82,13 @@ export class InstanceTable extends Component {
 
   handleImport = (e) => {
 		e.preventDefault();
-		let f = this.state.file;
+    let f = this.state.file;
+    if (f == null) {
+			alert("You must upload a file.");
+			return;
+		}
 		this.fileUpload(this.state.file).then((response)=>{
-      alert("Import was successful.");
+      alert("Import was successful." + JSON.stringify(response.data, null, 2));
 		})
 		.catch(function (error) {
 			console.log(error.response)

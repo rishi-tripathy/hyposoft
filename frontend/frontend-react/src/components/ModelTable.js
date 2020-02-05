@@ -100,8 +100,12 @@ export class ModelTable extends Component {
 	handleImport = (e) => {
 		e.preventDefault();
 		let f = this.state.file;
+		if (f == null) {
+			alert("You must upload a file.");
+			return;
+		}
 		this.fileUpload(this.state.file).then((response)=>{
-			alert("Import was successful.\n" + JSON.stringify(response));
+			alert("Import was successful.\n" + JSON.stringify(response.data, null, 2));
 		})
 		.catch(function (error) {
 			console.log(error.response)
