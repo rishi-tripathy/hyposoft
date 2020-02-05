@@ -5,7 +5,7 @@ import { Table, UncontrolledCollapse, Button, Container, CardBody, Card } from '
 export class UserTable extends Component {
 
   renderTableHeader() {
-		let header = ['id', 'username', 'email', 'first name',
+		let header = ['username', 'email', 'first name',
 		'last name'];
     return header.map((key, index) => {
         return <th key={index}>{key.toUpperCase()}</th>
@@ -18,7 +18,6 @@ export class UserTable extends Component {
        
        return (
           <tr key={id}>
-						<td>{id}</td>
 						<td>{username}</td>
 						<td>{email}</td>
 						<td>{first_name}</td>
