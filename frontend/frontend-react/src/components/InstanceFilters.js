@@ -98,7 +98,9 @@ export class InstanceFilters extends Component {
   
   handleChangeModel = selectedModelOption => {
     let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
-    identifiersCopy.modelID = selectedModelOption.value
+    if (selectedModelOption) {
+      identifiersCopy.modelID = selectedModelOption.value
+    }
     this.setState({
       selectedModelOption, 
       identifiers: identifiersCopy,
@@ -107,7 +109,9 @@ export class InstanceFilters extends Component {
 
   handleChangeRack = selectedRackOption => {
     let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
-    identifiersCopy.rackID = selectedRackOption.value
+    if (selectedRackOption) {
+      identifiersCopy.rackID = selectedRackOption.value
+    }
     this.setState({
       selectedRackOption, 
       identifiers: identifiersCopy,
@@ -116,7 +120,9 @@ export class InstanceFilters extends Component {
 
   handleChangeOwner = selectedOwnerOption => {
     let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
-    identifiersCopy.ownerID = selectedOwnerOption.value
+    if (selectedOwnerOption) {
+      identifiersCopy.ownerID = selectedOwnerOption.value
+    }
     this.setState({
       selectedOwnerOption, 
       identifiers: identifiersCopy,
@@ -164,7 +170,7 @@ export class InstanceFilters extends Component {
                             onChange={ this.handleChangeModel }
                             options={ this.state.modelOptions }
                             searchable={ true }
-                            clearable={ true } />
+                            isClearable={ true } />
               </FormGroup>
 
               <FormGroup>
@@ -206,6 +212,7 @@ export class InstanceFilters extends Component {
               <Select value={ this.state.selectedRackOption }
                 onChange={ this.handleChangeRack }
                 options={ this.state.rackOptions }
+                isClearable={ true }
                 searchable={ true } />
             </FormGroup>
             
@@ -226,6 +233,7 @@ export class InstanceFilters extends Component {
               <Select value={ this.state.selectedOwnerOption }
                 onChange={ this.handleChangeOwner }
                 options={ this.state.ownerOptions }
+                isClearable={ true }
                 searchable={ true } />
             </FormGroup>
 
