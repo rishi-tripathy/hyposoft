@@ -123,13 +123,13 @@ export class UserController extends Component {
 
     let paginateNavigation = <p></p>;
     if (this.state.prevPage == null && this.state.nextPage != null) {
-      paginateNavigation = <div><ButtonGroup><Button disabled>prev page</Button>{'  '}<Button onClick={ this.paginateNext }>next page</Button></ButtonGroup></div>;
+      paginateNavigation = <div><ButtonGroup><Button color="link" disabled>prev page</Button>{'  '}<Button color="link" onClick={ this.paginateNext }>next page</Button></ButtonGroup></div>;
     }
     else if (this.state.prevPage != null && this.state.nextPage == null) {
-    paginateNavigation = <div><ButtonGroup><Button onClick={ this.paginatePrev }>prev page</Button>{'  '}<Button disabled>next page</Button></ButtonGroup></div>;
+    paginateNavigation = <div><ButtonGroup><Button color="link" onClick={ this.paginatePrev }>prev page</Button>{'  '}<Button color="link" disabled>next page</Button></ButtonGroup></div>;
     }
     else if (this.state.prevPage != null && this.state.nextPage != null) {
-      paginateNavigation = <div><ButtonGroup><Button onClick={ this.paginatePrev }>prev page</Button>{'  '}<Button onClick={ this.paginateNext }>next page</Button></ButtonGroup></div>;
+      paginateNavigation = <div><ButtonGroup><Button color="link" onClick={ this.paginatePrev }>prev page</Button>{'  '}<Button color="link" onClick={ this.paginateNext }>next page</Button></ButtonGroup></div>;
     }
 
     if (! this.state.showTableView) {

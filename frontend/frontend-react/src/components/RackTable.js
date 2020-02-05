@@ -74,7 +74,6 @@ export class RackTable extends Component {
                previousRackU = rows[i-1];
                nextRackU = rows[i+1];
 
-
                if(previousRackU == null || previousRackU.instanceUrl!==currentRackU.instanceUrl){
                   //the previous one is null and this is the first U of the thing //
                   modelInfo.push(currentRackU.model.vendor +  " " + currentRackU.model.model_number);
