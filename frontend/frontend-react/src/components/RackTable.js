@@ -3,7 +3,6 @@ import '../stylesheets/RackTable.css'
 import '../stylesheets/RacksView.css'
 import '../stylesheets/Printing.css'
 import RackRow from './RackRow'
-import DetailedInstanceForRack from './DetailedInstanceForRack';
 import axios from 'axios'
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 

@@ -54,8 +54,9 @@ export class DeleteMultipleRacksForm extends Component {
           alert(response.data.results);
         })
         .catch(function (error) {
-        alert('Creation was not successful.\n' + JSON.stringify(error.response.data));
+          alert('Creation was not successful.\n' + JSON.stringify(error.response.data, null, 2));
     });
+    this.props.sendShowTable(true);
   }
   
   render() {

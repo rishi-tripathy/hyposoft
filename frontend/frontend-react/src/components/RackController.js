@@ -10,7 +10,7 @@ import '../stylesheets/RackTable.css'
 import '../stylesheets/RacksView.css'
 import CreateMultipleRacksForm from './CreateMultipleRacksForm';
 import { UncontrolledCollapse, Button, CardBody, Card, Container } from 'reactstrap';
-import DetailedInstanceForRack from './DetailedInstanceForRack';
+import DetailedInstance from './DetailedInstance'
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 export class RackController extends Component {
@@ -36,11 +36,18 @@ export class RackController extends Component {
       deleteID: 0,
       prevPage: null,
       nextPage: null,
+      rerender: false,
     };
     this.getShowRacks = this.getShowRacks.bind(this);
     this.getFilterQuery = this.getFilterQuery.bind(this);
     this.getShowDetailedInstance = this.getShowDetailedInstance.bind(this);
     this.getDetailedInstanceUrl = this.getDetailedInstanceUrl.bind(this);
+  }
+
+  getRerender = (re) => {
+    if (re) {
+      this.setState({ rerender: true })
+    }
   }
 
   getShowRacks = (show, condensed) => {
@@ -200,7 +207,7 @@ export class RackController extends Component {
   getShowAllRacks = (show) => {
     console.log('in show all racks: controller')
     show ? this.setState({
-      showTableView: true,
+      showRacksView: true,
       showCreateView : false,
       showMassCreateView: false,
       showDetailedInstanceView: false,
@@ -243,12 +250,12 @@ export class RackController extends Component {
     if( prevState.showAllRacks !== this.state.showAllRacks) {
       this.refreshRacks();
     }
-
-    // Once sort changes, rerender
-    // if (prevState.sortQuery !== this.state.sortQuery) {
-    //   this.getInstances();
-    // }
-  }
+    
+      if (prevState.rerender === false && this.state.rerender === true) {
+        this.refreshRacks();
+        this.setState({ rerender: false });
+      }
+    }
     
   refreshRacks = () => {
     if(!this.state.showAllRacks){
@@ -266,6 +273,7 @@ export class RackController extends Component {
     .catch(function (error) {
       // TODO: handle error
       console.log(error.response);
+      alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
     });
     }
     else {
@@ -338,6 +346,7 @@ export class RackController extends Component {
     if (this.state.showRacksView){
       content = 
         <RacksView rack={this.state.racks}
+                  sendRerender={ this.getRerender }
                   sendShowCreate={this.getShowCreate}
                   sendShowMassCreate={this.getShowMassCreate}
                   sendShowMassDelete={this.getShowMassDelete}
@@ -352,16 +361,19 @@ export class RackController extends Component {
     else if (this.state.showDetailedInstanceView) {
       console.log("correctly show detailed instance")
       console.log(this.state.IDurl);
-      content = <DetailedInstanceForRack instanceID = {this.state.IDurl}/>
-    }
+      content = <DetailedInstance instanceID = {this.state.IDurl} 
+                            sendShowTable = {this.getShowRacks} />    }
     else if (this.state.showCreateView){
-      content = <CreateRackForm sendShowTable={this.getShowRacks} /> 
+      content = <CreateRackForm sendShowTable={this.getShowRacks} 
+                  sendRerender={ this.getRerender }/> 
     }
     else if (this.state.showMassCreateView){
-      content = <CreateMultipleRacksForm sendShowTable={this.getShowRacks} /> 
+      content = <CreateMultipleRacksForm sendShowTable={this.getShowRacks} 
+      sendRerender={ this.getRerender }/> 
     }
     else if (this.state.showMassDeleteView){
-      content = <DeleteMultipleRacksForm sendShowTable={this.getShowRacks} /> 
+      content = <DeleteMultipleRacksForm sendShowTable={this.getShowRacks} 
+      sendRerender={ this.getRerender }/> 
     }
     else if (this.state.showEditView){
       content= <EditRackForm editID={this.state.editID} 
@@ -370,7 +382,8 @@ export class RackController extends Component {
                     sendShowMassCreate={this.getShowMassCreate}
                     sendShowMassDelete={this.getShowMassDelete}
                     sendShowEdit={this.getShowEdit}
-                    sendShowDelete={this.getShowDelete}/> 
+                    sendShowDelete={this.getShowDelete}
+                    sendRerender={ this.getRerender }/> 
     }
     
     let filters =
@@ -403,7 +416,8 @@ export class RackController extends Component {
         <Container className="themed-container">
           <div id="hideOnPrint">
             {filters}
-            { printButton }
+            { printButton }{' '}
+            <br></br>
             { paginateNavigation }
           </div>
           {content}

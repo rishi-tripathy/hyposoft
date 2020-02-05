@@ -55,7 +55,12 @@ export class RacksView extends Component {
           .catch(function (error) {
               alert('Delete was not successful.\n' + JSON.stringify(error.response.data));
           });
+          this.showRerender();
       }
+  }
+
+  showRerender = () => {
+    this.props.sendRerender(true);
   }
 
   handleCondensation = () => {

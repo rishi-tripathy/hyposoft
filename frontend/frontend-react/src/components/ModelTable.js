@@ -2,7 +2,9 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types';
 import '../stylesheets/TableView.css'
 import axios, { post } from 'axios'
-import { UncontrolledCollapse, Button, Table, ButtonGroup, Container, Card } from 'reactstrap';
+import { UncontrolledCollapse, Button, Table, Input, Form, ButtonGroup, Container, Card, Row, Col } from 'reactstrap';
+import FormGroup from "reactstrap/es/FormGroup";
+import ButtonToolbar from "reactstrap/es/ButtonToolbar";
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
@@ -42,7 +44,7 @@ export class ModelTable extends Component {
 				alert('Delete was successful');
 			})
 			.catch(function (error) {
-				alert('Delete was not successful.\n' + JSON.stringify(error.response.data));
+				alert('Delete was not successful.\n' + JSON.stringify(error.response.data, null, 2));
 			});
 		}
 		this.showRerender();
@@ -116,13 +118,13 @@ export class ModelTable extends Component {
 				return post(url, formData, config)
 			}
 
-			if (window.confirm('Import was not successful.\n' + JSON.stringify(error.response.data))) {
+			if (window.confirm('Import was not successful.\n' + JSON.stringify(error.response.data, null, 2))) {
 				fileUploadOverride(f).then((response)=>{
-					alert("Import was successful.\n" + JSON.stringify(response));
+					alert("Import was successful.\n" + JSON.stringify(response, null, 2));
 				})
 				.catch(function (error) {
 					console.log(error.response)
-					alert('Import was not successful.\n' + JSON.stringify(error.response.data));
+					alert('Import was not successful.\n' + JSON.stringify(error.response.data, null, 2));
 				});
 			}
 		});
@@ -155,15 +157,26 @@ export class ModelTable extends Component {
       <div>
 		  { this.props.is_admin ? (
 				<div>
-					<button onClick={ this.showCreateForm }>Add Model</button>
-				</div>)
-				:
-				(<p></p>) }
-				
-				<form onSubmit={this.handleImport} >
-					<input type="file" name="file" onChange={this.handleFileUpload}/>
-					<button type="submit">Import File</button>
-				</form>
+					<Row>
+						<Col><Button color="primary" onClick={ this.showCreateForm }>Add Model +</Button></Col>
+						<Col>	
+							<Card>
+								<Form onSubmit={this.handleImport} >
+									<FormGroup>
+										<Input type="file" name="file" onChange={this.handleFileUpload}/>{' '}
+									</FormGroup>
+									<Button>Import</Button>{' '}
+								</Form>
+							</Card>
+						</Col>
+						
+						<Col></Col>
+						<Col></Col>
+					</Row>
+					
+				</div> ) : (<p></p>)}
+		  
+				<br></br>
          <Table hover striped>
             <tbody>
                <tr>{this.renderTableHeader()}</tr>

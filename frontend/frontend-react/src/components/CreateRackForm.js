@@ -70,8 +70,9 @@ export class CreateRackForm extends Component {
       alert('Created successfully');
     })
     .catch(function (error) {
-      alert('Creation was not successful.\n' + JSON.stringify(error.response.data));
+      alert('Creation was not successful.\n' + JSON.stringify(error.response.data, null, 2));
     });
+    this.props.sendShowTable(true);
   }
   
   render() {

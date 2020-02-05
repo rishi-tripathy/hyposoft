@@ -33,7 +33,7 @@ export class StatisticsController extends Component {
       });
     })
     .catch(function (error) {
-      alert('Could not get report.\n' + JSON.stringify(error.response.data));
+      alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
     });
   }
 
@@ -63,7 +63,7 @@ export class StatisticsController extends Component {
   }
   
   renderOwnersData() {
-    const owners = Object.keys(this.state.owners_allocated);
+    const owners = Object.entries(this.state.owners_allocated);
     return owners.map((owner) => {
        return (
           <tr>

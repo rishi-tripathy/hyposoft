@@ -1,5 +1,7 @@
 import React, { Component } from 'react'
 import DetailedModelModal from './DetailedModelModal';
+import DetailedModelFromInstance from './DetailedModelFromInstance';
+import { UncontrolledCollapse, Button, Table, Container, Card, ButtonToolbar, Row, Col } from 'reactstrap';
 
 export class InstanceCard extends Component {
   showModel = (e) => {
@@ -7,25 +9,45 @@ export class InstanceCard extends Component {
     console.log(model.url)
   }
 
+  renderTableHeader() {
+    let header = ['id', 'model vendor', 'model number', 'hostname', 'rack', 'rack_u', 'owner_username', 'comment'];
+    return header.map((key, index) => {
+        return <th key={index}>{key.toUpperCase()}</th>
+    })
+  }
+
+  renderTableData() {
+    return this.props.inst.map((instance) => {
+        const { id, model, hostname, rack, owner, rack_u, comment } = instance //destructuring
+
+        return (
+          <tr key={id}>
+            <td>{id}</td>
+            <td>{model ? model.vendor : null}</td>
+            <td>{model ? model.model_number : null}</td>
+            <td>{hostname}</td>
+            <td>{rack ? rack.rack_number : null}</td>
+            <td>{rack_u}</td>
+            <td>{owner ? owner.username : null}</td>
+            <td>{ comment }</td>
+          </tr>
+        )
+    })
+  }
+
   componentDidMount() {
 
   }
   render() {
-    const { id, model, hostname, rack, rack_u, owner, comment } = this.props.inst;
     return (
-      <div class="card">
-        <div class="container">
-          <h3>Detailed Instance</h3>
-          <h4>ID: {id}</h4>
-          <h4>Model Vendor: {model ? model.vendor : null}</h4>
-          <p>Hostname: {hostname}</p> 
-          <p>Rack Number: {rack ? rack.rack_number : null}</p> 
-          <p>Rack_U: {rack_u}</p> 
-          <p>Owner Username: {owner ? owner.username : null}</p> 
-          <p>Comment: {comment}</p> 
-          <DetailedModelModal modelURL={model ? model.url : null} />
-          {/* <button onClick={ this.showModel }>See Detailed Model</button> */}
-        </div>
+      <div>
+        {/* <h4>Instances of this Model</h4> */}
+        <Table hover striped>
+            <tbody>
+               <tr>{this.renderTableHeader()}</tr>
+               { this.renderTableData() }
+            </tbody>
+         </Table>
       </div>
     )
   }

@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import axios from 'axios'
 import Select from 'react-select';
-
+import {Button, Form, FormGroup, FormText, Input, Label, Container, Row, Col} from "reactstrap";
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 export class CreateInstanceForm extends Component {
@@ -49,7 +49,7 @@ export class CreateInstanceForm extends Component {
       alert('Created successfully');
     })
     .catch(function (error) {
-      alert('Creation was not successful.\n' + JSON.stringify(error.response.data));
+      alert('Creation was not successful.\n' + JSON.stringify(error.response.data, null, 2));
     });
     this.props.sendShowTable(true);
   }
@@ -67,7 +67,7 @@ export class CreateInstanceForm extends Component {
     })
     .catch(function (error) {
       // TODO: handle error
-      console.log(error.response);
+      alert('Could not load model names. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
     });
 
     // RACK
@@ -82,7 +82,7 @@ export class CreateInstanceForm extends Component {
     })
     .catch(function (error) {
       // TODO: handle error
-      console.log(error.response);
+      alert('Could not load racks. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
     });
 
     // OWNER
@@ -97,7 +97,7 @@ export class CreateInstanceForm extends Component {
     })
     .catch(function (error) {
       // TODO: handle error
-      console.log(error.response);
+      alert('Could not load owners. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
     });
   }
 
@@ -116,55 +116,75 @@ export class CreateInstanceForm extends Component {
   
   render() {
     return (
-      <form onSubmit={this.handleSubmit}>
-        <h3>Create Instance Form</h3>
-        <p>Model</p> 
-        <Select value={ this.state.selectedModelOption }
-          onChange={ this.handleChangeModel }
-          options={ this.state.modelOptions }
-          searchable={ true } />
-        
-        <p>Hostname</p>
-        <input type="text" onChange={e => {
-          let instanceCopy = JSON.parse(JSON.stringify(this.state.instance))
-          instanceCopy.hostname = e.target.value
-          this.setState({
-            instance: instanceCopy 
-          }) 
-        } } />
-        
-        <p>Rack</p>
-        <Select value={ this.state.selectedRackOption }
-          onChange={ this.handleChangeRack }
-          options={ this.state.rackOptions }
-          searchable={ true } />
-        
-        <p>Rack_U</p>
-        <input type="number" onChange={e => {
-            let instanceCopy = JSON.parse(JSON.stringify(this.state.instance))
-            instanceCopy.rack_u = e.target.value
-            this.setState({
-              instance: instanceCopy 
-            }) 
-          } } />
+      <Container>
+        <Row>
+          <Col xs="6">
+          <Form onSubmit={this.handleSubmit}>
+            <h1>Create an Instance</h1>
 
-        <p>Owner</p>
-        <Select value={ this.state.selectedOwnerOption }
-          onChange={ this.handleChangeOwner }
-          options={ this.state.ownerOptions }
-          searchable={ true } />
-        
-        <p>Comment</p> 
-        <input type="text" onChange={e => {
-          let instanceCopy = JSON.parse(JSON.stringify(this.state.instance))
-          instanceCopy.comment = e.target.value
-          this.setState({
-            instance: instanceCopy 
-          }) 
-        } } />
+            <FormGroup>
+              <Label for="model">Model</Label>
+              <Select value={ this.state.selectedModelOption }
+              onChange={ this.handleChangeModel }
+              options={ this.state.modelOptions }
+              searchable={ true } />
+            </FormGroup>
 
-        <input type="submit" value="Submit" />
-      </form>
+            <FormGroup>
+              <Label for="hostname">Hostname</Label>
+              <Input type="text" onChange={e => {
+                let instanceCopy = JSON.parse(JSON.stringify(this.state.instance))
+                instanceCopy.hostname = e.target.value
+                this.setState({
+                  instance: instanceCopy 
+                }) 
+              } } />
+            </FormGroup>
+            
+            <FormGroup>
+              <Label for="rack">Rack</Label>
+              <Select value={ this.state.selectedRackOption }
+                onChange={ this.handleChangeRack }
+                options={ this.state.rackOptions }
+                searchable={ true } />
+            </FormGroup>
+
+            <FormGroup>
+              <Label for="racku">Rack_U</Label>
+              <Input type="number" onChange={e => {
+                let instanceCopy = JSON.parse(JSON.stringify(this.state.instance))
+                instanceCopy.rack_u = e.target.value
+                this.setState({
+                  instance: instanceCopy 
+                }) 
+              } } />
+            </FormGroup>
+            
+            <FormGroup>
+              <Label for="owner">Owner</Label>
+              <Select value={ this.state.selectedOwnerOption }
+                onChange={ this.handleChangeOwner }
+                options={ this.state.ownerOptions }
+                searchable={ true } />
+            </FormGroup>
+
+            <FormGroup>
+              <Label for="comment">Comment</Label>
+              <Input type="text" onChange={e => {
+                let instanceCopy = JSON.parse(JSON.stringify(this.state.instance))
+                instanceCopy.comment = e.target.value
+                this.setState({
+                  instance: instanceCopy 
+                }) 
+              } } />
+            </FormGroup>
+            
+            <Input type="submit" value="Submit" />
+          </Form>
+          </Col>
+        </Row>
+      </Container>
+      
     )
   }
 }

@@ -67,7 +67,7 @@ export class UserController extends Component {
       });
     })
     .catch(function (error) {
-      alert('Could not get users.\n' + JSON.stringify(error.response.data));
+      alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
     });
   }
 
@@ -85,7 +85,7 @@ export class UserController extends Component {
     })
     .catch(function (error) {
       // TODO: handle error
-      console.log(error.response);
+      alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
     });
   }
 
@@ -99,7 +99,7 @@ export class UserController extends Component {
     })
     .catch(function (error) {
       // TODO: handle error
-      console.log(error.response);
+      alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
     });
   }
   
@@ -123,13 +123,13 @@ export class UserController extends Component {
 
     let paginateNavigation = <p></p>;
     if (this.state.prevPage == null && this.state.nextPage != null) {
-      paginateNavigation = <div><Button onClick={ this.paginateNext }>next page</Button></div>;
-    } 
+      paginateNavigation = <div><ButtonGroup><Button disabled>prev page</Button>{'  '}<Button onClick={ this.paginateNext }>next page</Button></ButtonGroup></div>;
+    }
     else if (this.state.prevPage != null && this.state.nextPage == null) {
-      paginateNavigation = <div><Button onClick={ this.paginatePrev }>prev page</Button></div>;
+    paginateNavigation = <div><ButtonGroup><Button onClick={ this.paginatePrev }>prev page</Button>{'  '}<Button disabled>next page</Button></ButtonGroup></div>;
     }
     else if (this.state.prevPage != null && this.state.nextPage != null) {
-      paginateNavigation = <div><ButtonGroup><Button onClick={ this.paginatePrev }>prev page</Button><Button onClick={ this.paginateNext }>next page</Button></ButtonGroup></div>;
+      paginateNavigation = <div><ButtonGroup><Button onClick={ this.paginatePrev }>prev page</Button>{'  '}<Button onClick={ this.paginateNext }>next page</Button></ButtonGroup></div>;
     }
 
     if (! this.state.showTableView) {
