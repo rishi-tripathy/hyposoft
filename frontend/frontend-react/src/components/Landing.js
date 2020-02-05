@@ -14,9 +14,9 @@ const headerStyle = {
 
 export class Landing extends Component {
 
-  handleLogout() {
+  handleLogout = () => {
+    // this.props.loggingOut(false); 
     window.location = "/accounts/logout/";
-    console.log(window.location);
   }
 
 
