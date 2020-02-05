@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import axios from 'axios'
+import {Button, Form, FormGroup, Input, Label} from "reactstrap";
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 export class CreateRackForm extends Component {
@@ -61,25 +62,46 @@ export class CreateRackForm extends Component {
     handleSubmit = (e) => {
     e.preventDefault();
 
+    let rack_num = this.state.rack_number;
+
     let stateCopy = Object.assign({}, this.state);
     let stateToSend = this.removeEmpty(stateCopy);
-    
-    axios.post('/api/racks/', stateToSend)
+
+    const validNumRegex = new RegExp("^[A-Z]\\d+$", 'i');
+
+    if((validNumRegex.test(rack_num))){
+      axios.post('/api/racks/', stateToSend)
     .then(function (response) {
-      alert('Created successfully');
+    //   let message = response.data.results;
+      alert('Creation of ' + rack_num +' was successful.');
     })
     .catch(function (error) {
-      alert('Creation was not successful.\n' + JSON.stringify(error.response.data));
+      alert('Creation was not successful.\n' + JSON.stringify(error.response.data, null, 2));
     });
+    }
+    else{
+      alert("Rack Numbers must be specified by a Single Letter Followed by Multiple Numbers.");
+    }
+    this.props.sendShowTable(true);
   }
   
   render() {
     return (
-      <form onSubmit={this.handleSubmit}>
-        <h3>Create rack form</h3>
-        <p>Rack Number</p> <input type="text" onChange={e => this.setState({rack_number: e.target.value})} />
-        <input type="submit" value="Submit" />
-      </form>
+  <div>
+    <Button onClick={() => this.props.sendShowTable(true)} >Back</Button>{' '}
+        <Form onSubmit={this.handleSubmit}>
+        <h1>Rack Creation form</h1>{' '}
+      <FormGroup>
+        <Label for="Rack Number">Rack Number</Label>
+        <Input type="text" onChange={e => this.setState({rack_number: e.target.value})} />
+      </FormGroup>
+          <FormGroup>
+       <Button>Submit</Button>
+      </FormGroup>
+      <FormGroup>
+      </FormGroup>
+    </Form>
+  </div>
     )
   }
 

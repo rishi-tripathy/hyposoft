@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import axios from 'axios'
+import { UncontrolledCollapse, Button, Table, FormGroup, Input, Form, ButtonGroup, Container, Card, Row, Col } from 'reactstrap';
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 
@@ -28,7 +29,7 @@ export class AllInstancesOfModelView extends Component {
       })
       .catch(function (error) {
         // TODO: handle error
-        console.log(error.response);
+        alert('Cannot load instances. Re-login..\n' + JSON.stringify(error.response.data, null, 2));
       });
     }
   }
@@ -44,7 +45,7 @@ export class AllInstancesOfModelView extends Component {
   }
 
   renderTableHeader() {
-    let header = ['id', 'hostname', 'rack', 'rack_u'];
+    let header = ['id', 'hostname', 'rack', 'rack u'];
     return header.map((key, index) => {
         return <th key={index}>{key.toUpperCase()}</th>
     })
@@ -60,7 +61,7 @@ export class AllInstancesOfModelView extends Component {
           <td>{hostname}</td>
           <td>{rack ? rack.rack_number : null}</td>
           <td>{rack_u}</td>
-          <td><button onClick={ () => this.showDetailedInstance(id) }>More details</button></td>
+          <td><Button color="info" onClick={ () => this.showDetailedInstance(id) }>More details</Button></td>
         </tr>
       )
     })
@@ -69,13 +70,14 @@ export class AllInstancesOfModelView extends Component {
   render() {
     return (
       <div>
-        <h3>Instances of this Model</h3>
-        <table id="entries">
+        {/* <h3>Instances of this Model</h3> */}
+        <Table striped hover>
           <tbody>
             <tr>{this.renderTableHeader()}</tr>
             { this.renderTableData() }
           </tbody>
-         </table>
+        </Table>
+          
       </div>
     )
   }

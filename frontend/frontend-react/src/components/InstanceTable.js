@@ -1,6 +1,8 @@
 import React, { Component } from 'react'
 import '../stylesheets/TableView.css'
 import axios, { post } from 'axios'
+import { UncontrolledCollapse, Button, Table, FormGroup, Input, Form, ButtonGroup, Container, Card, Row, Col } from 'reactstrap';
+
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 
@@ -36,7 +38,7 @@ export class InstanceTable extends Component {
         
       })
       .catch(function (error) {
-        alert('Delete was not successful.\n' + JSON.stringify(error.response.data));
+        alert('Delete was not successful.\n' + JSON.stringify(error.response.data, null, 2));
       });
     }
     this.showRerender();
@@ -47,7 +49,7 @@ export class InstanceTable extends Component {
   }
 
   renderTableHeader() {
-    let header = ['id', 'model vendor', 'model number', 'hostname', 'rack', 'rack_u', 'owner_username'];
+    let header = ['id', 'model vendor', 'model number', 'hostname', 'rack', 'rack u', 'owner username'];
     return header.map((key, index) => {
         return <th key={index}>{key.toUpperCase()}</th>
     })
@@ -66,9 +68,13 @@ export class InstanceTable extends Component {
             <td>{rack ? rack.rack_number : null}</td>
             <td>{rack_u}</td>
             <td>{owner ? owner.username : null}</td>
-            <td><button onClick={ () => this.showDetailedInstance(id) }>More details</button></td>
-            <td><button onClick={ () => this.showEditForm(id) }>Edit</button></td>
-            <td><button onClick={ () => this.showDeleteForm(id) }>Delete</button></td>
+            {this.props.is_admin &&
+              <div>
+                
+                <td><Button color="info" size="sm" onClick={ () => this.showDetailedInstance(id) }>Details</Button></td>
+                <td><Button color="warning" size="sm" onClick={ () => this.showEditForm(id) }>Edit</Button></td>
+                <td><Button color="danger" size="sm" onClick={ () => this.showDeleteForm(id) }>Delete</Button></td>
+              </div>}
           </tr>
         )
     })
@@ -95,13 +101,13 @@ export class InstanceTable extends Component {
 				return post(url, formData, config)
 			}
 
-			if (window.confirm('Import was not successful.\n' + JSON.stringify(error.response.data))) {
+			if (window.confirm('Import was not successful.\n' + JSON.stringify(error.response.data, null, 2))) {
 				fileUploadOverride(f).then((response)=>{
 					console.log(response.data);
 				})
 				.catch(function (error) {
 					console.log(error.response)
-					alert('Import was not successful.\n' + JSON.stringify(error.response.data));
+					alert('Import was not successful.\n' + JSON.stringify(error.response.data, null, 2));
 				});
 			}
     });
@@ -130,21 +136,54 @@ export class InstanceTable extends Component {
 
   render() {
     return (
-        <div>
-          <div>
-            <button onClick={ this.showCreateForm }>Add Instance</button>
-          </div>
-          <form onSubmit={this.handleImport} >
-            <input type="file" name="file" onChange={this.handleFileUpload}/>
-            <button type="submit">Import File</button>
-          </form>
-          <table id="entries">
-              <tbody>
-                <tr>{this.renderTableHeader()}</tr>
-                { this.renderTableData() }
-              </tbody>
-          </table>
-        </div>
+      <div>
+		  { this.props.is_admin ? (
+				<div>
+					<Row>
+						<Col><Button color="success" onClick={ this.showCreateForm }>Add Instance +</Button></Col>
+						<Col>	
+							<Card>
+								<Form onSubmit={this.handleImport} >
+									<FormGroup>
+										<Input type="file" name="file" onChange={this.handleFileUpload}/>{' '}
+									</FormGroup>
+									<Button>Import</Button>{' '}
+								</Form>
+							</Card>
+						</Col>
+						
+						<Col></Col>
+						<Col></Col>
+					</Row>
+					
+				</div> ) : (<p></p>)}
+		  
+				<br></br>
+         <Table hover striped>
+            <tbody>
+               <tr>{this.renderTableHeader()}</tr>
+               { this.renderTableData() }
+            </tbody>
+         </Table>
+      </div>
+
+
+
+    //     <div>
+    //       <div>
+    // {this.props.is_admin && <button onClick={ this.showCreateForm }>Add Instance</button> }
+    //       </div>
+    //       <form onSubmit={this.handleImport} >
+    //         <input type="file" name="file" onChange={this.handleFileUpload}/>
+    //         <button type="submit">Import File</button>
+    //       </form>
+    //       <Table hover striped>
+    //           <tbody>
+    //             <tr>{this.renderTableHeader()}</tr>
+    //             { this.renderTableData() }
+    //           </tbody>
+    //       </Table>
+    //     </div>
     )
   }
 }

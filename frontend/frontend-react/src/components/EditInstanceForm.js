@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import axios from 'axios'
 import Select from 'react-select';
+import {Button, Form, FormGroup, FormText, Input, Label, Container, Row, Col} from "reactstrap";
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
@@ -51,7 +52,7 @@ export class EditInstanceForm extends Component {
     })
     .catch(function (error) {
       // TODO: handle error
-      console.log(error.response);
+      alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
     });
 
     // MODEL
@@ -70,7 +71,7 @@ export class EditInstanceForm extends Component {
     })
     .catch(function (error) {
       // TODO: handle error
-      console.log(error.response);
+      alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
     });
 
     // RACK
@@ -88,7 +89,7 @@ export class EditInstanceForm extends Component {
     })
     .catch(function (error) {
       // TODO: handle error
-      console.log(error.response);
+      alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
     });
 
     // OWNER
@@ -106,7 +107,7 @@ export class EditInstanceForm extends Component {
     })
     .catch(function (error) {
       // TODO: handle error
-      console.log(error.response);
+      alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
     });
   }
 
@@ -136,74 +137,95 @@ export class EditInstanceForm extends Component {
     let stateToSend = this.removeEmpty(stateCopy);
     console.log(stateToSend)
     
-    axios.patch(dst, stateToSend)
+    axios.put(dst, stateToSend)
     .then(function (response) {
       alert('Edit was successful');
     })
     .catch(function (error) {
-      alert('Edit was not successful.\n' + JSON.stringify(error.response.data));
+      alert('Edit was not successful.\n' + JSON.stringify(error.response.data, null, 2));
     });
     this.props.sendShowTable(true);
   }
 
   render() {
     return (
-      <form onSubmit={this.handleSubmit}>
-        <h3>Edit Instance Form</h3>
-        <p>Model</p> 
-        <Select value={ this.state.selectedModelOption }
-          onChange={ this.handleChangeModel }
-          options={ this.state.modelOptions }
-          searchable={ true } />
+  <div>
+    <Button onClick={() => this.props.sendShowTable(true)} >Back</Button>{' '}
+      <Container>
+        <Row>
+          <Col xs="6">
+            <Form onSubmit={this.handleSubmit}>
+              <h3>Edit Instance Form</h3>
 
-        <p>Hostname</p>
-        <input type="text" 
-          value={this.state.instance.hostname}
-          onChange={e => {
-            let instanceCopy = JSON.parse(JSON.stringify(this.state.instance))
-            instanceCopy.hostname = e.target.value
-            this.setState({
-              instance: instanceCopy 
-            }) 
-        } } />
+              <FormGroup>
+                <Label for="model">Model</Label>
+                <Select value={ this.state.selectedModelOption }
+                  onChange={ this.handleChangeModel }
+                  options={ this.state.modelOptions }
+                  searchable={ true } />
+              </FormGroup>
 
-        <p>Rack</p>
-        <Select value={ this.state.selectedRackOption }
-          onChange={ this.handleChangeRack }
-          options={ this.state.rackOptions }
-          searchable={ true } />
-
-        <p>Rack_U</p>
-        <input type="number" 
-          value={this.state.instance.rack_u}
-          onChange={e => {
-            let instanceCopy = JSON.parse(JSON.stringify(this.state.instance))
-            instanceCopy.rack_u = e.target.value
-            this.setState({
-              instance: instanceCopy 
-            }) 
-        } } />
-
-        <p>Owner</p>
-        <Select value={ this.state.selectedOwnerOption }
-          onChange={ this.handleChangeOwner }
-          options={ this.state.ownerOptions }
-          searchable={ true } />
-
-
-        <p>Comment</p>
-        <input type="text" 
-          value={this.state.instance.comment}
-          onChange={e => {
-            let instanceCopy = JSON.parse(JSON.stringify(this.state.instance))
-            instanceCopy.comment = e.target.value
-            this.setState({
-              instance: instanceCopy 
-            }) 
-        } } />
+              <FormGroup>
+                <Label for="hostname">Hostname</Label>
+                <Input type="text" 
+                  value={this.state.instance.hostname}
+                  onChange={e => {
+                    let instanceCopy = JSON.parse(JSON.stringify(this.state.instance))
+                    instanceCopy.hostname = e.target.value
+                    this.setState({
+                      instance: instanceCopy 
+                    }) 
+                } } />
+              </FormGroup>        
+              
+              <FormGroup>
+                <Label for="rack">Rack</Label>
+                <Select value={ this.state.selectedRackOption }
+                  onChange={ this.handleChangeRack }
+                  options={ this.state.rackOptions }
+                  searchable={ true } />
+              </FormGroup>
         
-        <input type="submit" value="Submit" />
-      </form>
+              <FormGroup>
+                <Label for="rackU">Rack_U</Label>
+                <Input type="number" 
+                  value={this.state.instance.rack_u}
+                  onChange={e => {
+                    let instanceCopy = JSON.parse(JSON.stringify(this.state.instance))
+                    instanceCopy.rack_u = e.target.value
+                    this.setState({
+                      instance: instanceCopy 
+                    }) 
+                } } />
+              </FormGroup>
+
+              <FormGroup>
+                <Label for="owner">Owner</Label>
+                <Select value={ this.state.selectedOwnerOption }
+                  onChange={ this.handleChangeOwner }
+                  options={ this.state.ownerOptions }
+                  searchable={ true } />
+              </FormGroup>
+              
+              <FormGroup>
+                <Label for="comment">Comment</Label>
+                <Input type="text" 
+                  value={this.state.instance.comment}
+                  onChange={e => {
+                    let instanceCopy = JSON.parse(JSON.stringify(this.state.instance))
+                    instanceCopy.comment = e.target.value
+                    this.setState({
+                      instance: instanceCopy 
+                    }) 
+                } } />
+              </FormGroup>
+              
+              <Input type="submit" value="Submit" />
+            </Form>
+          </Col>
+        </Row>
+      </Container>
+  </div>
     )
   }
 }

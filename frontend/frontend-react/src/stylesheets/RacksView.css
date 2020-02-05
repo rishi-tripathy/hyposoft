@@ -1,17 +1,35 @@
+@media print {
+    #h2 {
+        text-align: center;
+        font-size: 10px;
+    }
+    
+    #table.table1 {
+        float: left;
+        max-height: 300px;
+        font-size: xs;
+    }
+    
+    #rackContainer {
+        width: fit-content;
+        height: auto;
+        float: left;
+        page-break-inside: avoid;
+    }
+}   
 #h2 {
-    text-align: center;
-    font-size: 10px;
+text-align: center;
+font-size: 10px;
 }
 
 #table.table1 {
-    float: left;
-    max-height: 300px;
-    font-size: xs;
+float: left;
+max-height: 300px;
+font-size: xs;
 }
 
 #rackContainer {
-    padding: 10px;
-    width: fit-content;
-    float: left;
+padding: 10px;
+width: fit-content;
+float: left;
 }
-

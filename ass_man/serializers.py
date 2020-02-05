@@ -163,7 +163,7 @@ class RackInstanceSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Instance
-        fields = ['url', 'model', 'hostname']
+        fields = ['id', 'model', 'hostname']
 
 
 class RackFetchSerializer(serializers.HyperlinkedModelSerializer):

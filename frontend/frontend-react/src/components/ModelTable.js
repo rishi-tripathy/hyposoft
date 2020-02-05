@@ -2,6 +2,10 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types';
 import '../stylesheets/TableView.css'
 import axios, { post } from 'axios'
+import { UncontrolledCollapse, Button, Table, Input, Form, ButtonGroup, Container, Card, Row, Col } from 'reactstrap';
+import FormGroup from "reactstrap/es/FormGroup";
+import ButtonToolbar from "reactstrap/es/ButtonToolbar";
+
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 export class ModelTable extends Component {
@@ -40,7 +44,7 @@ export class ModelTable extends Component {
 				alert('Delete was successful');
 			})
 			.catch(function (error) {
-				alert('Delete was not successful.\n' + JSON.stringify(error.response.data));
+				alert('Delete was not successful.\n' + JSON.stringify(error.response.data, null, 2));
 			});
 		}
 		this.showRerender();
@@ -51,8 +55,8 @@ export class ModelTable extends Component {
   }
 
   renderTableHeader() {
-		let header = ['id', 'vendor', 'model_number', 'height',
-		'display_color', 'ethernet_ports,', 'power_ports', 'cpu', 'memory', 'storage'];
+		let header = ['id', 'vendor', 'model number', 'height',
+		'display color', 'ethernet ports', 'power ports', 'cpu', 'memory', 'storage'];
     return header.map((key, index) => {
         return <th key={index}>{key.toUpperCase()}</th>
     })
@@ -68,15 +72,26 @@ export class ModelTable extends Component {
 						<td>{vendor}</td>
 						<td>{model_number}</td>
 						<td>{height}</td>
-						<td>{display_color}</td>
+						<td><div style={{
+							width: 12,
+							height: 12,
+							backgroundColor: '#' + display_color,
+							left: 5,
+							top: 5,
+							}}></div>{display_color}</td>
 						<td>{ethernet_ports}</td>
 						<td>{power_ports}</td>
 						<td>{cpu}</td>
 						<td>{memory}</td>
 						<td>{storage}</td>
-						<td><button onClick={ () => this.showDetailedModel(id) }>More details</button></td>
-						<td><button onClick={ () => this.showEditForm(id) }>Edit</button></td>
-            <td><button onClick={ () => this.showDeleteForm(id) }>Delete</button></td>
+						{this.props.is_admin ? (
+							<div>
+								<td><Button color="info" size="sm" onClick={ () => this.showDetailedModel(id) }>Details</Button></td>
+								<td><Button color="warning" size="sm" onClick={ () => this.showEditForm(id) }>Edit</Button></td>
+								<td><Button color="danger" size="sm" onClick={ () => this.showDeleteForm(id) }>Delete</Button></td>
+							</div>
+						):
+						(<p></p>)}
           </tr>
        )
     })
@@ -86,7 +101,7 @@ export class ModelTable extends Component {
 		e.preventDefault();
 		let f = this.state.file;
 		this.fileUpload(this.state.file).then((response)=>{
-			alert("Import was successful.");
+			alert("Import was successful.\n" + JSON.stringify(response));
 		})
 		.catch(function (error) {
 			console.log(error.response)
@@ -103,13 +118,13 @@ export class ModelTable extends Component {
 				return post(url, formData, config)
 			}
 
-			if (window.confirm('Import was not successful.\n' + JSON.stringify(error.response.data))) {
+			if (window.confirm('Import was not successful.\n' + JSON.stringify(error.response.data, null, 2))) {
 				fileUploadOverride(f).then((response)=>{
-					console.log(response.data);
+					alert("Import was successful.\n" + JSON.stringify(response, null, 2));
 				})
 				.catch(function (error) {
 					console.log(error.response)
-					alert('Import was not successful.\n' + JSON.stringify(error.response.data));
+					alert('Import was not successful.\n' + JSON.stringify(error.response.data, null, 2));
 				});
 			}
 		});
@@ -140,20 +155,35 @@ export class ModelTable extends Component {
   render() {
     return (
       <div>
+				<br></br>
+		  { this.props.is_admin ? (
 				<div>
-					<button onClick={ this.showCreateForm }>Add Model</button>
-				</div>
-				<form onSubmit={this.handleImport} >
-					<input type="file" name="file" onChange={this.handleFileUpload}/>
-					<button type="submit">Import File</button>
-				</form>
-
-         <table id="entries">
+					<Row>
+						<Col><Button color="success" onClick={ this.showCreateForm }>Add Model +</Button></Col>
+						<Col>	
+							<Card>
+								<Form onSubmit={this.handleImport} >
+									<FormGroup>
+										<Input type="file" name="file" onChange={this.handleFileUpload}/>{' '}
+									</FormGroup>
+									<Button>Import</Button>{' '}
+								</Form>
+							</Card>
+						</Col>
+						
+						<Col></Col>
+						<Col></Col>
+					</Row>
+					
+				</div> ) : (<p></p>)}
+		  
+				<br></br>
+         <Table hover striped>
             <tbody>
                <tr>{this.renderTableHeader()}</tr>
                { this.renderTableData() }
             </tbody>
-         </table>
+         </Table>
       </div>
    )
   }

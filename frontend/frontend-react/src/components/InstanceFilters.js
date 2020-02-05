@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import axios from 'axios'
 import Select from 'react-select';
+import {Button, Form, FormGroup, FormText, Input, Label, Row, Col} from "reactstrap";
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
@@ -51,7 +52,7 @@ export class InstanceFilters extends Component {
     })
     .catch(function (error) {
       // TODO: handle error
-      console.log(error.response);
+      alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
     });
   }
 
@@ -68,7 +69,7 @@ export class InstanceFilters extends Component {
     })
     .catch(function (error) {
       // TODO: handle error
-      console.log(error.response);
+      alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
     });
   }
 
@@ -85,7 +86,7 @@ export class InstanceFilters extends Component {
     })
     .catch(function (error) {
       // TODO: handle error
-      console.log(error.response);
+      alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
     });
   }
 
@@ -153,96 +154,107 @@ export class InstanceFilters extends Component {
   render() {
     return (
       <div>
-        <form onSubmit={this.handleSubmit}>
-          <h4>Instance Filters</h4>
-          <p>Model</p> 
-          <Select value={ this.state.selectedModelOption }
-            onChange={ this.handleChangeModel }
-            options={ this.state.modelOptions }
-            searchable={ true }
-            clearable={ true } />
-          
-          <p>Model Number</p>
-          <input type="text" onChange={e => {
-            let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
-            identifiersCopy.modelNumber = e.target.value
-            this.setState({
-              identifiers: identifiersCopy 
-            }) 
-          } } />
+        <Form onSubmit={this.handleSubmit}>
+          <h4>Filters</h4>
+          <Row>
+            <Col xs="6" sm="4">
+            <FormGroup>
+                <Label for="model">Model</Label>
+                <Select value={ this.state.selectedModelOption }
+                            onChange={ this.handleChangeModel }
+                            options={ this.state.modelOptions }
+                            searchable={ true }
+                            clearable={ true } />
+              </FormGroup>
 
-          <p>Model Vendor</p>
-          <input type="text" onChange={e => {
-            let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
-            identifiersCopy.modelVendor = e.target.value
-            this.setState({
-              identifiers: identifiersCopy 
-            }) 
-          } } />
+              <FormGroup>
+                <Label for="modelNumber">Model Number</Label>
+                <Input type="text" onChange={e => {
+                  let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
+                  identifiersCopy.modelNumber = e.target.value
+                  this.setState({
+                    identifiers: identifiersCopy 
+                  }) 
+                } } />
+              </FormGroup>
+              
+              <FormGroup>
+                <Label for="modelVendor">Model Vendor</Label>
+                <Input type="text" onChange={e => {
+                  let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
+                  identifiersCopy.modelVendor = e.target.value
+                  this.setState({
+                    identifiers: identifiersCopy 
+                  }) 
+                } } />
+              </FormGroup>
+            </Col>
+            <Col xs="6" sm="4">
+            <FormGroup>
+              <Label for="hostName">Hostname</Label>
+              <Input type="text" onChange={e => {
+                let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
+                identifiersCopy.hostname = e.target.value
+                this.setState({
+                  identifiers: identifiersCopy 
+                }) 
+              } } />
+            </FormGroup>
+            
+            <FormGroup>
+              <Label for="rack">Rack</Label>
+              <Select value={ this.state.selectedRackOption }
+                onChange={ this.handleChangeRack }
+                options={ this.state.rackOptions }
+                searchable={ true } />
+            </FormGroup>
+            
+            <FormGroup>
+              <Label for="rackU">Rack_U</Label>
+              <Input type="number" onChange={e => {
+                let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
+                identifiersCopy.rack_u = e.target.value
+                this.setState({
+                  identifiers: identifiersCopy 
+                }) 
+              } } />
+            </FormGroup>
+            </Col>
+            <Col sm="4">
+            <FormGroup>
+              <Label for="owner">Owner</Label>
+              <Select value={ this.state.selectedOwnerOption }
+                onChange={ this.handleChangeOwner }
+                options={ this.state.ownerOptions }
+                searchable={ true } />
+            </FormGroup>
 
-          <p>Hostname</p>
-          <input type="text" onChange={e => {
-            let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
-            identifiersCopy.hostname = e.target.value
-            this.setState({
-              identifiers: identifiersCopy 
-            }) 
-          } } />
-          
-          <p>Rack</p>
-          <Select value={ this.state.selectedRackOption }
-            onChange={ this.handleChangeRack }
-            options={ this.state.rackOptions }
-            searchable={ true } />
-          
-          <p>Rack_U</p>
-          <input type="number" onChange={e => {
-            let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
-            identifiersCopy.rack_u = e.target.value
-            this.setState({
-              identifiers: identifiersCopy 
-            }) 
-          } } />
+            <FormGroup>
+              <Label for="rackStart">Rack Start Number</Label>
+              <Input type="text" onChange={e => {
+                let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
+                identifiersCopy.rackStart = e.target.value
+                this.setState({
+                  identifiers: identifiersCopy 
+                }) 
+              } } />
+            </FormGroup>
+            
+            <FormGroup>
+              <Label for="rackEnd">Rack End Number</Label>
+              <Input type="text" onChange={e => {
+                let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
+                identifiersCopy.rackEnd = e.target.value
+                this.setState({
+                  identifiers: identifiersCopy 
+                }) 
+              } } />
+            </FormGroup>
 
-          <p>Owner</p>
-          <Select value={ this.state.selectedOwnerOption }
-            onChange={ this.handleChangeOwner }
-            options={ this.state.ownerOptions }
-            searchable={ true } />
-
-          <p>Rack Start</p>
-          <input type="text" onChange={e => {
-            let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
-            identifiersCopy.rackStart = e.target.value
-            this.setState({
-              identifiers: identifiersCopy 
-            }) 
-          } } />
-
-          <p>Rack End</p>
-          <input type="text" onChange={e => {
-            let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
-            identifiersCopy.rackEnd = e.target.value
-            this.setState({
-              identifiers: identifiersCopy 
-            }) 
-          } } />
-          
-
-          
-          
-          {/* <p>Comment</p> 
-          <input type="text" onChange={e => {
-            let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
-            identifiersCopy.comment = e.target.value
-            this.setState({
-              identifiers: identifiersCopy 
-            }) 
-          } } /> */}
-
-
-          <input type="submit" value="Apply Filters" />
-        </form>
+            <Input type="submit" value="Apply Filters" />
+            </Col>
+          </Row>
+        </Form>
       </div>
     )
   }
