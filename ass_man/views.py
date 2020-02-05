@@ -441,7 +441,14 @@ class InstanceViewSet(viewsets.ModelViewSet):
                     uncreated_objects['model'].append((row['vendor'] + row['model_number']))
                     dont_add = True
                 try:
-                    rack = Rack.objects.get(rack_number=row['rack'])
+                    rack_set = False
+                    for r in racks_to_save:
+                        if r.rack_number == row['rack']:
+                            rack = r
+                            rack_set = True
+                            break
+                    if not rack_set:
+                        rack = Rack.objects.get(rack_number=row['rack'])
                 except Rack.DoesNotExist:
                     uncreated_objects['rack'].append(row['rack'])
                     dont_add = True
@@ -457,13 +464,13 @@ class InstanceViewSet(viewsets.ModelViewSet):
                     instance = Instance(model=model, hostname=row['hostname'],\
                     rack=rack, rack_u=row['rack_position'], owner=owner, comment=row['comment'])
                     for i in range(int(row['rack_position']), int(row['rack_position'])+instance.model.height):
-                        curr_instance = getattr(rack, 'u{}'.format(row['rack_position']))
+                        curr_instance = getattr(rack, 'u{}'.format(i))
                         if curr_instance is not None:
                             blocked = True
                             blocked_instances[instance.hostname] =row['rack']+"_u"+row['rack_position']
 
                     for i in range(int(row['rack_position']), int(row['rack_position'])+instance.model.height):
-                        setattr(rack, 'u{}'.format(row['rack_position']), instance)
+                        setattr(rack, 'u{}'.format(i), instance)
                     racks_to_save.append(rack)
 
                     instances_to_create.append(instance)
@@ -499,16 +506,16 @@ class InstanceViewSet(viewsets.ModelViewSet):
                 if should_override:
                     blocked = False
                     for i in range(int(row['rack_position']), int(row['rack_position'])+instance.model.height):
-                        curr_instance = getattr(rack, 'u{}'.format(row['rack_position']))
+                        curr_instance = getattr(rack, 'u{}'.format(i))
                         if curr_instance is not None:
                             blocked = True
                             blocked_instances[instance.hostname] =row['rack']+"_u"+row['rack_position']
                     if not blocked:
                         instance.rack = rack
                         for i in range(old_u, old_u+instance.model.height+1):
-                            setattr(rack, 'u{}'.format(row['rack_position']), None)
+                            setattr(rack, 'u{}'.format(i), None)
                         for i in range(int(row['rack_position']), int(row['rack_position'])+instance.model.height+1):
-                            setattr(rack, 'u{}'.format(row['rack_position']), instance)
+                            setattr(rack, 'u{}'.format(i), instance)
                         racks_to_save.append(rack)
                     should_update = True
                 else:
