@@ -131,26 +131,36 @@ export class ModelController extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
+    const delay = 50;
 
     // When showing table again, rerender
     if (prevState.showTableView === false && this.state.showTableView === true) {
-      this.getModels();
+      setTimeout(() => {
+        this.getModels();
+      }, delay); 
     }
     
     // Once filter changes, rerender
     if (prevState.filterQuery !== this.state.filterQuery) {
-      this.getModels();
+      setTimeout(() => {
+        this.getModels();
+      }, delay); 
     }
 
     // Once sort changes, rerender
     if (prevState.sortQuery !== this.state.sortQuery) {
-      this.getModels();
+      setTimeout(() => {
+        this.getModels();
+      }, delay); 
     }
 
     // After crud, rerender
     if (prevState.rerender === false && this.state.rerender === true) {
-      this.getModels();
-      this.setState({ rerender: false });
+      setTimeout(() => {
+        this.getModels();
+        this.setState({ rerender: false });
+      }, delay); 
+      
     }
   }
 
@@ -193,8 +203,13 @@ export class ModelController extends Component {
     })
     .catch(function (error) {
       // TODO: handle error
-      alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+      alert('Cannot load. Re-login.\n' + JSON.stringify(error.response, null, 2));
     });
+    // setTimeout(function() {
+      
+    // }, 100); 
+    
+    
   }
 
   getAllModels = () => {

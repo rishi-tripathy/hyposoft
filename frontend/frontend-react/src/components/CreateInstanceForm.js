@@ -67,6 +67,7 @@ export class CreateInstanceForm extends Component {
     })
     .catch(function (error) {
       // TODO: handle error
+      console.log(error.response)
       alert('Could not load model names. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
     });
 
@@ -82,6 +83,7 @@ export class CreateInstanceForm extends Component {
     })
     .catch(function (error) {
       // TODO: handle error
+      console.log(error.response)
       alert('Could not load racks. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
     });
 
@@ -97,6 +99,7 @@ export class CreateInstanceForm extends Component {
     })
     .catch(function (error) {
       // TODO: handle error
+      console.log(error.response)
       alert('Could not load owners. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
     });
   }

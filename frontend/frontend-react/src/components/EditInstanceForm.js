@@ -52,6 +52,7 @@ export class EditInstanceForm extends Component {
     })
     .catch(function (error) {
       // TODO: handle error
+      console.log(error.response.data)
       alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
     });
 
@@ -71,6 +72,7 @@ export class EditInstanceForm extends Component {
     })
     .catch(function (error) {
       // TODO: handle error
+      console.log(error.response)
       alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
     });
 
@@ -89,6 +91,7 @@ export class EditInstanceForm extends Component {
     })
     .catch(function (error) {
       // TODO: handle error
+      console.log(error.response)
       alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
     });
 
@@ -102,12 +105,13 @@ export class EditInstanceForm extends Component {
       console.log(res.data)
       this.setState({ 
         ownerOptions: myOptions,
-        selectedOwnerOption: { value: this.state.instance.owner.url, label: this.state.instance.owner.username }, 
+        selectedOwnerOption: { value: this.state.instance.owner ? this.state.instance.owner.url : null, label: this.state.instance.owner ? this.state.instance.owner.username : null}, 
       });
     })
     .catch(function (error) {
       // TODO: handle error
-      alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+      console.log(error)
+      //alert('Cannot load. Re-login.\n' + JSON.stringify(error.response, null, 2));
     });
   }
 
