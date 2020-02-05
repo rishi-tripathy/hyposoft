@@ -65,7 +65,7 @@ export class RackFilters extends Component {
             console.log(this.state);
           } } />
         <FormText color="muted">
-          The rack range you want to start filtering from.
+          The rack number you want to start filtering from.
         </FormText>
       </FormGroup>
       <FormGroup>

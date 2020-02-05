@@ -63,6 +63,8 @@ export class DeleteMultipleRacksForm extends Component {
     let start_rack;
     let end_rack;
     return (
+  <div>
+    <Button onClick={() => this.props.sendShowTable(true)}>Back</Button>{' '}
          <Form onSubmit={this.handleSubmit}>
       <FormGroup>
         <Label for="Start of Range">Deletion Range Start</Label>
@@ -76,6 +78,7 @@ export class DeleteMultipleRacksForm extends Component {
       </FormGroup>
      {console.log(this.state)}
     </Form>
+  </div>
     )
   }
 

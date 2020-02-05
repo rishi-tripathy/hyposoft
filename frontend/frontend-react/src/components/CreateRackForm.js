@@ -77,6 +77,8 @@ export class CreateRackForm extends Component {
   
   render() {
     return (
+  <div>
+    <Button onClick={() => this.props.sendShowTable(true)} >Back</Button>{' '}
         <Form onSubmit={this.handleSubmit}>
         <h1>Rack Creation form</h1>{' '}
       <FormGroup>
@@ -89,6 +91,7 @@ export class CreateRackForm extends Component {
       <FormGroup>
       </FormGroup>
     </Form>
+  </div>
     )
   }
 
