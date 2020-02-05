@@ -854,7 +854,7 @@ def report(request):
     model_dict_by_model_number = {}
     for model in model_dict.keys():
         model_obj = Model.objects.get(pk=model)
-        model_dict_by_model_number[model_obj.model_number] = model_dict[model]
+        model_dict_by_model_number[model_obj.vendor+' '+model_obj.model_number] = model_dict[model]
         if model_obj.vendor in vendor_dict:
             vendor_dict[model_obj.vendor] += model_dict[model]
         else:
