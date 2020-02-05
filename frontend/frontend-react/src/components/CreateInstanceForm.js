@@ -116,6 +116,8 @@ export class CreateInstanceForm extends Component {
   
   render() {
     return (
+    <div>
+      <Button onClick={() => this.props.sendShowTable(true)} >Back</Button>{' '}
       <Container>
         <Row>
           <Col xs="6">
@@ -184,7 +186,7 @@ export class CreateInstanceForm extends Component {
           </Col>
         </Row>
       </Container>
-      
+  </div>
     )
   }
 }

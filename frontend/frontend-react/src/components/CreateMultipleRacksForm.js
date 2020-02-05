@@ -48,7 +48,9 @@ export class CreateMultipleRacksForm extends Component {
     let start_rack;
     let end_rack;
     return (
-        <Form onSubmit={this.handleSubmit}>
+  <div>
+    <Button onClick={() => this.props.sendShowTable(true)} >Back</Button>{' '}
+    <Form onSubmit={this.handleSubmit}>
             <h1>Create Multiple Racks</h1>
       <FormGroup>
         <Label for="Start of Range">Creation Range Start</Label>
@@ -61,6 +63,7 @@ export class CreateMultipleRacksForm extends Component {
        <Button>Submit</Button>
       </FormGroup>
     </Form>
+  </div>
 
 
     )

@@ -45,7 +45,7 @@ export class AllInstancesOfModelView extends Component {
   }
 
   renderTableHeader() {
-    let header = ['id', 'hostname', 'rack', 'rack_u'];
+    let header = ['id', 'hostname', 'rack', 'rack u'];
     return header.map((key, index) => {
         return <th key={index}>{key.toUpperCase()}</th>
     })
@@ -61,7 +61,7 @@ export class AllInstancesOfModelView extends Component {
           <td>{hostname}</td>
           <td>{rack ? rack.rack_number : null}</td>
           <td>{rack_u}</td>
-          <td><Button onClick={ () => this.showDetailedInstance(id) }>More details</Button></td>
+          <td><Button color="info" onClick={ () => this.showDetailedInstance(id) }>More details</Button></td>
         </tr>
       )
     })

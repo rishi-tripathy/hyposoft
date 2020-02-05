@@ -79,6 +79,8 @@ export class CreateModelForm extends Component {
 
   render() {
     return (
+   <div>
+    <Button onClick={() => this.props.sendShowTable(true)} >Back</Button>
       <Container>
         <Row>
           <Col xs="6">
@@ -202,6 +204,7 @@ export class CreateModelForm extends Component {
           </Col>
         </Row>
       </Container>
+   </div>
     )
   }
 }

@@ -102,6 +102,8 @@ export class EditModelForm extends Component {
 
   render() {
     return (
+   <div>
+    <Button onClick={() => this.props.sendShowTable(true)} >Back</Button>{' '}
       <Container>
         <Row>
           <Col xs="6">
@@ -237,7 +239,8 @@ export class EditModelForm extends Component {
           </Col>
           <Col xs="6"></Col>
         </Row>
-      </Container>    
+      </Container>
+   </div>
     )
   }
 }
