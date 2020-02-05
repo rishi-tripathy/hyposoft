@@ -37,13 +37,21 @@ export class RackFilters extends Component {
   handleSubmit = (e) => {
     e.preventDefault();
 
-    let stateCopy = Object.assign({}, this.state.identifiers);
-    let stateToSend = this.removeEmpty(stateCopy);
-    
-    console.log(stateToSend)
 
-    this.props.sendFilterQuery(this.createQuery());
-    console.log(this.createQuery())
+    let start_rack = this.state.identifiers.rackStart;
+    let end_rack = this.state.identifiers.rackEnd;
+    let stateCopy = Object.assign({}, this.state);
+    let stateToSend = this.removeEmpty(stateCopy);
+    const validNumRegex = new RegExp("^[A-Z]\\d+$", 'i');
+    console.log(start_rack);
+    console.log(end_rack);
+
+    if((validNumRegex.test(start_rack) && validNumRegex.test(end_rack))){
+      this.props.sendFilterQuery(this.createQuery());
+    }
+    else{
+      alert("Rack Numbers must be specified by a Single Letter Followed by Multiple Numbers.");
+    }
   }
 
   resetFilters = () => {
@@ -76,7 +84,6 @@ export class RackFilters extends Component {
             this.setState({
               identifiers: identifiersCopy
             })
-            console.log(this.state);
 
           } } />
          <FormText color="muted">
