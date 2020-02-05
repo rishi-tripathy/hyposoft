@@ -516,9 +516,9 @@ class InstanceViewSet(viewsets.ModelViewSet):
                             blocked_instances[instance.hostname] =row['rack']+"_u"+row['rack_position']
                     if not blocked:
                         instance.rack = rack
-                        for i in range(old_u, old_u+instance.model.height+1):
+                        for i in range(old_u, old_u+instance.model.height):
                             setattr(rack, 'u{}'.format(i), None)
-                        for i in range(int(row['rack_position']), int(row['rack_position'])+instance.model.height+1):
+                        for i in range(int(row['rack_position']), int(row['rack_position'])+instance.model.height):
                             setattr(rack, 'u{}'.format(i), instance)
                         racks_to_save.append(rack)
                     should_update = True
@@ -530,12 +530,19 @@ class InstanceViewSet(viewsets.ModelViewSet):
                 override = True
             if str(instance.rack_u) != row['rack_position']:
                 if should_override:
+                    rack_set = False
                     try:
-                        rack = Rack.objects.get(rack_number=row['rack'])
+                        for r in racks_to_save:
+                            if r.rack_number == row['rack']:
+                                rack = r
+                                rack_set = True
+                                break
+                        if not rack_set:
+                            rack = Rack.objects.get(rack_number=row['rack'])
                     except Rack.DoesNotExist:
                         rack = None
                     blocked = False
-                    for i in range(int(row['rack_position']), int(row['rack_position'])+instance.model.height+1):
+                    for i in range(int(row['rack_position']), int(row['rack_position'])+instance.model.height):
                         curr_instance = getattr(rack, 'u{}'.format(row['rack_position']))
                         if curr_instance is not None:
                             blocked = True
@@ -543,10 +550,12 @@ class InstanceViewSet(viewsets.ModelViewSet):
                     if not blocked:
                         old_u = instance.rack_u
                         instance.rack_u = row['rack_position']
-                        for i in range(old_u, old_u+instance.model.height+1):
-                            setattr(rack, 'u{}'.format(row['rack_position']), None)
-                        for i in range(int(row['rack_position']), int(row['rack_position'])+instance.model.height+1):
-                            setattr(rack, 'u{}'.format(row['rack_position']), instance)
+                        print('old u ' + str(old_u))
+                        print('new u ' + str(instance.rack_u))
+                        for i in range(old_u, old_u+instance.model.height):
+                            setattr(rack, 'u{}'.format(i), None)
+                        for i in range(int(row['rack_position']), int(row['rack_position'])+instance.model.height):
+                            setattr(rack, 'u{}'.format(i), instance)
                         racks_to_save.append(rack)
                     should_update = True
                 else:
@@ -613,7 +622,6 @@ class InstanceViewSet(viewsets.ModelViewSet):
             err_message = "Do you want to overwrite the following "\
             "fields: "
             count = 0
-            print(fields_overriden)
             for field in fields_overriden.keys():
                 err_message += "For " + field + " overwrite " + str(fields_overriden[field][0]) \
                 + " with " + fields_overriden[field][1] + ". "
