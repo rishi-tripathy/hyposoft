@@ -55,7 +55,7 @@ export class ModelTable extends Component {
   }
 
   renderTableHeader() {
-		let header = ['id', 'vendor', 'model number', 'height',
+		let header = ['vendor', 'model number', 'height',
 		'display color', 'ethernet ports', 'power ports', 'cpu', 'memory', 'storage'];
     return header.map((key, index) => {
         return <th key={index}>{key.toUpperCase()}</th>
@@ -68,7 +68,6 @@ export class ModelTable extends Component {
        const { ethernet_ports, power_ports, cpu, memory, storage, comment } = model //more destructuring
        return (
           <tr key={id}>
-						<td>{id}</td>
 						<td>{vendor}</td>
 						<td>{model_number}</td>
 						<td>{height}</td>

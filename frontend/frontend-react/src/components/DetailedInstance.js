@@ -28,6 +28,7 @@ export class DetailedInstance extends Component {
       })
       .catch(function (error) {
         // TODO: handle error
+        console.log(error.response)
         alert('Cannot load instances. Re-login.\n' + JSON.stringify(error.response, null, 2));
       });
     }
@@ -45,7 +46,7 @@ export class DetailedInstance extends Component {
   }
 
   renderTableHeader() {
-    let header = ['id', 'model vendor', 'model number', 'hostname', 'rack', 'rack u', 'owner_username', 'comment'];
+    let header = ['model vendor', 'model number', 'hostname', 'rack', 'rack u', 'owner_username', 'comment'];
     return header.map((key, index) => {
         return <th key={index}>{key.toUpperCase()}</th>
     })
@@ -57,7 +58,6 @@ export class DetailedInstance extends Component {
 
         return (
           <tr key={id}>
-            <td>{id}</td>
             <td>{model ? model.vendor : null}</td>
             <td>{model ? model.model_number : null}</td>
             <td>{hostname}</td>
