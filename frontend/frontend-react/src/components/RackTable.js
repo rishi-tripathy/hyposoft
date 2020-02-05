@@ -74,7 +74,7 @@ export class RackTable extends Component {
                previousRackU = rows[i-1];
                nextRackU = rows[i+1];
 
-               if(previousRackU == null || previousRackU.instanceUrl!==currentRackU.instanceUrl){
+               if(previousRackU == null || previousRackU.id!==currentRackU.id){
                   //the previous one is null and this is the first U of the thing //
                   modelInfo.push(currentRackU.model.vendor +  " " + currentRackU.model.model_number);
                   hostnameInfo.push(currentRackU.hostname);
@@ -107,7 +107,7 @@ export class RackTable extends Component {
                displayColors.push(currentRackU.model.display_color);
 
                //only want to display things if FIRST (which is last backwards)...
-               if(previousRackU == null || previousRackU.instanceUrl!==currentRackU.instanceUrl){
+               if(previousRackU == null || previousRackU.id!==currentRackU.id){
                   //the previous one is null or a diff instance and this is the first U of the thing //
                   modelInfo.push(currentRackU.model.vendor +  " " + currentRackU.model.model_number);
                   hostnameInfo.push(currentRackU.hostname);

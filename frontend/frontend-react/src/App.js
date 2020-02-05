@@ -3,8 +3,11 @@ import './App.css';
 import { BrowserRouter as Router } from 'react-router-dom'
 import SideBar from './components/SideBar';
 import axios from 'axios'
+import { Button } from 'reactstrap'
+import ButtonToolbar from "reactstrap/es/ButtonToolbar";
+import ButtonGroup from "reactstrap/es/ButtonGroup";
 import './stylesheets/Printing.css'
-import { UncontrolledCollapse, Button, Jumbotron,CardBody, Card } from 'reactstrap';
+import LandingPage from './components/LandingPage'
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 class App extends React.Component {
@@ -14,6 +17,7 @@ class App extends React.Component {
     this.state = {
       logged_in: false,
       is_admin: false,
+      logged_out: true,
     }
   }
 
@@ -56,6 +60,10 @@ class App extends React.Component {
     window.location = "/accounts/login/";
   }
 
+  handleLogout = (val) => {
+    this.setState({logged_in: false});
+  }
+
   render() {
 
     let content;
@@ -63,10 +71,18 @@ class App extends React.Component {
     
 
     if(!this.state.logged_in){
-      content = <button onClick={this.handleOnClick}>Log In!</button>
+      content = 
+      <div id ="contentContainer">
+        <LandingPage />
+        <div id='login'>
+          <Button color='primary' onClick={this.handleOnClick}>
+            Log In!
+          </Button>
+        </div>
+      </div>
     }
     else {
-      content = <SideBar is_admin={this.state.is_admin}/>
+      content = <SideBar is_admin={this.state.is_admin} />
     }
 
     return (
