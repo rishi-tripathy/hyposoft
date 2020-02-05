@@ -3,7 +3,9 @@
 {% block content %}
 
   {% if form.errors %}
+  <center>
     <p>Your username and password didn't match. Please try again.</p>
+  </center>
   {% endif %}
   
   {% if next %}
@@ -17,6 +19,7 @@
   
   <form method="post" action="{% url 'login' %}">
     {% csrf_token %}
+    <center>
     <table>
       <tr>
         <td>{{ form.username.label_tag }}</td>
@@ -27,8 +30,10 @@
         <td>{{ form.password }}</td>
       </tr>
     </table>
-    <input type="submit" value="login" />
-    <input type="hidden" name="next" value="{{ next }}" />
+      <!-- <Input type="submit" value="login" />
+      <Input type="hidden" name="next" value="{{ next }}" /> -->
+      <button> Submit</button>
+  </center>
   </form>
   
   {# Assumes you setup the password_reset view in your URLconf #}
