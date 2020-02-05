@@ -38,6 +38,7 @@ export class EditModelForm extends Component {
     let dst = '/api/models/'.concat(this.props.editID).concat('/');
 
     let stateCopy = Object.assign({}, this.state.model);
+    stateCopy.vendor = this.state.selectedVendorOption ? this.state.selectedVendorOption.value : null;
     let stateToSend = this.removeEmpty(stateCopy);
     
     axios.put(dst, stateToSend)
@@ -50,10 +51,9 @@ export class EditModelForm extends Component {
     this.props.sendShowTable(true);
   }
 
-  componentDidMount() {
+  loadModel = () => {
     let dst = '/api/models/'.concat(this.props.editID).concat('/');
     axios.get(dst).then(res => {
-      
       let modelCopy = JSON.parse(JSON.stringify(this.state.model));
       modelCopy.vendor = res.data.vendor;
       modelCopy.model_number = res.data.model_number;
@@ -73,14 +73,17 @@ export class EditModelForm extends Component {
       // TODO: handle error
       alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
     });
+  }
 
+  loadVendors = () => {
     // VENDOR
-    dst = '/api/models/vendors/';
+    let dst = '/api/models/vendors/';
     axios.get(dst).then(res => {
       let myOptions = []; 
-      for (let i = 0; i < res.data.length; i++) {
-        myOptions.push({ value: res.data[i].vendor, label: res.data[i].vendor });
+      for (let i = 0; i < res.data.vendors.length; i++) {
+        myOptions.push({ value: res.data.vendors[i], label: res.data.vendors[i] });
       }
+      console.log(myOptions)
       this.setState({ 
         vendorOptions: myOptions, 
         selectedVendorOption: { value: this.state.model.vendor, label: this.state.model.vendor } 
@@ -90,6 +93,14 @@ export class EditModelForm extends Component {
       // TODO: handle error
       alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
     });
+  }
+
+  componentDidMount() {
+    const delay = 50;
+    this.loadModel();
+    setTimeout(() => {
+      this.loadVendors();
+    }, delay);  
   }
 
   handleChangeVendor = selectedVendorOption => {

@@ -35,7 +35,7 @@ export class EditInstanceForm extends Component {
     return obj;
   };
 
-  componentDidMount() {
+  loadInstance = () => {
     let dst = '/api/instances/'.concat(this.props.editID).concat('/');
     axios.get(dst).then(res => {
       let instanceCopy = JSON.parse(JSON.stringify(this.state.instance));
@@ -53,9 +53,11 @@ export class EditInstanceForm extends Component {
       // TODO: handle error
       alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
     });
+  }
 
+  loadModels = () => {
     // MODEL
-    dst = '/api/instances/model_names/';
+    let dst = '/api/instances/model_names/';
     axios.get(dst).then(res => {
       let myOptions = []; 
       for (let i = 0; i < res.data.length; i++) {
@@ -70,9 +72,11 @@ export class EditInstanceForm extends Component {
       // TODO: handle error
       alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
     });
+  }
 
+  loadRacks = () => {
     // RACK
-    dst = '/api/racks/?show_all=true';
+    let dst = '/api/racks/?show_all=true';
     axios.get(dst).then(res => {
       let myOptions = []; 
       for (let i = 0; i < res.data.length; i++) {
@@ -87,9 +91,11 @@ export class EditInstanceForm extends Component {
       // TODO: handle error
       alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
     });
+  }
 
+  loadOwners = () => {
     // OWNER
-    dst = '/api/users/?show_all=true';
+    let dst = '/api/users/?show_all=true';
     axios.get(dst).then(res => {
       let myOptions = []; 
       for (let i = 0; i < res.data.length; i++) {
@@ -104,6 +110,19 @@ export class EditInstanceForm extends Component {
       // TODO: handle error
       //alert('Cannot load. Re-login.\n' + JSON.stringify(error.response, null, 2));
     });
+  }
+
+  componentDidMount() {
+    const delay = 50;
+    this.loadInstance();
+
+    setTimeout(() => {
+      this.loadModels();
+      this.loadRacks();
+      this.loadOwners();
+    }, delay); 
+
+    
   }
 
   handleChangeModel = selectedModelOption => {
