@@ -37,15 +37,11 @@ export class RacksView extends Component {
    }
       
    showEditForm = (id) => {
-  // console.log("in edit");
-   // console.log(id);
     this.props.sendShowEdit(true);
     this.props.sendEditID(id);
  }
 
  showDeleteForm = (id) => {
-    // console.log("in delete");
-    // console.log(id);
       if (window.confirm('Are you sure you want to delete?')) {
           let dst = '/api/racks/'.concat(id).concat('/');
           axios.delete(dst)
@@ -76,7 +72,6 @@ export class RacksView extends Component {
   }
 
   sendFromRow= (show, id) => {
-    console.log('sending detailed show and id in rack view')
     this.props.sendViewsToController(show, id);
 }
 
