@@ -188,7 +188,7 @@ class ModelViewSet(viewsets.ModelViewSet):
                     key = model.vendor + model.model_number + "_height"
                     fields_overriden[key] = [model.height, row['height']]
                 override = True
-            if model.display_color != disp_col:
+            if model.display_color != disp_col and (model.display_color != '777777' and not disp_col):
                 if should_override:
                     model.display_color = disp_col
                     should_update = True
