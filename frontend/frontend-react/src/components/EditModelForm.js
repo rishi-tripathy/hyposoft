@@ -39,7 +39,6 @@ export class EditModelForm extends Component {
 
     let stateCopy = Object.assign({}, this.state.model);
     let stateToSend = this.removeEmpty(stateCopy);
-    console.log(stateToSend)
     
     axios.put(dst, stateToSend)
     .then(function (response) {
@@ -54,7 +53,6 @@ export class EditModelForm extends Component {
   componentDidMount() {
     let dst = '/api/models/'.concat(this.props.editID).concat('/');
     axios.get(dst).then(res => {
-      console.log(res);
       
       let modelCopy = JSON.parse(JSON.stringify(this.state.model));
       modelCopy.vendor = res.data.vendor;
