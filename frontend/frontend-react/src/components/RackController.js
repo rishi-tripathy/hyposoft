@@ -234,21 +234,31 @@ export class RackController extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
+    const delay = 50;
+
     // Once filter changes, rerender
     if (prevState.filterQuery !== this.state.filterQuery){
-      this.refreshRacks();
+      setTimeout(() => {
+        this.refreshRacks();
+      }, delay); 
     }
 
     if( prevState.showRacksView !== this.state.showRacksView) {
-      this.refreshRacks();
+      setTimeout(() => {
+        this.refreshRacks();
+      }, delay); 
     }
     if( prevState.showAllRacks !== this.state.showAllRacks) {
-      this.refreshRacks();
+      setTimeout(() => {
+        this.refreshRacks();
+      }, delay); 
     }
     
       if (prevState.rerender === false && this.state.rerender === true) {
-        this.refreshRacks();
-        this.setState({ rerender: false });
+        setTimeout(() => {
+          this.refreshRacks();
+          this.setState({ rerender: false });
+        }, delay); 
       }
     }
     
