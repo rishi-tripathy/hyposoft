@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import {Button, Form, FormGroup, FormText, Input, Label, Row, Col} from "reactstrap";
+import {Button, Container, Form, FormGroup, FormText, Input, Label, Row, Col} from "reactstrap";
 import Creatable from "react-select/creatable/dist/react-select.esm";
 
 export class ModelFilters extends Component {
@@ -10,12 +10,16 @@ export class ModelFilters extends Component {
       identifiers: {
         vendor: '',
         model_number: '',
-        height: '',
+        height_min: '',
+        height_max: '',
         display_color: '',
-        ethernet_ports: '',
-        power_ports: '',
+        ethernet_ports_min: '',
+        ethernet_ports_max: '',
+        power_ports_min: '',
+        power_ports_max: '',
         cpu: '',
-        memory: '',
+        memory_min: '',
+        memory_max: '',
         storage: '',
       },
       query: null,
@@ -28,17 +32,21 @@ export class ModelFilters extends Component {
   };
 
   createQuery = () => {
-    const { vendor, model_number, height, display_color, ethernet_ports, power_ports, cpu, memory, storage } = this.state.identifiers;
+    const { vendor, model_number, height_min, height_max, display_color, ethernet_ports_min, ethernet_ports_max, power_ports_min, power_ports_max, cpu, memory_min, memory_max, storage } = this.state.identifiers;
     // NO '?' here!!
     let q = '' + 
             'vendor=' + vendor + '&' +
             'model_number=' + model_number + '&' +
-            'height=' + height + '&' +
+            'height_min=' + height_min + '&' +
+            'height_max=' + height_max + '&' +
             'display_color=' + display_color + '&' +
-            'ethernet_ports=' + ethernet_ports + '&' +
-            'power_ports=' + power_ports + '&' +
+            'ethernet_ports_min=' + ethernet_ports_min + '&' +
+            'ethernet_ports_max=' + ethernet_ports_max + '&' +
+            'power_ports_min=' + power_ports_min + '&' +
+            'power_ports_max=' + power_ports_max + '&' +
             'cpu=' + cpu + '&' +
-            'memory=' + memory + '&' +
+            'memory_min=' + memory_min + '&' +
+            'memory_max=' + memory_max + '&' +
             'storage=' + storage;
     this.setState({ query: q });
     return q;
@@ -61,40 +69,59 @@ export class ModelFilters extends Component {
       <div>
         <Form onSubmit={this.handleSubmit}>
           <h4>Filters</h4>
+        <Container>
           <Row>
-            <Col xs="6" sm="4">
-            <FormGroup>
-              <Label for="vendor">Vendor</Label>
-              <Input type="text" onChange={e => {
-                  let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
-                  identifiersCopy.vendor = e.target.value
-                  this.setState({
-                    identifiers: identifiersCopy
-                  })
-                } } />{' '}
-            </FormGroup>
-            <FormGroup>
-              <Label for="model number">Model Number</Label>
-              <Input type="text" onChange={e => {
-                  let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
-                  identifiersCopy.model_number = e.target.value
-                  this.setState({
-                    identifiers: identifiersCopy
-                  })
-                } } />{' '}
+            <Col>
+              <FormGroup>
+                <Label for="vendor">Vendor</Label>
+                <Input type="text" onChange={e => {
+                    let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
+                    identifiersCopy.vendor = e.target.value
+                    this.setState({
+                      identifiers: identifiersCopy
+                    })
+                  } } />{' '}
               </FormGroup>
-            <FormGroup>
-              <Label for="height">Height (in U)</Label>
-              <Input type="number" onChange={e => {
-                  let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
-                  identifiersCopy.height = e.target.value
-                  this.setState({
-                    identifiers: identifiersCopy
-                  })
-                } } />{' '}
-            </FormGroup>
             </Col>
-            <Col xs="6" sm="4">
+            <Col>
+              <FormGroup>
+                <Label for="model number">Model Number</Label>
+                <Input type="text" onChange={e => {
+                    let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
+                    identifiersCopy.model_number = e.target.value
+                    this.setState({
+                      identifiers: identifiersCopy
+                    })
+                  } } />{' '}
+                </FormGroup>
+            </Col>
+              <Col>
+              <FormGroup>
+                <Label for="height">Min Height (in U)</Label>
+                <Input type="number" onChange={e => {
+                    let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
+                    identifiersCopy.height_min = e.target.value
+                    this.setState({
+                      identifiers: identifiersCopy
+                    })
+                  } } />{' '}
+              </FormGroup>
+              </Col>
+              <Col>
+                <FormGroup>
+                <Label for="height">Max Height (in U)</Label>
+                <Input type="number" onChange={e => {
+                    let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
+                    identifiersCopy.height_max = e.target.value
+                    this.setState({
+                      identifiers: identifiersCopy
+                    })
+                  } } />{' '}
+              </FormGroup>
+              </Col>
+          </Row>
+          <Row>
+            <Col>
             <FormGroup>
               <Label for="color">Display Color</Label>
                 <Input type="color"
@@ -107,29 +134,58 @@ export class ModelFilters extends Component {
                       })
                     }} />{' '}
             </FormGroup>
-          <FormGroup>
-          <Label for="ethernet">Ethernet Ports</Label>
-            <Input type="number" onChange={e => {
-                let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
-                identifiersCopy.ethernet_ports = e.target.value
-                this.setState({
-                  identifiers: identifiersCopy
-                })
-              } } />{' '}
-            </FormGroup>
-          <FormGroup>
-            <Label for="powerports">Power Ports</Label>
-            <Input type="number" onChange={e => {
-                let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
-                identifiersCopy.power_ports = e.target.value
-                this.setState({
-                  identifiers: identifiersCopy
-                })
-              } } />{' '}
-          </FormGroup>
-
             </Col>
-            <Col sm="4">
+            <Col>
+            <FormGroup>
+              <Label for="ethernet">Min Ethernet Ports</Label>
+                <Input type="number" onChange={e => {
+                    let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
+                    identifiersCopy.ethernet_ports_min = e.target.value
+                    this.setState({
+                      identifiers: identifiersCopy
+                    })
+                  } } />{' '}
+            </FormGroup>
+            </Col>
+            <Col>
+              <FormGroup>
+              <Label for="ethernet">Max Ethernet Ports</Label>
+                <Input type="number" onChange={e => {
+                    let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
+                    identifiersCopy.ethernet_ports_max = e.target.value
+                    this.setState({
+                      identifiers: identifiersCopy
+                    })
+                  } } />{' '}
+                </FormGroup>
+          </Col>
+            <Col>
+            <FormGroup>
+              <Label for="powerports">Min Power Ports</Label>
+              <Input type="number" onChange={e => {
+                  let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
+                  identifiersCopy.power_ports_min = e.target.value
+                  this.setState({
+                    identifiers: identifiersCopy
+                  })
+                } } />{' '}
+            </FormGroup>
+            </Col>
+            <Col>
+              <FormGroup>
+              <Label for="powerports">Max Power Ports</Label>
+              <Input type="number" onChange={e => {
+                  let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
+                  identifiersCopy.power_ports_max = e.target.value
+                  this.setState({
+                    identifiers: identifiersCopy
+                  })
+                } } />{' '}
+            </FormGroup>
+            </Col>
+          </Row>
+          <Row>
+            <Col>
             <FormGroup>
               <Label for="cpu">CPU</Label>
               <Input type="text" onChange={e => {
@@ -140,16 +196,32 @@ export class ModelFilters extends Component {
                   })
                 } } />{' '}
               </FormGroup>
+            </Col>
+            <Col>
                 <FormGroup>
-            <Label for="Memory">Memory</Label>
+              <Label for="Memory">Min Memory (GB)</Label>
               <Input type="number" onChange={e => {
                   let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
-                  identifiersCopy.memory = e.target.value
+                  identifiersCopy.memory_min = e.target.value
+                  this.setState({
+                    identifiers: identifiersCopy
+                  })
+                } } />{' '}
+                </FormGroup>
+            </Col>
+            <Col>
+              <FormGroup>
+              <Label for="Memory">Max Memory (GB)</Label>
+              <Input type="number" onChange={e => {
+                  let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
+                  identifiersCopy.memory_max = e.target.value
                   this.setState({
                     identifiers: identifiersCopy
                   })
                 } } />{' '}
               </FormGroup>
+            </Col>
+            <Col>
                 <FormGroup>
               <Label for="Storage">Storage</Label>
               <Input type="text" onChange={e => {
@@ -160,13 +232,20 @@ export class ModelFilters extends Component {
                   })
                 } } />{' '}
               </FormGroup>
+            </Col>
+          </Row>
+          <Row>
+            <Col></Col>
+            <Col></Col>
+            <Col></Col>
+            <Col>
               <FormGroup>
-              <Input type="submit" value="Apply Filters" />
+              <Input color="green" type="submit" value="Apply Filters" />
             </FormGroup>
             </Col>
           </Row>
+        </Container>
         </Form>
-
       </div>
     )
   }
