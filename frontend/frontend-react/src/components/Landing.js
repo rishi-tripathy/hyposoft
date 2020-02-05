@@ -1,22 +1,37 @@
 import React, { Component } from 'react'
-import ModelController from './ModelController'
-import InstanceController from './InstanceController'
 import TestAPI from './TestAPI'
 import AddUserModal from './AddUserModal'
+import '../stylesheets/Printing.css'
+import { Button, ButtonGroup, Navbar, NavbarBrand, NavbarText, Nav } from 'reactstrap';
 
+
+
+const headerStyle = {
+  width: 100 + '%',
+  padding: 0, 
+  backgroundColor: 'lightblue',
+}
 
 export class Landing extends Component {
+
+  handleLogout = () => {
+    // this.props.loggingOut(false); 
+    window.location = "/accounts/logout/";
+  }
+
+
   render() {
     return (
-      <div>
-        <h1>This is a dummy landing page!</h1>
-        <AddUserModal />
-        <br></br>
-        <ModelController /> 
-        <br></br>
-        {/* <TestAPI /> */}
-        <InstanceController />
-      </div>
+      <div id='hideOnPrint'>
+        <Navbar color="light" light expand="md">
+          <Nav>
+            <NavbarBrand href="/">Hyposoft</NavbarBrand>
+          </Nav>
+          
+          <NavbarText><Button onClick={this.handleLogout}>Log Out</Button></NavbarText> {'     '}
+          <NavbarText> Powered by Django Unchained </NavbarText>
+        </Navbar>
+       </div>
     )
   }
 }

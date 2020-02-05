@@ -1,0 +1,23 @@
+.content {
+    padding-bottom: 20px;
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-top: 20px;
+}
+
+@keyframes fadeIn {
+    0% {opacity: 0;}
+    100% {opacity: 1;}
+ } 
+
+#fade {
+    animation: fadeIn 3s;
+    display: inline-block;
+}
+#login {
+    animation: fadeIn 6s;
+}
+
+#contentContainer {
+    text-align: center;
+}

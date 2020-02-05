@@ -32,14 +32,19 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
     def create(self, validated_data):
         user = User.objects.create_user(validated_data['username'], validated_data['email'],
                                         validated_data['password'])
-        if validated_data['first_name']:
-            user.first_name = validated_data['first_name']
+        if self.validated_data['first_name']:
+            user.first_name = self.validated_data['first_name']
 
-        if validated_data['last_name']:
-            user.last_name = validated_data['last_name']
-
+        if self.validated_data['last_name']:
+            user.last_name = self.validated_data['last_name']
+        user.save()
         return user
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'first_name', 'last_name', 'password')
+        fields = ('id', 'url', 'username', 'email', 'first_name', 'last_name', 'password')
+
+class UserOfInstanceSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = User
+        fields = ('url', 'username')

@@ -41,7 +41,7 @@ def get_env_variable(var_name):
 SECRET_KEY = get_random_secret_key()
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['.herokuapp.com', 'localhost', '127.0.0.1', '0.0.0.0', 'localhost:5000']
 
@@ -56,15 +56,14 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'whitenoise.runserver_nostatic',  # < As per whitenoise documentation
     'django.contrib.staticfiles',
-    # 'corsheaders',
     'rest_framework',
+    'django_filters',
     'ass_man'
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',  # Whitenoise Middleware
-    # 'corsheaders.middleware.CorsMiddleware',    # add this
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -100,8 +99,13 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.SessionAuthentication',
     ),
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 1
+    'DEFAULT_PAGINATION_CLASS': 'backend.paginators.Unpaginatable',
+    'DEFAULT_FILTER_BACKENDS': (
+        'rest_framework.filters.OrderingFilter',
+        'django_filters.rest_framework.DjangoFilterBackend',
+    ),
+
+    'PAGE_SIZE': 3
 }
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
@@ -143,14 +147,6 @@ USE_L10N = True
 
 USE_TZ = True
 
-# CORS_ORIGIN_WHITELIST = (
-#     'http://localhost',
-#     'http://localhost:5000'
-#  )
-#
-# CORS_ORIGIN_REGEX_WHITELIST = [
-#     r"^https://\w+\.herokuapp\.com$",
-# ]
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/

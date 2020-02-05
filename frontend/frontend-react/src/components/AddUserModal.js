@@ -7,7 +7,7 @@ const AddUserModal = () => (
     {close => (
       <div className="modal">
         <a className="close" onClick={close}> &times; </a>
-        <div className="header"> Modal Title </div>
+        <div className="header"> Create User Below </div>
         <div className="content">
           <CreateUserForm />
         </div>
