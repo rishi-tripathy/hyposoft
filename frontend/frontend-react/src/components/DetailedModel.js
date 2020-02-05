@@ -60,7 +60,7 @@ export class DetailedModel extends Component {
   }
 
   loadModelData = () => {
-    if (this.props.modelID !== undefined) {
+    if (this.props.modelID) {
       let dst = '/api/models/'.concat(this.props.modelID).concat('/');
       console.log(dst);
       axios.get(dst).then(res => {
