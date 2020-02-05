@@ -49,7 +49,7 @@ export class InstanceTable extends Component {
   }
 
   renderTableHeader() {
-    let header = ['id', 'model vendor', 'model number', 'hostname', 'rack', 'rack u', 'owner username'];
+    let header = ['model vendor', 'model number', 'hostname', 'rack', 'rack u', 'owner username'];
     return header.map((key, index) => {
         return <th key={index}>{key.toUpperCase()}</th>
     })
@@ -61,7 +61,6 @@ export class InstanceTable extends Component {
 
         return (
           <tr key={id}>
-            <td>{id}</td>
             <td>{model ? model.vendor : null}</td>
             <td>{model ? model.model_number : null}</td>
             <td>{hostname}</td>
@@ -82,9 +81,13 @@ export class InstanceTable extends Component {
 
   handleImport = (e) => {
 		e.preventDefault();
-		let f = this.state.file;
+    let f = this.state.file;
+    if (f == null) {
+			alert("You must upload a file.");
+			return;
+		}
 		this.fileUpload(this.state.file).then((response)=>{
-      alert("Import was successful.");
+      alert("Import was successful." + JSON.stringify(response.data, null, 2));
 		})
 		.catch(function (error) {
 			console.log(error.response)

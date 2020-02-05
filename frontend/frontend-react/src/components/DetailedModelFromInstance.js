@@ -17,8 +17,9 @@ export class DetailedModelFromInstance extends Component {
   }
 
   loadModel = () => {
-    if (this.props.modelURL !== undefined) {
+    if (this.props.modelURL) {
       // let dst = '/api/models/'.concat(this.props.modelID).concat('/');
+      console.log(this.props.modelURL);
       axios.get(this.props.modelURL).then(res => {
         this.setState({
           model: res.data
@@ -26,7 +27,8 @@ export class DetailedModelFromInstance extends Component {
       })
       .catch(function (error) {
         // TODO: handle error
-        alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+        console.log('hello')
+        alert('Cannot load. Re-login.\n' + JSON.stringify(error.response, null, 2));
       });
     }
   }
@@ -43,7 +45,7 @@ export class DetailedModelFromInstance extends Component {
   }
 
   renderTableHeader() {
-		let header = ['id', 'vendor', 'model number', 'height',
+		let header = ['vendor', 'model number', 'height',
 		'display color', 'ethernet ports', 'power ports', 'cpu', 'memory', 'storage', 'comment'];
     return header.map((key, index) => {
         return <th key={index}>{key.toUpperCase()}</th>
@@ -56,7 +58,6 @@ export class DetailedModelFromInstance extends Component {
        const { ethernet_ports, power_ports, cpu, memory, storage, comment } = model //more destructuring
        return (
           <tr key={id}>
-						<td>{id}</td>
 						<td>{vendor}</td>
 						<td>{model_number}</td>
 						<td>{height}</td>
