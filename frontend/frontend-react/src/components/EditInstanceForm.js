@@ -38,7 +38,6 @@ export class EditInstanceForm extends Component {
   componentDidMount() {
     let dst = '/api/instances/'.concat(this.props.editID).concat('/');
     axios.get(dst).then(res => {
-      console.log(res);
       let instanceCopy = JSON.parse(JSON.stringify(this.state.instance));
       instanceCopy.model = res.data.model;
       instanceCopy.hostname = res.data.hostname;
@@ -52,7 +51,6 @@ export class EditInstanceForm extends Component {
     })
     .catch(function (error) {
       // TODO: handle error
-      console.log(error.response.data)
       alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
     });
 
@@ -63,16 +61,13 @@ export class EditInstanceForm extends Component {
       for (let i = 0; i < res.data.length; i++) {
         myOptions.push({ value: res.data[i].url, label: res.data[i].vendor + ' ' + res.data[i].model_number });
       }
-      console.log(res.data)
       this.setState({ 
         modelOptions: myOptions,
         selectedModelOption: { value: this.state.instance.model.url, label: this.state.instance.model.vendor + ' ' + this.state.instance.model.model_number } 
       });
-      console.log(this.state.modelOptions);
     })
     .catch(function (error) {
       // TODO: handle error
-      console.log(error.response)
       alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
     });
 
