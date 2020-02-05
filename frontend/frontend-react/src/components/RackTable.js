@@ -40,7 +40,6 @@ export class RackTable extends Component {
       this.props.sending(show, id);
    } 
 
-
    renderRows() {
       //these store information per rack, for empty ones, everything is added as null except for rackUs
       let rackUs = [];
@@ -74,6 +73,7 @@ export class RackTable extends Component {
                //only want to display things if FIRST (which is last backwards)...
                previousRackU = rows[i-1];
                nextRackU = rows[i+1];
+
 
                if(previousRackU == null || previousRackU.instanceUrl!==currentRackU.instanceUrl){
                   //the previous one is null and this is the first U of the thing //
