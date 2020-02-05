@@ -24,8 +24,6 @@ export class RackRow extends Component {
    handleInstanceClick = (id) => {
 
        if(id !== null){
-            console.log("in an instance");
-            console.log(id);
             this.props.sendFromRow(true, id);
             }
         }
@@ -33,7 +31,6 @@ export class RackRow extends Component {
 
         let objectIsNull = true;
         let isCondensed = false;
-        //console.log(this.props.row)
         if(this.props.displayColor !== null){
             objectIsNull = false;
         }

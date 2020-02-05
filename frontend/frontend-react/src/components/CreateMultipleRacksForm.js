@@ -26,36 +26,23 @@ export class CreateMultipleRacksForm extends Component {
         let end_rack = this.state.rack_num_end;
         let stateCopy = Object.assign({}, this.state);
         let stateToSend = this.removeEmpty(stateCopy);
-
-        //validate
-
-        console.log(start_rack);
-        console.log(end_rack);
-        
         const validNumRegex = new RegExp("^[A-Z]\\d+$", 'i');
-        console.log(validNumRegex);
 
-        if(validNumRegex.test(start_rack) && validNumRegex.test(end_rack)){
-          console.log("we in this bitch");
-      }
-      else {
-          alert("Rack Numbers must be specified by a Single Letter Followed by Multiple Numbers.");
-      }
-
-        // for(var i: )
-        console.log(stateToSend);
-        
-        axios.post('/api/racks/many/', stateToSend)
+        if((validNumRegex.test(start_rack) && validNumRegex.test(end_rack))){
+          axios.post('/api/racks/many/', stateToSend)
         .then(function (response) {
-          console.log(response);
           let message = response.data.results;
           alert(response.data.results);
         })
         .catch(function (error) {
           alert('Creation was not successful.\n' + JSON.stringify(error.response.data, null, 2));
-    });
-    this.props.sendShowTable(true);
-  }
+        });
+        }
+        else{
+          alert("Rack Numbers must be specified by a Single Letter Followed by Multiple Numbers.");
+        }
+        this.props.sendShowTable(true);
+      }
   
   render() {
     let start_rack;
@@ -75,7 +62,6 @@ export class CreateMultipleRacksForm extends Component {
           <FormGroup>
        <Button>Submit</Button>
       </FormGroup>
-     {console.log(this.state)}
     </Form>
   </div>
 
