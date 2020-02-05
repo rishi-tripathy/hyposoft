@@ -39,16 +39,14 @@ export class EditRackForm extends Component {
   componentDidMount() {
     let dst = '/api/racks/'.concat(this.props.editID).concat('/');
     axios.get(dst).then(res => {
-      //console.log('racks edit form results ' + res);
       this.setState({ rack_number: res.data.rack_number });
       //would not change instances
     })
     .then(function (response) {
-      //console.log(response);
     })
     .catch(function (error) {
       // TODO: handle error
-     // console.log(error.response);
+     console.log(error.response);
       alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
     });
   }

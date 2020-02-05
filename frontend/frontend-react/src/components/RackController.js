@@ -52,7 +52,6 @@ export class RackController extends Component {
 
   getShowRacks = (show, condensed) => {
     if(show && condensed){
-      console.log(' racks condensed');
       this.setState({
         showRacksView: true,
         showCreateView : false,
@@ -66,7 +65,6 @@ export class RackController extends Component {
       })
     } 
     else if(show && !condensed){
-      console.log("racks not condensed");
       this.setState({
         showRacksView: true,
         showCreateView : false,
@@ -180,9 +178,6 @@ export class RackController extends Component {
   }
 
   getShowDetailedInstance = (show, id) => {
-    console.log("setting states for details:")
-    console.log(show)
-    console.log(id)
     show ? this.setState({
       showRacksView: false,
       showCreateView : false,
@@ -205,7 +200,6 @@ export class RackController extends Component {
   }
 
   getShowAllRacks = (show) => {
-    console.log('in show all racks: controller')
     show ? this.setState({
       showRacksView: true,
       showCreateView : false,
@@ -228,12 +222,10 @@ export class RackController extends Component {
 
   getFilterQuery = (q) => {
     this.setState({ filterQuery: q });
-    console.log(this.state.filterQuery);
   }
 
   getSortQuery = (q) => {
     this.setState({ sortQuery: q })
-    console.log(this.state.sortQuery);
   }
 
   componentDidMount() {
@@ -247,6 +239,9 @@ export class RackController extends Component {
       this.refreshRacks();
     }
 
+    if( prevState.showRacksView !== this.state.showRacksView) {
+      this.refreshRacks();
+    }
     if( prevState.showAllRacks !== this.state.showAllRacks) {
       this.refreshRacks();
     }
@@ -267,8 +262,6 @@ export class RackController extends Component {
         prevPage: res.data.previous,
         nextPage: res.data.next,
       });
-
-      console.log(this.state.racks);
     })
     .catch(function (error) {
       // TODO: handle error
@@ -281,13 +274,11 @@ export class RackController extends Component {
         let dst = '/api/racks/?show_all=true';
 
         axios.get(dst).then(res => {
-          console.log(res);
           this.setState({
             racks: res.data,
             prevPage: null,
             nextPage: null,
           });
-          console.log(this.state.racks);
         })
         .catch(function (error) {
           console.log(error.response);
@@ -304,16 +295,11 @@ export class RackController extends Component {
         prevPage: res.data.previous,
         nextPage: res.data.next,
       });
-
-      console.log(this.state.racks);
-
     })
     .catch(function (error) {
       // TODO: handle error
       console.log(error.response);
     });
-
-    console.log(this.state.racks);
   }
 
   paginatePrev = () => {
@@ -338,11 +324,6 @@ export class RackController extends Component {
   render() { 
     let content; 
 
-    console.log("render again");
-    console.log(this.state);
-
-   // let sorting = <InstanceSort sendSortQuery={ this.getSortQuery } />
-
     if (this.state.showRacksView){
       content = 
         <RacksView rack={this.state.racks}
@@ -359,8 +340,6 @@ export class RackController extends Component {
                   is_admin={this.props.is_admin}/>
     }
     else if (this.state.showDetailedInstanceView) {
-      console.log("correctly show detailed instance")
-      console.log(this.state.IDurl);
       content = <DetailedInstance instanceID = {this.state.IDurl} 
                             sendShowTable = {this.getShowRacks} />    }
     else if (this.state.showCreateView){
