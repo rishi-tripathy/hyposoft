@@ -5,7 +5,6 @@ from django.db.models.fields import IntegerField
 from django.db.models.functions import Concat, Substr, Cast
 from django.db.models.deletion import ProtectedError
 from django.db.models import CharField
-from django.http import HttpResponse
 # API
 from rest_framework import viewsets
 from ass_man.serializers import (InstanceShortSerializer,
@@ -30,8 +29,8 @@ from ass_man.filters import InstanceFilter, ModelFilter, RackFilter, InstanceFil
 from rest_framework.serializers import ValidationError
 from rest_framework.request import Request, HttpRequest
 import json
-import csv, io
 from ass_man.import_manager import import_instance_file, import_model_file
+from ass_man.export_manager import export_models, export_instances
 
 JSON_TRUE = 'true'
 ADMIN_ACTIONS = {'create', 'update', 'partial_update', 'destroy'}
@@ -45,12 +44,9 @@ MODEL_ORDERING_FILTERING_FIELDS = ['vendor', 'model_number', 'height', 'display_
 MODEL_HEIGHT_UPDATE_ERROR_MSG = \
     'This update fails- the height of models may not be changed if instances of the model exist.'
 MODEL_DESTROY_ERROR_MSG = 'Cannot delete this model as there are associated instances: '
-MODEL_EXPORT_FIELDS = ['vendor', 'model_number', 'height', 'display_color', 'ethernet_ports',
-                       'power_ports', 'cpu', 'memory', 'storage', 'comment']
 
 INSTANCE_ORDERING_FILTERING_FIELDS = ['model', 'model__model_number', 'model__vendor',
                                       'hostname', 'rack', 'rack_u', 'owner']
-INSTANCE_EXPORT_FIELDS = ['hostname', 'rack', 'rack_position', 'vendor', 'model_number', 'owner', 'comment']
 
 RACK_ORDERING_FILTERING_FIELDS = ['rack_number']
 RACK_DESTROY_SINGLE_ERR_MSG = 'Cannot delete rack as it contains the following instances:'
@@ -129,18 +125,8 @@ class ModelViewSet(viewsets.ModelViewSet):
     def list(self, request, *args, **kwargs):
 
         if request.query_params.get('export') == JSON_TRUE:
-            # vendor,model_number,height,display_color,ethernet_ports,power_ports,cpu,memory,storage,comment
             queryset = self.filter_queryset(self.get_queryset())
-            response = HttpResponse(content_type='text/csv')
-            response['Content-Disposition'] = 'attachment; filename="models.csv"'
-
-            writer = csv.writer(response)
-            writer.writerow(MODEL_EXPORT_FIELDS)
-            for model in queryset:
-                writer.writerow([model.vendor, model.model_number, model.height,
-                                 model.display_color, model.ethernet_ports, model.power_ports,
-                                 model.cpu, model.memory, model.storage, model.comment])
-            return response
+            return export_models(queryset)
 
         return super().list(self, request, *args, *kwargs)
 
@@ -260,19 +246,7 @@ class InstanceViewSet(viewsets.ModelViewSet):
         if request.query_params.get('export') == 'true':
             # hostname,rack,rack_position,vendor,model_number,owner,comment
             queryset = self.filter_queryset(self.get_queryset())
-            response = HttpResponse(content_type='text/csv')
-            response['Content-Disposition'] = 'attachment; filename="models.csv"'
-
-            writer = csv.writer(response)
-            writer.writerow(INSTANCE_EXPORT_FIELDS)
-            for instance in queryset:
-                try:
-                    owner_name = instance.owner.username
-                except AttributeError:
-                    owner_name = None
-                writer.writerow([instance.hostname, instance.rack.rack_number, instance.rack_u, instance.model.vendor,
-                                 instance.model.model_number, owner_name, instance.comment])
-            return response
+            return export_instances(queryset)
 
         return super().list(self, request, *args, **kwargs)
 
