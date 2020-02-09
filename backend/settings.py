@@ -44,7 +44,7 @@ SECRET_KEY = get_random_secret_key()
 # Deployment: Debug = False, SSL = True
 # Development: Debug = True, SSL = False
 DEBUG = True
-# SECURE_SSL_REDIRECT = True
+SECURE_SSL_REDIRECT = False
 
 ALLOWED_HOSTS = ['.herokuapp.com', 'localhost', '127.0.0.1', '0.0.0.0', 'localhost:5000']
 
@@ -156,7 +156,6 @@ USE_TZ = True
 
 LOGIN_REDIRECT_URL = '/'
 CSRF_COOKIE_NAME = "XSRF-TOKEN"
-SECURE_SSL_REDIRECT = True
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'frontend', 'frontend-react', 'build', 'static')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
