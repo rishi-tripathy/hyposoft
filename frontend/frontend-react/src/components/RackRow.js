@@ -54,6 +54,7 @@ export class RackRow extends Component {
                 background: dispColor,
                 verticalAlign: 'bottom',
                 color: textColor,
+                borderBottom: 'black',
              }}>
                 { this.props.model }          { this.displayName() }
             </td>;

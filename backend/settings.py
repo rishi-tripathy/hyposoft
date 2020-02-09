@@ -154,7 +154,6 @@ USE_TZ = True
 
 LOGIN_REDIRECT_URL = '/'
 CSRF_COOKIE_NAME = "XSRF-TOKEN"
-
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'frontend', 'frontend-react', 'build', 'static')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
