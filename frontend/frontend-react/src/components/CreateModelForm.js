@@ -1,8 +1,7 @@
 import React, { Component } from 'react'
 import axios from 'axios'
-import Select from 'react-select';
-import Creatable, { makeCreatableSelect } from 'react-select/creatable';
-import {Button, Form, FormGroup, FormText, Input, Label, Container, Row, Col} from "reactstrap";
+import { Autocomplete } from "@material-ui/lab"
+import {Button, TextField, Grid, Input, FormControl} from "@material-ui/core";
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 export class CreateModelForm extends Component {
@@ -63,9 +62,9 @@ export class CreateModelForm extends Component {
       alert('Creation was not successful.\n' + JSON.stringify(error.response.data, null, 2));
     });
     this.props.sendShowTable(true);
-  }
+  };
 
-  handleChangeVendor = selectedVendorOption => {
+  handleChangeVendor = (event, selectedVendorOption) => {
     this.setState({ selectedVendorOption });
   };
 
@@ -78,131 +77,118 @@ export class CreateModelForm extends Component {
   render() {
     return (
    <div>
-    <Button onClick={() => this.props.sendShowTable(true)} >Back</Button>
-      <Container>
-        <Row>
-          <Col xs="6">
-            <Form onSubmit={this.handleSubmit}>
-              <h1>Create a Model</h1>
-              <FormGroup>
-                <Label for="vendor">Vendor</Label>
-                <Creatable value={ this.state.selectedVendorOption }
-                  onChange={ this.handleChangeVendor }
-                  options={ this.state.vendorOptions }
-                  isOptionUnique={this.isOptionUnique}
-                  searchable={ true } />{' '}
-              </FormGroup>
-              <FormGroup>
-                <Label for="model number">Model Number</Label>
-                <Input type="text" onChange={e => {
+    <Button variant="outlined" onClick={() => this.props.sendShowTable(true)} >Back</Button>{' '}
+     <form onSubmit={this.handleSubmit}>
+       <Grid container spacing={2}>
+        <Grid item xs={12}>
+        <h1>Create a Model</h1>
+        </Grid>
+          <Grid item xs={6}>
+            <Autocomplete
+                id="model-vendor-select"
+                options={this.state.vendorOptions}
+                getOptionLabel={option => option.label}
+                onChange={ this.handleChangeVendor }
+                value={this.state.selectedVendorOption}
+                renderInput={params => (
+                  <TextField {...params} label="Vendor" fullWidth/>
+                )}
+              />
+          </Grid>
+          </Grid>
+         <Grid item xs={6}>
+            <TextField label = 'Model Number' type="text" onChange={e => {
                   let modelCopy = JSON.parse(JSON.stringify(this.state.model))
                   modelCopy.model_number = e.target.value
                   this.setState({
                     model: modelCopy
                   })
                 } } />{' '}
-              </FormGroup>
-              <FormGroup>
-              <Label for="height">Height (in U)</Label>
-              <Input type="number" onChange={e => {
+         </Grid>
+         <Grid item xs={6}>
+            <TextField label = 'Height' type="text" onChange={e => {
                 let modelCopy = JSON.parse(JSON.stringify(this.state.model))
                 modelCopy.height = e.target.value
                 this.setState({
                   model: modelCopy
                 })
               } } />{' '}
-            </FormGroup>
-              <FormGroup>
-              <Label for="color">Display Color</Label>
-                <Input type="color"
-                  value={'#' + this.state.model.display_color}
-                  onChange={e => {
-                    let modelCopy = JSON.parse(JSON.stringify(this.state.model))
-                    modelCopy.display_color = e.target.value.replace('#', '');
-                    this.setState({
-                      model: modelCopy
-                    })
-                  }} />{' '}
-            </FormGroup>
-              <FormGroup>
-              <Label for="ethernet">Ethernet Ports</Label>
-              <Input type="number" onChange={e => {
+         </Grid>
+         <Grid item xs={6}>
+           <FormControl fullWidth>
+          <Input type="color" name="Display Color"
+            value={'#' + this.state.model.display_color}
+            onChange={e => {
+              let modelCopy = JSON.parse(JSON.stringify(this.state.model))
+              modelCopy.display_color = e.target.value.replace('#', '');
+              this.setState({
+                model: modelCopy
+              })
+            }} />{' '}
+           </FormControl>
+         </Grid>
+         <Grid item xs={6}>
+             <TextField label = 'Ethernet Ports' type="number" onChange={e => {
                 let modelCopy = JSON.parse(JSON.stringify(this.state.model))
                 modelCopy.ethernet_ports = e.target.value
                 this.setState({
                   model: modelCopy
                 })
               } } />{' '}
-            </FormGroup>
-              <FormGroup>
-              <Label for="powerports">Power Ports</Label>
-              <Input type="number" onChange={e => {
+        </Grid>
+         <Grid item xs={6}>
+              <TextField label = 'Power Ports'  type="number" onChange={e => {
                 let modelCopy = JSON.parse(JSON.stringify(this.state.model))
                 modelCopy.power_ports = e.target.value
                 this.setState({
                   model: modelCopy
                 })
               } } />{' '}
-            </FormGroup>
-              <FormGroup>
-              <Label for="cpu">CPU</Label>
-              <Input type="text" onChange={e => {
+         </Grid>
+         <Grid item xs={6}>
+              <TextField label = 'CPU' type="text" helperText="Describe the CPU" onChange={e => {
                 let modelCopy = JSON.parse(JSON.stringify(this.state.model))
                 modelCopy.cpu = e.target.value
                 this.setState({
                   model: modelCopy
                 })
               } } />{' '}
-              <FormText color="muted">
-                Describe the CPU on this model
-              </FormText>
-            </FormGroup>
-              <FormGroup>
-              <Label for="Memory">Memory</Label>
-                <Input type="number" onChange={e => {
-                  let modelCopy = JSON.parse(JSON.stringify(this.state.model))
-                  modelCopy.memory = e.target.value
+        </Grid>
+         <Grid item xs={6}>
+          <TextField label = 'Memory' type="number" helperText="RAM available in GB" onChange={e => {
+              let modelCopy = JSON.parse(JSON.stringify(this.state.model))
+              modelCopy.memory = e.target.value
+              this.setState({
+                model: modelCopy
+              })
+            } } />{' '}
+        </Grid>
+         <Grid item xs={6}>
+          <TextField label = 'Storage' type="text" helperText="Describe the storage" onChange={e => {
+            let modelCopy = JSON.parse(JSON.stringify(this.state.model))
+            modelCopy.storage = e.target.value
+            this.setState({
+              model: modelCopy
+            })
+          } } />{' '}
+         </Grid>
+         <Grid item xs={6}>
+              <TextField label = "Comment"
+                   multiline
+                   rows="4"
+                   type="text"
+                   onChange={e => {
+                  let instanceCopy = JSON.parse(JSON.stringify(this.state.instance))
+                  instanceCopy.comment = e.target.value
                   this.setState({
-                    model: modelCopy
-                  })
-                } } />{' '}
-                <FormText color="muted">
-                  RAM available on this model, in GB
-                </FormText>
-            </FormGroup>
-              <FormGroup>
-              <Label for="Storage">Storage</Label>
-              <Input type="text" onChange={e => {
-                let modelCopy = JSON.parse(JSON.stringify(this.state.model))
-                modelCopy.storage = e.target.value
-                this.setState({
-                  model: modelCopy
-                })
-              } } />{' '}
-              <FormText color="muted">
-                Describe the storage offered on this model
-              </FormText>
-            </FormGroup>
-              <FormGroup>
-              <Label for="Comment">Comment</Label>
-                <Input type="textarea" onChange={e => {
-                  let modelCopy = JSON.parse(JSON.stringify(this.state.model))
-                  modelCopy.comment = e.target.value
-                  this.setState({
-                    model: modelCopy
-                  })
-                } } />{' '}
-            </FormGroup>
-              <FormGroup>
-                <Input type="submit" value="Submit" />
-              </FormGroup>
-            </Form>
-          </Col>
-          <Col xs="6">
-          </Col>
-        </Row>
-      </Container>
-   </div>
+                    instance: instanceCopy
+                  })}}/>{' '}
+         </Grid>
+      <Grid item xs={12}>
+         <Button variant="contained" color= "success" onClick={() => this.handleSubmit()} >Submit +</Button>{' '}
+      </Grid>
+          </form>
+    </div>
     )
   }
 }

@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import axios from 'axios'
-import { UncontrolledCollapse, Button, Table, FormGroup, Input, Form, ButtonGroup, Container, Card, Row, Col } from 'reactstrap';
+import {Button, Table} from '@material-ui/core'
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 
