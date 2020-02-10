@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types';
 import axios from 'axios'
-import {Button, Form, FormGroup, FormText, Input, Label} from 'reactstrap'
+import {Button, Grid, TextField} from "@material-ui/core";
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 export class EditRackForm extends Component {
@@ -25,49 +25,51 @@ export class EditRackForm extends Component {
 
     let stateCopy = Object.assign({}, this.state);
     let stateToSend = this.removeEmpty(stateCopy);
-    
+
     axios.put(dst, stateToSend)
-    .then(function (response) {
-      alert('Edit was successful');
-    })
-    .catch(function (error) {
-      alert('Edit was not successful.\n' + JSON.stringify(error.response.data, null, 2));
-    });
+      .then(function (response) {
+        alert('Edit was successful');
+      })
+      .catch(function (error) {
+        alert('Edit was not successful.\n' + JSON.stringify(error.response.data, null, 2));
+      });
     this.props.sendShowTable(true);
   }
 
   componentDidMount() {
     let dst = '/api/racks/'.concat(this.props.editID).concat('/');
     axios.get(dst).then(res => {
-      this.setState({ rack_number: res.data.rack_number });
+      this.setState({rack_number: res.data.rack_number});
       //would not change instances
     })
-    .then(function (response) {
-    })
-    .catch(function (error) {
-      // TODO: handle error
-     console.log(error.response);
-      alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
-    });
+      .then(function (response) {
+      })
+      .catch(function (error) {
+        // TODO: handle error
+        console.log(error.response);
+        alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+      });
   }
 
   render() {
     return (
-  <div>
-      <Button onClick={() => this.props.sendShowTable(true)} >Back</Button>{' '}
-
-    <Form onSubmit={this.handleSubmit}>
-      <FormGroup>
-        <Label for="Edit Rack">Updated Rack Number</Label>
-        <Input type="text" value={this.state.rack_number} onChange={e => this.setState({rack_number: e.target.value})} />
-      </FormGroup>
-          <FormGroup>
-       <Button>Submit</Button>
-      </FormGroup>
-      <FormGroup>
-      </FormGroup>
-    </Form>
-  </div>
+      <div>
+        <Button variant="outlined" onClick={() => this.props.sendShowTable(true)}>Back</Button>{' '}
+        <form onSubmit={this.handleSubmit}>
+          <Grid container spacing={1}>
+            <Grid item xs={12}>
+              <h1>Update Rack</h1>
+            </Grid>
+            <Grid item xs={12}>
+              <TextField shrink label='Updated Rack Number' type="text" fullWidth value={this.state.rack_number}
+                         onChange={e => this.setState({rack_number: e.target.value})}/>
+            </Grid>
+            <Grid item xs={12}>
+              <Button variant="contained" type="submit" color="primary" onClick={() => this.handleSubmit}>Update</Button>{' '}
+            </Grid>
+          </Grid>
+        </form>
+      </div>
     )
   }
 }

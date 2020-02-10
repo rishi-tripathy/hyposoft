@@ -35,7 +35,7 @@ export class CreateInstanceForm extends Component {
   };
 
   handleSubmit = (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
 
     let stateCopy = Object.assign({}, this.state.instance);
     stateCopy.model = this.state.selectedModelOption ? this.state.selectedModelOption.value : null;
@@ -133,7 +133,7 @@ export class CreateInstanceForm extends Component {
               />
           </Grid>
         <Grid item xs={6}>
-              <TextField label = 'Hostname' type="text" onChange={e => {
+              <TextField label = 'Hostname' type="text" fullWidth onChange={e => {
                 let instanceCopy = JSON.parse(JSON.stringify(this.state.instance))
                 instanceCopy.hostname = e.target.value
                 this.setState({
@@ -155,6 +155,7 @@ export class CreateInstanceForm extends Component {
       </Grid>
       <Grid item xs={6}>
         < TextField label="Rack U"
+                    fullWidth
                     type="number"
                     onChange={e => {
                     let instanceCopy = JSON.parse(JSON.stringify(this.state.instance))
@@ -178,6 +179,7 @@ export class CreateInstanceForm extends Component {
       </Grid>
       <Grid item xs={6}>
         <TextField label = "Comment"
+                   fullWidth
                    multiline
                    rows="4"
                    type="text"
@@ -190,7 +192,7 @@ export class CreateInstanceForm extends Component {
         } } />
       </Grid>
       <Grid item xs={12}>
-       <Button variant="contained" color= "primary" onClick={() => this.handleSubmit()} >Submit +</Button>{' '}
+       <Button variant="contained" type="submit" color= "primary" onClick={() => this.handleSubmit} >Create +</Button>{' '}
       </Grid>
       </Grid>
           </form>

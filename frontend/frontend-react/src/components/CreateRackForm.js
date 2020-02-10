@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import axios from 'axios'
-import {Button, Form, FormGroup, Input, Label} from "reactstrap";
+import {Button, TextField, Grid} from "@material-ui/core";
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 export class CreateRackForm extends Component {
@@ -88,19 +88,20 @@ export class CreateRackForm extends Component {
   render() {
     return (
   <div>
-    <Button onClick={() => this.props.sendShowTable(true)} >Back</Button>{' '}
-        <Form onSubmit={this.handleSubmit}>
-        <h1>Rack Creation form</h1>{' '}
-      <FormGroup>
-        <Label for="Rack Number">Rack Number</Label>
-        <Input type="text" onChange={e => this.setState({rack_number: e.target.value})} />
-      </FormGroup>
-          <FormGroup>
-       <Button>Submit</Button>
-      </FormGroup>
-      <FormGroup>
-      </FormGroup>
-    </Form>
+    <Button variant="outlined" onClick={() => this.props.sendShowTable(true)} >Back</Button>{' '}
+     <form onSubmit={this.handleSubmit}>
+       <Grid container spacing={1}>
+        <Grid item xs={12}>
+        <h1>Create Single Rack</h1>
+        </Grid>
+        <Grid item xs={12}>
+            <TextField label = 'Rack Number' type="text" fullWidth onChange={e => this.setState({rack_number: e.target.value})} />
+         </Grid>
+       <Grid item xs={12}>
+       <Button variant="contained" type="submit" color= "primary" onClick={() => this.handleSubmit} >Create +</Button>{' '}
+        </Grid>
+       </Grid>
+    </form>
   </div>
     )
   }

@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import axios from 'axios'
-import Select from 'react-select';
-import {Button, Form, FormGroup, FormText, Input, Label, Container, Row, Col} from "reactstrap";
+import {Button, Grid, TextField} from "@material-ui/core";
+import {Autocomplete} from "@material-ui/lab";
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
@@ -161,84 +161,102 @@ export class EditInstanceForm extends Component {
   }
 
   render() {
-    return (
-  <div>
-    <Button onClick={() => this.props.sendShowTable(true)} >Back</Button>{' '}
-      <Container>
-        <Row>
-          <Col xs="6">
-            <Form onSubmit={this.handleSubmit}>
-              <h3>Edit Instance Form</h3>
-
-              <FormGroup>
-                <Label for="model">Model</Label>
-                <Select value={ this.state.selectedModelOption }
-                  onChange={ this.handleChangeModel }
-                  options={ this.state.modelOptions }
-                  searchable={ true } />
-              </FormGroup>
-
-              <FormGroup>
-                <Label for="hostname">Hostname</Label>
-                <Input type="text" 
-                  value={this.state.instance.hostname}
-                  onChange={e => {
-                    let instanceCopy = JSON.parse(JSON.stringify(this.state.instance))
-                    instanceCopy.hostname = e.target.value
-                    this.setState({
-                      instance: instanceCopy 
-                    }) 
-                } } />
-              </FormGroup>        
-              
-              <FormGroup>
-                <Label for="rack">Rack</Label>
-                <Select value={ this.state.selectedRackOption }
-                  onChange={ this.handleChangeRack }
-                  options={ this.state.rackOptions }
-                  searchable={ true } />
-              </FormGroup>
-        
-              <FormGroup>
-                <Label for="rackU">Rack_U</Label>
-                <Input type="number" 
-                  value={this.state.instance.rack_u}
-                  onChange={e => {
+        return (
+    <div>
+      <Button variant="outlined" onClick={() => this.props.sendShowTable(true)} >Back</Button>{' '}
+          <form onSubmit={this.handleSubmit}>
+      <Grid container spacing={1}>
+          <Grid item xs={12}>
+          <h1>Edit Instance</h1>
+          </Grid>
+          <Grid item xs={6}>
+              <Autocomplete
+                id="instance-model-edit-select"
+                shrink
+                options={this.state.modelOptions}
+                getOptionLabel={option => option.label}
+                onChange={ this.handleChangeModel }
+                value={this.state.selectedModelOption}
+                renderInput={params => (
+                  <TextField {...params} label="Model" fullWidth/>
+                )}
+              />
+          </Grid>
+        <Grid item xs={6}>
+              <TextField label = 'Hostname' type="text"
+                         shrink
+                         fullWidth
+                         value={this.state.instance.hostname}
+                         onChange={e => {
+                let instanceCopy = JSON.parse(JSON.stringify(this.state.instance))
+                instanceCopy.hostname = e.target.value
+                this.setState({
+                  instance: instanceCopy
+                })
+              } } />
+        </Grid>
+        <Grid item xs={6}>
+          <Autocomplete
+            id="instance-rack-edit-select"
+            shrink
+            options={this.state.rackOptions}
+            getOptionLabel={option => option.label}
+            onChange={ this.handleChangeRack }
+            value={this.state.selectedRackOption}
+            renderInput={params => (
+              <TextField {...params} label="Rack" fullWidth/>
+            )}
+          />
+      </Grid>
+      <Grid item xs={6}>
+        < TextField label="Rack U"
+                    fullWidth
+                    shrink
+                    type="number"
+                    value={this.state.instance.rack_u}
+                    onChange={e => {
                     let instanceCopy = JSON.parse(JSON.stringify(this.state.instance))
                     instanceCopy.rack_u = e.target.value
                     this.setState({
-                      instance: instanceCopy 
-                    }) 
-                } } />
-              </FormGroup>
-
-              <FormGroup>
-                <Label for="owner">Owner</Label>
-                <Select value={ this.state.selectedOwnerOption }
-                  onChange={ this.handleChangeOwner }
-                  options={ this.state.ownerOptions }
-                  searchable={ true } />
-              </FormGroup>
-              
-              <FormGroup>
-                <Label for="comment">Comment</Label>
-                <Input type="text" 
-                  value={this.state.instance.comment}
-                  onChange={e => {
-                    let instanceCopy = JSON.parse(JSON.stringify(this.state.instance))
-                    instanceCopy.comment = e.target.value
-                    this.setState({
-                      instance: instanceCopy 
-                    }) 
-                } } />
-              </FormGroup>
-              
-              <Input type="submit" value="Submit" />
-            </Form>
-          </Col>
-        </Row>
-      </Container>
-  </div>
+                      instance: instanceCopy
+                    })
+        } } />
+      </Grid>
+      <Grid item xs={6}>
+        <Autocomplete
+        id="instance-owner-select"
+        shrink
+        options={this.state.ownerOptions}
+        getOptionLabel={option => option.label}
+        onChange={ this.handleChangeOwner}
+        value={this.state.selectedOwnerOption}
+        renderInput={params => (
+          <TextField {...params} label="Owner" fullWidth/>
+        )}
+      />
+      </Grid>
+      <Grid item xs={6}>
+        <TextField label = "Comment"
+                   fullWidth
+                   multiline
+                   shrink
+                   value={this.state.instance.comment}
+                   rows="4"
+                   type="text"
+                   onChange={e => {
+                  let instanceCopy = JSON.parse(JSON.stringify(this.state.instance))
+                  instanceCopy.comment = e.target.value
+                  this.setState({
+                    instance: instanceCopy
+                  })
+        } } />
+      </Grid>
+      <Grid item xs={12}>
+       <Button variant="contained" type="submit" color= "primary" onClick={() => this.handleSubmit} >Update +</Button>{' '}
+      </Grid>
+      </Grid>
+          </form>
+    </div>
     )
   }
 }

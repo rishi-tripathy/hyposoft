@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import axios from 'axios'
-import {Button, Form, FormGroup, Input, Label} from "reactstrap";
+import {Button, Grid, TextField} from "@material-ui/core";
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 export class DeleteMultipleRacksForm extends Component {
@@ -61,21 +61,24 @@ export class DeleteMultipleRacksForm extends Component {
     let start_rack;
     let end_rack;
     return (
-  <div>
-    <Button onClick={() => this.props.sendShowTable(true)}>Back</Button>{' '}
-         <Form onSubmit={this.handleSubmit}>
-      <FormGroup>
-        <Label for="Start of Range">Deletion Range Start</Label>
-        <Input type="text" onChange={e => this.setState({rack_num_start: e.target.value})} />{' '}
-
-         <Label for="End of Range">Deletion Range End</Label>
-        <Input type="text" onChange={e => this.setState({rack_num_end: e.target.value})} />{' '}
-      </FormGroup>
-          <FormGroup>
-       <Button>Submit</Button>
-      </FormGroup>
-     {console.log(this.state)}
-    </Form>
+ <div>
+    <Button variant="outlined" onClick={() => this.props.sendShowTable(true)} >Back</Button>{' '}
+     <form onSubmit={this.handleSubmit}>
+       <Grid container spacing={1}>
+        <Grid item xs={12}>
+        <h1>Create Multiple Racks</h1>
+        </Grid>
+        <Grid item xs={6}>
+            <TextField label = 'Deletion Range Start' type="text" fullWidth onChange={e => this.setState({rack_num_start: e.target.value})} />
+         </Grid>
+        <Grid item xs={6}>
+            <TextField label = 'Deletion Range End' type="text" fullWidth onChange={e => this.setState({rack_num_end: e.target.value})} />
+         </Grid>
+       <Grid item xs={12}>
+       <Button variant="contained" type="submit" color= "primary" onClick={() => this.handleSubmit} >Create +</Button>{' '}
+        </Grid>
+       </Grid>
+    </form>
   </div>
     )
   }

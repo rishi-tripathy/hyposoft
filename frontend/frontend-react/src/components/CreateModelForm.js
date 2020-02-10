@@ -48,7 +48,7 @@ export class CreateModelForm extends Component {
   };
 
   handleSubmit = (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
 
     let stateCopy = Object.assign({}, this.state.model);
     stateCopy.vendor = this.state.selectedVendorOption ? this.state.selectedVendorOption.value : null;
@@ -79,7 +79,7 @@ export class CreateModelForm extends Component {
    <div>
     <Button variant="outlined" onClick={() => this.props.sendShowTable(true)} >Back</Button>{' '}
      <form onSubmit={this.handleSubmit}>
-       <Grid container spacing={2}>
+       <Grid container spacing={1}>
         <Grid item xs={12}>
         <h1>Create a Model</h1>
         </Grid>
@@ -95,18 +95,17 @@ export class CreateModelForm extends Component {
                 )}
               />
           </Grid>
-          </Grid>
          <Grid item xs={6}>
-            <TextField label = 'Model Number' type="text" onChange={e => {
+            <TextField label = 'Model Number' type="text" fullWidth onChange={e => {
                   let modelCopy = JSON.parse(JSON.stringify(this.state.model))
                   modelCopy.model_number = e.target.value
                   this.setState({
                     model: modelCopy
                   })
-                } } />{' '}
+                } } />
          </Grid>
          <Grid item xs={6}>
-            <TextField label = 'Height' type="text" onChange={e => {
+            <TextField label = 'Height' type="number" fullWidth onChange={e => {
                 let modelCopy = JSON.parse(JSON.stringify(this.state.model))
                 modelCopy.height = e.target.value
                 this.setState({
@@ -116,7 +115,7 @@ export class CreateModelForm extends Component {
          </Grid>
          <Grid item xs={6}>
            <FormControl fullWidth>
-          <Input type="color" name="Display Color"
+          <Input type="color" name="Display Color" startAdornment="Display Color"
             value={'#' + this.state.model.display_color}
             onChange={e => {
               let modelCopy = JSON.parse(JSON.stringify(this.state.model))
@@ -127,8 +126,8 @@ export class CreateModelForm extends Component {
             }} />{' '}
            </FormControl>
          </Grid>
-         <Grid item xs={6}>
-             <TextField label = 'Ethernet Ports' type="number" onChange={e => {
+         <Grid item xs={4}>
+             <TextField label = 'Ethernet Ports' type="number" fullWidth onChange={e => {
                 let modelCopy = JSON.parse(JSON.stringify(this.state.model))
                 modelCopy.ethernet_ports = e.target.value
                 this.setState({
@@ -136,8 +135,8 @@ export class CreateModelForm extends Component {
                 })
               } } />{' '}
         </Grid>
-         <Grid item xs={6}>
-              <TextField label = 'Power Ports'  type="number" onChange={e => {
+         <Grid item xs={4}>
+              <TextField label = 'Power Ports'  type="number" fullWidth onChange={e => {
                 let modelCopy = JSON.parse(JSON.stringify(this.state.model))
                 modelCopy.power_ports = e.target.value
                 this.setState({
@@ -145,8 +144,18 @@ export class CreateModelForm extends Component {
                 })
               } } />{' '}
          </Grid>
-         <Grid item xs={6}>
-              <TextField label = 'CPU' type="text" helperText="Describe the CPU" onChange={e => {
+
+         <Grid item xs={4}>
+          <TextField label = 'Memory' type="number" helperText="RAM available in GB" fullWidth onChange={e => {
+              let modelCopy = JSON.parse(JSON.stringify(this.state.model))
+              modelCopy.memory = e.target.value
+              this.setState({
+                model: modelCopy
+              })
+            } } />{' '}
+        </Grid>
+        <Grid item xs={6}>
+              <TextField label = 'CPU' type="text" helperText="Describe the CPU" fullWidth onChange={e => {
                 let modelCopy = JSON.parse(JSON.stringify(this.state.model))
                 modelCopy.cpu = e.target.value
                 this.setState({
@@ -155,16 +164,7 @@ export class CreateModelForm extends Component {
               } } />{' '}
         </Grid>
          <Grid item xs={6}>
-          <TextField label = 'Memory' type="number" helperText="RAM available in GB" onChange={e => {
-              let modelCopy = JSON.parse(JSON.stringify(this.state.model))
-              modelCopy.memory = e.target.value
-              this.setState({
-                model: modelCopy
-              })
-            } } />{' '}
-        </Grid>
-         <Grid item xs={6}>
-          <TextField label = 'Storage' type="text" helperText="Describe the storage" onChange={e => {
+          <TextField label = 'Storage' type="text" helperText="Describe the storage" fullWidth onChange={e => {
             let modelCopy = JSON.parse(JSON.stringify(this.state.model))
             modelCopy.storage = e.target.value
             this.setState({
@@ -172,7 +172,7 @@ export class CreateModelForm extends Component {
             })
           } } />{' '}
          </Grid>
-         <Grid item xs={6}>
+         <Grid item xs={12}>
               <TextField label = "Comment"
                    multiline
                    rows="4"
@@ -185,8 +185,9 @@ export class CreateModelForm extends Component {
                   })}}/>{' '}
          </Grid>
       <Grid item xs={12}>
-         <Button variant="contained" color= "success" onClick={() => this.handleSubmit()} >Submit +</Button>{' '}
+         <Button variant="contained" type="submit" color= "primary" onClick={() => this.handleSubmit} >Create +</Button>{' '}
       </Grid>
+       </Grid>
           </form>
     </div>
     )

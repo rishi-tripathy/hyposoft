@@ -1,9 +1,8 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types';
 import axios from 'axios'
-import Select from 'react-select';
-import {Button, Form, FormGroup, FormText, Input, Label, Container, Row, Col} from "reactstrap";
-import Creatable from "react-select/creatable/dist/react-select.esm";
+import {Button, Input, FormControl, Grid, TextField} from "@material-ui/core";
+import {Autocomplete} from "@material-ui/lab";
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 export class EditModelForm extends Component {
@@ -109,145 +108,143 @@ export class EditModelForm extends Component {
 
   render() {
     return (
-   <div>
-    <Button onClick={() => this.props.sendShowTable(true)} >Back</Button>{' '}
-      <Container>
-        <Row>
-          <Col xs="6">
-            <Form onSubmit={this.handleSubmit}>
-              <h3>Edit Model Form</h3>
-              <FormGroup>
-                <Label for="vendor">Vendor</Label>
-                <Select value={ this.state.selectedVendorOption }
-                  onChange={ this.handleChangeVendor }
-                  options={ this.state.vendorOptions }
-                  searchable={ true } />
-              </FormGroup>
+      <div>
+    <Button variant="outlined" onClick={() => this.props.sendShowTable(true)} >Back</Button>{' '}
+     <form onSubmit={this.handleSubmit}>
+       <Grid container spacing={1}>
+        <Grid item xs={12}>
+        <h1>Edit Model Form</h1>
+        </Grid>
+          <Grid item xs={6}>
+            <Autocomplete
+                id="model-vendor-select"
+                options={this.state.vendorOptions}
+                getOptionLabel={option => option.label}
+                onChange={ this.handleChangeVendor }
+                shrink
+                value={this.state.selectedVendorOption}
+                renderInput={params => (
+                  <TextField {...params} label="Vendor" fullWidth/>
+                )}
+              />
+          </Grid>
+         <Grid item xs={6}>
+            <TextField label = 'Model Number' type="text" fullWidth
+                       value={this.state.model.model_number}
+                       shrink
+                       onChange={e => {
+                  let modelCopy = JSON.parse(JSON.stringify(this.state.model))
+                  modelCopy.model_number = e.target.value
+                  this.setState({
+                    model: modelCopy
+                  })
+                } } />
+         </Grid>
+         <Grid item xs={6}>
+            <TextField label = 'Height' type="number"
+                       value={this.state.model.height}
+                       shrink
+                       fullWidth onChange={e => {
+                let modelCopy = JSON.parse(JSON.stringify(this.state.model))
+                modelCopy.height = e.target.value
+                this.setState({
+                  model: modelCopy
+                })
+              } } />{' '}
+         </Grid>
+         <Grid item xs={6}>
+           <FormControl fullWidth>
+          <Input type="color" name="Display Color" startAdornment="Display Color"
+            value={'#' + this.state.model.display_color}
+            onChange={e => {
+              let modelCopy = JSON.parse(JSON.stringify(this.state.model))
+              modelCopy.display_color = e.target.value.replace('#', '');
+              this.setState({
+                model: modelCopy
+              })
+            }} />{' '}
+           </FormControl>
+         </Grid>
+         <Grid item xs={4}>
+             <TextField label = 'Ethernet Ports' type="number" fullWidth
+                        value={this.state.model.ethernet_ports}
+                        shrink
+                        onChange={e => {
+                let modelCopy = JSON.parse(JSON.stringify(this.state.model))
+                modelCopy.ethernet_ports = e.target.value
+                this.setState({
+                  model: modelCopy
+                })
+              } } />{' '}
+        </Grid>
+         <Grid item xs={4}>
+              <TextField label = 'Power Ports'  type="number" fullWidth
+                         value={this.state.model.power_ports}
+                         shrink
+                         onChange={e => {
+                let modelCopy = JSON.parse(JSON.stringify(this.state.model))
+                modelCopy.power_ports = e.target.value
+                this.setState({
+                  model: modelCopy
+                })
+              } } />{' '}
+         </Grid>
 
-              <FormGroup>
-                <Label for="modelNumber">Model Number</Label>
-                <Input type="text" 
-                  value={this.state.model.model_number}
-                  onChange={e => {
-                    let modelCopy = JSON.parse(JSON.stringify(this.state.model))
-                    modelCopy.model_number = e.target.value
-                    this.setState({
-                      model: modelCopy 
-                    }) 
-                } } />
-              </FormGroup>
-
-              <FormGroup>
-                <Label for="height">Height</Label>
-                <Input type="number" 
-                  value={this.state.model.height}
-                  onChange={e => {
-                    let modelCopy = JSON.parse(JSON.stringify(this.state.model))
-                    modelCopy.height = e.target.value
-                    this.setState({
-                      model: modelCopy 
-                    }) 
-                } } />
-              </FormGroup>
-            
-              <FormGroup>
-                <Label for="displayColor">Display Color</Label>
-                <Input type="color" 
-                  value={'#' + this.state.model.display_color} 
-                  onChange={e => { 
-                    let modelCopy = JSON.parse(JSON.stringify(this.state.model))
-                    modelCopy.display_color = e.target.value.replace('#', '');
-                    this.setState({
-                      model: modelCopy 
-                    }) 
-                  }} />
-              </FormGroup>
-
-              <FormGroup>
-                <Label for="ethernetPorts">Ethernet Ports</Label>
-                <Input type="number" 
-                  value={this.state.model.ethernet_ports}
-                  onChange={e => {
-                    let modelCopy = JSON.parse(JSON.stringify(this.state.model))
-                    modelCopy.ethernet_ports = e.target.value
-                    this.setState({
-                      model: modelCopy 
-                    }) 
-                } } />
-              </FormGroup>
-              
-              <FormGroup>
-                <Label for="powerPorts">Power Ports</Label>
-                <Input type="number" 
-                  value={this.state.model.power_ports}
-                  onChange={e => {
-                    let modelCopy = JSON.parse(JSON.stringify(this.state.model))
-                    modelCopy.power_ports = e.target.value
-                    this.setState({
-                      model: modelCopy 
-                    }) 
-                } } />
-              </FormGroup>
-
-              <FormGroup>
-                <Label for="cpu">CPU</Label>
-                <Input type="text" 
-                  value={this.state.model.cpu}
-                  onChange={e => {
-                    let modelCopy = JSON.parse(JSON.stringify(this.state.model))
-                    modelCopy.cpu = e.target.value
-                    this.setState({
-                      model: modelCopy 
-                    }) 
-                } } />
-              </FormGroup>
-              
-              <FormGroup>
-                <Label for="memory">Memory</Label>
-                <Input type="number" 
-                  value={this.state.model.memory}
-                  onChange={e => {
-                    let modelCopy = JSON.parse(JSON.stringify(this.state.model))
-                    modelCopy.memory = e.target.value
-                    this.setState({
-                      model: modelCopy 
-                    }) 
-                } } />
-              </FormGroup>
-
-              <FormGroup>
-                <Label for="storage">Storage</Label>
-                <Input type="text" 
-                  value={this.state.model.storage}
-                  onChange={e => {
-                    let modelCopy = JSON.parse(JSON.stringify(this.state.model))
-                    modelCopy.storage = e.target.value
-                    this.setState({
-                      model: modelCopy 
-                    }) 
-                } } />
-              </FormGroup>
-
-              <FormGroup>
-                <Label for="comment">Comment</Label>
-                <Input type="textarea" 
-                  value={this.state.model.comment}
-                  onChange={e => {
-                    let modelCopy = JSON.parse(JSON.stringify(this.state.model))
-                    modelCopy.comment = e.target.value
-                    this.setState({
-                      model: modelCopy 
-                    }) 
-                } } />
-              </FormGroup>
-              
-              <Input type="submit" value="Submit" />
-            </Form>
-          </Col>
-          <Col xs="6"></Col>
-        </Row>
-      </Container>
-   </div>
+         <Grid item xs={4}>
+          <TextField label = 'Memory' type="number" helperText="RAM available in GB" fullWidth
+                     value={this.state.model.memory}
+                     shrink
+                     onChange={e => {
+              let modelCopy = JSON.parse(JSON.stringify(this.state.model))
+              modelCopy.memory = e.target.value
+              this.setState({
+                model: modelCopy
+              })
+            } } />{' '}
+        </Grid>
+        <Grid item xs={6}>
+              <TextField label = 'CPU' type="text" helperText="Describe the CPU" fullWidth
+                         value={this.state.model.cpu}
+                         shrink
+                         onChange={e => {
+                let modelCopy = JSON.parse(JSON.stringify(this.state.model))
+                modelCopy.cpu = e.target.value
+                this.setState({
+                  model: modelCopy
+                })
+              } } />{' '}
+        </Grid>
+         <Grid item xs={6}>
+          <TextField label = 'Storage' type="text" helperText="Describe the storage" fullWidth
+                     value={this.state.model.storage}
+                     shrink
+                     onChange={e => {
+            let modelCopy = JSON.parse(JSON.stringify(this.state.model))
+            modelCopy.storage = e.target.value
+            this.setState({
+              model: modelCopy
+            })
+          } } />{' '}
+         </Grid>
+         <Grid item xs={12}>
+              <TextField label = "Comment"
+                   multiline value={this.state.model.comment}
+                   shrink
+                         rows="4"
+                   type="text"
+                   onChange={e => {
+                  let instanceCopy = JSON.parse(JSON.stringify(this.state.instance))
+                  instanceCopy.comment = e.target.value
+                  this.setState({
+                    instance: instanceCopy
+                  })}}/>{' '}
+         </Grid>
+      <Grid item xs={12}>
+         <Button variant="contained" type="submit" color= "primary" onClick={() => this.handleSubmit} >Update</Button>{' '}
+      </Grid>
+       </Grid>
+          </form>
+    </div>
     )
   }
 }

@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import axios from 'axios'
-import {Button, Form, FormGroup, Label, Input}  from "reactstrap";
+import {Button, Grid, TextField} from "@material-ui/core";
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 export class CreateUserForm extends Component {
@@ -64,29 +64,35 @@ export class CreateUserForm extends Component {
 
   render() {
     return (
-      <Form onSubmit={ this.handleSubmit }>
-        <FormGroup>
-          <Label>Username</Label>
-          <Input type='text' value={ this.state.username } onChange={ this.handleUsernameChange } />
-        </FormGroup>
-        <FormGroup>
-          <Label>First name</Label>
-          <Input type='text' value={ this.state.first_name } onChange={ this.handleFirstNameChange } />
-        </FormGroup>
-        <FormGroup>
-          <Label>Last name</Label>
-          <Input type='text' value={ this.state.last_name } onChange={ this.handleLastNameChange } />
-        </FormGroup>
-        <FormGroup>
-          <Label>Email</Label>
-          <Input type='text' value={ this.state.email } onChange={ this.handleEmailChange } />
-        </FormGroup>
-        <FormGroup>
-          <Label>Password</Label>
-          <Input type='password' value={ this.state.password } onChange={ this.handlePasswordChange } />
-        </FormGroup>
-        <Button color="success" type="submit">Create</Button>
-      </Form>
+     <div>
+
+     <Button variant="outlined" onClick={() => this.props.sendShowTable(true)} >Back</Button>{' '}
+     <form onSubmit={this.handleSubmit}>
+       <Grid container spacing={1}>
+        <Grid item xs={12}>
+        <h1>Create User</h1>
+        </Grid>
+        <Grid item xs={6}>
+            <TextField label = 'Username' type="text" fullWidthvalue={ this.state.username } onChange={ this.handleUsernameChange } />
+         </Grid>
+          <Grid item xs={6}>
+            <TextField label = 'First Name' type="text" fullWidthvalue={ this.state.first_name } onChange={ this.handleFirstNameChange } />
+         </Grid>
+          <Grid item xs={6}>
+            <TextField label = 'Last Name' type="text" fullWidthvalue={ this.state.last_name } onChange={ this.handleLastNameChange } />
+         </Grid>
+          <Grid item xs={6}>
+            <TextField label = 'Email' type="text" fullWidthvalue={ this.state.email} onChange={ this.handleEmailChange} />
+         </Grid>
+         <Grid item xs={6}>
+            <TextField label = 'Password' type="password" fullWidthvalue={ this.state.password} onChange={ this.handlePasswordChange} />
+         </Grid>
+       <Grid item xs={12}>
+       <Button variant="contained" type="submit" color= "primary" onClick={() => this.handleSubmit} >Create +</Button>{' '}
+        </Grid>
+       </Grid>
+    </form>
+  </div>
     )
   }
 }
