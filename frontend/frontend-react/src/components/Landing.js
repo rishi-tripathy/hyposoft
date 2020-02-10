@@ -23,28 +23,28 @@ export class Landing extends Component {
 
   render() {
     return (
-      <div id='hideOnPrint'>
-         <AppBar title="Django Unchained" position='sticky'>
+        <div id='hideOnPrint'>
+          {/* <AppBar title="Django Unchained" position='sticky'>
+            <Toolbar>
+              <IconButton edge="start" color="inherit" aria-label="menu">
+                <MenuIcon />
+              </IconButton>
+              <Typography variant="h6">
+                Django Unchained
+              </Typography>
+              <Button color="inherit">Log Out</Button>
+            </Toolbar>
 
-           <Toolbar>
-            <IconButton edge="start" color="inherit" aria-label="menu">
-              <MenuIcon />
-            </IconButton>
-            <Typography variant="h6">
-              Django Unchained
-            </Typography>
-            <Button color="inherit">Log Out</Button>
-          </Toolbar>
-
-           <Tabs centered onChange>
-            <Tab label= 'Racks' />
-            <Tab label= 'Models' />
-            <Tab label= 'Instances' />
-            <Tab label= 'Users' />
-            <Tab label= 'Statistics' />
-          </Tabs>
-        </AppBar>
-      </div>
+            <Tabs centered onChange>
+              <Tab label= 'Racks' />
+              <Tab label= 'Models' />
+              <Tab label= 'Instances' />
+              <Tab label= 'Users' />
+              <Tab label= 'Statistics' />
+            </Tabs>
+          </AppBar> */}
+          
+        </div>
     )
   }
 }
