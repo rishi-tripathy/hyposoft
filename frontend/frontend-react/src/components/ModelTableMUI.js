@@ -1,30 +1,18 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
-import { lighten, makeStyles } from '@material-ui/core/styles';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableContainer from '@material-ui/core/TableContainer';
-import TableHead from '@material-ui/core/TableHead';
-import TablePagination from '@material-ui/core/TablePagination';
-import TableRow from '@material-ui/core/TableRow';
-import TableSortLabel from '@material-ui/core/TableSortLabel';
-import Toolbar from '@material-ui/core/Toolbar';
-import Button from '@material-ui/core/Button'
-import Typography from '@material-ui/core/Typography';
-import Paper from '@material-ui/core/Paper';
-import Checkbox from '@material-ui/core/Checkbox';
-import IconButton from '@material-ui/core/IconButton';
+import {lighten, makeStyles} from '@material-ui/core/styles';
+import {
+  Collapse, Table, TableBody, Button, TableCell, TableContainer, TableRow, Toolbar,
+  Typography, Paper, IconButton, Tooltip
+} from "@material-ui/core";
 import PageviewIcon from '@material-ui/icons/Pageview';
 import EditIcon from '@material-ui/icons/Edit';
-import Tooltip from '@material-ui/core/Tooltip';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Switch from '@material-ui/core/Switch';
 import DeleteIcon from '@material-ui/icons/Delete';
 import FilterListIcon from '@material-ui/icons/FilterList';
+import ModelFilters from './ModelFilters';
 import '../stylesheets/TableView.css'
-import axios, { post } from 'axios'
+import axios, {post} from 'axios'
 
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
@@ -35,15 +23,13 @@ export class ModelTable extends Component {
     super();
 
     this.state = {
+      filtersOpen: false,
       dense: false
     }
     this.showEditForm = this.showEditForm.bind(this);
     this.showEditForm = this.showEditForm.bind(this);
   }
 
-handleChangeDense = (id) => {
-    this.state.dense(true);
-  };
 
   showDetailedModel = (id) => {
     //this.props.sendShowTable(false);
@@ -70,9 +56,41 @@ handleChangeDense = (id) => {
     this.showRerender();
   }
 
+  handleOpenFilters = () => {
+    this.setState(prevState => ({
+      filtersOpen: !prevState.filtersOpen
+    }));
+  }
+
   showRerender = () => {
     this.props.sendRerender(true);
   }
+
+  renderTableToolbar = () => {
+    return (
+      <Toolbar>
+        {
+          <Typography style ={{flex: '1 1 100%'}} variant="h6" id="modelTableTitle">
+            Models
+          </Typography>
+        }
+        <Collapse in={this.state.filtersOpen}>
+          <Paper>
+            {
+              <ModelFilters sendFilterQuery={this.props.filter_query}/>
+            }
+          </Paper>
+        </Collapse>
+        <Tooltip title="Filter list">
+          <IconButton onClick={ () => this.handleOpenFilters()} aria-label="filter list">
+            <FilterListIcon/>
+          </IconButton>
+        </Tooltip>
+
+
+      </Toolbar>
+    );
+  };
 
   renderTableHeader() {
     let headCells = [
@@ -180,11 +198,10 @@ handleChangeDense = (id) => {
     return (
       <div>
         <Paper>
-          {/*<EnhancedTableToolbar/>*/}
+          {this.renderTableToolbar()}
           <TableContainer>
             <Table
               aria-labelledby="modelTableTitle"
-              size={this.props.dense ? 'small' : 'medium'}
               aria-label="enhanced table"
             >
               <TableRow>{this.renderTableHeader()}</TableRow>
@@ -195,29 +212,26 @@ handleChangeDense = (id) => {
             </Table>
           </TableContainer>
         </Paper>
-          {/*<TablePagination*/}
-          {/*  rowsPerPageOptions={[5, 10, 25]}*/}
-          {/*  component="div"*/}
-          {/*  count={rows.length}*/}
-          {/*  rowsPerPage={rowsPerPage}*/}
-          {/*  page={page}*/}
-          {/*  onChangePage={handleChangePage}*/}
-          {/*  onChangeRowsPerPage={handleChangeRowsPerPage}*/}
-          {/*/>*/}
-        <FormControlLabel
-          control={<Switch checked={this.props.dense} onChange={this.handleChangeDense}/>}
-          label="Dense padding"
-        />
+        {/*<TablePagination*/}
+        {/*  rowsPerPageOptions={[5, 10, 25]}*/}
+        {/*  component="div"*/}
+        {/*  count={rows.length}*/}
+        {/*  rowsPerPage={rowsPerPage}*/}
+        {/*  page={page}*/}
+        {/*  onChangePage={handleChangePage}*/}
+        {/*  onChangeRowsPerPage={handleChangeRowsPerPage}*/}
+        {/*/>*/}
       </div>
     );
-  }}
-
-
-  ModelTable.propTypes = {
-    models: PropTypes.array.isRequired
   }
+}
 
-  export default ModelTable;
+
+ModelTable.propTypes = {
+  models: PropTypes.array.isRequired
+}
+
+export default ModelTable;
 
 
 //

@@ -1,6 +1,8 @@
-import React, { Component } from 'react'
-import {Button, Container, Form, FormGroup, FormText, Input, Label, Row, Col} from "reactstrap";
-import Creatable from "react-select/creatable/dist/react-select.esm";
+import React, {Component} from 'react'
+import {Autocomplete} from "@material-ui/lab"
+import {Button, TextField, Grid, Input, Container, FormControl} from "@material-ui/core";
+
+//import {Button, Container, Form, FormGroup, FormText, Input, Label, Row, Col} from "reactstrap";
 
 export class ModelFilters extends Component {
 
@@ -32,23 +34,23 @@ export class ModelFilters extends Component {
   };
 
   createQuery = () => {
-    const { vendor, model_number, height_min, height_max, display_color, ethernet_ports_min, ethernet_ports_max, power_ports_min, power_ports_max, cpu, memory_min, memory_max, storage } = this.state.identifiers;
+    const {vendor, model_number, height_min, height_max, display_color, ethernet_ports_min, ethernet_ports_max, power_ports_min, power_ports_max, cpu, memory_min, memory_max, storage} = this.state.identifiers;
     // NO '?' here!!
-    let q = '' + 
-            'vendor=' + vendor + '&' +
-            'model_number=' + model_number + '&' +
-            'height_min=' + height_min + '&' +
-            'height_max=' + height_max + '&' +
-            'display_color=' + display_color + '&' +
-            'ethernet_ports_min=' + ethernet_ports_min + '&' +
-            'ethernet_ports_max=' + ethernet_ports_max + '&' +
-            'power_ports_min=' + power_ports_min + '&' +
-            'power_ports_max=' + power_ports_max + '&' +
-            'cpu=' + cpu + '&' +
-            'memory_min=' + memory_min + '&' +
-            'memory_max=' + memory_max + '&' +
-            'storage=' + storage;
-    this.setState({ query: q });
+    let q = '' +
+      'vendor=' + vendor + '&' +
+      'model_number=' + model_number + '&' +
+      'height_min=' + height_min + '&' +
+      'height_max=' + height_max + '&' +
+      'display_color=' + display_color + '&' +
+      'ethernet_ports_min=' + ethernet_ports_min + '&' +
+      'ethernet_ports_max=' + ethernet_ports_max + '&' +
+      'power_ports_min=' + power_ports_min + '&' +
+      'power_ports_max=' + power_ports_max + '&' +
+      'cpu=' + cpu + '&' +
+      'memory_min=' + memory_min + '&' +
+      'memory_max=' + memory_max + '&' +
+      'storage=' + storage;
+    this.setState({query: q});
     return q;
   }
 
@@ -57,7 +59,7 @@ export class ModelFilters extends Component {
 
     let stateCopy = Object.assign({}, this.state.identifiers);
     let stateToSend = this.removeEmpty(stateCopy);
-    
+
     console.log(stateToSend)
     console.log(this.createQuery())
 
@@ -67,185 +69,138 @@ export class ModelFilters extends Component {
   render() {
     return (
       <div>
-        <Form onSubmit={this.handleSubmit}>
-          <h4>Filters</h4>
-        <Container>
-          <Row>
-            <Col>
-              <FormGroup>
-                <Label for="vendor">Vendor</Label>
-                <Input type="text" onChange={e => {
-                    let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
-                    identifiersCopy.vendor = e.target.value
-                    this.setState({
-                      identifiers: identifiersCopy
-                    })
-                  } } />{' '}
-              </FormGroup>
-            </Col>
-            <Col>
-              <FormGroup>
-                <Label for="model number">Model Number</Label>
-                <Input type="text" onChange={e => {
-                    let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
-                    identifiersCopy.model_number = e.target.value
-                    this.setState({
-                      identifiers: identifiersCopy
-                    })
-                  } } />{' '}
-                </FormGroup>
-            </Col>
-              <Col>
-              <FormGroup>
-                <Label for="height">Min Height (in U)</Label>
-                <Input type="number" onChange={e => {
-                    let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
-                    identifiersCopy.height_min = e.target.value
-                    this.setState({
-                      identifiers: identifiersCopy
-                    })
-                  } } />{' '}
-              </FormGroup>
-              </Col>
-              <Col>
-                <FormGroup>
-                <Label for="height">Max Height (in U)</Label>
-                <Input type="number" onChange={e => {
-                    let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
-                    identifiersCopy.height_max = e.target.value
-                    this.setState({
-                      identifiers: identifiersCopy
-                    })
-                  } } />{' '}
-              </FormGroup>
-              </Col>
-          </Row>
-          <Row>
-            <Col>
-            <FormGroup>
-              <Label for="color">Display Color</Label>
-                <Input type="color"
-                    // value={'#' + this.state.model.display_color}
-                    onChange={e => {
-                      let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
-                      identifiersCopy.display_color = e.target.value.replace('#', '');
-                      this.setState({
-                        identifiers: identifiersCopy
-                      })
-                    }} />{' '}
-            </FormGroup>
-            </Col>
-            <Col>
-            <FormGroup>
-              <Label for="ethernet">Min Ethernet Ports</Label>
-                <Input type="number" onChange={e => {
-                    let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
-                    identifiersCopy.ethernet_ports_min = e.target.value
-                    this.setState({
-                      identifiers: identifiersCopy
-                    })
-                  } } />{' '}
-            </FormGroup>
-            </Col>
-            <Col>
-              <FormGroup>
-              <Label for="ethernet">Max Ethernet Ports</Label>
-                <Input type="number" onChange={e => {
-                    let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
-                    identifiersCopy.ethernet_ports_max = e.target.value
-                    this.setState({
-                      identifiers: identifiersCopy
-                    })
-                  } } />{' '}
-                </FormGroup>
-          </Col>
-            <Col>
-            <FormGroup>
-              <Label for="powerports">Min Power Ports</Label>
-              <Input type="number" onChange={e => {
+        <Container maxWidth="xl">
+          <form onSubmit={this.handleSubmit}>
+            <h4>Filters</h4>
+            <Grid container spacing={1}>
+              <Grid item xs={3}>
+                <TextField label='Vendor' type="text" fullWidth onChange={e => {
+                  let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
+                  identifiersCopy.vendor = e.target.value
+                  this.setState({
+                    identifiers: identifiersCopy
+                  })
+                }}/>
+              </Grid>
+              <Grid item xs={3}>
+                <TextField label='Model Number' type="text" fullWidth onChange={e => {
+                  let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
+                  identifiersCopy.model_number = e.target.value
+                  this.setState({
+                    identifiers: identifiersCopy
+                  })
+                }}/>
+              </Grid>
+              <Grid item xs={2}>
+                <TextField label='Min Height (U)' type="number" fullWidth defaultValue={0} onChange={e => {
+                  let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
+                  identifiersCopy.height_min = e.target.value
+                  this.setState({
+                    identifiers: identifiersCopy
+                  })
+                }}/>
+              </Grid>
+              <Grid item xs={2}>
+                <TextField label='Max Height (U)' type="number" fullWidth defaultValue={"42"} onChange={e => {
+                  let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
+                  identifiersCopy.height_max = e.target.value
+                  this.setState({
+                    identifiers: identifiersCopy
+                  })
+                }}/>
+              </Grid>
+              <Grid item xs={3}>
+                <Input type="color" name="Display Color" startAdornment="Display Color"
+                       onChange={e => {
+                         let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
+                         identifiersCopy.display_color = e.target.value.replace('#', '');
+                         this.setState({
+                           identifiers: identifiersCopy
+                         })
+                       }}/>
+              </Grid>
+              <Grid item xs={2}>
+                <TextField label='Min Ethernet Ports' type="number" fullWidth defaultValue={0} onChange={e => {
+                  let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
+                  identifiersCopy.ethernet_ports_min = e.target.value
+                  this.setState({
+                    identifiers: identifiersCopy
+                  })
+                }}/>
+              </Grid>
+              <Grid item xs={2}>
+                <TextField label='Max Ethernet Ports' type="number" fullWidth defaultValue={"24"} onChange={e => {
+                  let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
+                  identifiersCopy.ethernet_ports_max = e.target.value
+                  this.setState({
+                    identifiers: identifiersCopy
+                  })
+                }}/>
+              </Grid>
+              <Grid item xs={2}>
+                <TextField label='Min Power Ports' type="number" fullWidth defaultValue={0} onChange={e => {
                   let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
                   identifiersCopy.power_ports_min = e.target.value
                   this.setState({
                     identifiers: identifiersCopy
                   })
-                } } />{' '}
-            </FormGroup>
-            </Col>
-            <Col>
-              <FormGroup>
-              <Label for="powerports">Max Power Ports</Label>
-              <Input type="number" onChange={e => {
+                }}/>
+              </Grid>
+              <Grid item xs={2}>
+                <TextField label='Max Power Ports' type="number" fullWidth defaultValue={"24"} onChange={e => {
                   let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
                   identifiersCopy.power_ports_max = e.target.value
                   this.setState({
                     identifiers: identifiersCopy
                   })
-                } } />{' '}
-            </FormGroup>
-            </Col>
-          </Row>
-          <Row>
-            <Col>
-            <FormGroup>
-              <Label for="cpu">CPU</Label>
-              <Input type="text" onChange={e => {
+                }}/>
+              </Grid>
+              <Grid item xs={3}>
+                <TextField label='CPU' type="text" fullWidth onChange={e => {
                   let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
                   identifiersCopy.cpu = e.target.value
                   this.setState({
                     identifiers: identifiersCopy
                   })
-                } } />{' '}
-              </FormGroup>
-            </Col>
-            <Col>
-                <FormGroup>
-              <Label for="Memory">Min Memory (GB)</Label>
-              <Input type="number" onChange={e => {
+                }}/>{' '}
+
+              </Grid>
+              <Grid item xs={2}>
+                <TextField label='Min Memory (GB)' type="number" defaultValue={"0"} fullWidth onChange={e => {
                   let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
                   identifiersCopy.memory_min = e.target.value
                   this.setState({
                     identifiers: identifiersCopy
                   })
-                } } />{' '}
-                </FormGroup>
-            </Col>
-            <Col>
-              <FormGroup>
-              <Label for="Memory">Max Memory (GB)</Label>
-              <Input type="number" onChange={e => {
+                }}/>
+              </Grid>
+              <Grid item xs={2}>
+                <TextField label='Max Memory (GB)' type="number" defaultValue={"8192"} fullWidth onChange={e => {
                   let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
                   identifiersCopy.memory_max = e.target.value
                   this.setState({
                     identifiers: identifiersCopy
                   })
-                } } />{' '}
-              </FormGroup>
-            </Col>
-            <Col>
-                <FormGroup>
-              <Label for="Storage">Storage</Label>
-              <Input type="text" onChange={e => {
+                }}/>
+              </Grid>
+              <Grid item xs={3}>
+                <TextField label='Storage' type="text" fullWidth onChange={e => {
                   let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
                   identifiersCopy.storage = e.target.value
                   this.setState({
                     identifiers: identifiersCopy
                   })
-                } } />{' '}
-              </FormGroup>
-            </Col>
-          </Row>
-          <Row>
-            <Col></Col>
-            <Col></Col>
-            <Col></Col>
-            <Col>
-              <FormGroup>
-              <Input color="green" type="submit" value="Apply Filters" />
-            </FormGroup>
-            </Col>
-          </Row>
+                }}/>
+              </Grid>
+              <Grid item xs={9}>
+              </Grid>
+              <Grid item xs={3}>
+                <Button variant="contained" type="submit" color="primary" onClick={() => this.handleSubmit}>Apply
+                  Filters</Button>
+              </Grid>
+            </Grid>
+          </form>
         </Container>
-        </Form>
       </div>
     )
   }

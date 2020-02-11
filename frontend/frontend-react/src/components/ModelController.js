@@ -341,6 +341,7 @@ export class ModelController extends Component {
 
     if (this.state.showTableView) {
       content = <div><ModelTableMUI models={this.state.models}
+                                    filter_query={this.getFilterQuery}
                                  sendRerender={this.getRerender}
                                  sendShowTable={this.getShowTable}
                                  sendShowDetailedModel={this.getShowDetailedModel}
