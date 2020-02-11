@@ -97,7 +97,6 @@ export class AllInstancesOfModelView extends Component {
           <TableCell align="right">
             <Link to={'/assets/' + id}>
               <Tooltip title='View Details'>
-                {/* onClick={() => this.showDetailedModel(id)} */}
                 <IconButton size="sm" >
                   <PageviewIcon />
                 </IconButton>
@@ -106,9 +105,6 @@ export class AllInstancesOfModelView extends Component {
           </TableCell>   
         </TableRow>
       )
-
-
-
     })
   }
 
