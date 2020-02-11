@@ -8,7 +8,7 @@ import ModelSort from './ModelSort';
 import ModelTableMUI from './ModelTableMUI'
 import DetailedModel from './DetailedModel';
 import {
-  Grid, Button, Container, Paper, ButtonGroup
+  Grid, Button, Container, Paper, ButtonGroup, Switch, FormControlLabel
 } from '@material-ui/core'
 import CloudUploadIcon from '@material-ui/icons/CloudUpload';
 import SaveAltIcon from '@material-ui/icons/SaveAlt';
@@ -41,7 +41,7 @@ export class ModelController extends Component {
       showIndividualModelView: false,
       showCreateView: false,
       showEditView: false,
-      showAll: false,
+      showingAll: false,
       editID: 0,
       deleteID: 0,
       prevPage: null,
@@ -337,6 +337,15 @@ export class ModelController extends Component {
       });
   }
 
+  toggleShowingAll = () => {
+    this.state.showingAll ? (
+      this.getModels()
+    ): (this.getAllModels() )
+    this.setState(prevState => ({
+      showingAll: !prevState.showingAll
+    }));
+  }
+
   render() {
     let content;
     console.log('rerender')
@@ -404,7 +413,13 @@ export class ModelController extends Component {
     </div>;
 
     let exp = <Button variant="outlined" startIcon={<SaveAltIcon/>} onClick={this.exportData}>Export</Button>
-    let showAll = <Button onClick={this.getAllModels}>Show All</Button>
+    let showAll = <FormControlLabel
+      control={
+        <Switch value={this.state.showingAll} onChange={ () => this.toggleShowingAll()} />
+      }
+      label="Show All"
+      />
+
 
     let add = this.props.is_admin ? (
       <Button color="primary" variant="contained" endIcon={<AddCircleIcon/>}
