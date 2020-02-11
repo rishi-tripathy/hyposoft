@@ -5,6 +5,8 @@ import DetailedInstance from './DetailedInstance'
 import AllInstancesOfModelView from './AllInstancesOfModelView';
 import DetailedInstanceFromModel from './DetailedInstanceFromModel';
 import Button from "reactstrap/es/Button";
+import PropTypes from 'prop-types';
+
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 
@@ -60,8 +62,8 @@ export class DetailedModel extends Component {
   }
 
   loadModelData = () => {
-    if (this.props.modelID) {
-      let dst = '/api/models/'.concat(this.props.modelID).concat('/');
+    if (this.props.match.params.id) {
+      let dst = '/api/models/'.concat(this.props.match.params.id).concat('/');
       console.log(dst);
       axios.get(dst).then(res => {
         this.setState({
@@ -86,22 +88,13 @@ export class DetailedModel extends Component {
   // }
 
   render() {
-
-    let content;
-    if (this.state.showTableView) {
-      content = <AllInstancesOfModelView modelID={this.state.model.id} 
+    console.log(this.props.match)
+    let content = <AllInstancesOfModelView modelID={this.state.model.id} 
                   sendInstanceID={ this.getDetailedInstanceID }
                   sendShowDetailedInstance={ this.getShowDetailedInstance } />;
-    }
-    else if (this.state.showIndividualInstanceView) {
-      content = <DetailedInstanceFromModel instanceID={ this.state.detailedInstanceID }
-                  sendShowTable={ this.getShowTableView }  /> ;
-    }
 
     return (
       <div>
-        <Button onClick={() => this.props.sendShowTable(true)} >Back</Button>
-        <br></br>
         {/* // TODO: this is such bad code lmao */}
         <ModelCard model={ [this.state.model] } />
         <br></br>
@@ -111,6 +104,11 @@ export class DetailedModel extends Component {
       </div>
     )
   }
+}
+
+DetailedModel.propTypes = {
+  //modelID: PropTypes.number.isRequired,
+  //sendShowTable: PropTypes.func.isRequired,
 }
 
 export default DetailedModel

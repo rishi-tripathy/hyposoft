@@ -1,6 +1,6 @@
 import React from 'react';
 import './App.css';
-import { BrowserRouter as Router, Route } from 'react-router-dom'
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom'
 import SideBar from './components/SideBar';
 import NavBar from './components/NavBar';
 import axios from 'axios'
@@ -14,6 +14,8 @@ import ModelController from './components/ModelController';
 import InstanceController from './components/InstanceController';
 import UserController from './components/UserController';
 import StatisticsController from './components/StatisticsController'
+import DetailedModel from './components/DetailedModel';
+import DetailedInstance from './components/DetailedInstance';
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 class App extends React.Component {
@@ -94,22 +96,39 @@ class App extends React.Component {
     return (
       <Router>
         <NavBar />
-        <Route path='/' component={Landing} />
-        <Route 
-          path='/racks' 
-          render={(props) => <RackController {...props} is_admin={true} />} />
-        <Route 
-          path='/models' 
-          render={(props) => <ModelController {...props} is_admin={true} />} />
-        <Route 
-          path='/assets' 
-          render={(props) => <InstanceController {...props} is_admin={true} />} />
-        <Route 
-          path='/users' 
-          render={(props) => <UserController {...props} is_admin={true} />} />
-        <Route 
-          path='/statistics' 
-          render={(props) => <StatisticsController {...props} is_admin={true} />} />
+        <Switch>
+          <Route path='/' exact component={Landing} />
+          <Route
+            path='/racks'
+            render={(props) => <RackController {...props} is_admin={true} />} />
+          <Route
+            path='/models'
+            exact
+            render={(props) => <ModelController {...props} is_admin={true} />} />
+          <Route
+            path='/models/:id'
+            exact
+            render={(props) => <DetailedModel {...props} is_admin={true} />} />
+            
+          <Route
+            path='/assets'
+            exact
+            render={(props) => <InstanceController {...props} is_admin={true} />} />
+          
+          <Route
+            path='/assets/:id'
+            exact
+            render={(props) => <DetailedInstance {...props} is_admin={true} />} />
+          
+          
+          <Route
+            path='/users'
+            render={(props) => <UserController {...props} is_admin={true} />} />
+          <Route
+            path='/statistics'
+            render={(props) => <StatisticsController {...props} is_admin={true} />} />
+        </Switch>
+
       </Router>
     )
   }

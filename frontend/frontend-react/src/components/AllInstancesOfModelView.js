@@ -1,6 +1,8 @@
 import React, { Component } from 'react'
 import axios from 'axios'
 import {Button, Table} from '@material-ui/core'
+import { Link } from 'react-router-dom'
+
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 
@@ -60,7 +62,11 @@ export class AllInstancesOfModelView extends Component {
           <td>{hostname}</td>
           <td>{rack ? rack.rack_number : null}</td>
           <td>{rack_u}</td>
-          <td><Button color="info" onClick={ () => this.showDetailedInstance(id) }>More details</Button></td>
+          <td>
+            <Link to={'/assets/' + id}>
+              <Button color="info">More details</Button>
+            </Link>
+          </td>
         </tr>
       )
     })

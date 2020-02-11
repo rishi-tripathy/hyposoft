@@ -13,6 +13,8 @@ import FilterListIcon from '@material-ui/icons/FilterList';
 import ModelFilters from './ModelFilters';
 import '../stylesheets/TableView.css'
 import axios, {post} from 'axios'
+import { Link } from 'react-router-dom'
+
 
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
@@ -163,11 +165,14 @@ export class ModelTable extends Component {
           {this.props.is_admin ? (
               <div>
                 <TableCell align="right">
-                  <Tooltip title='View Details'>
-                    <IconButton size="sm" onClick={() => this.showDetailedModel(id)}>
-                      <PageviewIcon/>
-                    </IconButton>
-                  </Tooltip>
+                  <Link to={'/models/' + id}>
+                    <Tooltip title='View Details'>
+                      {/* onClick={() => this.showDetailedModel(id)} */}
+                      <IconButton size="sm" >
+                        <PageviewIcon/>
+                      </IconButton>
+                    </Tooltip>
+                  </Link>
                 </TableCell>
 
                 <TableCell align="right">
