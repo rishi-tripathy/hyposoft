@@ -25,14 +25,14 @@ export class DetailedInstance extends Component {
     super();
     // keep this default here so InstanceCard doesn't freak out
     this.state = {
-      instance:
+      instance: 
         {}
     }
   }
 
   loadInstance = () => {
-    if (this.props.instanceID) {
-      let dst = '/api/instances/'.concat(this.props.instanceID).concat('/');
+    if (this.props.match.params.id) {
+      let dst = '/api/instances/'.concat(this.props.match.params.id).concat('/');
       axios.get(dst).then(res => {
         this.setState({
           instance: res.data
@@ -51,7 +51,7 @@ export class DetailedInstance extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (prevProps.instanceID !== this.props.instanceID) {
+    if (prevProps.match.params.id !== this.props.match.params.id) {
       this.loadInstance();
     }
 
