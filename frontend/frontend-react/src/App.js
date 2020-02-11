@@ -120,13 +120,17 @@ class App extends React.Component {
             exact
             render={(props) => <DetailedInstance {...props} is_admin={true} />} />
           
-          
           <Route
             path='/users'
             render={(props) => <UserController {...props} is_admin={true} />} />
           <Route
             path='/statistics'
             render={(props) => <StatisticsController {...props} is_admin={true} />} />
+
+          <Route 
+            path='/'
+            render={() => <div>404</div>} />
+          
         </Switch>
 
       </Router>
