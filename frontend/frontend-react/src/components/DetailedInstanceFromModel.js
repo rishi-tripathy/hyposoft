@@ -1,7 +1,8 @@
-import React, { Component } from 'react'
+import React, {Component} from 'react'
 import axios from 'axios'
 import InstanceCard from './InstanceCard';
 import Button from "reactstrap/es/Button";
+
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 export class DetailedInstanceFromModel extends Component {
@@ -9,9 +10,8 @@ export class DetailedInstanceFromModel extends Component {
     super();
     // keep this default here so InstanceCard doesn't freak out
     this.state = {
-      instance: 
-        {
-        }
+      instance:
+        {}
     }
   }
 
@@ -23,10 +23,10 @@ export class DetailedInstanceFromModel extends Component {
           instance: res.data
         });
       })
-      .catch(function (error) {
-        // TODO: handle error
-        alert('Cannot load instances. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
-      });
+        .catch(function (error) {
+          // TODO: handle error
+          alert('Cannot load instances. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+        });
     }
   }
 
@@ -44,9 +44,9 @@ export class DetailedInstanceFromModel extends Component {
   render() {
     return (
       <div>
-        <Button onClick={() => this.props.sendShowTable(true)} >Back</Button>
+        <Button onClick={() => this.props.sendShowTable(true)}>Back</Button>
         <br></br>
-        <InstanceCard inst={ [this.state.instance] } />
+        <InstanceCard inst={[this.state.instance]}/>
       </div>
     )
   }

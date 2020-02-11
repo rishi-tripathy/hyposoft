@@ -1,21 +1,25 @@
-import React, { Component } from 'react'
+import React, {Component} from 'react'
 import PropTypes from 'prop-types';
 import '../stylesheets/TableView.css'
-import axios, { post } from 'axios'
-import { UncontrolledCollapse, Button, Table, Input, Form, ButtonGroup, Container, Card, Row, Col } from 'reactstrap';
+import axios, {post} from 'axios'
+import {UncontrolledCollapse, Button, Table, Input, Form, ButtonGroup, Container, Card, Row, Col} from 'reactstrap';
+import FormGroup from "reactstrap/es/FormGroup";
+import ButtonToolbar from "reactstrap/es/ButtonToolbar";
+
+
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 export class ModelTable extends Component {
 
-	constructor() {
-		super();
+  constructor() {
+    super();
 
-		this.state = {
-		}
-		this.showEditForm = this.showEditForm.bind(this);
-		this.showEditForm = this.showEditForm.bind(this);
-	}
+    this.state = {}
+    this.showEditForm = this.showEditForm.bind(this);
+    this.showEditForm = this.showEditForm.bind(this);
+  }
+
 
 	showDetailedModel = (id) => {
 		//this.props.sendShowTable(false);
@@ -23,10 +27,12 @@ export class ModelTable extends Component {
 		this.props.sendModelID(id);
 	}
 
-	showEditForm = (id) => {
-		this.props.sendShowEdit(true);
-		this.props.sendEditID(id);
-	}
+
+  showEditForm = (id) => {
+    this.props.sendShowEdit(true);
+    this.props.sendEditID(id);
+  }
+
 
 	showDeleteForm = (id) => {
 		if (window.confirm('Are you sure you want to delete?')) {

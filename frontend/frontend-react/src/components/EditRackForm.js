@@ -1,7 +1,8 @@
-import React, { Component } from 'react'
+import React, {Component} from 'react'
 import PropTypes from 'prop-types';
 import axios from 'axios'
 import {Button, Grid, TextField} from "@material-ui/core";
+
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 export class EditRackForm extends Component {
@@ -65,7 +66,8 @@ export class EditRackForm extends Component {
                          onChange={e => this.setState({rack_number: e.target.value})}/>
             </Grid>
             <Grid item xs={12}>
-              <Button variant="contained" type="submit" color="primary" onClick={() => this.handleSubmit}>Update</Button>{' '}
+              <Button variant="contained" type="submit" color="primary"
+                      onClick={() => this.handleSubmit}>Update</Button>{' '}
             </Grid>
           </Grid>
         </form>

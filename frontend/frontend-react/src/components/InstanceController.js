@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, {Component} from 'react'
 import InstanceTable from './InstanceTable'
 import axios from 'axios'
 import DetailedInstance from './DetailedInstance';
@@ -6,7 +6,8 @@ import CreateInstanceForm from './CreateInstanceForm';
 import EditInstanceForm from './EditInstanceForm';
 import InstanceFilters from './InstanceFilters';
 import InstanceSort from './InstanceSort';
-import { UncontrolledCollapse, Button, ButtonGroup, Container, Card, ButtonToolbar, Row, Col } from 'reactstrap';
+import {UncontrolledCollapse, Button, ButtonGroup, Container, Card, ButtonToolbar, Row, Col} from 'reactstrap';
+
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 export class InstanceController extends Component {
@@ -15,7 +16,7 @@ export class InstanceController extends Component {
   constructor() {
     super();
     this.state = {
-      instances: [ {}
+      instances: [{}
         // {
         //   id: 99,
         //   model: 'default',
@@ -42,61 +43,61 @@ export class InstanceController extends Component {
 
   getRerender = (re) => {
     if (re) {
-      this.setState({ rerender: true })
+      this.setState({rerender: true})
     }
   }
 
   getShowTable = (show) => {
     show ? this.setState({
-      showTableView : true,
-      // everything else false
-      showIndividualInstanceView: false,
-      showCreateView: false,
-      showEditView: false,
-    })
-    : this.setState({
-      showTableView : false,
-    }) 
+        showTableView: true,
+        // everything else false
+        showIndividualInstanceView: false,
+        showCreateView: false,
+        showEditView: false,
+      })
+      : this.setState({
+        showTableView: false,
+      })
   }
 
   getShowDetailedInstance = (show) => {
     show ? this.setState({
-      showIndividualInstanceView: true,
-      // everything else false
-      showTableView : false,
-      showCreateView: false,
-      showEditView: false,
-    })
-    : this.setState({
-      showIndividualInstanceView : false,
-    }) 
+        showIndividualInstanceView: true,
+        // everything else false
+        showTableView: false,
+        showCreateView: false,
+        showEditView: false,
+      })
+      : this.setState({
+        showIndividualInstanceView: false,
+      })
   }
 
   getShowCreate = (show) => {
     show ? this.setState({
-      showCreateView : true,
-      // everything else false
-      showTableView: false,
-      showIndividualInstanceView: false,
-      showEditView: false,
+        showCreateView: true,
+        // everything else false
+        showTableView: false,
+        showIndividualInstanceView: false,
+        showEditView: false,
 
-    })
-    : this.setState({
-      showCreateView : false,
-    }) 
+      })
+      : this.setState({
+        showCreateView: false,
+      })
   }
 
   getShowEdit = (show) => {
     show ? this.setState({
-      showEditView: true,
-      // everything else false
-      showTableView: false,
-      showIndividualInstanceView: false,
-      showCreateView : false,
-    })
-    : this.setState({
-      showEditView : false,
-    }) 
+        showEditView: true,
+        // everything else false
+        showTableView: false,
+        showIndividualInstanceView: false,
+        showCreateView: false,
+      })
+      : this.setState({
+        showEditView: false,
+      })
   }
 
   getEditID = (id) => {
@@ -106,7 +107,7 @@ export class InstanceController extends Component {
   }
 
   getDetailedInstanceID = (id) => {
-    this.setState({ detailedInstanceID: id});
+    this.setState({detailedInstanceID: id});
   }
 
   getInstances = () => {
@@ -115,20 +116,20 @@ export class InstanceController extends Component {
     console.log(dst)
     axios.get(dst).then(res => {
       // console.log(res.data.next)
-      this.setState({ 
+      this.setState({
         instances: res.data.results,
         prevPage: res.data.previous,
         nextPage: res.data.next,
       });
     })
-    .catch(function (error) {
-      // TODO: handle error
-      console.log(error.response)
-      alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
-    });
+      .catch(function (error) {
+        // TODO: handle error
+        console.log(error.response)
+        alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+      });
   }
 
-  getAllInstances = () =>  {
+  getAllInstances = () => {
     let filter = this.state.filterQuery;
     let sort = this.state.sortQuery;
 
@@ -141,30 +142,30 @@ export class InstanceController extends Component {
     }
 
     let dst = '/api/instances/' + '?' + filter + sort + 'show_all=true';
-    
+
     console.log('QUERY')
     console.log(dst)
     axios.get(dst).then(res => {
       // console.log(res.data.next)
-      this.setState({ 
+      this.setState({
         instances: res.data,
         prevPage: null,
         nextPage: null,
       });
     })
-    .catch(function (error) {
-      // TODO: handle error
-      console.log(error.response.data)
-      alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
-    });
+      .catch(function (error) {
+        // TODO: handle error
+        console.log(error.response.data)
+        alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+      });
   }
 
   getFilterQuery = (q) => {
-    this.setState({ filterQuery: q });
+    this.setState({filterQuery: q});
   }
 
   getSortQuery = (q) => {
-    this.setState({ sortQuery: q })
+    this.setState({sortQuery: q})
     console.log(this.state.sortQuery);
   }
 
@@ -179,60 +180,61 @@ export class InstanceController extends Component {
     if (prevState.showTableView === false && this.state.showTableView === true) {
       setTimeout(() => {
         this.getInstances();
-      }, delay); 
+      }, delay);
     }
 
     // Once filter changes, rerender
     if (prevState.filterQuery !== this.state.filterQuery) {
       setTimeout(() => {
         this.getInstances();
-      }, delay); 
+      }, delay);
     }
 
     // Once sort changes, rerender
     if (prevState.sortQuery !== this.state.sortQuery) {
       setTimeout(() => {
         this.getInstances();
-      }, delay); 
+      }, delay);
     }
 
     // After crud, rerender
     if (prevState.rerender === false && this.state.rerender === true) {
       setTimeout(() => {
         this.getInstances();
-        this.setState({ rerender: false });
-      }, delay); 
-      
+        this.setState({rerender: false});
+      }, delay);
+
     }
   }
+
   paginateNext = () => {
     axios.get(this.state.nextPage).then(res => {
-      this.setState({ 
+      this.setState({
         instances: res.data.results,
         prevPage: res.data.previous,
         nextPage: res.data.next,
       });
     })
-    .catch(function (error) {
-      // TODO: handle error
-      console.log(error.response)
-      alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
-    });
+      .catch(function (error) {
+        // TODO: handle error
+        console.log(error.response)
+        alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+      });
   }
 
   paginatePrev = () => {
     axios.get(this.state.prevPage).then(res => {
-      this.setState({ 
+      this.setState({
         instances: res.data.results,
         prevPage: res.data.previous,
         nextPage: res.data.next,
       });
     })
-    .catch(function (error) {
-      // TODO: handle error
-      console.log(error.response)
-      alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
-    });
+      .catch(function (error) {
+        // TODO: handle error
+        console.log(error.response)
+        alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+      });
   }
 
   exportData = () => {
@@ -255,10 +257,10 @@ export class InstanceController extends Component {
       FileDownload(res.data, 'instance_export.csv');
       alert("Export was successful.");
     })
-    .catch(function (error) {
-      // TODO: handle error
-      alert('Export was not successful.\n' + JSON.stringify(error.response.data, null, 2));
-    });
+      .catch(function (error) {
+        // TODO: handle error
+        alert('Export was not successful.\n' + JSON.stringify(error.response.data, null, 2));
+      });
   }
 
 
@@ -266,58 +268,62 @@ export class InstanceController extends Component {
     let content;
 
     if (this.state.showTableView) {
-      content = <InstanceTable 
-                  instances={ this.state.instances } 
-                  sendRerender={ this.getRerender }
-                  sendShowTable={ this.getShowTable } 
-                  sendShowDetailedInstance= { this.getShowDetailedInstance }
-                  sendInstanceID={ this.getDetailedInstanceID }
-                  sendShowCreate={this.getShowCreate }
-                  sendShowEdit={this.getShowEdit }
-                  sendEditID={this.getEditID } 
-                  is_admin={this.props.is_admin}/>;
-    }
-    else if (this.state.showIndividualInstanceView) {
-      content = <DetailedInstance instanceID={ this.state.detailedInstanceID }
-                                  sendShowTable={ this.getShowTable }  /> ;
-    }
-    else if (this.state.showCreateView) {
-      content = <CreateInstanceForm sendRerender={ this.getRerender }
-                                    sendShowTable={this.getShowTable } />
-    }
-    else if (this.state.showEditView) {
-      content = <EditInstanceForm editID={this.state.editID} 
-                  sendRerender={ this.getRerender }
-                  sendShowTable={ this.getShowTable } 
-                  sendShowCreate={this.getShowCreate }
-                  sendShowEdit={this.getShowEdit } />
+      content = <InstanceTable
+        instances={this.state.instances}
+        sendRerender={this.getRerender}
+        sendShowTable={this.getShowTable}
+        sendShowDetailedInstance={this.getShowDetailedInstance}
+        sendInstanceID={this.getDetailedInstanceID}
+        sendShowCreate={this.getShowCreate}
+        sendShowEdit={this.getShowEdit}
+        sendEditID={this.getEditID}
+        is_admin={this.props.is_admin}/>;
+    } else if (this.state.showIndividualInstanceView) {
+      content = <DetailedInstance instanceID={this.state.detailedInstanceID}
+                                  sendShowTable={this.getShowTable}/>;
+    } else if (this.state.showCreateView) {
+      content = <CreateInstanceForm sendRerender={this.getRerender}
+                                    sendShowTable={this.getShowTable}/>
+    } else if (this.state.showEditView) {
+      content = <EditInstanceForm editID={this.state.editID}
+                                  sendRerender={this.getRerender}
+                                  sendShowTable={this.getShowTable}
+                                  sendShowCreate={this.getShowCreate}
+                                  sendShowEdit={this.getShowEdit}/>
     }
 
     let paginateNavigation = <p></p>;
     if (this.state.prevPage == null && this.state.nextPage != null) {
-      paginateNavigation = <div><ButtonGroup><Button color="link" disabled>prev page</Button>{'  '}<Button color="link" onClick={ this.paginateNext }>next page</Button></ButtonGroup></div>;
-    }
-    else if (this.state.prevPage != null && this.state.nextPage == null) {
-    paginateNavigation = <div><ButtonGroup><Button color="link" onClick={ this.paginatePrev }>prev page</Button>{'  '}<Button color="link" disabled>next page</Button></ButtonGroup></div>;
-    }
-    else if (this.state.prevPage != null && this.state.nextPage != null) {
-      paginateNavigation = <div><ButtonGroup><Button color="link" onClick={ this.paginatePrev }>prev page</Button>{'  '}<Button color="link" onClick={ this.paginateNext }>next page</Button></ButtonGroup></div>;
+      paginateNavigation = <div><ButtonGroup><Button color="link" disabled>prev page</Button>{'  '}<Button color="link"
+                                                                                                           onClick={this.paginateNext}>next
+        page</Button></ButtonGroup></div>;
+    } else if (this.state.prevPage != null && this.state.nextPage == null) {
+      paginateNavigation =
+        <div><ButtonGroup><Button color="link" onClick={this.paginatePrev}>prev page</Button>{'  '}<Button color="link"
+                                                                                                           disabled>next
+          page</Button></ButtonGroup></div>;
+    } else if (this.state.prevPage != null && this.state.nextPage != null) {
+      paginateNavigation =
+        <div><ButtonGroup><Button color="link" onClick={this.paginatePrev}>prev page</Button>{'  '}<Button color="link"
+                                                                                                           onClick={this.paginateNext}>next
+          page</Button></ButtonGroup></div>;
     }
 
-    let filters_sorts = <div><Button color="primary" id="toggler" style={{ marginBottom: '1rem' }}> Toggle Filtering and Sorting Dialog </Button>
+    let filters_sorts = <div><Button color="primary" id="toggler" style={{marginBottom: '1rem'}}> Toggle Filtering and
+      Sorting Dialog </Button>
       <UncontrolledCollapse toggler="#toggler">
-        <InstanceFilters sendFilterQuery={ this.getFilterQuery } />
-        <InstanceSort sendSortQuery={ this.getSortQuery } />
-     </UncontrolledCollapse>{' '}
+        <InstanceFilters sendFilterQuery={this.getFilterQuery}/>
+        <InstanceSort sendSortQuery={this.getSortQuery}/>
+      </UncontrolledCollapse>{' '}
     </div>;
 
     // let filters = <InstanceFilters sendFilterQuery={ this.getFilterQuery } />
     // let sorting = <InstanceSort sendSortQuery={ this.getSortQuery } />
-    let exp = <Button onClick={ this.exportData } >Export</Button>
-    let showAll = <Button onClick={this.getAllInstances } >Show All</Button>
+    let exp = <Button onClick={this.exportData}>Export</Button>
+    let showAll = <Button onClick={this.getAllInstances}>Show All</Button>
 
     // if we're not on the table, then don't show pagination or filters or sorting
-    if (! this.state.showTableView) {
+    if (!this.state.showTableView) {
       paginateNavigation = <p></p>;
       filters_sorts = <p></p>;
       // filters = <p></p>;
@@ -330,12 +336,12 @@ export class InstanceController extends Component {
       <Container className="themed-container">
         <h2>Instances</h2>
         <Row>
-          <Col>{ filters_sorts }</Col>
+          <Col>{filters_sorts}</Col>
         </Row>
         <Row>
-          <Col>{ showAll }</Col>
-          <Col>{ exp }</Col>
-          <Col>{ paginateNavigation }</Col>
+          <Col>{showAll}</Col>
+          <Col>{exp}</Col>
+          <Col>{paginateNavigation}</Col>
           <Col></Col>
         </Row>
         <br></br>

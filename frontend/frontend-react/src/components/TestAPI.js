@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, {Component} from 'react'
 import axios from 'axios';
 
 export class TestAPI extends Component {
@@ -15,8 +15,6 @@ export class TestAPI extends Component {
     return (
       <div>
         <h1>testing API here</h1>
-
-
 
 
       </div>

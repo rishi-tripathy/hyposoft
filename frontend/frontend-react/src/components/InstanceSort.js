@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, {Component} from 'react'
 import axios from 'axios'
 import Select from 'react-select';
 import {Button, Form, FormGroup, Input, Row, Col} from "reactstrap";
@@ -19,20 +19,20 @@ export class InstanceSort extends Component {
   mountSortables = () => {
     let dst = '/api/instances/sorting_fields/';
     axios.get(dst).then(res => {
-      let myOptions = []; 
+      let myOptions = [];
       for (let i = 0; i < res.data.sorting_fields.length; i++) {
-        myOptions.push({ value: res.data.sorting_fields[i], label: res.data.sorting_fields[i] + ' ↑' });
-        myOptions.push({ value: '-' + res.data.sorting_fields[i], label: res.data.sorting_fields[i] + ' ↓' });
+        myOptions.push({value: res.data.sorting_fields[i], label: res.data.sorting_fields[i] + ' ↑'});
+        myOptions.push({value: '-' + res.data.sorting_fields[i], label: res.data.sorting_fields[i] + ' ↓'});
       }
       console.log(res.data)
-      this.setState({ 
-        sortableOptions: myOptions, 
+      this.setState({
+        sortableOptions: myOptions,
       });
     })
-    .catch(function (error) {
-      // TODO: handle error
-      console.log(error.response);
-    });
+      .catch(function (error) {
+        // TODO: handle error
+        console.log(error.response);
+      });
   }
 
   componentDidMount() {
@@ -40,7 +40,7 @@ export class InstanceSort extends Component {
   }
 
   handleChangeSortable = (opt) => {
-    this.setState({ selectedSortableOptions: opt });
+    this.setState({selectedSortableOptions: opt});
   }
 
   createQuery = () => {
@@ -50,7 +50,7 @@ export class InstanceSort extends Component {
       q = q + 'ordering=' + arr[i].value + '&';
     }
     // take off the last &
-    q = q.slice(0, -1); 
+    q = q.slice(0, -1);
     return q;
   }
 
@@ -71,23 +71,22 @@ export class InstanceSort extends Component {
             <Col xs="6">
               <FormGroup>
                 <Select
-                  value = { this.state.selectedSortableOptions }
-                  onChange={ this.handleChangeSortable }
-                  options={ this.state.sortableOptions }
-                  searchable={ true }
-                  clearable={ true } 
-                  isMulti={ true } />
+                  value={this.state.selectedSortableOptions}
+                  onChange={this.handleChangeSortable}
+                  options={this.state.sortableOptions}
+                  searchable={true}
+                  clearable={true}
+                  isMulti={true}/>
               </FormGroup>
             </Col>
             <Col xs="6">
               <FormGroup>
-                <Input type="submit" value="Apply Sorting" />
+                <Input type="submit" value="Apply Sorting"/>
               </FormGroup>
             </Col>
           </Row>
-          
-          
-          
+
+
         </Form>
       </div>
     )
