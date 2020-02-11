@@ -340,7 +340,7 @@ export class ModelController extends Component {
     console.log('rerender')
 
     if (this.state.showTableView) {
-      content = <div><ModelTable models={this.state.models}
+      content = <div><ModelTableMUI models={this.state.models}
                                  sendRerender={this.getRerender}
                                  sendShowTable={this.getShowTable}
                                  sendShowDetailedModel={this.getShowDetailedModel}

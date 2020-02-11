@@ -1,138 +1,225 @@
-// import React from 'react';
-// import PropTypes from 'prop-types';
-// import clsx from 'clsx';
-// import { lighten, makeStyles } from '@material-ui/core/styles';
-// import Table from '@material-ui/core/Table';
-// import TableBody from '@material-ui/core/TableBody';
-// import TableCell from '@material-ui/core/TableCell';
-// import TableContainer from '@material-ui/core/TableContainer';
-// import TableHead from '@material-ui/core/TableHead';
-// import TablePagination from '@material-ui/core/TablePagination';
-// import TableRow from '@material-ui/core/TableRow';
-// import TableSortLabel from '@material-ui/core/TableSortLabel';
-// import Toolbar from '@material-ui/core/Toolbar';
-// import Typography from '@material-ui/core/Typography';
-// import Paper from '@material-ui/core/Paper';
-// import Checkbox from '@material-ui/core/Checkbox';
-// import IconButton from '@material-ui/core/IconButton';
-// import Tooltip from '@material-ui/core/Tooltip';
-// import FormControlLabel from '@material-ui/core/FormControlLabel';
-// import Switch from '@material-ui/core/Switch';
-// import DeleteIcon from '@material-ui/icons/Delete';
-// import FilterListIcon from '@material-ui/icons/FilterList';
-// import '../stylesheets/TableView.css'
-// import axios, { post } from 'axios'
-//
-//
-// axios.defaults.xsrfHeaderName = "X-CSRFToken";
-//
-// export class ModelTable extends Component {
-//
-// 	constructor() {
-// 		super();
-//
-// 		this.state = {
-// 		}
-// 		this.showEditForm = this.showEditForm.bind(this);
-// 		this.showEditForm = this.showEditForm.bind(this);
-// 	}
-//
-// 	showDetailedModel = (id) => {
-// 		//this.props.sendShowTable(false);
-// 		this.props.sendShowDetailedModel(true);
-//     	this.props.sendModelID(id);
-//   	}
-//
-// 	showEditForm = (id) => {
-// 		this.props.sendShowEdit(true);
-// 		this.props.sendEditID(id);
-// 	}
-//
-// 	showDeleteForm = (id) => {
-// 		if (window.confirm('Are you sure you want to delete?')) {
-// 			let dst = '/api/models/'.concat(id).concat('/');
-// 			axios.delete(dst)
-// 			.then(function (response) {
-// 				alert('Delete was successful');
-// 			})
-// 			.catch(function (error) {
-// 				alert('Delete was not successful.\n' + JSON.stringify(error.response.data, null, 2));
-// 			});
-// 		}
-// 		this.showRerender();
-// 	}
-//
-// 	showRerender = () => {
-//     this.props.sendRerender(true);
-//   }
-//
-//   renderTableHeader() {
-// 		let header = ['vendor', 'model number', 'height',
-// 		'display color', 'ethernet ports', 'power ports', 'cpu', 'memory', 'storage'];
-//     return header.map((key, index) => {
-//         return <th key={index}>{key.toUpperCase()}</th>
-//     })
-//   }
-//
-//   renderTableData() {
-//     return this.props.models.map((model, index) => {
-//        const { id, vendor, model_number, height, display_color } = model //destructuring
-//        const { ethernet_ports, power_ports, cpu, memory, storage, comment } = model //more destructuring
-//        return (
-//           <tr key={id}>
-// 						<td>{vendor}</td>
-// 						<td>{model_number}</td>
-// 						<td>{height}</td>
-// 						<td><div style={{
-// 							width: 12,
-// 							height: 12,
-// 							backgroundColor: '#' + display_color,
-// 							left: 5,
-// 							top: 5,
-// 							}}></div>{display_color}</td>
-// 						<td>{ethernet_ports}</td>
-// 						<td>{power_ports}</td>
-// 						<td>{cpu}</td>
-// 						<td>{memory}</td>
-// 						<td>{storage}</td>
-// 						{this.props.is_admin ? (
-// 							<div>
-// 								<td><Button color="info" size="sm" onClick={ () => this.showDetailedModel(id) }>Details</Button></td>
-// 								<td><Button color="warning" size="sm" onClick={ () => this.showEditForm(id) }>Edit</Button></td>
-// 								<td><Button color="danger" size="sm" onClick={ () => this.showDeleteForm(id) }>Delete</Button></td>
-// 							</div>
-// 						):
-// 						(<p></p>)}
-//           </tr>
-//        )
-//     })
-// 	}
-//
-//
-//
-//
-//   render() {
-//     return (
-//       <div>
-// 				<br></br>
-//          <Table hover striped>
-//             <tbody>
-//                <tr>{this.renderTableHeader()}</tr>
-//                { this.renderTableData() }
-//             </tbody>
-//          </Table>
-//       </div>
-//    )
-//   }
-// }
-//
-// ModelTable.propTypes = {
-//   models: PropTypes.array.isRequired
-// }
-//
-// export default ModelTable
-//
-//
+import React, {Component} from 'react';
+import PropTypes from 'prop-types';
+import clsx from 'clsx';
+import { lighten, makeStyles } from '@material-ui/core/styles';
+import Table from '@material-ui/core/Table';
+import TableBody from '@material-ui/core/TableBody';
+import TableCell from '@material-ui/core/TableCell';
+import TableContainer from '@material-ui/core/TableContainer';
+import TableHead from '@material-ui/core/TableHead';
+import TablePagination from '@material-ui/core/TablePagination';
+import TableRow from '@material-ui/core/TableRow';
+import TableSortLabel from '@material-ui/core/TableSortLabel';
+import Toolbar from '@material-ui/core/Toolbar';
+import Button from '@material-ui/core/Button'
+import Typography from '@material-ui/core/Typography';
+import Paper from '@material-ui/core/Paper';
+import Checkbox from '@material-ui/core/Checkbox';
+import IconButton from '@material-ui/core/IconButton';
+import PageviewIcon from '@material-ui/icons/Pageview';
+import EditIcon from '@material-ui/icons/Edit';
+import Tooltip from '@material-ui/core/Tooltip';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Switch from '@material-ui/core/Switch';
+import DeleteIcon from '@material-ui/icons/Delete';
+import FilterListIcon from '@material-ui/icons/FilterList';
+import '../stylesheets/TableView.css'
+import axios, { post } from 'axios'
+
+
+axios.defaults.xsrfHeaderName = "X-CSRFToken";
+
+export class ModelTable extends Component {
+
+  constructor() {
+    super();
+
+    this.state = {
+      dense: false
+    }
+    this.showEditForm = this.showEditForm.bind(this);
+    this.showEditForm = this.showEditForm.bind(this);
+  }
+
+handleChangeDense = (id) => {
+    this.state.dense(true);
+  };
+
+  showDetailedModel = (id) => {
+    //this.props.sendShowTable(false);
+    this.props.sendShowDetailedModel(true);
+    this.props.sendModelID(id);
+  }
+
+  showEditForm = (id) => {
+    this.props.sendShowEdit(true);
+    this.props.sendEditID(id);
+  }
+
+  showDeleteForm = (id) => {
+    if (window.confirm('Are you sure you want to delete?')) {
+      let dst = '/api/models/'.concat(id).concat('/');
+      axios.delete(dst)
+        .then(function (response) {
+          alert('Delete was successful');
+        })
+        .catch(function (error) {
+          alert('Delete was not successful.\n' + JSON.stringify(error.response.data, null, 2));
+        });
+    }
+    this.showRerender();
+  }
+
+  showRerender = () => {
+    this.props.sendRerender(true);
+  }
+
+  renderTableHeader() {
+    let headCells = [
+      {id: 'vendor', numeric: false, disablePadding: false, label: 'Vendor'},
+      {id: 'model-number', numeric: false, disablePadding: false, label: 'Model Number'},
+      {id: 'height', numeric: true, disablePadding: false, label: 'Height (U)'},
+      {id: 'display-color', numeric: true, disablePadding: false, label: 'Display Color'},
+      {id: 'ethernet-ports', numeric: true, disablePadding: false, label: 'Ethernet Ports'},
+      {id: 'power-ports', numeric: true, disablePadding: false, label: 'Power Ports'},
+      {id: 'cpu', numeric: false, disablePadding: false, label: 'CPU'},
+      {id: 'memory', numeric: true, disablePadding: false, label: 'Memory (GB)'},
+      {id: 'storage', numeric: false, disablePadding: false, label: 'Storage'},
+    ];
+    return headCells.map(headCell => (
+      <TableCell
+        key={headCell.id}
+        align={headCell.numeric ? 'right' : 'left'}
+        padding={headCell.disablePadding ? 'none' : 'default'}
+        // sortDirection={orderBy === headCell.id ? order : false}
+      >
+        {/*<TableSortLabel*/}
+        {/*  active={orderBy === headCell.id}*/}
+        {/*  direction={orderBy === headCell.id ? order : 'asc'}*/}
+        {/*  onClick={createSortHandler(headCell.id)}*/}
+        {/*>*/}
+        {headCell.label.toUpperCase()}
+        {/*  {orderBy === headCell.id ? (*/}
+        {/*    <span className={classes.visuallyHidden}>*/}
+        {/*      {order === 'desc' ? 'sorted descending' : 'sorted ascending'}*/}
+        {/*    </span>*/}
+        {/*  ) : null}*/}
+        {/*</TableSortLabel>*/}
+      </TableCell>
+    ))
+
+    let header = ['vendor', 'model number', 'height',
+      'display color', 'ethernet ports', 'power ports', 'cpu', 'memory', 'storage'];
+    return header.map((key, index) => {
+      return <th key={index}>{key.toUpperCase()}</th>
+    })
+  }
+
+  renderTableData() {
+    return this.props.models.map((model, index) => {
+      const {id, vendor, model_number, height, display_color} = model //destructuring
+      const {ethernet_ports, power_ports, cpu, memory, storage, comment} = model //more destructuring
+      return (
+        <TableRow
+          hover
+          tabIndex={-1}
+          key={id}
+        >
+          <TableCell align="center">{vendor}</TableCell>
+          <TableCell align="right">{model_number}</TableCell>
+          <TableCell align="right">{height}</TableCell>
+          <TableCell align="right">
+            <div style={{
+              width: 12,
+              height: 12,
+              backgroundColor: '#' + display_color,
+              left: 5,
+              top: 5,
+            }}></div>
+            {display_color}</TableCell>
+          <TableCell align="right">{ethernet_ports}</TableCell>
+          <TableCell align="right">{power_ports}</TableCell>
+          <TableCell align="center">{cpu}</TableCell>
+          <TableCell align="right">{memory}</TableCell>
+          <TableCell align="center">{storage}</TableCell>
+          {this.props.is_admin ? (
+              <div>
+                <TableCell align="right">
+                  <Tooltip title='View Details'>
+                    <IconButton size="sm" onClick={() => this.showDetailedModel(id)}>
+                      <PageviewIcon/>
+                    </IconButton>
+                  </Tooltip>
+                </TableCell>
+
+                <TableCell align="right">
+                  <Tooltip title='Edit'>
+                    <IconButton size="sm" onClick={() => this.showEditForm(id)}>
+                      <EditIcon/>
+                    </IconButton>
+                  </Tooltip>
+                </TableCell>
+
+                <TableCell align="right">
+                  <Tooltip title='Delete'>
+                    <IconButton size="sm" onClick={() => this.showDeleteForm(id)}>
+                      <DeleteIcon/>
+                    </IconButton>
+                  </Tooltip>
+                </TableCell>
+              </div>
+            ) :
+            (<p></p>)}
+        </TableRow>
+      )
+    })
+  }
+
+
+  render() {
+    return (
+      <div>
+        <Paper>
+          {/*<EnhancedTableToolbar/>*/}
+          <TableContainer>
+            <Table
+              aria-labelledby="modelTableTitle"
+              size={this.props.dense ? 'small' : 'medium'}
+              aria-label="enhanced table"
+            >
+              <TableRow>{this.renderTableHeader()}</TableRow>
+
+              <TableBody>
+                {this.renderTableData()}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Paper>
+          {/*<TablePagination*/}
+          {/*  rowsPerPageOptions={[5, 10, 25]}*/}
+          {/*  component="div"*/}
+          {/*  count={rows.length}*/}
+          {/*  rowsPerPage={rowsPerPage}*/}
+          {/*  page={page}*/}
+          {/*  onChangePage={handleChangePage}*/}
+          {/*  onChangeRowsPerPage={handleChangeRowsPerPage}*/}
+          {/*/>*/}
+        <FormControlLabel
+          control={<Switch checked={this.props.dense} onChange={this.handleChangeDense}/>}
+          label="Dense padding"
+        />
+      </div>
+    );
+  }}
+
+
+  ModelTable.propTypes = {
+    models: PropTypes.array.isRequired
+  }
+
+  export default ModelTable;
+
+
 //
 // function createData(name, calories, fat, carbs, protein) {
 //   return { name, calories, fat, carbs, protein };
@@ -188,119 +275,92 @@
 //   { id: 'protein', numeric: true, disablePadding: false, label: 'Protein (g)' },
 // ];
 //
-// function EnhancedTableHead(props) {
-//   const { classes, onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } = props;
-//   const createSortHandler = property => event => {
-//     onRequestSort(event, property);
-//   };
+//   function
 //
-//   return (
-//     <TableHead>
-//       <TableRow>
-//         <TableCell padding="checkbox">
-//           <Checkbox
-//             indeterminate={numSelected > 0 && numSelected < rowCount}
-//             checked={rowCount > 0 && numSelected === rowCount}
-//             onChange={onSelectAllClick}
-//             inputProps={{ 'aria-label': 'select all desserts' }}
-//           />
-//         </TableCell>
-//         {headCells.map(headCell => (
-//           <TableCell
-//             key={headCell.id}
-//             align={headCell.numeric ? 'right' : 'left'}
-//             padding={headCell.disablePadding ? 'none' : 'default'}
-//             sortDirection={orderBy === headCell.id ? order : false}
-//           >
-//             <TableSortLabel
-//               active={orderBy === headCell.id}
-//               direction={orderBy === headCell.id ? order : 'asc'}
-//               onClick={createSortHandler(headCell.id)}
+//   EnhancedTableHead(props) {
+//     const {classes, onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort} = props;
+//     const createSortHandler = property => event => {
+//       onRequestSort(event, property);
+//     };
+//
+//     return (
+//       <TableHead>
+//         <TableRow>
+//           {headCells.map(headCell => (
+//             <TableCell
+//               key={headCell.id}
+//               align={headCell.numeric ? 'right' : 'left'}
+//               padding={headCell.disablePadding ? 'none' : 'default'}
+//               sortDirection={orderBy === headCell.id ? order : false}
 //             >
-//               {headCell.label}
-//               {orderBy === headCell.id ? (
-//                 <span className={classes.visuallyHidden}>
+//               <TableSortLabel
+//                 active={orderBy === headCell.id}
+//                 direction={orderBy === headCell.id ? order : 'asc'}
+//                 onClick={createSortHandler(headCell.id)}
+//               >
+//                 {headCell.label}
+//                 {orderBy === headCell.id ? (
+//                   <span className={classes.visuallyHidden}>
 //                   {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
 //                 </span>
-//               ) : null}
-//             </TableSortLabel>
-//           </TableCell>
-//         ))}
-//       </TableRow>
-//     </TableHead>
-//   );
-// }
+//                 ) : null}
+//               </TableSortLabel>
+//             </TableCell>
+//           ))}
+//         </TableRow>
+//       </TableHead>
+//     );
+//   }
 //
-// EnhancedTableHead.propTypes = {
-//   classes: PropTypes.object.isRequired,
-//   numSelected: PropTypes.number.isRequired,
-//   onRequestSort: PropTypes.func.isRequired,
-//   onSelectAllClick: PropTypes.func.isRequired,
-//   order: PropTypes.oneOf(['asc', 'desc']).isRequired,
-//   orderBy: PropTypes.string.isRequired,
-//   rowCount: PropTypes.number.isRequired,
-// };
+//   EnhancedTableHead
+// .
+//   propTypes = {
+//     classes: PropTypes.object.isRequired,
+//     numSelected: PropTypes.number.isRequired,
+//     onRequestSort: PropTypes.func.isRequired,
+//     onSelectAllClick: PropTypes.func.isRequired,
+//     order: PropTypes.oneOf(['asc', 'desc']).isRequired,
+//     orderBy: PropTypes.string.isRequired,
+//     rowCount: PropTypes.number.isRequired,
+//   };
 //
-// const useToolbarStyles = makeStyles(theme => ({
-//   root: {
-//     paddingLeft: theme.spacing(2),
-//     paddingRight: theme.spacing(1),
-//   },
-//   highlight:
-//     theme.palette.type === 'light'
-//       ? {
+//   const
+//   useToolbarStyles = makeStyles(theme => ({
+//     root: {
+//       paddingLeft: theme.spacing(2),
+//       paddingRight: theme.spacing(1),
+//     },
+//     highlight:
+//       theme.palette.type === 'light'
+//         ? {
 //           color: theme.palette.secondary.main,
 //           backgroundColor: lighten(theme.palette.secondary.light, 0.85),
 //         }
-//       : {
+//         : {
 //           color: theme.palette.text.primary,
 //           backgroundColor: theme.palette.secondary.dark,
 //         },
-//   title: {
-//     flex: '1 1 100%',
-//   },
-// }));
+//     title: {
+//       flex: '1 1 100%',
+//     },
+//   }));
 //
-// const EnhancedTableToolbar = props => {
-//   const classes = useToolbarStyles();
-//   const { numSelected } = props;
+//   const
+//   EnhancedTableToolbar = props => {
+//     const classes = useToolbarStyles();
+//     const {numSelected} = props;
 //
-//   return (
-//     <Toolbar
-//       className={clsx(classes.root, {
-//         [classes.highlight]: numSelected > 0,
-//       })}
-//     >
-//       {numSelected > 0 ? (
-//         <Typography className={classes.title} color="inherit" variant="subtitle1">
-//           {numSelected} selected
-//         </Typography>
-//       ) : (
-//         <Typography className={classes.title} variant="h6" id="tableTitle">
-//           Nutrition
-//         </Typography>
-//       )}
-//
-//       {numSelected > 0 ? (
-//         <Tooltip title="Delete">
-//           <IconButton aria-label="delete">
-//             <DeleteIcon />
-//           </IconButton>
-//         </Tooltip>
-//       ) : (
+//     return (
+//       <Toolbar>
 //         <Tooltip title="Filter list">
 //           <IconButton aria-label="filter list">
-//             <FilterListIcon />
+//             <FilterListIcon/>
 //           </IconButton>
 //         </Tooltip>
-//       )}
-//     </Toolbar>
-//   );
-// };
-//
-// EnhancedTableToolbar.propTypes = {
-//   numSelected: PropTypes.number.isRequired,
-// };
+//       </Toolbar>
+//     );
+//   };
+
 //
 // const useStyles = makeStyles(theme => ({
 //   root: {
@@ -330,8 +390,6 @@
 //   const classes = useStyles();
 //   const [order, setOrder] = React.useState('asc');
 //   const [orderBy, setOrderBy] = React.useState('calories');
-//   const [selected, setSelected] = React.useState([]);
-//   const [page, setPage] = React.useState(0);
 //   const [dense, setDense] = React.useState(false);
 //   const [rowsPerPage, setRowsPerPage] = React.useState(5);
 //
