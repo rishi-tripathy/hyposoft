@@ -4,7 +4,9 @@ import ModelCard from './ModelCard'
 import DetailedInstance from './DetailedInstance'
 import AllInstancesOfModelView from './AllInstancesOfModelView';
 import DetailedInstanceFromModel from './DetailedInstanceFromModel';
-import Button from "reactstrap/es/Button";
+import {
+  Grid, Button, Container, Paper, ButtonGroup, Switch, FormControlLabel
+} from '@material-ui/core'
 import PropTypes from 'prop-types';
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
@@ -95,12 +97,22 @@ export class DetailedModel extends Component {
 
     return (
       <div>
+        <Container maxwidth="xl">
+          <Grid container className='themed-container' spacing={2}>
+            <Grid item xs={12}>
+              <ModelCard model={ [this.state.model] } />
+            </Grid>
+            <Grid item xs={12}>
+              {content}
+            </Grid>
+          </Grid>
+        </Container>
         {/* // TODO: this is such bad code lmao */}
-        <ModelCard model={ [this.state.model] } />
-        <br></br>
+        
+        {/* <br></br>
         <br></br>
         <h4>Instances of this Model</h4>
-        { content }
+        { content } */}
       </div>
     )
   }

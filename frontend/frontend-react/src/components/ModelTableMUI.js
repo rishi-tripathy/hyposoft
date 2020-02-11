@@ -127,12 +127,6 @@ export class ModelTable extends Component {
         {/*</TableSortLabel>*/}
       </TableCell>
     ))
-
-    let header = ['vendor', 'model number', 'height',
-      'display color', 'ethernet ports', 'power ports', 'cpu', 'memory', 'storage'];
-    return header.map((key, index) => {
-      return <th key={index}>{key.toUpperCase()}</th>
-    })
   }
 
   renderTableData() {
