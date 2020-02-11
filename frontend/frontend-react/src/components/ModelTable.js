@@ -16,14 +16,14 @@ export class ModelTable extends Component {
 		this.state = {
 			file: null,
 		}
-		this.showCreateForm = this.showCreateForm.bind(this);
+		//this.showCreateForm = this.showCreateForm.bind(this);
 		this.showEditForm = this.showEditForm.bind(this);
 		this.showEditForm = this.showEditForm.bind(this);
 	}
 
-	showCreateForm = () => {
-		this.props.sendShowCreate(true);
-	}
+	// showCreateForm = () => {
+	// 	this.props.sendShowCreate(true);
+	// }
 
 	showDetailedModel = (id) => {
 		//this.props.sendShowTable(false);
@@ -159,28 +159,28 @@ export class ModelTable extends Component {
     return (
       <div>
 				<br></br>
-		  { this.props.is_admin ? (
-				<div>
-					<Row>
-						<Col><Button color="success" onClick={ this.showCreateForm }>Add Model +</Button></Col>
-						<Col>	
-							<Card>
-								<Form onSubmit={this.handleImport} >
-									<FormGroup>
-										<Input type="file" name="file" onChange={this.handleFileUpload}/>{' '}
-									</FormGroup>
-									<Button>Import</Button>{' '}
-								</Form>
-							</Card>
-						</Col>
-						
-						<Col></Col>
-						<Col></Col>
-					</Row>
-					
-				</div> ) : (<p></p>)}
+		  {/*{ this.props.is_admin ? (*/}
+			{/*	<div>*/}
+			{/*		<Row>*/}
+			{/*			<Col><Button color="success" onClick={ this.showCreateForm }>Add Model +</Button></Col>*/}
+			{/*			<Col>	*/}
+			{/*				<Card>*/}
+			{/*					<Form onSubmit={this.handleImport} >*/}
+			{/*						<FormGroup>*/}
+			{/*							<Input type="file" name="file" onChange={this.handleFileUpload}/>{' '}*/}
+			{/*						</FormGroup>*/}
+			{/*						<Button>Import</Button>{' '}*/}
+			{/*					</Form>*/}
+			{/*				</Card>*/}
+			{/*			</Col>*/}
+			{/*			*/}
+			{/*			<Col></Col>*/}
+			{/*			<Col></Col>*/}
+			{/*		</Row>*/}
+			{/*		*/}
+			{/*	</div> ) : (<p></p>)}*/}
 		  
-				<br></br>
+			{/*	<br></br>*/}
          <Table hover striped>
             <tbody>
                <tr>{this.renderTableHeader()}</tr>

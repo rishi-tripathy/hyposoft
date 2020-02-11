@@ -1,11 +1,13 @@
 import React from 'react'
+import '../stylesheets/Printing.css'
 import {AppBar, Tabs, Tab, Button, Toolbar,  IconButton, Typography } from "@material-ui/core";
-import {Link} from 'react-router-dom'
+import {NavLink} from 'react-router-dom'
+
 
 
 export default function NavBar() {
   return (
-    <div>
+    <div id='hideOnPrint'>
       <AppBar title="Django Unchained" position='sticky'>
         <Toolbar>
           {/* <IconButton edge="start" color="inherit" aria-label="menu">
@@ -14,29 +16,33 @@ export default function NavBar() {
           <Typography variant="h6">
             Django Unchained
               </Typography>
-          <Button color="inherit">Log Out</Button>
+          <Button color="inherit" onClick={ function(){
+            window.location = "/accounts/logout/"} }>Log Out</Button>
+          {/*{FACTOR OUT ABOVE LINE TO this.HandleLogout}*/}
         </Toolbar>
 
         <Tabs centered onChange>
-          <Link to='/racks'>
+          <Typography>
+          <NavLink style={{color: 'white'}} activeStyle={{color: '#dc004e'}} to='/racks'>
             <Tab label='Racks' />
-          </Link>
-          
-          <Link to='/models'>
+          </NavLink>
+          </Typography>
+
+          <NavLink style={{color: 'white'}} activeStyle={{color: '#dc004e'}} to='/models'>
             <Tab label='Models' />
-          </Link>
+          </NavLink>
           
-          <Link to='/assets'>
+          <NavLink style={{color: 'white'}} activeStyle={{color: '#dc004e'}} to='/assets'>
             <Tab label='Instances' />
-          </Link>
+          </NavLink>
           
-          <Link to='/users'>
+          <NavLink style={{color: 'white'}} activeStyle={{color: '#dc004e'}} to='/users'>
             <Tab label='Users' />
-          </Link>
+          </NavLink>
           
-          <Link to='/statistics'>
+          <NavLink style={{color: 'white'}} activeStyle={{color: '#dc004e'}} to='/statistics'>
             <Tab label='Statistics' />
-          </Link>
+          </NavLink>
           
         </Tabs>
       </AppBar>

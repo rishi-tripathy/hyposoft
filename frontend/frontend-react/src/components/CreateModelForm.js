@@ -85,15 +85,16 @@ export class CreateModelForm extends Component {
         </Grid>
           <Grid item xs={6}>
             <Autocomplete
-                id="model-vendor-select"
-                options={this.state.vendorOptions}
-                getOptionLabel={option => option.label}
-                onChange={ this.handleChangeVendor }
-                value={this.state.selectedVendorOption}
-                renderInput={params => (
-                  <TextField {...params} label="Vendor" fullWidth/>
-                )}
-              />
+              freeSolo
+              id="model-vendor-select"
+              options={this.state.vendorOptions}
+              getOptionLabel={option => option.label}
+              onChange={ this.handleChangeVendor }
+              value={this.state.selectedVendorOption}
+              renderInput={params => (
+                <TextField {...params} label="Vendor" fullWidth/>
+              )}
+            />
           </Grid>
          <Grid item xs={6}>
             <TextField label = 'Model Number' type="text" fullWidth onChange={e => {
