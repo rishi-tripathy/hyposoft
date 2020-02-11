@@ -72,7 +72,7 @@ export class ModelTable extends Component {
     return (
       <Toolbar>
         {
-          <Typography style ={{flex: '1 1 100%'}} variant="h6" id="modelTableTitle">
+          <Typography style={{flex: '1 1 100%'}} variant="h6" id="modelTableTitle">
             Models
           </Typography>
         }
@@ -84,7 +84,7 @@ export class ModelTable extends Component {
           </Paper>
         </Collapse>
         <Tooltip title="Filter list">
-          <IconButton onClick={ () => this.handleOpenFilters()} aria-label="filter list">
+          <IconButton onClick={() => this.handleOpenFilters()} aria-label="filter list">
             <FilterListIcon/>
           </IconButton>
         </Tooltip>
@@ -140,7 +140,7 @@ export class ModelTable extends Component {
           key={id}
         >
           <TableCell align="center">{vendor}</TableCell>
-          <TableCell align="right">{model_number}</TableCell>
+          <TableCell align="center">{model_number}</TableCell>
           <TableCell align="right">{height}</TableCell>
           <TableCell align="right">
             <div style={{

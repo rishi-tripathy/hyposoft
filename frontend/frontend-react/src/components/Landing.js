@@ -1,15 +1,14 @@
-import React, { Component } from 'react'
+import React, {Component} from 'react'
 import TestAPI from './TestAPI'
 import AddUserModal from './AddUserModal'
 import '../stylesheets/Printing.css'
-import {AppBar, Tabs, Tab, Button, Toolbar,  IconButton, Typography } from "@material-ui/core";
+import {AppBar, Tabs, Tab, Button, Toolbar, IconButton, Typography} from "@material-ui/core";
 import MenuIcon from '@material-ui/icons/Menu'
-
 
 
 const headerStyle = {
   width: 100 + '%',
-  padding: 0, 
+  padding: 0,
   backgroundColor: 'lightblue',
 }
 
@@ -23,8 +22,8 @@ export class Landing extends Component {
 
   render() {
     return (
-        <div id='hideOnPrint'>
-          {/* <AppBar title="Django Unchained" position='sticky'>
+      <div id='hideOnPrint'>
+        {/* <AppBar title="Django Unchained" position='sticky'>
             <Toolbar>
               <IconButton edge="start" color="inherit" aria-label="menu">
                 <MenuIcon />
@@ -43,16 +42,24 @@ export class Landing extends Component {
               <Tab label= 'Statistics' />
             </Tabs>
           </AppBar> */}
-          
-        </div>
+
+      </div>
     )
   }
 }
-    {/*<Navbar color="light" light expand="md">*/}
-        {/*  <Nav>*/}
-        {/*    <NavbarBrand href="/">Hyposoft</NavbarBrand>*/}
-        {/*  </Nav>*/}
-        {/*  <NavbarText><Button onClick={this.handleLogout}>Log Out</Button></NavbarText> {'     '}*/}
-        {/*  <NavbarText> Powered by Django Unchained </NavbarText>*/}
-        {/*</Navbar>*/}
+
+{/*<Navbar color="light" light expand="md">*/
+}
+{/*  <Nav>*/
+}
+{/*    <NavbarBrand href="/">Hyposoft</NavbarBrand>*/
+}
+{/*  </Nav>*/
+}
+{/*  <NavbarText><Button onClick={this.handleLogout}>Log Out</Button></NavbarText> {'     '}*/
+}
+{/*  <NavbarText> Powered by Django Unchained </NavbarText>*/
+}
+{/*</Navbar>*/
+}
 export default Landing

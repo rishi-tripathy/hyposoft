@@ -1,5 +1,7 @@
 import React, {Component} from 'react'
 import axios from 'axios'
+import Select from 'react-select';
+import Creatable, {makeCreatableSelect} from 'react-select/creatable';
 import {Autocomplete} from "@material-ui/lab"
 import {Button, TextField, Grid, Input, FormControl} from "@material-ui/core";
 
@@ -33,7 +35,7 @@ export class CreateModelForm extends Component {
     axios.get(dst).then(res => {
       let myOptions = [];
       for (let i = 0; i < res.data.vendors.length; i++) {
-        myOptions.push({value: res.data.vendors[i], label: res.data.vendors[i]});
+        myOptions.push(res.data.vendors[i]);
       }
       this.setState({vendorOptions: myOptions});
     })
@@ -52,7 +54,7 @@ export class CreateModelForm extends Component {
     if (e) e.preventDefault();
 
     let stateCopy = Object.assign({}, this.state.model);
-    stateCopy.vendor = this.state.selectedVendorOption ? this.state.selectedVendorOption.value : null;
+    stateCopy.vendor = this.state.selectedVendorOption ? this.state.selectedVendorOption : null;
     let stateToSend = this.removeEmpty(stateCopy);
 
     axios.post('/api/models/', stateToSend)
@@ -87,11 +89,13 @@ export class CreateModelForm extends Component {
             <Grid item xs={6}>
               <Autocomplete
                 freeSolo
+                autoComplete
+                autoHighlight
+                autoSelect
                 id="model-vendor-select"
+                noOptionsText={"Create New"}
                 options={this.state.vendorOptions}
-                getOptionLabel={option => option.label}
-                onChange={this.handleChangeVendor}
-                value={this.state.selectedVendorOption}
+                onInputChange={this.handleChangeVendor}
                 renderInput={params => (
                   <TextField {...params} label="Vendor" fullWidth/>
                 )}

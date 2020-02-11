@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, {Component} from 'react'
 import axios from 'axios'
 // import { Button, Table } from '@material-ui/core'
 import { Link } from 'react-router-dom'
@@ -84,19 +84,7 @@ export class AllInstancesOfModelView extends Component {
   renderTableData() {
     //if (this.state.instances == null) return;
     return this.state.instances.map((instance) => {
-      const { id, model, hostname, rack, owner, rack_u } = instance //destructuring
-      // return (
-      //   <tr key={id}>
-      //     <td>{hostname}</td>
-      //     <td>{rack ? rack.rack_number : null}</td>
-      //     <td>{rack_u}</td>
-      //     <td>
-      //       <Link to={'/assets/' + id}>
-      //         <Button color="info">More details</Button>
-      //       </Link>
-      //     </td>
-      //   </tr>
-      // )
+      const {id, model, hostname, rack, owner, rack_u} = instance //destructuring
       return (
         <TableRow
           hover

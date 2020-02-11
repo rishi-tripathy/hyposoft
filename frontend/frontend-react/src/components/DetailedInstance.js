@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, {Component} from 'react'
 import axios from 'axios'
 import InstanceCard from './InstanceCard';
 import DetailedModelFromInstance from './DetailedModelFromInstance'
@@ -75,9 +75,11 @@ export class DetailedInstance extends Component {
   }
 
   render() {
-    const { id, model, hostname, rack, rack_u, owner, comment } = this.state.instance;
+    const {id, model, hostname, rack, rack_u, owner, comment} = this.state.instance;
     return (
       <div>
+        <Button onClick={() => this.props.sendShowTable(true)}>Back</Button>
+        <br></br>
         <Table hover striped>
           <tbody>
             <tr>{this.renderTableHeader()}</tr>
