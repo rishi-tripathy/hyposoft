@@ -7,7 +7,8 @@ import ModelFilters from './ModelFilters';
 import ModelSort from './ModelSort';
 import ModelTableMUI from './ModelTableMUI'
 import DetailedModel from './DetailedModel';
-import {Grid, Button, Container, Paper
+import {
+  Grid, Button, Container, Paper, ButtonGroup
 } from '@material-ui/core'
 import CloudUploadIcon from '@material-ui/icons/CloudUpload';
 import SaveAltIcon from '@material-ui/icons/SaveAlt';
@@ -40,6 +41,7 @@ export class ModelController extends Component {
       showIndividualModelView: false,
       showCreateView: false,
       showEditView: false,
+      showAll: false,
       editID: 0,
       deleteID: 0,
       prevPage: null,
@@ -342,14 +344,14 @@ export class ModelController extends Component {
     if (this.state.showTableView) {
       content = <div><ModelTableMUI models={this.state.models}
                                     filter_query={this.getFilterQuery}
-                                 sendRerender={this.getRerender}
-                                 sendShowTable={this.getShowTable}
-                                 sendShowDetailedModel={this.getShowDetailedModel}
-                                 sendModelID={this.getDetailedModelID}
-                                 sendShowCreate={this.getShowCreate}
-                                 sendShowEdit={this.getShowEdit}
-                                 sendEditID={this.getEditID}
-                                 is_admin={this.props.is_admin}/></div>
+                                    sendRerender={this.getRerender}
+                                    sendShowTable={this.getShowTable}
+                                    sendShowDetailedModel={this.getShowDetailedModel}
+                                    sendModelID={this.getDetailedModelID}
+                                    sendShowCreate={this.getShowCreate}
+                                    sendShowEdit={this.getShowEdit}
+                                    sendEditID={this.getEditID}
+                                    is_admin={this.props.is_admin}/></div>
     } else if (this.state.showIndividualModelView) {
       content = <DetailedModel modelID={this.state.detailedModelID}
                                sendShowTable={this.getShowTable}/>;
@@ -366,19 +368,30 @@ export class ModelController extends Component {
 
     let paginateNavigation = <p></p>;
     if (this.state.prevPage == null && this.state.nextPage != null) {
-      paginateNavigation = <div><Button color="primary" disabled>prev page</Button>{'  '}<Button color="primary"
-                                                                                                 onClick={this.paginateNext}>next
-        page</Button></div>;
+      paginateNavigation =
+
+        <div>
+          <ButtonGroup>
+            <Button color="primary" disabled onClick={this.paginatePrev}>prev page
+            </Button>{'  '}<Button color="primary" onClick={this.paginateNext}>next page</Button>
+          </ButtonGroup>
+        </div>;
     } else if (this.state.prevPage != null && this.state.nextPage == null) {
       paginateNavigation =
-        <div><Button color="primary" onClick={this.paginatePrev}>prev page</Button>{'  '}<Button color="primary"
-                                                                                                 disabled>next
-          page</Button></div>;
+        <div>
+          <ButtonGroup>
+            <Button color="primary" onClick={this.paginatePrev}>prev page
+            </Button>{'  '}<Button color="primary" disabled onClick={this.paginateNext}>next page</Button>
+          </ButtonGroup>
+        </div>;
     } else if (this.state.prevPage != null && this.state.nextPage != null) {
       paginateNavigation =
-        <div><Button color="primary" onClick={this.paginatePrev}>prev page</Button>{'  '}<Button color="primary"
-                                                                                                 onClick={this.paginateNext}>next
-          page</Button></div>;
+        <div>
+          <ButtonGroup>
+            <Button color="primary" onClick={this.paginatePrev}>prev page
+            </Button>{'  '}<Button color="primary" onClick={this.paginateNext}>next page</Button>
+          </ButtonGroup>
+        </div>;
     }
 
 
@@ -401,6 +414,9 @@ export class ModelController extends Component {
 
     let imp = this.props.is_admin ? (
       <>
+        <Button variant="outlined" component="span" startIcon={<CloudUploadIcon/>} onClick={this.handleImport}>
+          Import
+        </Button>
         <input
           accept="text/csv"
           id="outlined-button-file"
@@ -409,9 +425,6 @@ export class ModelController extends Component {
           type="file"
           onChange={this.handleFileUpload}
         />
-        <Button variant="outlined" component="span" startIcon={<CloudUploadIcon/>} onClick={this.handleImport}>
-          Import
-        </Button>
       </>
     ) : {};
 
