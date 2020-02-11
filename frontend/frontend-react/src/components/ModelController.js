@@ -340,7 +340,7 @@ export class ModelController extends Component {
   toggleShowingAll = () => {
     this.state.showingAll ? (
       this.getModels()
-    ): (this.getAllModels() )
+    ) : (this.getAllModels())
     this.setState(prevState => ({
       showingAll: !prevState.showingAll
     }));
@@ -415,10 +415,10 @@ export class ModelController extends Component {
     let exp = <Button variant="outlined" startIcon={<SaveAltIcon/>} onClick={this.exportData}>Export</Button>
     let showAll = <FormControlLabel
       control={
-        <Switch value={this.state.showingAll} onChange={ () => this.toggleShowingAll()} />
+        <Switch value={this.state.showingAll} onChange={() => this.toggleShowingAll()}/>
       }
       label="Show All"
-      />
+    />
 
 
     let add = this.props.is_admin ? (

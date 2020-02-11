@@ -135,7 +135,7 @@ export class EditModelForm extends Component {
             <Grid item xs={6}>
               <TextField label='Model Number' type="text" fullWidth
                          value={this.state.model.model_number}
-                         InputLabelProps={{ shrink: true }}
+                         InputLabelProps={{shrink: true}}
                          onChange={e => {
                            let modelCopy = JSON.parse(JSON.stringify(this.state.model))
                            modelCopy.model_number = e.target.value
@@ -147,7 +147,7 @@ export class EditModelForm extends Component {
             <Grid item xs={6}>
               <TextField label='Height' type="number"
                          value={this.state.model.height}
-                         InputLabelProps={{ shrink: true }}
+                         InputLabelProps={{shrink: true}}
                          fullWidth onChange={e => {
                 let modelCopy = JSON.parse(JSON.stringify(this.state.model))
                 modelCopy.height = e.target.value
@@ -172,7 +172,7 @@ export class EditModelForm extends Component {
             <Grid item xs={4}>
               <TextField label='Ethernet Ports' type="number" fullWidth
                          value={this.state.model.ethernet_ports}
-                         InputLabelProps={{ shrink: true }}
+                         InputLabelProps={{shrink: true}}
                          onChange={e => {
                            let modelCopy = JSON.parse(JSON.stringify(this.state.model))
                            modelCopy.ethernet_ports = e.target.value
@@ -184,7 +184,7 @@ export class EditModelForm extends Component {
             <Grid item xs={4}>
               <TextField label='Power Ports' type="number" fullWidth
                          value={this.state.model.power_ports}
-                         InputLabelProps={{ shrink: true }}
+                         InputLabelProps={{shrink: true}}
                          onChange={e => {
                            let modelCopy = JSON.parse(JSON.stringify(this.state.model))
                            modelCopy.power_ports = e.target.value
@@ -197,7 +197,7 @@ export class EditModelForm extends Component {
             <Grid item xs={4}>
               <TextField label='Memory' type="number" helperText="RAM available in GB" fullWidth
                          value={this.state.model.memory}
-                         InputLabelProps={{ shrink: true }}
+                         InputLabelProps={{shrink: true}}
                          onChange={e => {
                            let modelCopy = JSON.parse(JSON.stringify(this.state.model))
                            modelCopy.memory = e.target.value
@@ -209,7 +209,7 @@ export class EditModelForm extends Component {
             <Grid item xs={6}>
               <TextField label='CPU' type="text" helperText="Describe the CPU" fullWidth
                          value={this.state.model.cpu}
-                         InputLabelProps={{ shrink: true }}
+                         InputLabelProps={{shrink: true}}
                          onChange={e => {
                            let modelCopy = JSON.parse(JSON.stringify(this.state.model))
                            modelCopy.cpu = e.target.value
@@ -221,7 +221,7 @@ export class EditModelForm extends Component {
             <Grid item xs={6}>
               <TextField label='Storage' type="text" helperText="Describe the storage" fullWidth
                          value={this.state.model.storage}
-                         InputLabelProps={{ shrink: true }}
+                         InputLabelProps={{shrink: true}}
                          onChange={e => {
                            let modelCopy = JSON.parse(JSON.stringify(this.state.model))
                            modelCopy.storage = e.target.value
@@ -233,7 +233,7 @@ export class EditModelForm extends Component {
             <Grid item xs={12}>
               <TextField label="Comment"
                          multiline value={this.state.model.comment}
-                         InputLabelProps={{ shrink: true }}
+                         InputLabelProps={{shrink: true}}
                          rows="4"
                          type="text"
                          onChange={e => {
