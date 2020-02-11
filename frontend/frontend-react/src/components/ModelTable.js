@@ -14,16 +14,10 @@ export class ModelTable extends Component {
 		super();
 
 		this.state = {
-			file: null,
 		}
-		//this.showCreateForm = this.showCreateForm.bind(this);
 		this.showEditForm = this.showEditForm.bind(this);
 		this.showEditForm = this.showEditForm.bind(this);
 	}
-
-	// showCreateForm = () => {
-	// 	this.props.sendShowCreate(true);
-	// }
 
 	showDetailedModel = (id) => {
 		//this.props.sendShowTable(false);
@@ -96,91 +90,13 @@ export class ModelTable extends Component {
     })
 	}
 
-	handleImport = (e) => {
-		e.preventDefault();
-		let f = this.state.file;
-		if (f == null) {
-			alert("You must upload a file.");
-			return;
-		}
-		this.fileUpload(this.state.file).then((response)=>{
-			alert("Import was successful.\n" + JSON.stringify(response.data, null, 2));
-		})
-		.catch(function (error) {
-			console.log(error.response)
-			const fileUploadOverride = (file) => {
-				const url = '/api/models/import_file/?override=true';
-				const formData = new FormData();
-				formData.append('file', file)
-				//formData.append('name', 'sup')
-				const config = {
-						headers: {
-								'content-type': 'multipart/form-data'
-						}
-				}
-				return post(url, formData, config)
-			}
 
-			if (window.confirm('Import was not successful.\n' + JSON.stringify(error.response.data, null, 2))) {
-				fileUploadOverride(f).then((response)=>{
-					alert("Import was successful.\n" + JSON.stringify(response, null, 2));
-				})
-				.catch(function (error) {
-					console.log(error.response)
-					alert('Import was not successful.\n' + JSON.stringify(error.response.data, null, 2));
-				});
-			}
-		});
-		this.showRerender();
-	}
-
-	handleFileUpload = (e) => {
-		console.log(e.target.files[0])
-		this.setState({
-      file: e.target.files[0],
-		});
-	}
-
-	fileUpload = (file) => {
-		const url = '/api/models/import_file/';
-    const formData = new FormData();
-		formData.append('file', file)
-		//formData.append('name', 'sup')
-    const config = {
-        headers: {
-            'content-type': 'multipart/form-data'
-        }
-    }
-    return post(url, formData, config)
-	}
 
   
   render() {
     return (
       <div>
 				<br></br>
-		  {/*{ this.props.is_admin ? (*/}
-			{/*	<div>*/}
-			{/*		<Row>*/}
-			{/*			<Col><Button color="success" onClick={ this.showCreateForm }>Add Model +</Button></Col>*/}
-			{/*			<Col>	*/}
-			{/*				<Card>*/}
-			{/*					<Form onSubmit={this.handleImport} >*/}
-			{/*						<FormGroup>*/}
-			{/*							<Input type="file" name="file" onChange={this.handleFileUpload}/>{' '}*/}
-			{/*						</FormGroup>*/}
-			{/*						<Button>Import</Button>{' '}*/}
-			{/*					</Form>*/}
-			{/*				</Card>*/}
-			{/*			</Col>*/}
-			{/*			*/}
-			{/*			<Col></Col>*/}
-			{/*			<Col></Col>*/}
-			{/*		</Row>*/}
-			{/*		*/}
-			{/*	</div> ) : (<p></p>)}*/}
-		  
-			{/*	<br></br>*/}
          <Table hover striped>
             <tbody>
                <tr>{this.renderTableHeader()}</tr>

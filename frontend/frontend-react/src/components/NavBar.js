@@ -16,9 +16,9 @@ export default function NavBar() {
           <Typography variant="h6">
             Django Unchained
               </Typography>
-          <Button color="inherit" onClick={ function(){
+          <Button color="inherit" style={{marginLeft: 'auto'}} onClick={ function(){
             window.location = "/accounts/logout/"} }>Log Out</Button>
-          {/*{FACTOR OUT ABOVE LINE TO this.HandleLogout}*/}
+          {/*TODO: {FACTOR OUT ABOVE LINE TO this.HandleLogout}  */}
         </Toolbar>
 
         <Tabs centered onChange>

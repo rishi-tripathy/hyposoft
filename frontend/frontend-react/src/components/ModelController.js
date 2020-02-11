@@ -5,8 +5,10 @@ import axios, {post} from 'axios'
 import EditModelForm from './EditModelForm';
 import ModelFilters from './ModelFilters';
 import ModelSort from './ModelSort';
+import ModelTableMUI from './ModelTableMUI'
 import DetailedModel from './DetailedModel';
-import {Grid, Button, Container} from '@material-ui/core'
+import {Grid, Button, Container, Paper
+} from '@material-ui/core'
 import CloudUploadIcon from '@material-ui/icons/CloudUpload';
 import SaveAltIcon from '@material-ui/icons/SaveAlt';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
@@ -391,27 +393,26 @@ export class ModelController extends Component {
     let showAll = <Button onClick={this.getAllModels}>Show All</Button>
 
     let add = this.props.is_admin ? (
-        <Button color="primary" variant="contained" endIcon={<AddCircleIcon/>}
-                onClick={this.showCreateForm}>Add Model</Button>
-      ) : {};
-
+      <Button color="primary" variant="contained" endIcon={<AddCircleIcon/>}
+              onClick={this.showCreateForm}>Add Model</Button>
+    ) : {};
 
 
     let imp = this.props.is_admin ? (
-                <>
-                  <input
-                    accept="text/csv"
-                    id="outlined-button-file"
-                    multiple
-                    //style={{display: 'none'}}
-                    type="file"
-                    onChange={this.handleFileUpload}
-                  />
-                  <Button variant="outlined" component="span" startIcon={<CloudUploadIcon />} onClick={this.handleImport}>
-                    Import
-                  </Button>
-                </>
-              ) : {};
+      <>
+        <input
+          accept="text/csv"
+          id="outlined-button-file"
+          multiple
+          //style={{display: 'none'}}
+          type="file"
+          onChange={this.handleFileUpload}
+        />
+        <Button variant="outlined" component="span" startIcon={<CloudUploadIcon/>} onClick={this.handleImport}>
+          Import
+        </Button>
+      </>
+    ) : {};
 
     if (!this.state.showTableView) {
       paginateNavigation = <p></p>;
@@ -425,7 +426,7 @@ export class ModelController extends Component {
 
     return (
       <div>
-        <Container maxwidth="lg">
+        <Container maxwidth="xl">
           <Grid container className='themed-container' spacing={2}>
             <Grid item alignContent='center' xs={3}>
               {filters_sorts}
