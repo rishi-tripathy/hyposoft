@@ -1,6 +1,6 @@
 from rest_framework import generics
 from django_filters import rest_framework as filters
-from ass_man.models import Model, Instance, Rack
+from ass_man.models import Model, Asset, Rack
 from rest_framework import filters as rest_filters
 from django.db.models.fields import IntegerField
 from django.db.models.functions import Substr, Cast
@@ -35,7 +35,7 @@ class InstanceFilter(filters.FilterSet):
     comment = filters.CharFilter(field_name='comment', lookup_expr='icontains')
 
     class Meta:
-        model = Instance
+        model = Asset
         fields = ['vendor', 'model_number', 'hostname', 'owner', 'comment']
 
 
@@ -73,4 +73,3 @@ class RackFilter(rest_filters.BaseFilterBackend):
         return queryset\
             .filter(rack_letter__range=(start_letter, end_letter))\
             .filter(number_in_rack__range=(start_number, end_number))
-

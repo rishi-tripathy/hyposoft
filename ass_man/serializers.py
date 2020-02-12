@@ -1,4 +1,4 @@
-from ass_man.models import Model, Instance, Rack
+from ass_man.models import Model, Asset, Rack
 from rest_framework import serializers, status
 from rest_framework.validators import UniqueTogetherValidator, UniqueValidator
 from django.core.validators import MinLengthValidator, MinValueValidator
@@ -52,7 +52,7 @@ class VendorsSerializer(serializers.ModelSerializer):
         fields = ['vendor', 'url']
 
 class InstanceSerializer(serializers.HyperlinkedModelSerializer):
-    hostname = serializers.CharField(validators=[UniqueValidator(queryset=Instance.objects.all())])
+    hostname = serializers.CharField(validators=[UniqueValidator(queryset=Asset.objects.all())])
     rack_u = serializers.IntegerField(validators=[MinValueValidator(1)])
     # model = ModelInstanceSerializer()
 
@@ -96,7 +96,7 @@ class InstanceSerializer(serializers.HyperlinkedModelSerializer):
         return value
 
     class Meta:
-        model = Instance
+        model = Asset
         fields = ['id', 'model', 'hostname', 'rack', 'rack_u', 'owner', 'comment']
 
 # Used to fetch the Rack associated with an Instance
@@ -125,7 +125,7 @@ class InstanceShortSerializer(InstanceSerializer):
     owner = UserOfInstanceSerializer()
 
     class Meta:
-        model = Instance
+        model = Asset
         fields = ['id', 'model', 'hostname', 'rack', 'rack_u', 'owner']
 
 
@@ -154,7 +154,7 @@ class InstanceOfModelSerializer(serializers.HyperlinkedModelSerializer):
     rack = RackOfInstanceSerializer()
 
     class Meta:
-        model = Instance
+        model = Asset
         fields = ['id', 'url', 'hostname', 'rack', 'rack_u', 'owner']
 
 
@@ -162,7 +162,7 @@ class RackInstanceSerializer(serializers.ModelSerializer):
     model = ModelInstanceSerializer()
 
     class Meta:
-        model = Instance
+        model = Asset
         fields = ['id', 'model', 'hostname']
 
 

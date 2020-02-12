@@ -22,7 +22,7 @@ from ass_man.serializers import (InstanceShortSerializer,
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from django.contrib.auth.models import User
 # Project
-from ass_man.models import Model, Instance, Rack
+from ass_man.models import Model, Asset, Rack
 from rest_framework.filters import OrderingFilter
 from django_filters import rest_framework as djfiltBackend
 from ass_man.filters import InstanceFilter, ModelFilter, RackFilter, InstanceFilterByRack
@@ -91,7 +91,7 @@ class ModelViewSet(viewsets.ModelViewSet):
     def update(self, request, *args, **kwargs):
         model = self.get_object()
         prev_height = model.height
-        instances = Instance.objects.all().filter(model=self.get_object())
+        instances = Asset.objects.all().filter(model=self.get_object())
         serializer = self.get_serializer(model, data=request.data, partial=False)
         serializer.is_valid(raise_exception=True)
         # Check to see if it's OK to update this model (if all instances still fit
@@ -107,7 +107,7 @@ class ModelViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
     def destroy(self, request, *args, **kwargs):
-        matches = Instance.objects.filter(model=self.get_object())
+        matches = Asset.objects.filter(model=self.get_object())
         if matches.count() > 0:
             offending_instances = []
             for match in matches:
@@ -150,7 +150,7 @@ class ModelViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=[GET])
     def can_delete(self, request, *args, **kwargs):
-        matches = Instance.objects.all().filter(model=self.get_object())
+        matches = Asset.objects.all().filter(model=self.get_object())
         if matches.count() > 0:
             return Response({
                 'can_delete': 'false'
@@ -170,7 +170,7 @@ class ModelViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=[GET])
     def instances(self, request, *args, **kwargs):
-        instances = Instance.objects.all().filter(model=self.get_object())
+        instances = Asset.objects.all().filter(model=self.get_object())
         page = self.paginate_queryset(instances)
         if page is not None:
             serializer = InstanceOfModelSerializer(page, many=True, context={'request': request})
@@ -189,7 +189,7 @@ class InstanceViewSet(viewsets.ModelViewSet):
             permission_classes = [IsAuthenticated]
         return [permission() for permission in permission_classes]
 
-    queryset = Instance.objects.all()
+    queryset = Asset.objects.all()
 
     def get_serializer_class(self):
         if self.request.method == GET:
@@ -449,7 +449,7 @@ def report(request):
     percentage_occupied = occupied / total * 100
     percentage_free = (total - occupied) / total * 100
 
-    instances = Instance.objects.all()
+    instances = Asset.objects.all()
     vendor_dict = {}
     model_dict = {}
     owner_dict = {}

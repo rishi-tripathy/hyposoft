@@ -1,5 +1,5 @@
 import csv, io
-from ass_man.models import Model, Instance, Rack
+from ass_man.models import Model, Asset, Rack
 from rest_framework.response import Response
 
 def import_model_file(request):
@@ -160,8 +160,8 @@ def import_instance_file(request):
         override = False
         should_update = False
         try:
-            instance = Instance.objects.get(hostname=row['hostname'])
-        except Instance.DoesNotExist:
+            instance = Asset.objects.get(hostname=row['hostname'])
+        except Asset.DoesNotExist:
             instance = None
         if instance is None:
             dont_add = False
