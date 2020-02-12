@@ -4,7 +4,7 @@ import clsx from 'clsx';
 import {lighten, makeStyles} from '@material-ui/core/styles';
 import {
   Collapse, Table, TableBody, Button, TableCell, TableContainer, TableRow, Toolbar,
-  Typography, Paper, IconButton, Tooltip
+  Typography, Paper, IconButton, Tooltip, TableSortLabel
 } from "@material-ui/core";
 import PageviewIcon from '@material-ui/icons/Pageview';
 import EditIcon from '@material-ui/icons/Edit';
@@ -26,7 +26,21 @@ export class ModelTable extends Component {
 
     this.state = {
       filtersOpen: false,
-      dense: false
+      dense: false,
+      sortBy: 'vendor',
+      sortType: 'asc',
+      // sorting: {
+      //   'vendor': 'none',
+      //   'model_number': 'none',
+      //   'height': 'none',
+      //   'display_color': 'none',
+      //   'ethernet_ports': 'none',
+      //   'power_ports': 'none',
+      //   'cpu': 'none',
+      //   'memory': 'none',
+      //   'storage': 'none'
+      // },
+      sortingStates: ['asc', 'desc']
     }
     this.showEditForm = this.showEditForm.bind(this);
     this.showEditForm = this.showEditForm.bind(this);
@@ -68,6 +82,28 @@ export class ModelTable extends Component {
     this.props.sendRerender(true);
   }
 
+  handleHeaderClickSort = (id) => {
+    let sortByCopy = id
+    this.setState( {
+      sortBy:sortByCopy
+    })
+    let sortTypeCopy = this.state.sortingStates[(this.state.sortingStates.indexOf(this.state.sortType) + 1) % 2];
+     this.setState({
+      sortType: sortTypeCopy
+      })
+
+    // Make Query
+    let modifier = (sortTypeCopy === 'desc') ? '-' : ''
+    let q = 'ordering=' + modifier + sortByCopy;
+    // for (let i = 0; i < arr.length; i++) {
+    //   q = q + arr[i].value + ',';
+    // }
+    // // take off the last &
+    // q = q.slice(0, -1);
+    this.props.sendSortQuery(q);
+  };
+
+
   renderTableToolbar = () => {
     return (
       <Toolbar>
@@ -96,35 +132,37 @@ export class ModelTable extends Component {
 
   renderTableHeader() {
     let headCells = [
-      {id: 'vendor', numeric: false, disablePadding: false, label: 'Vendor'},
-      {id: 'model-number', numeric: false, disablePadding: false, label: 'Model Number'},
-      {id: 'height', numeric: true, disablePadding: false, label: 'Height (U)'},
-      {id: 'display-color', numeric: true, disablePadding: false, label: 'Display Color'},
-      {id: 'ethernet-ports', numeric: true, disablePadding: false, label: 'Ethernet Ports'},
-      {id: 'power-ports', numeric: true, disablePadding: false, label: 'Power Ports'},
-      {id: 'cpu', numeric: false, disablePadding: false, label: 'CPU'},
-      {id: 'memory', numeric: true, disablePadding: false, label: 'Memory (GB)'},
-      {id: 'storage', numeric: false, disablePadding: false, label: 'Storage'},
+      {id: 'vendor', label: 'Vendor'},
+      {id: 'model_number', label: 'Model Number'},
+      {id: 'height', label: 'Height (U)'},
+      {id: 'display_color',  label: 'Display Color'},
+      {id: 'ethernet_ports',  label: 'Ethernet Ports'},
+      {id: 'power_ports',  label: 'Power Ports'},
+      {id: 'cpu', label: 'CPU'},
+      {id: 'memory', label: 'Memory (GB)'},
+      {id: 'storage',  label: 'Storage'},
     ];
     return headCells.map(headCell => (
       <TableCell
         key={headCell.id}
-        align={headCell.numeric ? 'right' : 'left'}
-        padding={headCell.disablePadding ? 'none' : 'default'}
+        align={'center'}
+        padding={'default'}
+        //saria-sort={"ascending"}
         // sortDirection={orderBy === headCell.id ? order : false}
       >
-        {/*<TableSortLabel*/}
-        {/*  active={orderBy === headCell.id}*/}
-        {/*  direction={orderBy === headCell.id ? order : 'asc'}*/}
-        {/*  onClick={createSortHandler(headCell.id)}*/}
-        {/*>*/}
+        <TableSortLabel
+          active={this.state.sortBy === headCell.id}
+          hideSortIcon={!(this.state.sortBy === headCell.id)}
+          direction={this.state.sortBy === headCell.id ? this.state.sortType : false}
+          onClick={ () => this.handleHeaderClickSort(headCell.id)}
+        >
         {headCell.label.toUpperCase()}
-        {/*  {orderBy === headCell.id ? (*/}
-        {/*    <span className={classes.visuallyHidden}>*/}
-        {/*      {order === 'desc' ? 'sorted descending' : 'sorted ascending'}*/}
-        {/*    </span>*/}
-        {/*  ) : null}*/}
-        {/*</TableSortLabel>*/}
+          {/*{orderBy === headCell.id ? (*/}
+          {/*  <span className={classes.visuallyHidden}>*/}
+          {/*    {order === 'desc' ? 'sorted descending' : 'sorted ascending'}*/}
+          {/*  </span>*/}
+          {/*) : null}*/}
+        </TableSortLabel>
       </TableCell>
     ))
 

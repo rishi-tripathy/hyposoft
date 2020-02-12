@@ -353,6 +353,7 @@ export class ModelController extends Component {
     if (this.state.showTableView) {
       content = <div><ModelTableMUI models={this.state.models}
                                     filter_query={this.getFilterQuery}
+                                    sendSortQuery={this.getSortQuery}
                                     sendRerender={this.getRerender}
                                     sendShowTable={this.getShowTable}
                                     sendShowDetailedModel={this.getShowDetailedModel}
@@ -413,7 +414,7 @@ export class ModelController extends Component {
     </div>;
 
     let exp = <Button variant="outlined" startIcon={<SaveAltIcon/>} onClick={this.exportData}>Export</Button>
-    let showAll = <FormControlLabel
+    let showAll = <FormControlLabel labelPlacement='bottom'
       control={
         <Switch value={this.state.showingAll} onChange={() => this.toggleShowingAll()}/>
       }
@@ -457,23 +458,20 @@ export class ModelController extends Component {
       <div>
         <Container maxwidth="xl">
           <Grid container className='themed-container' spacing={2}>
-            <Grid item alignContent='center' xs={3}>
-              {filters_sorts}
-            </Grid>
-            <Grid item alignContent='flex-end' xs={6}/>
-            <Grid item alignContent='center' xs={3}>
-              {showAll}
-            </Grid>
+            <Grid item alignContent='center' xs={12}/>
             <Grid item alignContent='center' xs={3}>
               {add}
             </Grid>
-            <Grid item alignContent='center' xs={3}>
+            <Grid item alignContent='center' xs={2}>
               {exp}
             </Grid>
-            <Grid item alignContent='center' xs={3}>
+            <Grid item alignContent='center' xs={2}>
               {imp}
             </Grid>
-            <Grid item alignContent='flex-end' xs={3}>
+            <Grid item alignContent='center' xs={2}>
+              {showAll}
+            </Grid>
+             <Grid item alignContent='flex-end' xs={3}>
               {paginateNavigation}
             </Grid>
             <Grid item xs={12}>
