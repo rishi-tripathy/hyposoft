@@ -15,7 +15,7 @@ import SaveAltIcon from "@material-ui/icons/SaveAlt";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
 import {UncontrolledCollapse} from "reactstrap";
 import RackFilters from "./RackFilters";
-import { Link } from 'react-router-dom'
+import {Link} from 'react-router-dom'
 
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
@@ -47,23 +47,23 @@ export class ModelController extends Component {
 
   getRerender = (re) => {
     if (re) {
-      this.setState({ rerender: true })
+      this.setState({rerender: true})
     }
   }
 
   getDetailedModelID = (id) => {
-    this.setState({ detailedModelID: id });
+    this.setState({detailedModelID: id});
   }
 
 
   getShowTable = (show) => {
     show ? this.setState({
-      showTableView: true,
-      // everything else false
-      showIndividualModelView: false,
-      showCreateView: false,
-      showEditView: false,
-    })
+        showTableView: true,
+        // everything else false
+        showIndividualModelView: false,
+        showCreateView: false,
+        showEditView: false,
+      })
       : this.setState({
         showTableView: true,
       })
@@ -71,12 +71,12 @@ export class ModelController extends Component {
 
   getShowDetailedModel = (show) => {
     show ? this.setState({
-      showIndividualModelView: true,
-      // everything else false
-      showTableView: false,
-      showCreateView: false,
-      showEditView: false,
-    })
+        showIndividualModelView: true,
+        // everything else false
+        showTableView: false,
+        showCreateView: false,
+        showEditView: false,
+      })
       : this.setState({
         showIndividualModelView: false,
       })
@@ -88,12 +88,12 @@ export class ModelController extends Component {
 
   getShowCreate = (show) => {
     show ? this.setState({
-      showCreateView: true,
-      // everything else false
-      showTableView: false,
-      showIndividualModelView: false,
-      showEditView: false,
-    })
+        showCreateView: true,
+        // everything else false
+        showTableView: false,
+        showIndividualModelView: false,
+        showEditView: false,
+      })
       : this.setState({
         showCreateView: false,
       })
@@ -101,12 +101,12 @@ export class ModelController extends Component {
 
   getShowEdit = (show) => {
     show ? this.setState({
-      showEditView: true,
-      // everything else false
-      showTableView: false,
-      showCreateView: false,
-      showIndividualModelView: false,
-    })
+        showEditView: true,
+        // everything else false
+        showTableView: false,
+        showCreateView: false,
+        showIndividualModelView: false,
+      })
       : this.setState({
         showEditView: false,
       })
@@ -119,12 +119,12 @@ export class ModelController extends Component {
   }
 
   getFilterQuery = (q) => {
-    this.setState({ filterQuery: q });
+    this.setState({filterQuery: q});
     console.log(this.state.filterQuery);
   }
 
   getSortQuery = (q) => {
-    this.setState({ sortQuery: q })
+    this.setState({sortQuery: q})
     console.log(this.state.sortQuery);
   }
 
@@ -160,7 +160,7 @@ export class ModelController extends Component {
     if (prevState.rerender === false && this.state.rerender === true) {
       setTimeout(() => {
         this.getModels();
-        this.setState({ rerender: false });
+        this.setState({rerender: false});
       }, delay);
 
     }
@@ -338,28 +338,28 @@ export class ModelController extends Component {
 
     if (this.state.showTableView) {
       content = <div><ModelTableMUI models={this.state.models}
-        filter_query={this.getFilterQuery}
-        sendSortQuery={this.getSortQuery}
-        sendRerender={this.getRerender}
-        sendShowTable={this.getShowTable}
-        sendShowDetailedModel={this.getShowDetailedModel}
-        sendModelID={this.getDetailedModelID}
-        sendShowCreate={this.getShowCreate}
-        sendShowEdit={this.getShowEdit}
-        sendEditID={this.getEditID}
-        is_admin={this.props.is_admin} /></div>
+                                    filter_query={this.getFilterQuery}
+                                    sendSortQuery={this.getSortQuery}
+                                    sendRerender={this.getRerender}
+                                    sendShowTable={this.getShowTable}
+                                    sendShowDetailedModel={this.getShowDetailedModel}
+                                    sendModelID={this.getDetailedModelID}
+                                    sendShowCreate={this.getShowCreate}
+                                    sendShowEdit={this.getShowEdit}
+                                    sendEditID={this.getEditID}
+                                    is_admin={this.props.is_admin}/></div>
     } else if (this.state.showIndividualModelView) {
       content = <DetailedModel modelID={this.state.detailedModelID}
-        sendShowTable={this.getShowTable} />;
+                               sendShowTable={this.getShowTable}/>;
     } else if (this.state.showCreateView) {
       content = <CreateModelForm
 
-        sendShowTable={this.getShowTable} />
+        sendShowTable={this.getShowTable}/>
     } else if (this.state.showEditView) {
       content = <EditModelForm editID={this.state.editID}
-        sendShowTable={this.getShowTable}
-        sendShowCreate={this.getShowCreate}
-        sendShowEdit={this.getShowEdit} />
+                               sendShowTable={this.getShowTable}
+                               sendShowCreate={this.getShowCreate}
+                               sendShowEdit={this.getShowEdit}/>
     }
 
     let paginateNavigation = <p></p>;
@@ -397,17 +397,17 @@ export class ModelController extends Component {
 
     let add = this.props.is_admin ? (
       <Link to={'/models/create'}>
-        <Button color="primary" variant="contained" endIcon={<AddCircleIcon />}>
+        <Button color="primary" variant="contained" endIcon={<AddCircleIcon/>}>
           Add Model
         </Button>
       </Link>
-      
+
     ) : {};
 
 
     let imp = this.props.is_admin ? (
       <>
-        <Button variant="outlined" component="span" startIcon={<CloudUploadIcon />} onClick={this.handleImport}>
+        <Button variant="outlined" component="span" startIcon={<CloudUploadIcon/>} onClick={this.handleImport}>
           Import
         </Button>
         <input
@@ -432,12 +432,13 @@ export class ModelController extends Component {
       <div>
         <Container maxwidth="xl">
           <Grid container className="themed-container" spacing={2}>
-            <Grid item alignContent='center' xs={12}/>
-            <Typography variant="h3" gutterBottom>
-              Models
-            </Typography>
-            <Grid item alignContent="center" xs={10}/>
-            <Grid item justify="flex-end" alignContent="center" xs={2}>
+            <Grid item justify="flex-start" alignContent='center' xs={12}/>
+            <Grid item justify="flex-start" alignContent='center' xs={10}>
+              <Typography variant="h3">
+                Model Table
+              </Typography>
+            </Grid>
+            <Grid item justify="flex-end" alignContent="flex-end" xs={2}>
               {showAll}
             </Grid>
             <Grid item justify="flex-start" alignContent="center" xs={3}>
