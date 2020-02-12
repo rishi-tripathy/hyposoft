@@ -209,7 +209,7 @@ export class RackController extends Component {
         showAllRacks: true,
       })
       : this.setState({
-        showDeleteView: false,
+        showAllRacks: false,
       })
   }
 
@@ -279,7 +279,7 @@ export class RackController extends Component {
         });
     } else {
       //show all racks
-      let dst = '/api/racks/?show_all=true';
+      let dst = '/api/racks/?show_all=true' + '&' + this.state.filterQuery;
 
       axios.get(dst).then(res => {
         this.setState({

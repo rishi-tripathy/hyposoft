@@ -49,6 +49,7 @@ export class RackTable extends Component {
     let displayColors = [];
     let hostnameInfo = []; //has hostname String or null
     let idList = [];
+    let lastNotNull = '1';
 
     let condensed = this.props.condensedState;
     let rows = [];
@@ -93,11 +94,21 @@ export class RackTable extends Component {
 
       //CONDENSED
       else if (i !== "rack_number" && i !== "url" && condensed) {
-        previousRackU = rows[i - 1];
-        nextRackU = rows[i + 1];
+
+        //stupid integer parsing
+
+        let currentInt = parseInt(i, 10);
+        let nextInt = currentInt + 1;
+        let previousInt = currentInt - 1;
+
+
+        previousRackU = rows[previousInt.toString()];
+        nextRackU = rows[nextInt.toString()];
         currentRackU = rows[i];
+
         //NOT NULL
         if (currentRackU !== null) {
+          lastNotNull = i;
           //not null, render like normal
           //push row number
           rackUs.push(i);
@@ -115,8 +126,7 @@ export class RackTable extends Component {
             hostnameInfo.push(null);
           }
         }
-
-        //NULL
+        //currentracku is NULL
         else {
           if (i === '42' || i === '1') {
             //display first and last always
@@ -125,24 +135,37 @@ export class RackTable extends Component {
             modelInfo.push(rows[i]);
             displayColors.push(rows[i]);
             hostnameInfo.push(rows[i]);
+          } else if (previousRackU !== null && nextRackU !== null) {
+            //display as null
+            rackUs.push(i);
+            rackInstances.push(null);
+            hostnameInfo.push(null);
+            displayColors.push(null);
+            modelInfo.push(null);
+          } else if (i === '41' && (lastNotNull === '1' || lastNotNull !== '40')) {
+            //entire rack is empty, needs dots
+            rackUs.push(i);
+            rackInstances.push(null);
+            hostnameInfo.push(null);
+            displayColors.push(null);
+            modelInfo.push('...');
           } else if (previousRackU == null && nextRackU == null) {
             //skip
-          } else if (previousRackU !== null && nextRackU == null) {
+          } else if (nextRackU !== null && previousRackU == null) {
             rackUs.push(i);
-            rackInstances.push(rows[i]);
-            modelInfo.push(rows[i]);
-            displayColors.push(rows[i]);
-            let dots = "...";
-            hostnameInfo.push(dots);
+            rackInstances.push(null);
+            hostnameInfo.push(null);
+            displayColors.push(null);
+            modelInfo.push('...');
           }
         }
-
       }
     }
 
     return rackUs.reverse().map((row, index) => {
       return (
         <RackRow
+          index={rackUs.length - index}
           condensedView={condensed}
           row={row}
           instanceUrl={rackInstances[rackUs.length - index - 1]}
