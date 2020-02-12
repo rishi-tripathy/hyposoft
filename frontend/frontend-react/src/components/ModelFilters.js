@@ -1,6 +1,6 @@
-import React, {Component} from 'react'
-import {Autocomplete} from "@material-ui/lab"
-import {Button, TextField, Grid, Input, Container, FormControl} from "@material-ui/core";
+import React, { Component } from 'react'
+import { Autocomplete } from "@material-ui/lab"
+import { Button, TextField, Grid, Input, Container, FormControl } from "@material-ui/core";
 
 export class ModelFilters extends Component {
 
@@ -10,16 +10,16 @@ export class ModelFilters extends Component {
       identifiers: {
         vendor: '',
         model_number: '',
-        height_min: '',
+        height_min: '0',
         height_max: '',
         display_color: '',
-        ethernet_ports_min: '',
-        ethernet_ports_max: '',
-        power_ports_min: '',
-        power_ports_max: '',
+        ethernet_ports_min: '0',
+        ethernet_ports_max: '24',
+        power_ports_min: '0',
+        power_ports_max: '24',
         cpu: '',
-        memory_min: '',
-        memory_max: '',
+        memory_min: '0',
+        memory_max: '8192',
         storage: '',
       },
       query: null,
@@ -32,7 +32,7 @@ export class ModelFilters extends Component {
   };
 
   createQuery = () => {
-    const {vendor, model_number, height_min, height_max, display_color, ethernet_ports_min, ethernet_ports_max, power_ports_min, power_ports_max, cpu, memory_min, memory_max, storage} = this.state.identifiers;
+    const { vendor, model_number, height_min, height_max, display_color, ethernet_ports_min, ethernet_ports_max, power_ports_min, power_ports_max, cpu, memory_min, memory_max, storage } = this.state.identifiers;
     // NO '?' here!!
     let q = '' +
       'vendor=' + vendor + '&' +
@@ -48,7 +48,7 @@ export class ModelFilters extends Component {
       'memory_min=' + memory_min + '&' +
       'memory_max=' + memory_max + '&' +
       'storage=' + storage;
-    this.setState({query: q});
+    this.setState({ query: q });
     return q;
   }
 
@@ -78,7 +78,7 @@ export class ModelFilters extends Component {
                   this.setState({
                     identifiers: identifiersCopy
                   })
-                }}/>
+                }} />
               </Grid>
               <Grid item xs={3}>
                 <TextField label='Model Number' type="text" fullWidth onChange={e => {
@@ -87,71 +87,71 @@ export class ModelFilters extends Component {
                   this.setState({
                     identifiers: identifiersCopy
                   })
-                }}/>
+                }} />
               </Grid>
               <Grid item xs={2}>
-                <TextField label='Min Height (U)' type="number" fullWidth defaultValue={0} onChange={e => {
+                <TextField label='Min Height (U)' type="number" fullWidth value={this.state.identifiers.height_min} onChange={e => {
                   let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
                   identifiersCopy.height_min = e.target.value
                   this.setState({
                     identifiers: identifiersCopy
                   })
-                }}/>
+                }} />
               </Grid>
               <Grid item xs={2}>
-                <TextField label='Max Height (U)' type="number" fullWidth defaultValue={"42"} onChange={e => {
+                <TextField label='Max Height (U)' type="number" fullWidth value={this.state.identifiers.height_max} onChange={e => {
                   let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
                   identifiersCopy.height_max = e.target.value
                   this.setState({
                     identifiers: identifiersCopy
                   })
-                }}/>
+                }} />
               </Grid>
               <Grid item xs={3}>
-                <Input type="color" name="Display Color" startAdornment="Display Color"
-                       onChange={e => {
-                         let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
-                         identifiersCopy.display_color = e.target.value.replace('#', '');
-                         this.setState({
-                           identifiers: identifiersCopy
-                         })
-                       }}/>
+                <Input type="color" name="Display Color" startAdornment="Display Color" value={'#' + this.state.identifiers.display_color}
+                  onChange={e => {
+                    let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
+                    identifiersCopy.display_color = e.target.value.replace('#', '');
+                    this.setState({
+                      identifiers: identifiersCopy
+                    })
+                  }} />
               </Grid>
               <Grid item xs={2}>
-                <TextField label='Min Ethernet Ports' type="number" fullWidth defaultValue={0} onChange={e => {
+                <TextField label='Min Ethernet Ports' type="number" fullWidth value={this.state.identifiers.ethernet_ports_min} onChange={e => {
                   let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
                   identifiersCopy.ethernet_ports_min = e.target.value
                   this.setState({
                     identifiers: identifiersCopy
                   })
-                }}/>
+                }} />
               </Grid>
               <Grid item xs={2}>
-                <TextField label='Max Ethernet Ports' type="number" fullWidth defaultValue={"24"} onChange={e => {
+                <TextField label='Max Ethernet Ports' type="number" fullWidth value={this.state.identifiers.ethernet_ports_max} onChange={e => {
                   let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
                   identifiersCopy.ethernet_ports_max = e.target.value
                   this.setState({
                     identifiers: identifiersCopy
                   })
-                }}/>
+                }} />
               </Grid>
               <Grid item xs={2}>
-                <TextField label='Min Power Ports' type="number" fullWidth defaultValue={0} onChange={e => {
+                <TextField label='Min Power Ports' type="number" fullWidth value={this.state.identifiers.power_ports_min} onChange={e => {
                   let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
                   identifiersCopy.power_ports_min = e.target.value
                   this.setState({
                     identifiers: identifiersCopy
                   })
-                }}/>
+                }} />
               </Grid>
               <Grid item xs={2}>
-                <TextField label='Max Power Ports' type="number" fullWidth defaultValue={"24"} onChange={e => {
+                <TextField label='Max Power Ports' type="number" fullWidth value={this.state.identifiers.power_ports_max} onChange={e => {
                   let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
                   identifiersCopy.power_ports_max = e.target.value
                   this.setState({
                     identifiers: identifiersCopy
                   })
-                }}/>
+                }} />
               </Grid>
               <Grid item xs={3}>
                 <TextField label='CPU' type="text" fullWidth onChange={e => {
@@ -160,26 +160,26 @@ export class ModelFilters extends Component {
                   this.setState({
                     identifiers: identifiersCopy
                   })
-                }}/>{' '}
+                }} />{' '}
 
               </Grid>
               <Grid item xs={2}>
-                <TextField label='Min Memory (GB)' type="number" defaultValue={"0"} fullWidth onChange={e => {
+                <TextField label='Min Memory (GB)' type="number" value={this.state.identifiers.memory_min} fullWidth onChange={e => {
                   let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
                   identifiersCopy.memory_min = e.target.value
                   this.setState({
                     identifiers: identifiersCopy
                   })
-                }}/>
+                }} />
               </Grid>
               <Grid item xs={2}>
-                <TextField label='Max Memory (GB)' type="number" defaultValue={"8192"} fullWidth onChange={e => {
+                <TextField label='Max Memory (GB)' type="number" value={this.state.identifiers.memory_max} fullWidth onChange={e => {
                   let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
                   identifiersCopy.memory_max = e.target.value
                   this.setState({
                     identifiers: identifiersCopy
                   })
-                }}/>
+                }} />
               </Grid>
               <Grid item xs={3}>
                 <TextField label='Storage' type="text" fullWidth onChange={e => {
@@ -188,7 +188,7 @@ export class ModelFilters extends Component {
                   this.setState({
                     identifiers: identifiersCopy
                   })
-                }}/>
+                }} />
               </Grid>
               <Grid item xs={9}>
               </Grid>

@@ -163,7 +163,7 @@ export class ModelTable extends Component {
   renderTableData() {
     if (this.props.models.length == 0) return (
       <TableRow hover tabIndex={-1} >
-        <TableCell align="center" colSpan={3} >No entries</TableCell>
+        <TableCell align="center" colSpan={12} >No entries</TableCell>
       </TableRow>
     )
     return this.props.models.map((model, index) => {
