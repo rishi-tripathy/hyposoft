@@ -107,7 +107,9 @@ export class DetailedModel extends Component {
               Detailed Model View
             </Typography>
             <Grid item xs={12}>
-              <ModelCard model={[this.state.model]} />
+              <Paper>
+                <ModelCard model={[this.state.model]} />
+              </Paper>
             </Grid>
             <Grid item alignContent='center' xs={12}/>
             <Grid item xs={6}>
