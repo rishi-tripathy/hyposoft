@@ -86,6 +86,7 @@ export class CreateModelForm extends Component {
   }
 
   render() {
+    console.log(this.state.vendorOptions)
     return (
       <div>
         <Container maxwidth="xl">

@@ -69,6 +69,7 @@ export class EditModelForm extends Component {
       this.setState({
         model: modelCopy,
       })
+      console.log(this.state.model)
     })
       .catch(function (error) {
         // TODO: handle error
@@ -104,7 +105,7 @@ export class EditModelForm extends Component {
     }, delay);
   }
 
-  handleChangeVendor = selectedVendorOption => {
+  handleChangeVendor = (event, selectedVendorOption) => {
     this.setState({ selectedVendorOption });
   };
 
@@ -132,6 +133,9 @@ export class EditModelForm extends Component {
                     noOptionsText={"Create New"}
                     options={this.state.vendorOptions}
                     onInputChange={this.handleChangeVendor}
+                    //defaultValue={this.state.model.vendor}
+                    //value={this.state.selectedVendorOption}
+                    value={this.state.model.vendor}
                     renderInput={params => (
                       <TextField {...params} label="Vendor" fullWidth />
                     )}
