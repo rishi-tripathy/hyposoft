@@ -7,7 +7,7 @@ import {NavLink} from 'react-router-dom'
 export default function NavBar() {
   return (
     <div id='hideOnPrint'>
-      <AppBar title="Django Unchained" position='sticky'>
+      <AppBar title="Django Unchained"  position='sticky'>
         <Toolbar>
           {/* <IconButton edge="start" color="inherit" aria-label="menu">
             <MenuIcon />
@@ -23,16 +23,16 @@ export default function NavBar() {
 
         <Tabs centered onChange>
           <Typography>
-            <NavLink style={{color: 'white'}} activeStyle={{color: '#dc004e'}} to='/racks'>
+            <NavLink style={{color: 'white'}} activeStyle={{color: '#FF90AB'}} to='/racks'>
               <Tab label='Racks'/>
             </NavLink>
           </Typography>
 
-          <NavLink style={{color: 'white'}} activeStyle={{color: '#dc004e'}} to='/models'>
+          <NavLink style={{color: 'white'}} activeStyle={{color: '#FF90AB'}} to='/models'>
             <Tab label='Models'/>
           </NavLink>
 
-          <NavLink style={{color: 'white'}} activeStyle={{color: '#dc004e'}} to='/assets'>
+          <NavLink style={{color: 'white'}} activeStyle={{color: '#FF90AB'}} to='/assets'>
             <Tab label='Instances'/>
           </NavLink>
 

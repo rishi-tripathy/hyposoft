@@ -44,9 +44,9 @@ export class ModelSort extends Component {
 
   createQuery = () => {
     let arr = this.state.selectedSortableOptions;
-    let q = '';
+    let q = 'ordering=';
     for (let i = 0; i < arr.length; i++) {
-      q = q + 'ordering=' + arr[i].value + '&';
+      q = q + arr[i].value + ',';
     }
     // take off the last &
     q = q.slice(0, -1);
