@@ -93,7 +93,7 @@ export class CreateModelForm extends Component {
             <form onSubmit={this.handleSubmit}>
               <Grid container spacing={1}>
                 <Grid item xs={12}>
-                  <h1>Create a Model</h1>
+                  <h2>Create a Model</h2>
                 </Grid>
                 <Grid item xs={6}>
                   <Autocomplete
