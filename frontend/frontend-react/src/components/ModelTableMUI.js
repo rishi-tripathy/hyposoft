@@ -4,8 +4,9 @@ import clsx from 'clsx';
 import {lighten, makeStyles} from '@material-ui/core/styles';
 import {
   Collapse, Table, TableBody, Button, TableCell, TableContainer, TableRow, Toolbar,
-  Typography, Paper, IconButton, Tooltip, TableSortLabel
+  Typography, Paper, IconButton, Tooltip, TableSortLabel, Snackbar
 } from "@material-ui/core";
+import MuiAlert from '@material-ui/lab/Alert'
 import PageviewIcon from '@material-ui/icons/Pageview';
 import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
@@ -28,6 +29,7 @@ export class ModelTable extends Component {
       dense: false,
       sortBy: 'vendor',
       sortType: 'asc',
+      deleteSuccessAlertOpen: false,
       // sorting: {
       //   'vendor': 'none',
       //   'model_number': 'none',
@@ -57,12 +59,28 @@ export class ModelTable extends Component {
     this.props.sendEditID(id);
   }
 
+  Alert(props) {
+  return <MuiAlert elevation={6} variant="filled" {...props} />;
+}
+
+handleDeleteSuccessOpen = () => {
+    this.setState(() => ({
+      deleteSuccessAlertOpen: true
+    }));
+}
+  handleDeleteSuccessClose = () => {
+    this.setState(() => ({
+      deleteSuccessAlertOpen: false
+    }));
+  }
+
+
   showDeleteForm = (id) => {
     if (window.confirm('Are you sure you want to delete?')) {
       let dst = '/api/models/'.concat(id).concat('/');
       axios.delete(dst)
-        .then(function (response) {
-          alert('Delete was successful');
+        .then( () => {
+          this.handleDeleteSuccessOpen() //alert('Delete was successful');
         })
         .catch(function (error) {
           alert('Delete was not successful.\n' + JSON.stringify(error.response.data, null, 2));
@@ -249,6 +267,11 @@ export class ModelTable extends Component {
             </Table>
           </TableContainer>
         </Paper>
+        <Snackbar open={this.state.deleteSuccessAlertOpen} autoHideDuration={6000} onClose={ () =>this.handleDeleteSuccessClose() }>
+            <this.Alert severity="success" onClose={ () => this.handleDeleteSuccessClose()} >
+              This is a success message!
+            </this.Alert>
+          </Snackbar>
       </div>
     );
   }
