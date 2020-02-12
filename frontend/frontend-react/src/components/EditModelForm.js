@@ -124,7 +124,7 @@ export class EditModelForm extends Component {
                 autoSelect
                 shrink
                 id="model-vendor-select"
-                value={this.state.model.vendor}
+                noOptionsText={"Create New"}
                 options={this.state.vendorOptions}
                 onInputChange={this.handleChangeVendor}
                 renderInput={params => (
