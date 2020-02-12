@@ -162,8 +162,8 @@ export class ModelTable extends Component {
 
   renderTableData() {
     if (this.props.models.length == 0) return (
-      <TableRow hover tabIndex={-1} >
-        <TableCell align="center" colSpan={12} >No entries</TableCell>
+      <TableRow hover tabIndex={-1}>
+        <TableCell align="center" colSpan={12}>No entries</TableCell>
       </TableRow>
     )
     return this.props.models.map((model, index) => {
@@ -192,38 +192,38 @@ export class ModelTable extends Component {
           <TableCell align="center">{cpu}</TableCell>
           <TableCell align="right">{memory}</TableCell>
           <TableCell align="center">{storage}</TableCell>
-          {this.props.is_admin ? (
-              <div>
-                <TableCell align="right">
-                  <Link to={'/models/' + id}>
-                    <Tooltip title='View Details'>
-                      <IconButton size="sm">
-                        <PageviewIcon/>
-                      </IconButton>
-                    </Tooltip>
-                  </Link>
-                </TableCell>
-
-                <TableCell align="right">
-                  <Link to={'/models/' + id +'/edit'}>
-                    <Tooltip title='Edit'>
-                      <IconButton size="sm">
-                        <EditIcon/>
-                      </IconButton>
-                    </Tooltip>
-                  </Link>
-                </TableCell>
-
-                <TableCell align="right">
-                  <Tooltip title='Delete'>
-                    <IconButton size="sm" onClick={() => this.showDeleteForm(id)}>
-                      <DeleteIcon/>
+          <div>
+            <TableCell align="right">
+              <Link to={'/models/' + id}>
+                <Tooltip title='View Details'>
+                  <IconButton size="sm">
+                    <PageviewIcon/>
+                  </IconButton>
+                </Tooltip>
+              </Link>
+            </TableCell>
+            {this.props.is_admin ? (
+              <TableCell align="right">
+                <Link to={'/models/' + id + '/edit'}>
+                  <Tooltip title='Edit'>
+                    <IconButton size="sm">
+                      <EditIcon/>
                     </IconButton>
                   </Tooltip>
-                </TableCell>
-              </div>
-            ) :
-            (<p></p>)}
+                </Link>
+              </TableCell>) : <p></p>
+            }
+            {this.props.is_admin ? (
+              < TableCell align="right">
+                < Tooltip title='Delete'>
+                  <IconButton size="sm" onClick={() => this.showDeleteForm(id)}>
+                    <DeleteIcon/>
+                  </IconButton>
+                </Tooltip>
+              </TableCell>
+            ) : <p></p>
+            }
+          </div>
         </TableRow>
       )
     })
