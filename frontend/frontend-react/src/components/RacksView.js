@@ -55,27 +55,30 @@ export class RacksView extends Component {
       }
   }
 
-  showRerender = () => {
-    this.props.sendRerender(true);
-  }
+    showRerender = () => {
+        this.props.sendRerender(true);
+    }
 
-  handleCondensation = () => {
-    this.setState({condensedView: true});
-  }
+    handleCondensation = () => {
+        this.setState({condensedView: true});
+    }
 
-  handleCondensationOff = () => {
-      this.setState({condensedView: false});
-  }
+    handleCondensationOff = () => {
+        this.setState({condensedView: false});
+    }
 
-  showAllRacks = () => {
-      this.props.sendShowAllRacks(true);
-  }
+    showAllRacks = () => {
+        this.props.sendShowAllRacks(true);
+    }
+
+    showLessRacks = () => {
+        this.props.sendShowAllRacks(false);
+    }
+  
 
   sendFromRow= (show, id) => {
     this.props.sendViewsToController(show, id);
 }
-
-sendDetailedInstanceUrl
 
     render(){
         let adminTools;
@@ -98,8 +101,9 @@ sendDetailedInstanceUrl
                     { adminTools }
                     <ButtonGroup>
                         <Button size="sm" onClick={ this.handleCondensation }>Condensed Rack View</Button>{' '}
-                        <Button size="sm" onClick={ this.handleCondensationOff }>Full Rack View</Button>{' '}
+                        <Button size="sm" onClick={ this.handleCondensationOff }>Heightened Rack View</Button>{' '}
                         <Button size="sm" onClick={ this.showAllRacks }>Show All Racks</Button>{' '}
+                        <Button size="sm" onClick={ this.showLessRacks }>Show Less Racks</Button>{' '}
                     </ButtonGroup>
             </ButtonToolbar>
             </div>

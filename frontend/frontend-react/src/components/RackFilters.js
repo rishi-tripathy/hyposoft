@@ -28,9 +28,7 @@ export class RackFilters extends Component {
     let q = '' + 
             'rack_num_start=' + rackStart + '&' + 
             'rack_num_end=' + rackEnd;
-      console.log(q)
     this.setState({ query: q });
-    console.log(this.state.query);
     return q;
   }
 
@@ -43,8 +41,6 @@ export class RackFilters extends Component {
     let stateCopy = Object.assign({}, this.state);
     let stateToSend = this.removeEmpty(stateCopy);
     const validNumRegex = new RegExp("^[A-Z]\\d+$", 'i');
-    console.log(start_rack);
-    console.log(end_rack);
 
     if((validNumRegex.test(start_rack) && validNumRegex.test(end_rack))){
       this.props.sendFilterQuery(this.createQuery());
@@ -70,7 +66,6 @@ export class RackFilters extends Component {
             this.setState({
               identifiers: identifiersCopy
             })
-            console.log(this.state);
           } } />
         <FormText color="muted">
           The rack number you want to start filtering from.
