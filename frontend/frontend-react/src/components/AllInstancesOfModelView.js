@@ -82,7 +82,11 @@ export class AllInstancesOfModelView extends Component {
   }
 
   renderTableData() {
-    //if (this.state.instances == null) return;
+    if (this.state.instances.length == 0) return (
+      <TableRow hover tabIndex={-1} >
+        <TableCell align="center" colSpan={3} >No entries</TableCell>
+      </TableRow>
+    )
     return this.state.instances.map((instance) => {
       const {id, model, hostname, rack, owner, rack_u} = instance //destructuring
       return (
@@ -92,8 +96,8 @@ export class AllInstancesOfModelView extends Component {
           key={id}
         >
           <TableCell align="center">{hostname}</TableCell>
-          <TableCell align="right">{rack ? rack.rack_number : null}</TableCell>
-          <TableCell align="right">{rack_u}</TableCell>
+          <TableCell align="center">{rack ? rack.rack_number : null}</TableCell>
+          <TableCell align="center">{rack_u}</TableCell>
           <TableCell align="right">
             <Link to={'/assets/' + id}>
               <Tooltip title='View Details'>

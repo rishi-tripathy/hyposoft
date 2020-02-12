@@ -29,11 +29,11 @@ export class DetailedModel extends Component {
         // 'memory': null,
         // 'storage': '',
         // 'comment': '',
-        
+
       },
       detailedInstanceID: 0,
       showIndividualInstanceView: false,
-      showTableView : true,
+      showTableView: true,
     }
   }
 
@@ -41,26 +41,26 @@ export class DetailedModel extends Component {
     show ? this.setState({
       showIndividualInstanceView: true,
       // everything else false
-      showTableView : false,
+      showTableView: false,
     })
-    : this.setState({
-      showIndividualInstanceView : false,
-    }) 
+      : this.setState({
+        showIndividualInstanceView: false,
+      })
   }
 
   getShowTableView = (show) => {
     show ? this.setState({
-      showTableView : true,
+      showTableView: true,
       // everything else false
       showIndividualInstanceView: false,
     })
-    : this.setState({
-      showTableView : false,
-    })
+      : this.setState({
+        showTableView: false,
+      })
   }
 
   getDetailedInstanceID = (id) => {
-    this.setState({ detailedInstanceID: id});
+    this.setState({ detailedInstanceID: id });
   }
 
   loadModelData = () => {
@@ -72,10 +72,10 @@ export class DetailedModel extends Component {
           model: res.data
         });
       })
-      .catch(function (error) {
-        // TODO: handle error
-        alert('Cannot load models. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
-      });
+        .catch(function (error) {
+          // TODO: handle error
+          alert('Cannot load models. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+        });
     }
   }
 
@@ -91,28 +91,30 @@ export class DetailedModel extends Component {
 
   render() {
     console.log(this.props.match)
-    let content = <AllInstancesOfModelView modelID={this.state.model.id} 
-                  sendInstanceID={ this.getDetailedInstanceID }
-                  sendShowDetailedInstance={ this.getShowDetailedInstance } />;
+    let content = <AllInstancesOfModelView modelID={this.state.model.id}
+      sendInstanceID={this.getDetailedInstanceID}
+      sendShowDetailedInstance={this.getShowDetailedInstance} />;
 
     return (
       <div>
         <Container maxwidth="xl">
           <Grid container className='themed-container' spacing={2}>
+            <Grid item alignContent='center' xs={12}/>
+            <Grid item alignContent='center' xs={12}/>
+            <h2>Model Detailed View</h2>
             <Grid item xs={12}>
-              <ModelCard model={ [this.state.model] } />
+              <ModelCard model={[this.state.model]} />
             </Grid>
-            <Grid item xs={12}>
-              {content}
+            <Grid item alignContent='center' xs={12}/>
+            <Grid item xs={6}>
+              <h4>Assets</h4>
+            </Grid>
+            <Grid item xs={6} />
+            <Grid item xs={6}>
+              <Paper>{content}</Paper>
             </Grid>
           </Grid>
         </Container>
-        {/* // TODO: this is such bad code lmao */}
-        
-        {/* <br></br>
-        <br></br>
-        <h4>Instances of this Model</h4>
-        { content } */}
       </div>
     )
   }
