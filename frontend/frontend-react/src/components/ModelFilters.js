@@ -2,8 +2,6 @@ import React, {Component} from 'react'
 import {Autocomplete} from "@material-ui/lab"
 import {Button, TextField, Grid, Input, Container, FormControl} from "@material-ui/core";
 
-//import {Button, Container, Form, FormGroup, FormText, Input, Label, Row, Col} from "reactstrap";
-
 export class ModelFilters extends Component {
 
   constructor() {

@@ -1,19 +1,19 @@
-import React, {Component} from 'react'
-import ModelTable from './ModelTable'
-import CreateModelForm from './CreateModelForm'
-import axios, {post} from 'axios'
-import EditModelForm from './EditModelForm';
-import ModelFilters from './ModelFilters';
-import ModelSort from './ModelSort';
-import ModelTableMUI from './ModelTableMUI'
-import DetailedModel from './DetailedModel';
+import React, {Component} from "react"
+import ModelTable from "./ModelTable"
+import CreateModelForm from "./CreateModelForm"
+import axios, {post} from "axios"
+import EditModelForm from "./EditModelForm";
+import ModelFilters from "./ModelFilters";
+import ModelSort from "./ModelSort";
+import ModelTableMUI from "./ModelTableMUI"
+import DetailedModel from "./DetailedModel";
 import {
-  Grid, Button, Container, Paper, ButtonGroup, Switch, FormControlLabel
-} from '@material-ui/core'
-import CloudUploadIcon from '@material-ui/icons/CloudUpload';
-import SaveAltIcon from '@material-ui/icons/SaveAlt';
-import AddCircleIcon from '@material-ui/icons/AddCircle';
-import {UncontrolledCollapse} from 'reactstrap';
+  Grid, Button, Container, Paper, ButtonGroup, Switch, FormControlLabel, Typography
+} from "@material-ui/core"
+import CloudUploadIcon from "@material-ui/icons/CloudUpload";
+import SaveAltIcon from "@material-ui/icons/SaveAlt";
+import AddCircleIcon from "@material-ui/icons/AddCircle";
+import {UncontrolledCollapse} from "reactstrap";
 import RackFilters from "./RackFilters";
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
@@ -23,19 +23,6 @@ export class ModelController extends Component {
     super();
     this.state = {
       models: [{}
-        // {
-        //   'id': 99,
-        //   'vendor': 'default',
-        //   'model_number': 'default',
-        //   'height': 2,
-        //   'display_color': 'Red',
-        //   'ethernet_ports': 1,
-        //   'power_ports': 1,
-        //   'cpu': 'Intel CPU',
-        //   'memory': 3,
-        //   'storage': 'Lots of Raid',
-        //   'comment': 'First Model'
-        // }
       ],
       showTableView: true,
       showIndividualModelView: false,
@@ -46,13 +33,13 @@ export class ModelController extends Component {
       deleteID: 0,
       prevPage: null,
       nextPage: null,
-      filterQuery: '',
-      sortQuery: '',
+      filterQuery: "",
+      sortQuery: "",
       rerender: false,
       file: null
     };
 
-    // I don't think i need this bind here; but too scared to take it out lol
+    // I don"t think i need this bind here; but too scared to take it out lol
     this.getShowTable = this.getShowTable.bind(this);
   }
 
@@ -182,24 +169,24 @@ export class ModelController extends Component {
     let sort = this.state.sortQuery;
 
     if (this.state.filterQuery.length !== 0) {
-      filter = filter + '&';
+      filter = filter + "&";
     }
 
     if (this.state.sortQuery.length !== 0) {
-      sort = sort + '&'
+      sort = sort + "&"
     }
 
-    let dst = '/api/models/' + '?' + filter + sort + 'export=true';
-    console.log('exporting to:  ' + dst);
-    const FileDownload = require('js-file-download');
+    let dst = "/api/models/" + "?" + filter + sort + "export=true";
+    console.log("exporting to:  " + dst);
+    const FileDownload = require("js-file-download");
 
     axios.get(dst).then(res => {
       // console.log(res.data.next)
-      FileDownload(res.data, 'model_export.csv');
+      FileDownload(res.data, "model_export.csv");
       alert("Export was successful.");
     })
       .catch(function (error) {
-        alert('Export was not successful.\n' + JSON.stringify(error.response.data, null, 2));
+        alert("Export was not successful.\n" + JSON.stringify(error.response.data, null, 2));
       });
   }
 
@@ -217,25 +204,24 @@ export class ModelController extends Component {
       .catch(function (error) {
         console.log(error.response)
         const fileUploadOverride = (file) => {
-          const url = '/api/models/import_file/?override=true';
+          const url = "/api/models/import_file/?override=true";
           const formData = new FormData();
-          formData.append('file', file)
-          //formData.append('name', 'sup')
+          formData.append("file", file)
           const config = {
             headers: {
-              'content-type': 'multipart/form-data'
+              "content-type": "multipart/form-data"
             }
           }
           return post(url, formData, config)
         }
 
-        if (window.confirm('Import was not successful.\n' + JSON.stringify(error.response.data, null, 2))) {
+        if (window.confirm("Import was not successful.\n" + JSON.stringify(error.response.data, null, 2))) {
           fileUploadOverride(f).then((response) => {
             alert("Import was successful.\n" + JSON.stringify(response, null, 2));
           })
             .catch(function (error) {
               console.log(error.response)
-              alert('Import was not successful.\n' + JSON.stringify(error.response.data, null, 2));
+              alert("Import was not successful.\n" + JSON.stringify(error.response.data, null, 2));
             });
         }
       });
@@ -250,21 +236,20 @@ export class ModelController extends Component {
   }
 
   fileUpload = (file) => {
-    const url = '/api/models/import_file/';
+    const url = "/api/models/import_file/";
     const formData = new FormData();
-    formData.append('file', file)
-    //formData.append('name', 'sup')
+    formData.append("file", file)
     const config = {
       headers: {
-        'content-type': 'multipart/form-data'
+        "content-type": "multipart/form-data"
       }
     }
     return post(url, formData, config)
   }
 
   getModels = () => {
-    let dst = '/api/models/' + '?' + this.state.filterQuery + '&' + this.state.sortQuery;
-    console.log('QUERY')
+    let dst = "/api/models/" + "?" + this.state.filterQuery + "&" + this.state.sortQuery;
+    console.log("QUERY")
     console.log(dst)
     axios.get(dst).then(res => {
       this.setState({
@@ -275,9 +260,8 @@ export class ModelController extends Component {
     })
       .catch(function (error) {
         // TODO: handle error
-        alert('Cannot load. Re-login.\n' + JSON.stringify(error.response, null, 2));
+        alert("Cannot load. Re-login.\n" + JSON.stringify(error.response, null, 2));
       });
-
   }
 
   getAllModels = () => {
@@ -285,16 +269,16 @@ export class ModelController extends Component {
     let sort = this.state.sortQuery;
 
     if (this.state.filterQuery.length !== 0) {
-      filter = filter + '&';
+      filter = filter + "&";
     }
 
     if (this.state.sortQuery.length !== 0) {
-      sort = sort + '&'
+      sort = sort + "&"
     }
 
-    let dst = '/api/models/' + '?' + filter + sort + 'show_all=true';
+    let dst = "/api/models/" + "?" + filter + sort + "show_all=true";
 
-    console.log('QUERY')
+    console.log("QUERY")
     console.log(dst)
     axios.get(dst).then(res => {
       this.setState({
@@ -305,7 +289,7 @@ export class ModelController extends Component {
     })
       .catch(function (error) {
         // TODO: handle error
-        alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+        alert("Cannot load. Re-login.\n" + JSON.stringify(error.response.data, null, 2));
       });
   }
 
@@ -319,7 +303,7 @@ export class ModelController extends Component {
     })
       .catch(function (error) {
         // TODO: handle error
-        alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+        alert("Cannot load. Re-login.\n" + JSON.stringify(error.response.data, null, 2));
       });
   }
 
@@ -333,7 +317,7 @@ export class ModelController extends Component {
     })
       .catch(function (error) {
         // TODO: handle error
-        alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+        alert("Cannot load. Re-login.\n" + JSON.stringify(error.response.data, null, 2));
       });
   }
 
@@ -348,7 +332,7 @@ export class ModelController extends Component {
 
   render() {
     let content;
-    console.log('rerender')
+    console.log("rerender")
 
     if (this.state.showTableView) {
       content = <div><ModelTableMUI models={this.state.models}
@@ -380,47 +364,34 @@ export class ModelController extends Component {
     if (this.state.prevPage == null && this.state.nextPage != null) {
       paginateNavigation =
 
-        <div>
-          <ButtonGroup>
-            <Button color="primary" disabled onClick={this.paginatePrev}>prev page
-            </Button>{'  '}<Button color="primary" onClick={this.paginateNext}>next page</Button>
-          </ButtonGroup>
-        </div>;
+        <ButtonGroup>
+          <Button color="primary" disabled onClick={this.paginatePrev}>prev page
+          </Button>{"  "}<Button color="primary" onClick={this.paginateNext}>next page</Button>
+        </ButtonGroup>
     } else if (this.state.prevPage != null && this.state.nextPage == null) {
       paginateNavigation =
-        <div>
-          <ButtonGroup>
-            <Button color="primary" onClick={this.paginatePrev}>prev page
-            </Button>{'  '}<Button color="primary" disabled onClick={this.paginateNext}>next page</Button>
-          </ButtonGroup>
-        </div>;
+        <ButtonGroup>
+          <Button color="primary" onClick={this.paginatePrev}>prev page
+          </Button>{"  "}<Button color="primary" disabled onClick={this.paginateNext}>next page</Button>
+        </ButtonGroup>
     } else if (this.state.prevPage != null && this.state.nextPage != null) {
       paginateNavigation =
-        <div>
-          <ButtonGroup>
-            <Button color="primary" onClick={this.paginatePrev}>prev page
-            </Button>{'  '}<Button color="primary" onClick={this.paginateNext}>next page</Button>
-          </ButtonGroup>
-        </div>;
+        <ButtonGroup>
+          <Button color="primary" onClick={this.paginatePrev}>prev page
+          </Button>{"  "}<Button color="primary" onClick={this.paginateNext}>next page</Button>
+        </ButtonGroup>
     }
 
 
-    let filters_sorts = <div><Button color="primary" id="toggler" style={{marginBottom: '1rem'}}> Toggle Filtering and
-      Sorting Dialog </Button>
-      <UncontrolledCollapse toggler="#toggler">
-        <ModelFilters sendFilterQuery={this.getFilterQuery}/>
-        <ModelSort sendSortQuery={this.getSortQuery}/>
-      </UncontrolledCollapse>{' '}
-    </div>;
-
     let exp = <Button variant="outlined" startIcon={<SaveAltIcon/>} onClick={this.exportData}>Export</Button>
-    let showAll = <FormControlLabel labelPlacement='bottom'
-      control={
-        <Switch value={this.state.showingAll} onChange={() => this.toggleShowingAll()}/>
-      }
-      label="Show All"
+    let showAll = <FormControlLabel labelPlacement="left"
+                                    control={
+                                      <Switch value={this.state.showingAll} onChange={() => this.toggleShowingAll()}/>
+                                    }
+                                    label={
+                                      <Typography variant="subtitle1"> Show All</Typography>
+                                    }
     />
-
 
     let add = this.props.is_admin ? (
       <Button color="primary" variant="contained" endIcon={<AddCircleIcon/>}
@@ -437,7 +408,6 @@ export class ModelController extends Component {
           accept="text/csv"
           id="outlined-button-file"
           multiple
-          //style={{display: 'none'}}
           type="file"
           onChange={this.handleFileUpload}
         />
@@ -446,32 +416,30 @@ export class ModelController extends Component {
 
     if (!this.state.showTableView) {
       paginateNavigation = <p></p>;
-      filters_sorts = <p></p>;
       exp = <p></p>;
       showAll = <p></p>;
       add = <p></p>
       imp = <p></p>
-      //buttonToolbar = <p></p>
     }
 
     return (
       <div>
         <Container maxwidth="xl">
-          <Grid container className='themed-container' spacing={2}>
-            <Grid item alignContent='center' xs={12}/>
-            <Grid item alignContent='center' xs={3}>
-              {add}
-            </Grid>
-            <Grid item alignContent='center' xs={2}>
-              {exp}
-            </Grid>
-            <Grid item alignContent='center' xs={2}>
-              {imp}
-            </Grid>
-            <Grid item alignContent='center' xs={2}>
+          <Grid container className="themed-container" spacing={2}>
+            <Grid item alignContent="center" xs={10}/>
+            <Grid item justify="flex-end" alignContent="center" xs={2}>
               {showAll}
             </Grid>
-             <Grid item alignContent='flex-end' xs={3}>
+            <Grid item justify="flex-start" alignContent="center" xs={3}>
+              {add}
+            </Grid>
+            <Grid item justify="center" alignContent="center" xs={3}>
+              {exp}
+            </Grid>
+            <Grid item justify="center" alignContent="center" xs={3}>
+              {imp}
+            </Grid>
+            <Grid item justify="flex-end" alignContent="flex-end" xs={3}>
               {paginateNavigation}
             </Grid>
             <Grid item xs={12}>

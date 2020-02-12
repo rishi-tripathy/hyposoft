@@ -1,7 +1,5 @@
 import React, {Component} from 'react'
 import axios from 'axios'
-import Select from 'react-select';
-import Creatable, {makeCreatableSelect} from 'react-select/creatable';
 import {Autocomplete} from "@material-ui/lab"
 import {Button, TextField, Grid, Input, FormControl} from "@material-ui/core";
 
