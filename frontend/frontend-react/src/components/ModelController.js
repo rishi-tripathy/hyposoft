@@ -17,6 +17,7 @@ import {UncontrolledCollapse} from "reactstrap";
 import RackFilters from "./RackFilters";
 import { Link } from 'react-router-dom'
 
+
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 export class ModelController extends Component {
@@ -431,6 +432,10 @@ export class ModelController extends Component {
       <div>
         <Container maxwidth="xl">
           <Grid container className="themed-container" spacing={2}>
+            <Grid item alignContent='center' xs={12}/>
+            <Typography variant="h3" gutterBottom>
+              Models
+            </Typography>
             <Grid item alignContent="center" xs={10}/>
             <Grid item justify="flex-end" alignContent="center" xs={2}>
               {showAll}

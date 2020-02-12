@@ -5,6 +5,7 @@ import Creatable, { makeCreatableSelect } from 'react-select/creatable';
 import { Autocomplete } from "@material-ui/lab"
 import { Button, Container, TextField, Grid, Input, FormControl } from "@material-ui/core";
 import { Redirect } from 'react-router-dom'
+import Typography from '@material-ui/core/Typography';
 
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
@@ -93,7 +94,9 @@ export class CreateModelForm extends Component {
             <form onSubmit={this.handleSubmit}>
               <Grid container spacing={1}>
                 <Grid item xs={12}>
-                  <h2>Create a Model</h2>
+                  <Typography variant="h3" gutterBottom>
+                    Create Model
+                  </Typography>
                 </Grid>
                 <Grid item xs={6}>
                   <Autocomplete

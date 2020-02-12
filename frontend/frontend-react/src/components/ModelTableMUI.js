@@ -161,11 +161,11 @@ export class ModelTable extends Component {
   }
 
   renderTableData() {
-    // if (! this.props.models) return (
-    //   <TableRow hover tabIndex={-1} >
-    //     <TableCell align="center">No entries</TableCell>
-    //   </TableRow>
-    // )
+    if (this.props.models.length == 0) return (
+      <TableRow hover tabIndex={-1} >
+        <TableCell align="center" colSpan={3} >No entries</TableCell>
+      </TableRow>
+    )
     return this.props.models.map((model, index) => {
       const {id, vendor, model_number, height, display_color} = model //destructuring
       const {ethernet_ports, power_ports, cpu, memory, storage, comment} = model //more destructuring

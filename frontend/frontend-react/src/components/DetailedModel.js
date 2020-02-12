@@ -3,6 +3,8 @@ import axios from 'axios'
 import ModelCard from './ModelCard'
 import DetailedInstance from './DetailedInstance'
 import AllInstancesOfModelView from './AllInstancesOfModelView';
+import Typography from '@material-ui/core/Typography';
+
 import DetailedInstanceFromModel from './DetailedInstanceFromModel';
 import {
   Grid, Button, Container, Paper, ButtonGroup, Switch, FormControlLabel
@@ -101,13 +103,17 @@ export class DetailedModel extends Component {
           <Grid container className='themed-container' spacing={2}>
             <Grid item alignContent='center' xs={12}/>
             <Grid item alignContent='center' xs={12}/>
-            <h2>Model Detailed View</h2>
+            <Typography variant="h3" gutterBottom>
+              Detailed Model View
+            </Typography>
             <Grid item xs={12}>
               <ModelCard model={[this.state.model]} />
             </Grid>
             <Grid item alignContent='center' xs={12}/>
             <Grid item xs={6}>
-              <h4>Assets</h4>
+              <Typography variant="h4" gutterBottom>
+                Assets
+              </Typography>
             </Grid>
             <Grid item xs={6} />
             <Grid item xs={6}>
