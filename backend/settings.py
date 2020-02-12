@@ -41,6 +41,9 @@ def get_env_variable(var_name):
 SECRET_KEY = get_random_secret_key()
 
 # SECURITY WARNING: don't run with debug turned on in production!
+
+# Deployment: Debug = False, SSL = True
+# Development: Debug = True, SSL = False
 DEBUG = True
 SECURE_SSL_REDIRECT = False
 
