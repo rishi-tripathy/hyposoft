@@ -107,7 +107,7 @@ export class ModelTable extends Component {
     return (
       <Toolbar>
         {
-          <Typography style={{flex: '1 1 100%'}} variant="h6" id="modelTableTitle">
+          <Typography style={{flex: '1 1 20%'}} variant="h6" id="modelTableTitle">
             Models
           </Typography>
         }
@@ -183,8 +183,8 @@ export class ModelTable extends Component {
               width: 12,
               height: 12,
               backgroundColor: '#' + display_color,
-              left: 5,
-              top: 5,
+              left: 2,
+              top: 2,
             }}></div>
             {display_color}</TableCell>
           <TableCell align="right">{ethernet_ports}</TableCell>
@@ -237,6 +237,7 @@ export class ModelTable extends Component {
           {this.renderTableToolbar()}
           <TableContainer>
             <Table
+              size="small"
               aria-labelledby="modelTableTitle"
               aria-label="enhanced table"
             >

@@ -36,10 +36,10 @@ export class EditModelForm extends Component {
 
   handleSubmit = (e) => {
     e.preventDefault();
+    console.log(this.state.model.vendor)
     let dst = '/api/models/'.concat(this.props.match.params.id).concat('/');
 
     let stateCopy = Object.assign({}, this.state.model);
-    stateCopy.vendor = this.state.selectedVendorOption ? this.state.selectedVendorOption : null;
     let stateToSend = this.removeEmpty(stateCopy);
 
     axios.put(dst, stateToSend)
@@ -204,7 +204,7 @@ export class EditModelForm extends Component {
                 </Grid>
 
                 <Grid item xs={4}>
-                  <TextField label='Memory' type="number" helperText="RAM available in GB" fullWidth
+                  <TextField label='Memory' type="number" fullWidth
                     value={this.state.model.memory}
                     InputLabelProps={{ shrink: true }}
                     onChange={e => {
@@ -216,7 +216,7 @@ export class EditModelForm extends Component {
                     }} />{' '}
                 </Grid>
                 <Grid item xs={6}>
-                  <TextField label='CPU' type="text" helperText="Describe the CPU" fullWidth
+                  <TextField label='CPU' type="text" fullWidth
                     value={this.state.model.cpu}
                     InputLabelProps={{ shrink: true }}
                     onChange={e => {
@@ -228,7 +228,7 @@ export class EditModelForm extends Component {
                     }} />{' '}
                 </Grid>
                 <Grid item xs={6}>
-                  <TextField label='Storage' type="text" helperText="Describe the storage" fullWidth
+                  <TextField label='Storage' type="text" fullWidth
                     value={this.state.model.storage}
                     InputLabelProps={{ shrink: true }}
                     onChange={e => {

@@ -10,16 +10,16 @@ export class ModelFilters extends Component {
       identifiers: {
         vendor: '',
         model_number: '',
-        height_min: '0',
+        height_min: '',
         height_max: '',
         display_color: '',
-        ethernet_ports_min: '0',
-        ethernet_ports_max: '24',
-        power_ports_min: '0',
-        power_ports_max: '24',
+        ethernet_ports_min: '',
+        ethernet_ports_max: '',
+        power_ports_min: '',
+        power_ports_max: '',
         cpu: '',
-        memory_min: '0',
-        memory_max: '8192',
+        memory_min: '',
+        memory_max: '',
         storage: '',
       },
       query: null,
@@ -37,16 +37,16 @@ export class ModelFilters extends Component {
     let q = '' +
       'vendor=' + vendor + '&' +
       'model_number=' + model_number + '&' +
-      'height_min=' + height_min + '&' +
-      'height_max=' + height_max + '&' +
+      'height_min=' + (height_min ? height_min : '0') + '&' +
+      'height_max=' + (height_max ? height_max : '42') + '&' +
       'display_color=' + display_color + '&' +
-      'ethernet_ports_min=' + ethernet_ports_min + '&' +
-      'ethernet_ports_max=' + ethernet_ports_max + '&' +
-      'power_ports_min=' + power_ports_min + '&' +
-      'power_ports_max=' + power_ports_max + '&' +
+      'ethernet_ports_min=' + (ethernet_ports_min ? ethernet_ports_min : '0') + '&' +
+      'ethernet_ports_max=' + (ethernet_ports_max ? ethernet_ports_max : '1000') + '&' +
+      'power_ports_min=' + (power_ports_min ? power_ports_min : '0') + '&' +
+      'power_ports_max=' + (power_ports_max ? power_ports_max : '1000') + '&' +
       'cpu=' + cpu + '&' +
-      'memory_min=' + memory_min + '&' +
-      'memory_max=' + memory_max + '&' +
+      'memory_min=' + (memory_min ? memory_min : '0') + '&' +
+      'memory_max=' + (memory_max ? memory_max : '8192')+ '&' +
       'storage=' + storage;
     this.setState({ query: q });
     return q;
