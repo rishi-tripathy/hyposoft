@@ -1,8 +1,9 @@
-import React, {Component} from 'react'
+import React, { Component } from 'react'
 import PropTypes from 'prop-types';
 import axios from 'axios'
-import {Button, Input, FormControl, Grid, TextField} from "@material-ui/core";
-import {Autocomplete} from "@material-ui/lab";
+import { Button, Container, TextField, Grid, Input, FormControl } from "@material-ui/core";
+import { Autocomplete } from "@material-ui/lab";
+import Typography from '@material-ui/core/Typography';
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
@@ -35,7 +36,7 @@ export class EditModelForm extends Component {
 
   handleSubmit = (e) => {
     e.preventDefault();
-    let dst = '/api/models/'.concat(this.props.editID).concat('/');
+    let dst = '/api/models/'.concat(this.props.match.params.id).concat('/');
 
     let stateCopy = Object.assign({}, this.state.model);
     stateCopy.vendor = this.state.selectedVendorOption ? this.state.selectedVendorOption : null;
@@ -44,15 +45,15 @@ export class EditModelForm extends Component {
     axios.put(dst, stateToSend)
       .then(function (response) {
         alert('Edit was successful');
+        window.location = '/models'
       })
       .catch(function (error) {
         alert('Edit was not successful.\n' + JSON.stringify(error.response.data, null, 2));
       });
-    this.props.sendShowTable(true);
   }
 
   loadModel = () => {
-    let dst = '/api/models/'.concat(this.props.editID).concat('/');
+    let dst = '/api/models/'.concat(this.props.match.params.id).concat('/');
     axios.get(dst).then(res => {
       let modelCopy = JSON.parse(JSON.stringify(this.state.model));
       modelCopy.vendor = res.data.vendor;
@@ -86,7 +87,7 @@ export class EditModelForm extends Component {
       console.log(myOptions)
       this.setState({
         vendorOptions: myOptions,
-        selectedVendorOption: {value: this.state.model.vendor, label: this.state.model.vendor}
+        selectedVendorOption: { value: this.state.model.vendor, label: this.state.model.vendor }
       });
     })
       .catch(function (error) {
@@ -104,152 +105,159 @@ export class EditModelForm extends Component {
   }
 
   handleChangeVendor = selectedVendorOption => {
-    this.setState({selectedVendorOption});
+    this.setState({ selectedVendorOption });
   };
 
   render() {
+    console.log(this.props.match.params.id);
     return (
       <div>
-        <Button variant="outlined" onClick={() => this.props.sendShowTable(true)}>Back</Button>{' '}
-        <form onSubmit={this.handleSubmit}>
-          <Grid container spacing={1}>
-            <Grid item xs={12}>
-              <h1>Edit Model Form</h1>
-            </Grid>
-            <Grid item xs={6}>
-              <Autocomplete
-                freeSolo
-                autoComplete
-                autoHighlight
-                autoSelect
-                shrink
-                id="model-vendor-select"
-                value={this.state.model.vendor}
-                options={this.state.vendorOptions}
-                onInputChange={this.handleChangeVendor}
-                renderInput={params => (
-                  <TextField {...params} label="Vendor" fullWidth/>
-                )}
-              />
-            </Grid>
-            <Grid item xs={6}>
-              <TextField label='Model Number' type="text" fullWidth
-                         value={this.state.model.model_number}
-                         InputLabelProps={{shrink: true}}
-                         onChange={e => {
-                           let modelCopy = JSON.parse(JSON.stringify(this.state.model))
-                           modelCopy.model_number = e.target.value
-                           this.setState({
-                             model: modelCopy
-                           })
-                         }}/>
-            </Grid>
-            <Grid item xs={6}>
-              <TextField label='Height' type="number"
-                         value={this.state.model.height}
-                         InputLabelProps={{shrink: true}}
-                         fullWidth onChange={e => {
-                let modelCopy = JSON.parse(JSON.stringify(this.state.model))
-                modelCopy.height = e.target.value
-                this.setState({
-                  model: modelCopy
-                })
-              }}/>{' '}
-            </Grid>
-            <Grid item xs={6}>
-              <FormControl fullWidth>
-                <Input type="color" name="Display Color" startAdornment="Display Color"
-                       value={'#' + this.state.model.display_color}
-                       onChange={e => {
-                         let modelCopy = JSON.parse(JSON.stringify(this.state.model))
-                         modelCopy.display_color = e.target.value.replace('#', '');
-                         this.setState({
-                           model: modelCopy
-                         })
-                       }}/>{' '}
-              </FormControl>
-            </Grid>
-            <Grid item xs={4}>
-              <TextField label='Ethernet Ports' type="number" fullWidth
-                         value={this.state.model.ethernet_ports}
-                         InputLabelProps={{shrink: true}}
-                         onChange={e => {
-                           let modelCopy = JSON.parse(JSON.stringify(this.state.model))
-                           modelCopy.ethernet_ports = e.target.value
-                           this.setState({
-                             model: modelCopy
-                           })
-                         }}/>{' '}
-            </Grid>
-            <Grid item xs={4}>
-              <TextField label='Power Ports' type="number" fullWidth
-                         value={this.state.model.power_ports}
-                         InputLabelProps={{shrink: true}}
-                         onChange={e => {
-                           let modelCopy = JSON.parse(JSON.stringify(this.state.model))
-                           modelCopy.power_ports = e.target.value
-                           this.setState({
-                             model: modelCopy
-                           })
-                         }}/>{' '}
-            </Grid>
+        <Container maxwidth="xl">
+          <Grid container className='themed-container' spacing={2}>
+            <Grid item alignContent='center' xs={12} />
+            <form onSubmit={this.handleSubmit}>
+              <Grid container spacing={1}>
+                <Grid item xs={12}>
+                  <Typography variant="h3" gutterBottom>
+                    Edit Model
+                  </Typography>
+                </Grid>
+                <Grid item xs={6}>
+                  <Autocomplete
+                    freeSolo
+                    autoComplete
+                    autoHighlight
+                    autoSelect
+                    shrink
+                    id="model-vendor-select"
+                    value={this.state.model.vendor}
+                    options={this.state.vendorOptions}
+                    onInputChange={this.handleChangeVendor}
+                    renderInput={params => (
+                      <TextField {...params} label="Vendor" fullWidth />
+                    )}
+                  />
+                </Grid>
+                <Grid item xs={6}>
+                  <TextField label='Model Number' type="text" fullWidth
+                    value={this.state.model.model_number}
+                    InputLabelProps={{ shrink: true }}
+                    onChange={e => {
+                      let modelCopy = JSON.parse(JSON.stringify(this.state.model))
+                      modelCopy.model_number = e.target.value
+                      this.setState({
+                        model: modelCopy
+                      })
+                    }} />
+                </Grid>
+                <Grid item xs={6}>
+                  <TextField label='Height' type="number"
+                    value={this.state.model.height}
+                    InputLabelProps={{ shrink: true }}
+                    fullWidth onChange={e => {
+                      let modelCopy = JSON.parse(JSON.stringify(this.state.model))
+                      modelCopy.height = e.target.value
+                      this.setState({
+                        model: modelCopy
+                      })
+                    }} />{' '}
+                </Grid>
+                <Grid item xs={6}>
+                  <FormControl fullWidth>
+                    <Input type="color" name="Display Color" startAdornment="Display Color"
+                      value={'#' + this.state.model.display_color}
+                      onChange={e => {
+                        let modelCopy = JSON.parse(JSON.stringify(this.state.model))
+                        modelCopy.display_color = e.target.value.replace('#', '');
+                        this.setState({
+                          model: modelCopy
+                        })
+                      }} />{' '}
+                  </FormControl>
+                </Grid>
+                <Grid item xs={4}>
+                  <TextField label='Ethernet Ports' type="number" fullWidth
+                    value={this.state.model.ethernet_ports}
+                    InputLabelProps={{ shrink: true }}
+                    onChange={e => {
+                      let modelCopy = JSON.parse(JSON.stringify(this.state.model))
+                      modelCopy.ethernet_ports = e.target.value
+                      this.setState({
+                        model: modelCopy
+                      })
+                    }} />{' '}
+                </Grid>
+                <Grid item xs={4}>
+                  <TextField label='Power Ports' type="number" fullWidth
+                    value={this.state.model.power_ports}
+                    InputLabelProps={{ shrink: true }}
+                    onChange={e => {
+                      let modelCopy = JSON.parse(JSON.stringify(this.state.model))
+                      modelCopy.power_ports = e.target.value
+                      this.setState({
+                        model: modelCopy
+                      })
+                    }} />{' '}
+                </Grid>
 
-            <Grid item xs={4}>
-              <TextField label='Memory' type="number" helperText="RAM available in GB" fullWidth
-                         value={this.state.model.memory}
-                         InputLabelProps={{shrink: true}}
-                         onChange={e => {
-                           let modelCopy = JSON.parse(JSON.stringify(this.state.model))
-                           modelCopy.memory = e.target.value
-                           this.setState({
-                             model: modelCopy
-                           })
-                         }}/>{' '}
-            </Grid>
-            <Grid item xs={6}>
-              <TextField label='CPU' type="text" helperText="Describe the CPU" fullWidth
-                         value={this.state.model.cpu}
-                         InputLabelProps={{shrink: true}}
-                         onChange={e => {
-                           let modelCopy = JSON.parse(JSON.stringify(this.state.model))
-                           modelCopy.cpu = e.target.value
-                           this.setState({
-                             model: modelCopy
-                           })
-                         }}/>{' '}
-            </Grid>
-            <Grid item xs={6}>
-              <TextField label='Storage' type="text" helperText="Describe the storage" fullWidth
-                         value={this.state.model.storage}
-                         InputLabelProps={{shrink: true}}
-                         onChange={e => {
-                           let modelCopy = JSON.parse(JSON.stringify(this.state.model))
-                           modelCopy.storage = e.target.value
-                           this.setState({
-                             model: modelCopy
-                           })
-                         }}/>{' '}
-            </Grid>
-            <Grid item xs={12}>
-              <TextField label="Comment"
-                         multiline value={this.state.model.comment}
-                         InputLabelProps={{shrink: true}}
-                         rows="4"
-                         type="text"
-                         onChange={e => {
-                           let instanceCopy = JSON.parse(JSON.stringify(this.state.instance))
-                           instanceCopy.comment = e.target.value
-                           this.setState({
-                             instance: instanceCopy
-                           })
-                         }}/>{' '}
-            </Grid>
-            <Grid item xs={12}>
-              <Button variant="contained" type="submit" color="primary"
-                      onClick={() => this.handleSubmit}>Update</Button>{' '}
-            </Grid>
+                <Grid item xs={4}>
+                  <TextField label='Memory' type="number" helperText="RAM available in GB" fullWidth
+                    value={this.state.model.memory}
+                    InputLabelProps={{ shrink: true }}
+                    onChange={e => {
+                      let modelCopy = JSON.parse(JSON.stringify(this.state.model))
+                      modelCopy.memory = e.target.value
+                      this.setState({
+                        model: modelCopy
+                      })
+                    }} />{' '}
+                </Grid>
+                <Grid item xs={6}>
+                  <TextField label='CPU' type="text" helperText="Describe the CPU" fullWidth
+                    value={this.state.model.cpu}
+                    InputLabelProps={{ shrink: true }}
+                    onChange={e => {
+                      let modelCopy = JSON.parse(JSON.stringify(this.state.model))
+                      modelCopy.cpu = e.target.value
+                      this.setState({
+                        model: modelCopy
+                      })
+                    }} />{' '}
+                </Grid>
+                <Grid item xs={6}>
+                  <TextField label='Storage' type="text" helperText="Describe the storage" fullWidth
+                    value={this.state.model.storage}
+                    InputLabelProps={{ shrink: true }}
+                    onChange={e => {
+                      let modelCopy = JSON.parse(JSON.stringify(this.state.model))
+                      modelCopy.storage = e.target.value
+                      this.setState({
+                        model: modelCopy
+                      })
+                    }} />{' '}
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField label="Comment"
+                    multiline value={this.state.model.comment}
+                    InputLabelProps={{ shrink: true }}
+                    rows="4"
+                    type="text"
+                    onChange={e => {
+                      let instanceCopy = JSON.parse(JSON.stringify(this.state.instance))
+                      instanceCopy.comment = e.target.value
+                      this.setState({
+                        instance: instanceCopy
+                      })
+                    }} />{' '}
+                </Grid>
+                <Grid item xs={12}>
+                  <Button variant="contained" type="submit" color="primary"
+                    onClick={() => this.handleSubmit}>Update</Button>{' '}
+                </Grid>
+              </Grid>
+            </form>
           </Grid>
-        </form>
+        </Container>
       </div>
     )
   }

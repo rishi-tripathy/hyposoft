@@ -13,6 +13,7 @@ import StatisticsController from './components/StatisticsController'
 import DetailedModel from './components/DetailedModel';
 import DetailedInstance from './components/DetailedInstance';
 import CreateModelForm from './components/CreateModelForm';
+import EditModelForm from './components/EditModelForm';
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 class App extends React.Component {
@@ -102,27 +103,32 @@ class App extends React.Component {
             path='/models'
             exact
             render={(props) => <ModelController {...props} is_admin={true} />} />
-          
+
           <Route
             path='/models/create'
             exact
             render={(props) => <CreateModelForm {...props} />} />
-          
+
           <Route
             path='/models/:id'
             exact
             render={(props) => <DetailedModel {...props} is_admin={true} />} />
-          
+
+          <Route
+            path='/models/:id/edit'
+            exact
+            render={(props) => <EditModelForm {...props} />} />
+
           <Route
             path='/assets'
             exact
             render={(props) => <InstanceController {...props} is_admin={true} />} />
-          
+
           <Route
             path='/assets/:id'
             exact
             render={(props) => <DetailedInstance {...props} is_admin={true} />} />
-          
+
           <Route
             path='/users'
             render={(props) => <UserController {...props} is_admin={true} />} />
@@ -130,10 +136,10 @@ class App extends React.Component {
             path='/statistics'
             render={(props) => <StatisticsController {...props} is_admin={true} />} />
 
-          <Route 
+          <Route
             path='/'
             render={() => <div>404</div>} />
-          
+
         </Switch>
 
       </Router>

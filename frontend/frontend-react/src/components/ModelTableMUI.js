@@ -205,11 +205,13 @@ export class ModelTable extends Component {
                 </TableCell>
 
                 <TableCell align="right">
-                  <Tooltip title='Edit'>
-                    <IconButton size="sm" onClick={() => this.showEditForm(id)}>
-                      <EditIcon/>
-                    </IconButton>
-                  </Tooltip>
+                  <Link to={'/models/' + id +'/edit'}>
+                    <Tooltip title='Edit'>
+                      <IconButton size="sm">
+                        <EditIcon/>
+                      </IconButton>
+                    </Tooltip>
+                  </Link>
                 </TableCell>
 
                 <TableCell align="right">
