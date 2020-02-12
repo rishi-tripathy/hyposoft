@@ -114,7 +114,6 @@ export class EditModelForm extends Component {
       <div>
         <Container maxwidth="xl">
           <Grid container className='themed-container' spacing={2}>
-            <Grid item alignContent='center' xs={12} />
             <form onSubmit={this.handleSubmit}>
               <Grid container spacing={1}>
                 <Grid item xs={12}>
@@ -130,7 +129,7 @@ export class EditModelForm extends Component {
                     autoSelect
                     shrink
                     id="model-vendor-select"
-                    value={this.state.model.vendor}
+                    noOptionsText={"Create New"}
                     options={this.state.vendorOptions}
                     onInputChange={this.handleChangeVendor}
                     renderInput={params => (
@@ -258,7 +257,7 @@ export class EditModelForm extends Component {
             </form>
           </Grid>
         </Container>
-      </div>
+      </div >
     )
   }
 }
