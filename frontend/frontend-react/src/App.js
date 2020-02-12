@@ -1,12 +1,8 @@
 import React from 'react';
 import './App.css';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom'
-import SideBar from './components/SideBar';
 import NavBar from './components/NavBar';
 import axios from 'axios'
-import { Button } from 'reactstrap'
-import ButtonToolbar from "reactstrap/es/ButtonToolbar";
-import ButtonGroup from "reactstrap/es/ButtonGroup";
 import './stylesheets/Printing.css'
 import Landing from './components/Landing'
 import RackController from './components/RackController';
@@ -16,6 +12,7 @@ import UserController from './components/UserController';
 import StatisticsController from './components/StatisticsController'
 import DetailedModel from './components/DetailedModel';
 import DetailedInstance from './components/DetailedInstance';
+import CreateModelForm from './components/CreateModelForm';
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 class App extends React.Component {
@@ -105,11 +102,17 @@ class App extends React.Component {
             path='/models'
             exact
             render={(props) => <ModelController {...props} is_admin={true} />} />
+          
+          <Route
+            path='/models/create'
+            exact
+            render={(props) => <CreateModelForm {...props} />} />
+          
           <Route
             path='/models/:id'
             exact
             render={(props) => <DetailedModel {...props} is_admin={true} />} />
-            
+          
           <Route
             path='/assets'
             exact
