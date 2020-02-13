@@ -1,11 +1,9 @@
 import React, {Component} from 'react'
 import axios from 'axios'
 import ModelCard from './ModelCard'
-import DetailedInstance from './DetailedInstance'
 import AllInstancesOfModelView from './AllInstancesOfModelView';
 import Typography from '@material-ui/core/Typography';
 
-import DetailedInstanceFromModel from './DetailedInstanceFromModel';
 import {
   Grid, Button, Container, Paper, ButtonGroup, Switch, FormControlLabel
 } from '@material-ui/core'
