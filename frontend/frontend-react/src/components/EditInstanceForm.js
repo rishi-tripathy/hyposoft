@@ -186,6 +186,7 @@ export class EditInstanceForm extends Component {
                     autoHighlight
                     autoSelect
                     shrink
+                    disabled
                     id="instance-model-edit-select"
                     options={this.state.modelOptions}
                     getOptionLabel={option => option.label}
