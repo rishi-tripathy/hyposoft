@@ -1,11 +1,10 @@
-import React, { Component } from 'react'
+import React, {Component} from 'react'
 import axios from 'axios'
 import Select from 'react-select';
-import Creatable, { makeCreatableSelect } from 'react-select/creatable';
-import { Autocomplete } from "@material-ui/lab"
-import { Button, Container, TextField, Grid, Input, FormControl } from "@material-ui/core";
-import { Redirect } from 'react-router-dom'
-import Typography from '@material-ui/core/Typography';
+import Creatable, {makeCreatableSelect} from 'react-select/creatable';
+import {Autocomplete} from "@material-ui/lab"
+import {Button, Container, TextField, Grid, Input, FormControl, Typography} from "@material-ui/core";
+import {Redirect} from 'react-router-dom'
 
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
@@ -40,7 +39,7 @@ export class CreateModelForm extends Component {
       for (let i = 0; i < res.data.vendors.length; i++) {
         myOptions.push(res.data.vendors[i]);
       }
-      this.setState({ vendorOptions: myOptions });
+      this.setState({vendorOptions: myOptions});
     })
       .catch(function (error) {
         // TODO: handle error
@@ -76,22 +75,21 @@ export class CreateModelForm extends Component {
   };
 
   handleChangeVendor = (event, selectedVendorOption) => {
-    this.setState({ selectedVendorOption });
+    this.setState({selectedVendorOption});
   };
 
   isOptionUnique(prop) {
     // not sure if this does anything: check once backend updates
-    const { option, options, valueKey, labelKey } = prop;
+    const {option, options, valueKey, labelKey} = prop;
     return !options.find(opt => option[valueKey] === opt[valueKey])
   }
 
   render() {
-    console.log(this.state.vendorOptions)
     return (
       <div>
         <Container maxwidth="xl">
           <Grid container className='themed-container' spacing={2}>
-            <Grid item alignContent='center' xs={12} />
+            <Grid item alignContent='center' xs={12}/>
             <form onSubmit={this.handleSubmit}>
               <Grid container spacing={1}>
                 <Grid item xs={12}>
@@ -110,7 +108,7 @@ export class CreateModelForm extends Component {
                     options={this.state.vendorOptions}
                     onInputChange={this.handleChangeVendor}
                     renderInput={params => (
-                      <TextField {...params} label="Vendor" fullWidth />
+                      <TextField {...params} label="Vendor" fullWidth/>
                     )}
                   />
                 </Grid>
@@ -121,7 +119,7 @@ export class CreateModelForm extends Component {
                     this.setState({
                       model: modelCopy
                     })
-                  }} />
+                  }}/>
                 </Grid>
                 <Grid item xs={6}>
                   <TextField label='Height' type="number" fullWidth onChange={e => {
@@ -130,19 +128,19 @@ export class CreateModelForm extends Component {
                     this.setState({
                       model: modelCopy
                     })
-                  }} />{' '}
+                  }}/>{' '}
                 </Grid>
                 <Grid item xs={6}>
                   <FormControl fullWidth>
                     <Input type="color" name="Display Color" startAdornment="Display Color"
-                      value={'#' + this.state.model.display_color}
-                      onChange={e => {
-                        let modelCopy = JSON.parse(JSON.stringify(this.state.model))
-                        modelCopy.display_color = e.target.value.replace('#', '');
-                        this.setState({
-                          model: modelCopy
-                        })
-                      }} />{' '}
+                           value={'#' + this.state.model.display_color}
+                           onChange={e => {
+                             let modelCopy = JSON.parse(JSON.stringify(this.state.model))
+                             modelCopy.display_color = e.target.value.replace('#', '');
+                             this.setState({
+                               model: modelCopy
+                             })
+                           }}/>{' '}
                   </FormControl>
                 </Grid>
                 <Grid item xs={4}>
@@ -152,7 +150,7 @@ export class CreateModelForm extends Component {
                     this.setState({
                       model: modelCopy
                     })
-                  }} />{' '}
+                  }}/>{' '}
                 </Grid>
                 <Grid item xs={4}>
                   <TextField label='Power Ports' type="number" fullWidth onChange={e => {
@@ -161,7 +159,7 @@ export class CreateModelForm extends Component {
                     this.setState({
                       model: modelCopy
                     })
-                  }} />{' '}
+                  }}/>{' '}
                 </Grid>
 
                 <Grid item xs={4}>
@@ -171,7 +169,7 @@ export class CreateModelForm extends Component {
                     this.setState({
                       model: modelCopy
                     })
-                  }} />{' '}
+                  }}/>{' '}
                 </Grid>
                 <Grid item xs={6}>
                   <TextField label='CPU' type="text" helperText="Describe the CPU" fullWidth onChange={e => {
@@ -180,7 +178,7 @@ export class CreateModelForm extends Component {
                     this.setState({
                       model: modelCopy
                     })
-                  }} />{' '}
+                  }}/>{' '}
                 </Grid>
                 <Grid item xs={6}>
                   <TextField label='Storage' type="text" helperText="Describe the storage" fullWidth onChange={e => {
@@ -189,25 +187,25 @@ export class CreateModelForm extends Component {
                     this.setState({
                       model: modelCopy
                     })
-                  }} />{' '}
+                  }}/>{' '}
                 </Grid>
                 <Grid item xs={12}>
                   <TextField label="Comment"
-                    multiline
-                    fullWidth
-                    rows="4"
-                    type="text"
-                    onChange={e => {
-                      let instanceCopy = JSON.parse(JSON.stringify(this.state.instance))
-                      instanceCopy.comment = e.target.value
-                      this.setState({
-                        instance: instanceCopy
-                      })
-                    }} />{' '}
+                             multiline
+                             fullWidth
+                             rows="4"
+                             type="text"
+                             onChange={e => {
+                               let instanceCopy = JSON.parse(JSON.stringify(this.state.instance))
+                               instanceCopy.comment = e.target.value
+                               this.setState({
+                                 instance: instanceCopy
+                               })
+                             }}/>{' '}
                 </Grid>
                 <Grid item xs={12}>
                   <Button variant="contained" type="submit" color="primary" onClick={() => this.handleSubmit}>Create
-                +</Button>{' '}
+                    +</Button>{' '}
                 </Grid>
               </Grid>
             </form>

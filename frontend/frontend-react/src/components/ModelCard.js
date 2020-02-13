@@ -1,30 +1,28 @@
-import React, { Component } from 'react'
+import React, {Component} from 'react'
 import {
   Collapse, Table, TableBody, Button, TableCell, TableContainer, TableRow, Toolbar,
-  Typography, Paper, IconButton, Tooltip
+  Typography, Paper, IconButton, Tooltip, TableSortLabel
 } from "@material-ui/core";
 
 export class ModelCard extends Component {
 
   renderTableHeader() {
     let headCells = [
-      { id: 'vendor', numeric: false, disablePadding: false, label: 'Vendor' },
-      { id: 'model-number', numeric: false, disablePadding: false, label: 'Model Number' },
-      { id: 'height', numeric: true, disablePadding: false, label: 'Height (U)' },
-      { id: 'display-color', numeric: true, disablePadding: false, label: 'Display Color' },
-      { id: 'ethernet-ports', numeric: true, disablePadding: false, label: 'Ethernet Ports' },
-      { id: 'power-ports', numeric: true, disablePadding: false, label: 'Power Ports' },
-      { id: 'cpu', numeric: false, disablePadding: false, label: 'CPU' },
-      { id: 'memory', numeric: true, disablePadding: false, label: 'Memory (GB)' },
-      { id: 'storage', numeric: false, disablePadding: false, label: 'Storage' },
-      { id: 'comment', numeric: false, disablePadding: false, label: 'Comment' },
+      {id: 'vendor', label: 'Vendor'},
+      {id: 'model_number', label: 'Model Number'},
+      {id: 'height', label: 'Height (U)'},
+      {id: 'display_color', label: 'Display Color'},
+      {id: 'ethernet_ports', label: 'Ethernet Ports'},
+      {id: 'power_ports', label: 'Power Ports'},
+      {id: 'cpu', label: 'CPU'},
+      {id: 'memory', label: 'Memory (GB)'},
+      {id: 'storage', label: 'Storage'},
     ];
     return headCells.map(headCell => (
       <TableCell
         key={headCell.id}
-        align={headCell.numeric ? 'right' : 'left'}
-        padding={headCell.disablePadding ? 'none' : 'default'}
-      // sortDirection={orderBy === headCell.id ? order : false}
+        align={'center'}
+        padding={'default'}
       >
         {headCell.label.toUpperCase()}
       </TableCell>
@@ -32,9 +30,9 @@ export class ModelCard extends Component {
   }
 
   renderTableData() {
-    return this.props.model.map((model, index) => {
-      const { id, vendor, model_number, height, display_color } = model //destructuring
-      const { ethernet_ports, power_ports, cpu, memory, storage, comment } = model //more destructuring
+    return this.props.model.map((model) => {
+      const {id, vendor, model_number, height, display_color} = model //destructuring
+      const {ethernet_ports, power_ports, cpu, memory, storage, comment} = model //more destructuring
       return (
         <TableRow
           hover
@@ -43,7 +41,7 @@ export class ModelCard extends Component {
         >
           <TableCell align="center">{vendor}</TableCell>
           <TableCell align="center">{model_number}</TableCell>
-          <TableCell align="right">{height}</TableCell>
+          <TableCell align="center">{height}</TableCell>
           <TableCell align="right">
             <div style={{
               width: 12,
@@ -53,10 +51,10 @@ export class ModelCard extends Component {
               top: 5,
             }}></div>
             {display_color}</TableCell>
-          <TableCell align="right">{ethernet_ports}</TableCell>
-          <TableCell align="right">{power_ports}</TableCell>
+          <TableCell align="center">{ethernet_ports}</TableCell>
+          <TableCell align="center">{power_ports}</TableCell>
           <TableCell align="center">{cpu}</TableCell>
-          <TableCell align="right">{memory}</TableCell>
+          <TableCell align="center">{memory}</TableCell>
           <TableCell align="center">{storage}</TableCell>
           <TableCell align="center">{comment}</TableCell>
         </TableRow>
@@ -68,11 +66,11 @@ export class ModelCard extends Component {
     return (
       <div>
         <div>
-          <Table hover striped>
-            <tbody>
-              <tr>{this.renderTableHeader()}</tr>
-              {this.renderTableData()}
-            </tbody>
+          <Table>
+            <TableBody>
+            <TableRow>{this.renderTableHeader()}</TableRow>
+            {this.renderTableData()}
+            </TableBody>
           </Table>
         </div>
       </div>
