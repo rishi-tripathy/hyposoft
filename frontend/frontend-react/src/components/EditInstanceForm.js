@@ -116,6 +116,7 @@ export class EditInstanceForm extends Component {
       });
   }
 
+
   componentDidMount() {
     const delay = 50;
     this.loadInstance();
