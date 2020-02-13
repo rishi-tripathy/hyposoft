@@ -347,7 +347,8 @@ export class ModelController extends Component {
                                     sendShowCreate={this.getShowCreate}
                                     sendShowEdit={this.getShowEdit}
                                     sendEditID={this.getEditID}
-                                    is_admin={this.props.is_admin}/></div>
+                                    is_admin={this.props.is_admin}/>
+      </div>
     } else if (this.state.showIndividualModelView) {
       content = <DetailedModel modelID={this.state.detailedModelID}
                                sendShowTable={this.getShowTable}/>;

@@ -1,7 +1,7 @@
 import React, {Component} from 'react'
 import axios from 'axios'
 import {Autocomplete} from "@material-ui/lab"
-import {Container, Button, FormGroup, makeStyles, TextField, Grid} from "@material-ui/core";
+import {Container, Button, Grid, Input, FormControl, TextField, Typography} from "@material-ui/core";
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
@@ -30,30 +30,6 @@ export class CreateInstanceForm extends Component {
     }
   }
 
-  removeEmpty = (obj) => {
-    Object.keys(obj).forEach((k) => (!obj[k] && obj[k] !== undefined) && delete obj[k]);
-    return obj;
-  };
-
-  handleSubmit = (e) => {
-    if (e) e.preventDefault();
-
-    let stateCopy = Object.assign({}, this.state.instance);
-    stateCopy.model = this.state.selectedModelOption ? this.state.selectedModelOption.value : null;
-    stateCopy.rack = this.state.selectedRackOption ? this.state.selectedRackOption.value : null;
-    stateCopy.owner = this.state.selectedOwnerOption ? this.state.selectedOwnerOption.value : null;
-    let stateToSend = this.removeEmpty(stateCopy);
-
-
-    axios.post('/api/instances/', stateToSend)
-      .then(function (response) {
-        alert('Created successfully');
-      })
-      .catch(function (error) {
-        alert('Creation was not successful.\n' + JSON.stringify(error.response.data, null, 2));
-      });
-    this.props.sendShowTable(true);
-  }
 
   componentDidMount() {
     // MODEL
@@ -99,6 +75,31 @@ export class CreateInstanceForm extends Component {
       });
   }
 
+  removeEmpty = (obj) => {
+    Object.keys(obj).forEach((k) => (!obj[k] && obj[k] !== undefined) && delete obj[k]);
+    return obj;
+  };
+
+  handleSubmit = (e) => {
+    if (e) e.preventDefault();
+
+    let stateCopy = Object.assign({}, this.state.instance);
+    stateCopy.model = this.state.selectedModelOption ? this.state.selectedModelOption.value : null;
+    stateCopy.rack = this.state.selectedRackOption ? this.state.selectedRackOption.value : null;
+    stateCopy.owner = this.state.selectedOwnerOption ? this.state.selectedOwnerOption.value : null;
+    let stateToSend = this.removeEmpty(stateCopy);
+
+
+    axios.post('/api/instances/', stateToSend)
+      .then(function (response) {
+        alert('Created successfully');
+        window.location = '/assets'
+      })
+      .catch(function (error) {
+        alert('Creation was not successful.\n' + JSON.stringify(error.response.data, null, 2));
+      });
+    this.props.sendShowTable(true);
+  }
   handleChangeModel = (event, selectedModelOption) => {
     this.setState({selectedModelOption});
   };
@@ -115,101 +116,107 @@ export class CreateInstanceForm extends Component {
   render() {
     return (
       <div>
-        <Button variant="outlined" onClick={() => this.props.sendShowTable(true)}>Back</Button>{' '}
-        <form onSubmit={this.handleSubmit}>
-          <Grid container spacing={1}>
-            <Grid item xs={12}>
-              <h1>Create an Instance</h1>
-            </Grid>
-            <Grid item xs={6}>
-              <Autocomplete
-                autoComplete
-                autoHighlight
-                autoSelect
-                id="instance-create-model-select"
-                options={this.state.modelOptions}
-                getOptionLabel={option => option.label}
-                onChange={this.handleChangeModel}
-                value={this.state.selectedModelOption}
-                renderInput={params => (
-                  <TextField {...params} label="Model" fullWidth/>
-                )}
-              />
-            </Grid>
-            <Grid item xs={6}>
-              <TextField label='Hostname' type="text" fullWidth onChange={e => {
-                let instanceCopy = JSON.parse(JSON.stringify(this.state.instance))
-                instanceCopy.hostname = e.target.value
-                this.setState({
-                  instance: instanceCopy
-                })
-              }}/>
-            </Grid>
-            <Grid item xs={6}>
-              <Autocomplete
-                autoComplete
-                autoHighlight
-                autoSelect
-                id="instance-rack-select"
-                options={this.state.rackOptions}
-                getOptionLabel={option => option.label}
-                onChange={this.handleChangeRack}
-                value={this.state.selectedRackOption}
-                renderInput={params => (
-                  <TextField {...params} label="Rack" fullWidth/>
-                )}
-              />
-            </Grid>
-            <Grid item xs={6}>
-              < TextField label="Rack U"
-                          fullWidth
-                          type="number"
-                          onChange={e => {
-                            let instanceCopy = JSON.parse(JSON.stringify(this.state.instance))
-                            instanceCopy.rack_u = e.target.value
-                            this.setState({
-                              instance: instanceCopy
-                            })
-                          }}/>
-            </Grid>
-            <Grid item xs={6}>
-              <Autocomplete
-                id="instance-owner-select"
-                autoComplete
-                autoHighlight
-                autoSelect
-                options={this.state.ownerOptions}
-                getOptionLabel={option => option.label}
-                onChange={this.handleChangeOwner}
-                value={this.state.selectedOwnerOption}
-                renderInput={params => (
-                  <TextField {...params} label="Owner" fullWidth/>
-                )}
-              />
-            </Grid>
-            <Grid item xs={6}>
-              <TextField label="Comment"
-                         fullWidth
-                         multiline
-                         rows="4"
-                         type="text"
-                         onChange={e => {
-                           let instanceCopy = JSON.parse(JSON.stringify(this.state.instance))
-                           instanceCopy.comment = e.target.value
-                           this.setState({
-                             instance: instanceCopy
-                           })
-                         }}/>
-            </Grid>
-            <Grid item xs={12}>
-              <Button variant="contained" type="submit" color="primary" onClick={() => this.handleSubmit}>Create
-                +</Button>{' '}
-            </Grid>
+        <Container maxwidth="xl">
+          <Grid container className='themed-container' spacing={2}>
+            <Grid item alignContent='center' xs={12}/>
+            <form onSubmit={this.handleSubmit}>
+              <Grid container spacing={1}>
+                <Grid item xs={12}>
+                  <Typography variant="h3" gutterBottom>
+                    Create Model
+                  </Typography>
+                </Grid>
+                <Grid item xs={6}>
+                  <Autocomplete
+                    autoComplete
+                    autoHighlight
+                    autoSelect
+                    id="instance-create-model-select"
+                    options={this.state.modelOptions}
+                    getOptionLabel={option => option.label}
+                    onChange={this.handleChangeModel}
+                    value={this.state.selectedModelOption}
+                    renderInput={params => (
+                      <TextField {...params} label="Model" fullWidth/>
+                    )}
+                  />
+                </Grid>
+                <Grid item xs={6}>
+                  <TextField label='Hostname' type="text" fullWidth onChange={e => {
+                    let instanceCopy = JSON.parse(JSON.stringify(this.state.instance))
+                    instanceCopy.hostname = e.target.value
+                    this.setState({
+                      instance: instanceCopy
+                    })
+                  }}/>
+                </Grid>
+                <Grid item xs={6}>
+                  <Autocomplete
+                    autoComplete
+                    autoHighlight
+                    autoSelect
+                    id="instance-create-rack-select"
+                    options={this.state.rackOptions}
+                    getOptionLabel={option => option.label}
+                    onChange={this.handleChangeRack}
+                    value={this.state.selectedRackOption}
+                    renderInput={params => (
+                      <TextField {...params} label="Rack" fullWidth/>
+                    )}
+                  />
+                </Grid>
+                <Grid item xs={6}>
+                  < TextField label="Rack U"
+                              fullWidth
+                              type="number"
+                              onChange={e => {
+                                let instanceCopy = JSON.parse(JSON.stringify(this.state.instance))
+                                instanceCopy.rack_u = e.target.value
+                                this.setState({
+                                  instance: instanceCopy
+                                })
+                              }}/>
+                </Grid>
+                <Grid item xs={6}>
+                  <Autocomplete
+                    id="instance-owner-select"
+                    autoComplete
+                    autoHighlight
+                    autoSelect
+                    options={this.state.ownerOptions}
+                    getOptionLabel={option => option.label}
+                    onChange={this.handleChangeOwner}
+                    value={this.state.selectedOwnerOption}
+                    renderInput={params => (
+                      <TextField {...params} label="Owner" fullWidth/>
+                    )}
+                  />
+                </Grid>
+                <Grid item xs={6}>
+                  <TextField label="Comment"
+                             fullWidth
+                             multiline
+                             rows="4"
+                             type="text"
+                             onChange={e => {
+                               let instanceCopy = JSON.parse(JSON.stringify(this.state.instance))
+                               instanceCopy.comment = e.target.value
+                               this.setState({
+                                 instance: instanceCopy
+                               })
+                             }}/>
+                </Grid>
+                <Grid item xs={12}>
+                  <Button variant="contained" type="submit" color="primary" onClick={() => this.handleSubmit}>Create
+                    +</Button>
+                </Grid>
+              </Grid>
+            </form>
           </Grid>
-        </form>
+        </Container>
       </div>
-    )
+  )
   }
-}
+  }
 
-export default CreateInstanceForm
+  export default CreateInstanceForm
