@@ -1,7 +1,7 @@
-import React, { Component } from 'react'
+import React, {Component} from 'react'
 import axios from 'axios'
-import {Button, Container, TextField, Grid, Input, FormControl, Typography} from "@material-ui/core";
 import {Redirect} from 'react-router-dom'
+import { Button, Grid, TextField, Container, Typography } from "@material-ui/core";
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 

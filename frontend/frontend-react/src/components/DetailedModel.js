@@ -1,11 +1,9 @@
 import React, {Component} from 'react'
 import axios from 'axios'
 import ModelCard from './ModelCard'
-import DetailedInstance from './DetailedInstance'
 import AllInstancesOfModelView from './AllInstancesOfModelView';
 import Typography from '@material-ui/core/Typography';
 
-import DetailedInstanceFromModel from './DetailedInstanceFromModel';
 import {
   Grid, Button, Container, Paper, ButtonGroup, Switch, FormControlLabel
 } from '@material-ui/core'
@@ -20,49 +18,11 @@ export class DetailedModel extends Component {
     super();
     this.state = {
       model: {
-        // 'id': 37,
-        // 'vendor': 'Dell',
-        // 'model_number': '34d',
-        // 'height': 3,
-        // 'display_color': '000000',
-        // 'ethernet_ports': null,
-        // 'power_ports': null,
-        // 'cpu': '',
-        // 'memory': null,
-        // 'storage': '',
-        // 'comment': '',
-
       },
       detailedInstanceID: 0,
       showIndividualInstanceView: false,
       showTableView: true,
     }
-  }
-
-  getShowDetailedInstance = (show) => {
-    show ? this.setState({
-        showIndividualInstanceView: true,
-        // everything else false
-        showTableView: false,
-      })
-      : this.setState({
-        showIndividualInstanceView: false,
-      })
-  }
-
-  getShowTableView = (show) => {
-    show ? this.setState({
-        showTableView: true,
-        // everything else false
-        showIndividualInstanceView: false,
-      })
-      : this.setState({
-        showTableView: false,
-      })
-  }
-
-  getDetailedInstanceID = (id) => {
-    this.setState({detailedInstanceID: id});
   }
 
   loadModelData = () => {
@@ -81,15 +41,24 @@ export class DetailedModel extends Component {
     }
   }
 
+  getShowDetailedInstance = (show) => {
+    show ? this.setState({
+        showIndividualInstanceView: true,
+        // everything else false
+        showTableView: false,
+      })
+      : this.setState({
+        showIndividualInstanceView: false,
+      })
+  }
+
+  getDetailedInstanceID = (id) => {
+    this.setState({detailedInstanceID: id});
+  }
+
   componentDidMount() {
     this.loadModelData();
   }
-
-  // componentDidUpdate(prevProps, prevState) {
-  //   if (this.props.modelID !== undefined) {
-  //     this.loadModelData();
-  //   }
-  // }
 
   render() {
     console.log(this.props.match)

@@ -1,7 +1,9 @@
 import React, {Component} from 'react'
 import axios from 'axios'
 import {Autocomplete} from "@material-ui/lab"
-import {Container, Button, Grid, Input, FormControl, TextField, Typography} from "@material-ui/core";
+import {Container, Button, Grid, TextField, Typography} from "@material-ui/core";
+import {Redirect, Link} from 'react-router-dom'
+
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
@@ -29,7 +31,6 @@ export class CreateInstanceForm extends Component {
       selectedOwnerOption: null,
     }
   }
-
 
   componentDidMount() {
     // MODEL
@@ -98,8 +99,8 @@ export class CreateInstanceForm extends Component {
       .catch(function (error) {
         alert('Creation was not successful.\n' + JSON.stringify(error.response.data, null, 2));
       });
-    this.props.sendShowTable(true);
   }
+
   handleChangeModel = (event, selectedModelOption) => {
     this.setState({selectedModelOption});
   };

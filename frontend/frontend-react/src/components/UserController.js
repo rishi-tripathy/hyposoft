@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, {Component} from 'react'
 import AddUserModal from './AddUserModal'
 import axios from 'axios'
 import UserTable from './UserTable';

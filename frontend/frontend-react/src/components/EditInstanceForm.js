@@ -29,13 +29,8 @@ export class EditInstanceForm extends Component {
     }
   }
 
-  removeEmpty = (obj) => {
-    Object.keys(obj).forEach((k) => (!obj[k] && obj[k] !== undefined) && delete obj[k]);
-    return obj;
-  };
-
   loadInstance = () => {
-    let dst = '/api/instances/'.concat(this.props.editID).concat('/');
+    let dst = '/api/instances/'.concat(this.props.match.params.id).concat('/');
     axios.get(dst).then(res => {
       let instanceCopy = JSON.parse(JSON.stringify(this.state.instance));
       instanceCopy.model = res.data.model;
@@ -145,6 +140,11 @@ export class EditInstanceForm extends Component {
     this.setState({selectedOwnerOption});
   };
 
+  removeEmpty = (obj) => {
+    Object.keys(obj).forEach((k) => (!obj[k] && obj[k] !== undefined) && delete obj[k]);
+    return obj;
+  };
+
   handleSubmit = (e) => {
     e.preventDefault();
     let dst = '/api/instances/'.concat(this.props.editID).concat('/');
@@ -173,6 +173,7 @@ export class EditInstanceForm extends Component {
       <div>
         <Container maxwidth="xl">
           <Grid container className='themed-container' spacing={2}>
+            <Grid item justify="flex-start" alignContent='center' xs={12}/>
             <form onSubmit={this.handleSubmit}>
               <Grid container spacing={1}>
                 <Grid item xs={12}>
@@ -186,6 +187,7 @@ export class EditInstanceForm extends Component {
                     autoHighlight
                     autoSelect
                     shrink
+                    disabled
                     id="instance-model-edit-select"
                     options={this.state.modelOptions}
                     getOptionLabel={option => option.label}

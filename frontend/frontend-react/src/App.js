@@ -151,9 +151,6 @@ class App extends React.Component {
             exact
             render={(props) => <CreateUserForm {...props} />} />
 
-          
-
-
           <Route
             path='/statistics'
             render={(props) => <StatisticsController {...props} is_admin={true} />} />
