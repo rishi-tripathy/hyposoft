@@ -109,7 +109,7 @@ REST_FRAMEWORK = {
         'django_filters.rest_framework.DjangoFilterBackend',
     ),
 
-    'PAGE_SIZE': 3
+    'PAGE_SIZE': 8
 }
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases

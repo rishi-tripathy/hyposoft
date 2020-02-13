@@ -199,7 +199,7 @@ class InstanceViewSet(viewsets.ModelViewSet):
         return serializer_class
 
     ordering_fields = INSTANCE_ORDERING_FILTERING_FIELDS
-    ordering = ['-id']
+    ordering = ['rack__rack_number', 'rack_u'] # default ordering
     filterset_fields = INSTANCE_ORDERING_FILTERING_FIELDS
 
     filter_backends = [OrderingFilter,
