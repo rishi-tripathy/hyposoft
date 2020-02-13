@@ -21,43 +21,7 @@ export class UserController extends Component {
       users: [],
       prevPage: null,
       nextPage: null,
-      rerender: false,
-    }
-  }
-
-  getShowTable = (show) => {
-    show ? this.setState({
-      showTableView: true,
-      // everything else false
-      showCreateView: false,
-    })
-      : this.setState({
-        showTableView: true,
-      })
-  }
-
-  getShowCreate = (show) => {
-    show ? this.setState({
-      showCreateView: true,
-      // everything else false
-      showTableView: false,
-    })
-      : this.setState({
-        showCreateView: false,
-      })
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-
-    // When showing table again, rerender
-    if (prevState.showTableView === false && this.state.showTableView === true) {
-      this.getUsers();
-    }
-
-    // After crud, rerender
-    if (prevState.rerender === false && this.state.rerender === true) {
-      this.getUsers();
-      this.setState({ rerender: false });
+      //rerender: false,
     }
   }
 
@@ -108,17 +72,13 @@ export class UserController extends Component {
   }
 
   render() {
-    let content;
-
-
-    content = <div>
+    let content = <div>
       <UserTableMUI users={this.state.users} />
-    </div>
+    </div>;
 
     let paginateNavigation = <p></p>;
     if (this.state.prevPage == null && this.state.nextPage != null) {
       paginateNavigation =
-
         <ButtonGroup>
           <Button color="primary" disabled onClick={this.paginatePrev}>prev page
       </Button>{"  "}<Button color="primary" onClick={this.paginateNext}>next page</Button>
