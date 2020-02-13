@@ -1,6 +1,7 @@
-import React, {Component} from 'react'
+import React, { Component } from 'react'
 import axios from 'axios'
-import {Button, Grid, TextField} from "@material-ui/core";
+import {Button, Container, TextField, Grid, Input, FormControl, Typography} from "@material-ui/core";
+import {Redirect} from 'react-router-dom'
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
@@ -55,49 +56,61 @@ export class CreateUserForm extends Component {
     axios.post('/api/users/', this.state)
       .then(function (response) {
         alert('Created successfully');
+        window.location = '/users'
       })
       .catch(function (error) {
         alert('Creation was not successful.\n' + JSON.stringify(error.response.data, null, 2));
       });
-
-    this.props.sendShowTable(true);
   }
 
   render() {
     return (
       <div>
+        <Container maxwidth="xl">
+          <Grid container className='themed-container' spacing={2}>
+            <Grid item alignContent='center' xs={12} />
+            <form onSubmit={this.handleSubmit}>
+              <Grid container spacing={1}>
+                <Grid item xs={12}>
+                  <Typography variant="h3" gutterBottom>
+                    Create User
+                  </Typography>
+                </Grid>
 
-        <Button variant="outlined" onClick={() => this.props.sendShowTable(true)}>Back</Button>{' '}
-        <form onSubmit={this.handleSubmit}>
-          <Grid container spacing={1}>
-            <Grid item xs={12}>
-              <h1>Create User</h1>
-            </Grid>
-            <Grid item xs={6}>
-              <TextField label='Username' type="text" fullWidthvalue={this.state.username}
-                         onChange={this.handleUsernameChange}/>
-            </Grid>
-            <Grid item xs={6}>
-              <TextField label='First Name' type="text" fullWidthvalue={this.state.first_name}
-                         onChange={this.handleFirstNameChange}/>
-            </Grid>
-            <Grid item xs={6}>
-              <TextField label='Last Name' type="text" fullWidthvalue={this.state.last_name}
-                         onChange={this.handleLastNameChange}/>
-            </Grid>
-            <Grid item xs={6}>
-              <TextField label='Email' type="text" fullWidthvalue={this.state.email} onChange={this.handleEmailChange}/>
-            </Grid>
-            <Grid item xs={6}>
-              <TextField label='Password' type="password" fullWidthvalue={this.state.password}
-                         onChange={this.handlePasswordChange}/>
-            </Grid>
-            <Grid item xs={12}>
-              <Button variant="contained" type="submit" color="primary" onClick={() => this.handleSubmit}>Create
+                <Grid item xs={4}>
+                  <TextField label='Username' type="text" fullWidth fullWidthvalue={this.state.username}
+                    onChange={this.handleUsernameChange} />
+                </Grid>
+                <Grid item xs={8}></Grid>
+
+                <Grid item xs={4}>
+                  <TextField label='First Name' type="text" fullWidth fullWidthvalue={this.state.first_name}
+                    onChange={this.handleFirstNameChange} />
+                </Grid>
+                <Grid item xs={4}>
+                  <TextField label='Last Name' type="text" fullWidth fullWidthvalue={this.state.last_name}
+                    onChange={this.handleLastNameChange} />
+                </Grid>
+                <Grid item xs={4}></Grid>
+
+                <Grid item xs={4}>
+                  <TextField label='Email' type="text" fullWidth fullWidthvalue={this.state.email} onChange={this.handleEmailChange} />
+                </Grid>
+                <Grid item xs={4}>
+                  <TextField label='Password' type="password" fullWidth fullWidthvalue={this.state.password}
+                    onChange={this.handlePasswordChange} />
+                </Grid>
+                <Grid item xs={4}></Grid>
+                
+                <Grid item xs={12}>
+                  <Button variant="contained" type="submit" color="primary" onClick={() => this.handleSubmit}>Create
                 +</Button>{' '}
-            </Grid>
+                </Grid>
+              </Grid>
+            </form>
           </Grid>
-        </form>
+        </Container>
+
       </div>
     )
   }

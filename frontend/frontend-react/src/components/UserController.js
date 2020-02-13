@@ -1,9 +1,15 @@
-import React, {Component} from 'react'
+import React, { Component } from 'react'
 import AddUserModal from './AddUserModal'
 import axios from 'axios'
 import UserTable from './UserTable';
 import CreateUserForm from './CreateUserForm';
-import {UncontrolledCollapse, Button, ButtonGroup, Container, Card} from 'reactstrap';
+import UserTableMUI from './UserTableMUI';
+import {
+  Grid, Button, Container, Paper, ButtonGroup, Switch, FormControlLabel, Typography
+} from "@material-ui/core"
+import { Link } from 'react-router-dom'
+import AddCircleIcon from "@material-ui/icons/AddCircle";
+
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
@@ -15,18 +21,16 @@ export class UserController extends Component {
       users: [],
       prevPage: null,
       nextPage: null,
-      showTableView: true,
-      showCreateView: false,
       rerender: false,
     }
   }
 
   getShowTable = (show) => {
     show ? this.setState({
-        showTableView: true,
-        // everything else false
-        showCreateView: false,
-      })
+      showTableView: true,
+      // everything else false
+      showCreateView: false,
+    })
       : this.setState({
         showTableView: true,
       })
@@ -34,10 +38,10 @@ export class UserController extends Component {
 
   getShowCreate = (show) => {
     show ? this.setState({
-        showCreateView: true,
-        // everything else false
-        showTableView: false,
-      })
+      showCreateView: true,
+      // everything else false
+      showTableView: false,
+    })
       : this.setState({
         showCreateView: false,
       })
@@ -53,7 +57,7 @@ export class UserController extends Component {
     // After crud, rerender
     if (prevState.rerender === false && this.state.rerender === true) {
       this.getUsers();
-      this.setState({rerender: false});
+      this.setState({ rerender: false });
     }
   }
 
@@ -106,47 +110,64 @@ export class UserController extends Component {
   render() {
     let content;
 
-    if (this.state.showTableView) {
-      content = <div>
-        <UserTable users={this.state.users}
-                   sendRerender={this.getRerender}
-                   sendShowCreate={this.getShowCreate}
-        />
-      </div>
-    } else if (this.state.showCreateView) {
-      content = <CreateUserForm
-        sendShowTable={this.getShowTable}
-      />
-    }
+
+    content = <div>
+      <UserTableMUI users={this.state.users} />
+    </div>
 
     let paginateNavigation = <p></p>;
     if (this.state.prevPage == null && this.state.nextPage != null) {
-      paginateNavigation = <div><ButtonGroup><Button color="link" disabled>prev page</Button>{'  '}<Button color="link"
-                                                                                                           onClick={this.paginateNext}>next
-        page</Button></ButtonGroup></div>;
+      paginateNavigation =
+
+        <ButtonGroup>
+          <Button color="primary" disabled onClick={this.paginatePrev}>prev page
+      </Button>{"  "}<Button color="primary" onClick={this.paginateNext}>next page</Button>
+        </ButtonGroup>
     } else if (this.state.prevPage != null && this.state.nextPage == null) {
       paginateNavigation =
-        <div><ButtonGroup><Button color="link" onClick={this.paginatePrev}>prev page</Button>{'  '}<Button color="link"
-                                                                                                           disabled>next
-          page</Button></ButtonGroup></div>;
+        <ButtonGroup>
+          <Button color="primary" onClick={this.paginatePrev}>prev page
+      </Button>{"  "}<Button color="primary" disabled onClick={this.paginateNext}>next page</Button>
+        </ButtonGroup>
     } else if (this.state.prevPage != null && this.state.nextPage != null) {
       paginateNavigation =
-        <div><ButtonGroup><Button color="link" onClick={this.paginatePrev}>prev page</Button>{'  '}<Button color="link"
-                                                                                                           onClick={this.paginateNext}>next
-          page</Button></ButtonGroup></div>;
+        <ButtonGroup>
+          <Button color="primary" onClick={this.paginatePrev}>prev page
+      </Button>{"  "}<Button color="primary" onClick={this.paginateNext}>next page</Button>
+        </ButtonGroup>
     }
 
-    if (!this.state.showTableView) {
-      paginateNavigation = <p></p>;
-    }
+    let add = this.props.is_admin ? (
+      <Link to={'/users/create'}>
+        <Button color="primary" variant="contained" endIcon={<AddCircleIcon />}>
+          Add User
+        </Button>
+      </Link>
+
+    ) : {};
 
     return (
-      <Container className="themed-container">
-        <h2>User Table</h2>
-        {paginateNavigation}
-        <br></br>
-        {content}
-        <br></br>
+      <Container maxwidth="xl">
+        <Grid container className="themed-container" spacing={2}>
+          <Grid item justify="flex-start" alignContent='center' xs={12} />
+          <Grid item justify="flex-start" alignContent='center' xs={10}>
+            <Typography variant="h3">
+              User Table
+              </Typography>
+          </Grid>
+          {/* <Grid item justify="flex-end" alignContent="flex-end" xs={2}>
+              {showAll}
+            </Grid> */}
+          <Grid item justify="flex-start" alignContent="center" xs={3}>
+            {add}
+          </Grid>
+          <Grid item justify="flex-end" alignContent="flex-end" xs={3}>
+            {paginateNavigation}
+          </Grid>
+          <Grid item xs={12}>
+            {content}
+          </Grid>
+        </Grid>
       </Container>
     )
   }
