@@ -41,20 +41,6 @@ export class InstanceTableMUI extends Component {
       // },
       sortingStates: ['asc', 'desc']
     }
-    this.showEditForm = this.showEditForm.bind(this);
-    this.showEditForm = this.showEditForm.bind(this);
-  }
-
-
-  showDetailedInstance = (id) => {
-    //this.props.sendShowTable(false);
-    this.props.sendShowDetailedInstance(true);
-    this.props.sendInstanceID(id);
-  }
-
-  showEditForm = (id) => {
-    this.props.sendShowEdit(true);
-    this.props.sendEditID(id);
   }
 
   showDeleteForm = (id) => {
@@ -101,7 +87,6 @@ export class InstanceTableMUI extends Component {
     // q = q.slice(0, -1);
     this.props.sendSortQuery(q);
   };
-
 
   renderTableToolbar = () => {
     return (

@@ -1,10 +1,7 @@
 import React, {Component} from "react"
-import ModelTable from "./ModelTable"
 import CreateModelForm from "./CreateModelForm"
 import axios, {post} from "axios"
 import EditModelForm from "./EditModelForm";
-import ModelFilters from "./ModelFilters";
-import ModelSort from "./ModelSort";
 import ModelTableMUI from "./ModelTableMUI"
 import DetailedModel from "./DetailedModel";
 import {
@@ -13,26 +10,19 @@ import {
 import CloudUploadIcon from "@material-ui/icons/CloudUpload";
 import SaveAltIcon from "@material-ui/icons/SaveAlt";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
-import {UncontrolledCollapse} from "reactstrap";
-import RackFilters from "./RackFilters";
 import {Link} from 'react-router-dom'
 
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 export class ModelController extends Component {
+
   constructor() {
     super();
     this.state = {
       models: [{}
       ],
-      showTableView: true,
-      showIndividualModelView: false,
-      showCreateView: false,
-      showEditView: false,
       showingAll: false,
-      editID: 0,
-      deleteID: 0,
       prevPage: null,
       nextPage: null,
       filterQuery: "",
@@ -41,81 +31,23 @@ export class ModelController extends Component {
       file: null
     };
 
-    // I don"t think i need this bind here; but too scared to take it out lol
-    this.getShowTable = this.getShowTable.bind(this);
   }
 
-  getRerender = (re) => {
-    if (re) {
-      this.setState({rerender: true})
-    }
-  }
-
-  getDetailedModelID = (id) => {
-    this.setState({detailedModelID: id});
-  }
-
-
-  getShowTable = (show) => {
-    show ? this.setState({
-        showTableView: true,
-        // everything else false
-        showIndividualModelView: false,
-        showCreateView: false,
-        showEditView: false,
-      })
-      : this.setState({
-        showTableView: true,
-      })
-  }
-
-  getShowDetailedModel = (show) => {
-    show ? this.setState({
-        showIndividualModelView: true,
-        // everything else false
-        showTableView: false,
-        showCreateView: false,
-        showEditView: false,
-      })
-      : this.setState({
-        showIndividualModelView: false,
-      })
-  }
-
-  showCreateForm = () => {
-    this.getShowCreate(true);
-  }
-
-  getShowCreate = (show) => {
-    show ? this.setState({
-        showCreateView: true,
-        // everything else false
-        showTableView: false,
-        showIndividualModelView: false,
-        showEditView: false,
-      })
-      : this.setState({
-        showCreateView: false,
-      })
-  }
-
-  getShowEdit = (show) => {
-    show ? this.setState({
-        showEditView: true,
-        // everything else false
-        showTableView: false,
-        showCreateView: false,
-        showIndividualModelView: false,
-      })
-      : this.setState({
-        showEditView: false,
-      })
-  }
-
-  getEditID = (id) => {
-    this.setState({
-      editID: id,
-    });
+  getModels = () => {
+    let dst = "/api/models/" + "?" + this.state.filterQuery + "&" + this.state.sortQuery;
+    console.log("QUERY")
+    console.log(dst)
+    axios.get(dst).then(res => {
+      this.setState({
+        models: res.data.results,
+        prevPage: res.data.previous,
+        nextPage: res.data.next,
+      });
+    })
+      .catch(function (error) {
+        // TODO: handle error
+        alert("Cannot load. Re-login.\n" + JSON.stringify(error.response, null, 2));
+      });
   }
 
   getFilterQuery = (q) => {
@@ -166,6 +98,12 @@ export class ModelController extends Component {
     }
   }
 
+  getRerender = (re) => {
+    if (re) {
+      this.setState({rerender: true})
+    }
+  }
+
   exportData = () => {
     let filter = this.state.filterQuery;
     let sort = this.state.sortQuery;
@@ -191,7 +129,6 @@ export class ModelController extends Component {
         alert("Export was not successful.\n" + JSON.stringify(error.response.data, null, 2));
       });
   }
-
 
   handleImport = (e) => {
     e.preventDefault();
@@ -249,52 +186,6 @@ export class ModelController extends Component {
     return post(url, formData, config)
   }
 
-  getModels = () => {
-    let dst = "/api/models/" + "?" + this.state.filterQuery + "&" + this.state.sortQuery;
-    console.log("QUERY")
-    console.log(dst)
-    axios.get(dst).then(res => {
-      this.setState({
-        models: res.data.results,
-        prevPage: res.data.previous,
-        nextPage: res.data.next,
-      });
-    })
-      .catch(function (error) {
-        // TODO: handle error
-        alert("Cannot load. Re-login.\n" + JSON.stringify(error.response, null, 2));
-      });
-  }
-
-  getAllModels = () => {
-    let filter = this.state.filterQuery;
-    let sort = this.state.sortQuery;
-
-    if (this.state.filterQuery.length !== 0) {
-      filter = filter + "&";
-    }
-
-    if (this.state.sortQuery.length !== 0) {
-      sort = sort + "&"
-    }
-
-    let dst = "/api/models/" + "?" + filter + sort + "show_all=true";
-
-    console.log("QUERY")
-    console.log(dst)
-    axios.get(dst).then(res => {
-      this.setState({
-        models: res.data,
-        prevPage: null,
-        nextPage: null,
-      });
-    })
-      .catch(function (error) {
-        // TODO: handle error
-        alert("Cannot load. Re-login.\n" + JSON.stringify(error.response.data, null, 2));
-      });
-  }
-
   paginateNext = () => {
     axios.get(this.state.nextPage).then(res => {
       this.setState({
@@ -332,40 +223,47 @@ export class ModelController extends Component {
     }));
   }
 
-  render() {
-    let content;
+  getAllModels = () => {
+    let filter = this.state.filterQuery;
+    let sort = this.state.sortQuery;
 
-    if (this.state.showTableView) {
-      content = <div><ModelTableMUI models={this.state.models}
-                                    filter_query={this.getFilterQuery}
-                                    sendSortQuery={this.getSortQuery}
-                                    sendRerender={this.getRerender}
-                                    sendShowTable={this.getShowTable}
-                                    sendShowDetailedModel={this.getShowDetailedModel}
-                                    sendModelID={this.getDetailedModelID}
-                                    sendShowCreate={this.getShowCreate}
-                                    sendShowEdit={this.getShowEdit}
-                                    sendEditID={this.getEditID}
-                                    is_admin={this.props.is_admin}/>
-      </div>
-    } else if (this.state.showIndividualModelView) {
-      content = <DetailedModel modelID={this.state.detailedModelID}
-                               sendShowTable={this.getShowTable}/>;
-    } else if (this.state.showCreateView) {
-      content = <CreateModelForm
-
-        sendShowTable={this.getShowTable}/>
-    } else if (this.state.showEditView) {
-      content = <EditModelForm editID={this.state.editID}
-                               sendShowTable={this.getShowTable}
-                               sendShowCreate={this.getShowCreate}
-                               sendShowEdit={this.getShowEdit}/>
+    if (this.state.filterQuery.length !== 0) {
+      filter = filter + "&";
     }
+
+    if (this.state.sortQuery.length !== 0) {
+      sort = sort + "&"
+    }
+
+    let dst = "/api/models/" + "?" + filter + sort + "show_all=true";
+
+    console.log("QUERY")
+    console.log(dst)
+    axios.get(dst).then(res => {
+      this.setState({
+        models: res.data,
+        prevPage: null,
+        nextPage: null,
+      });
+    })
+      .catch(function (error) {
+        // TODO: handle error
+        alert("Cannot load. Re-login.\n" + JSON.stringify(error.response.data, null, 2));
+      });
+  }
+
+  render() {
+    let content = <div><ModelTableMUI models={this.state.models}
+                                      filter_query={this.getFilterQuery}
+                                      sendSortQuery={this.getSortQuery}
+                                      sendRerender={this.getRerender}
+                                      is_admin={this.props.is_admin}/>
+    </div>
+
 
     let paginateNavigation = <p></p>;
     if (this.state.prevPage == null && this.state.nextPage != null) {
       paginateNavigation =
-
         <ButtonGroup>
           <Button color="primary" disabled onClick={this.paginatePrev}>prev page
           </Button>{"  "}<Button color="primary" onClick={this.paginateNext}>next page</Button>
@@ -420,13 +318,6 @@ export class ModelController extends Component {
       </>
     ) : {};
 
-    if (!this.state.showTableView) {
-      paginateNavigation = <p></p>;
-      exp = <p></p>;
-      showAll = <p></p>;
-      add = <p></p>
-      imp = <p></p>
-    }
 
     return (
       <div>

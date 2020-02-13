@@ -4,22 +4,17 @@ import axios, {post} from 'axios'
 import DetailedInstance from './DetailedInstance';
 import CreateInstanceForm from './CreateInstanceForm';
 import EditInstanceForm from './EditInstanceForm';
-import InstanceFilters from './InstanceFilters';
-import InstanceSort from './InstanceSort';
-//import {UncontrolledCollapse, Button, ButtonGroup, Container, Card, ButtonToolbar, Row, Col} from 'reactstrap';
 import {
   Grid, Button, Container, Paper, ButtonGroup, Switch, FormControlLabel, Typography
 } from "@material-ui/core"
 import CloudUploadIcon from "@material-ui/icons/CloudUpload";
 import SaveAltIcon from "@material-ui/icons/SaveAlt";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
-import ModelTableMUI from "./ModelTableMUI";
 import {Link} from "react-router-dom";
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 export class InstanceController extends Component {
-
 
   constructor() {
     super();
@@ -45,79 +40,7 @@ export class InstanceController extends Component {
       showingAll: false
     };
 
-    this.getShowTable = this.getShowTable.bind(this);
-    this.getDetailedInstanceID = this.getDetailedInstanceID.bind(this);
-    this.getFilterQuery = this.getFilterQuery.bind(this);
-    //this.getRerender = this.getRerender.bind(this);
-  }
 
-  getRerender = (re) => {
-    if (re) {
-      this.setState({rerender: true})
-    }
-  }
-
-  getShowTable = (show) => {
-    show ? this.setState({
-        showTableView: true,
-        // everything else false
-        showIndividualInstanceView: false,
-        showCreateView: false,
-        showEditView: false,
-      })
-      : this.setState({
-        showTableView: false,
-      })
-  }
-
-  getShowDetailedInstance = (show) => {
-    show ? this.setState({
-        showIndividualInstanceView: true,
-        // everything else false
-        showTableView: false,
-        showCreateView: false,
-        showEditView: false,
-      })
-      : this.setState({
-        showIndividualInstanceView: false,
-      })
-  }
-
-  getShowCreate = (show) => {
-    show ? this.setState({
-        showCreateView: true,
-        // everything else false
-        showTableView: false,
-        showIndividualInstanceView: false,
-        showEditView: false,
-
-      })
-      : this.setState({
-        showCreateView: false,
-      })
-  }
-
-  getShowEdit = (show) => {
-    show ? this.setState({
-        showEditView: true,
-        // everything else false
-        showTableView: false,
-        showIndividualInstanceView: false,
-        showCreateView: false,
-      })
-      : this.setState({
-        showEditView: false,
-      })
-  }
-
-  getEditID = (id) => {
-    this.setState({
-      editID: id,
-    });
-  }
-
-  getDetailedInstanceID = (id) => {
-    this.setState({detailedInstanceID: id});
   }
 
   getInstances = () => {
@@ -135,37 +58,6 @@ export class InstanceController extends Component {
       .catch(function (error) {
         // TODO: handle error
         console.log(error.response)
-        alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
-      });
-  }
-
-  getAllInstances = () => {
-    let filter = this.state.filterQuery;
-    let sort = this.state.sortQuery;
-
-    if (this.state.filterQuery.length !== 0) {
-      filter = filter + '&';
-    }
-
-    if (this.state.sortQuery.length !== 0) {
-      sort = sort + '&'
-    }
-
-    let dst = '/api/instances/' + '?' + filter + sort + 'show_all=true';
-
-    console.log('QUERY')
-    console.log(dst)
-    axios.get(dst).then(res => {
-      // console.log(res.data.next)
-      this.setState({
-        instances: res.data,
-        prevPage: null,
-        nextPage: null,
-      });
-    })
-      .catch(function (error) {
-        // TODO: handle error
-        console.log(error.response.data)
         alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
       });
   }
@@ -217,43 +109,12 @@ export class InstanceController extends Component {
     }
   }
 
-  paginateNext = () => {
-    axios.get(this.state.nextPage).then(res => {
-      this.setState({
-        instances: res.data.results,
-        prevPage: res.data.previous,
-        nextPage: res.data.next,
-      });
-    })
-      .catch(function (error) {
-        // TODO: handle error
-        console.log(error.response)
-        alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
-      });
+  getRerender = (re) => {
+    if (re) {
+      this.setState({rerender: true})
+    }
   }
 
-  paginatePrev = () => {
-    axios.get(this.state.prevPage).then(res => {
-      this.setState({
-        instances: res.data.results,
-        prevPage: res.data.previous,
-        nextPage: res.data.next,
-      });
-    })
-      .catch(function (error) {
-        // TODO: handle error
-        console.log(error.response)
-        alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
-      });
-  }
-  toggleShowingAll = () => {
-    this.state.showingAll ? (
-      this.getInstances()
-    ) : (this.getAllInstances())
-    this.setState(prevState => ({
-      showingAll: !prevState.showingAll
-    }));
-  }
   exportData = () => {
     let filter = this.state.filterQuery;
     let sort = this.state.sortQuery;
@@ -338,37 +199,84 @@ export class InstanceController extends Component {
     return post(url, formData, config)
   }
 
+  paginateNext = () => {
+    axios.get(this.state.nextPage).then(res => {
+      this.setState({
+        instances: res.data.results,
+        prevPage: res.data.previous,
+        nextPage: res.data.next,
+      });
+    })
+      .catch(function (error) {
+        // TODO: handle error
+        console.log(error.response)
+        alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+      });
+  }
+
+  paginatePrev = () => {
+    axios.get(this.state.prevPage).then(res => {
+      this.setState({
+        instances: res.data.results,
+        prevPage: res.data.previous,
+        nextPage: res.data.next,
+      });
+    })
+      .catch(function (error) {
+        // TODO: handle error
+        console.log(error.response)
+        alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+      });
+  }
+
+  toggleShowingAll = () => {
+    this.state.showingAll ? (
+      this.getInstances()
+    ) : (this.getAllInstances())
+    this.setState(prevState => ({
+      showingAll: !prevState.showingAll
+    }));
+  }
+
+  getAllInstances = () => {
+    let filter = this.state.filterQuery;
+    let sort = this.state.sortQuery;
+
+    if (this.state.filterQuery.length !== 0) {
+      filter = filter + '&';
+    }
+
+    if (this.state.sortQuery.length !== 0) {
+      sort = sort + '&'
+    }
+
+    let dst = '/api/instances/' + '?' + filter + sort + 'show_all=true';
+
+    console.log('QUERY')
+    console.log(dst)
+    axios.get(dst).then(res => {
+      // console.log(res.data.next)
+      this.setState({
+        instances: res.data,
+        prevPage: null,
+        nextPage: null,
+      });
+    })
+      .catch(function (error) {
+        // TODO: handle error
+        console.log(error.response.data)
+        alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+      });
+  }
+
 
   render() {
-    let content;
-
-    if (this.state.showTableView) {
-      content = <InstanceTableMUI
-        instances={this.state.instances}
-        filter_query={this.getFilterQuery}
-        sendSortQuery={this.getSortQuery}
-        sendRerender={this.getRerender}
-        sendShowTable={this.getShowTable}
-        sendShowDetailedInstance={this.getShowDetailedInstance}
-        sendInstanceID={this.getDetailedInstanceID}
-        sendShowCreate={this.getShowCreate}
-        sendShowEdit={this.getShowEdit}
-        sendEditID={this.getEditID}
-        is_admin={this.props.is_admin}/>;
-    } else if (this.state.showIndividualInstanceView) {
-      content = <DetailedInstance instanceID={this.state.detailedInstanceID}
-                                  sendShowTable={this.getShowTable}
-                                  is_admin={this.props.is_admin}/>;
-    } else if (this.state.showCreateView) {
-      content = <CreateInstanceForm sendRerender={this.getRerender}
-                                    sendShowTable={this.getShowTable}/>
-    } else if (this.state.showEditView) {
-      content = <EditInstanceForm editID={this.state.editID}
-                                  sendRerender={this.getRerender}
-                                  sendShowTable={this.getShowTable}
-                                  sendShowCreate={this.getShowCreate}
-                                  sendShowEdit={this.getShowEdit}/>
-    }
+    let content = <InstanceTableMUI
+      instances={this.state.instances}
+      filter_query={this.getFilterQuery}
+      sendSortQuery={this.getSortQuery}
+      sendRerender={this.getRerender}
+      is_admin={this.props.is_admin}/>;
 
     let paginateNavigation = <p></p>;
     if (this.state.prevPage == null && this.state.nextPage != null) {
@@ -409,7 +317,7 @@ export class InstanceController extends Component {
     let add = this.props.is_admin ? (
       <Link to={'/assets/create'}>
         <Button color="primary" variant="contained" endIcon={<AddCircleIcon/>}>
-          Add Instance +
+          Add Instance
         </Button>
       </Link>
 

@@ -1,14 +1,11 @@
 import React, {Component} from 'react'
 import axios from 'axios'
 import InstanceCard from './InstanceCard';
-import DetailedModelFromInstance from './DetailedModelFromInstance'
 import {
-  Collapse, Table, TableBody, Button, TableCell, TableContainer, TableRow, Toolbar,
   Typography, Paper, IconButton, Tooltip, Container, Grid
 } from "@material-ui/core";
 import PageviewIcon from '@material-ui/icons/Pageview';
 import {Link} from 'react-router-dom'
-import ModelCard from "./ModelCard";
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 

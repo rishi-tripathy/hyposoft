@@ -1,10 +1,8 @@
 import React, {Component} from 'react'
 import axios from 'axios'
-import Select from 'react-select';
-import Creatable, {makeCreatableSelect} from 'react-select/creatable';
 import {Autocomplete} from "@material-ui/lab"
 import {Button, Container, TextField, Grid, Input, FormControl, Typography} from "@material-ui/core";
-import {Redirect} from 'react-router-dom'
+import {Redirect, Link} from 'react-router-dom'
 
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
@@ -78,11 +76,6 @@ export class CreateModelForm extends Component {
     this.setState({selectedVendorOption});
   };
 
-  isOptionUnique(prop) {
-    // not sure if this does anything: check once backend updates
-    const {option, options, valueKey, labelKey} = prop;
-    return !options.find(opt => option[valueKey] === opt[valueKey])
-  }
 
   render() {
     return (
