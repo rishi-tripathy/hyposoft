@@ -107,7 +107,7 @@ export class InstanceFilters extends Component {
 
   handleChangeRack = (event, selectedRackOption) => {
     let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
-    identifiersCopy.modelID = (selectedRackOption ? selectedRackOption.value : '')
+    identifiersCopy.rackID = (selectedRackOption ? selectedRackOption.value : '')
     this.setState({
       selectedRackOption,
       identifiers: identifiersCopy,
@@ -137,6 +137,28 @@ export class InstanceFilters extends Component {
       'rack_num_end=' + rackEnd;
     this.setState({query: q});
     return q;
+  }
+
+  handleClear = (e) => {
+    let identifiersEmpty = {
+      identifiers: {
+        modelID: '',
+        modelNumber: '',
+        modelVendor: '',
+        hostname: '',
+        rackID: '',
+        rack_u: '',
+        ownerID: '',
+        rackStart: '',
+        rackEnd: '',
+      },
+    }
+    this.setState({
+      selectedModelOption: null,
+      selectedRackOption: null,
+      selectedOwnerOption: null,
+      identifiers: identifiersEmpty,
+    })
   }
 
   handleSubmit = (e) => {
@@ -173,21 +195,20 @@ export class InstanceFilters extends Component {
                 />
               </Grid>
               <Grid item xs={3}>
-                <TextField label='Model Number' type="text" fullWidth
+                <TextField label='Model Vendor' type="text" fullWidth
                            onChange={e => {
                              let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
-                             identifiersCopy.modelNumber = e.target.value
+                             identifiersCopy.modelVendor = e.target.value
                              this.setState({
                                identifiers: identifiersCopy
                              })
                            }}/>
               </Grid>
-
               <Grid item xs={3}>
-                <TextField label='Model Vendor' type="text" fullWidth
+                <TextField label='Model Number' type="text" fullWidth
                            onChange={e => {
                              let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
-                             identifiersCopy.modelVendor = e.target.value
+                             identifiersCopy.modelNumber = e.target.value
                              this.setState({
                                identifiers: identifiersCopy
                              })
@@ -203,23 +224,43 @@ export class InstanceFilters extends Component {
                              })
                            }}/>
               </Grid>
+              {/*<Grid item xs={3}>*/}
+              {/*  <Autocomplete*/}
+              {/*    autoComplete*/}
+              {/*    autoHighlight*/}
+              {/*    id="instance-create-rack-select"*/}
+              {/*    options={this.state.rackOptions}*/}
+              {/*    getOptionLabel={option => option.label}*/}
+              {/*    onChange={ this.handleChangeRack }*/}
+              {/*    value={this.state.selectedRackOption}*/}
+              {/*    renderInput={params => (*/}
+              {/*      <TextField {...params} label="Rack" fullWidth/>*/}
+              {/*    )}*/}
+              {/*  />*/}
+              {/*</Grid>*/}
               <Grid item xs={3}>
-                <Autocomplete
-                  autoComplete
-                  autoHighlight
-                  id="instance-create-rack-select"
-                  options={this.state.rackOptions}
-                  getOptionLabel={option => option.label}
-                  onChange={this.handleChangeRack}
-                  value={this.state.selectedRackOption}
-                  renderInput={params => (
-                    <TextField {...params} label="Rack" fullWidth/>
-                  )}
-                />
+                <TextField label='Rack Range Start' type="text" fullWidth
+                           onChange={e => {
+                             let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
+                             identifiersCopy.rackStart = e.target.value
+                             this.setState({
+                               identifiers: identifiersCopy
+                             })
+                           }}/>
               </Grid>
 
-              <Grid item xs={2}>
-                <TextField label='Starting Rack U' type="number" fullWidth
+              <Grid item xs={3}>
+                <TextField label='Rack Range End' type="text" fullWidth
+                           onChange={e => {
+                             let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
+                             identifiersCopy.rackEnd = e.target.value
+                             this.setState({
+                               identifiers: identifiersCopy
+                             })
+                           }}/>
+              </Grid>
+              <Grid item xs={3}>
+                <TextField label='Rack U' type="number" fullWidth
                            onChange={e => {
                              let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
                              identifiersCopy.rack_u = e.target.value
@@ -242,32 +283,14 @@ export class InstanceFilters extends Component {
                   )}
                 />
               </Grid>
-              <Grid item xs={3}>
-                <TextField label='Rack Range Start' type="text" fullWidth
-                           onChange={e => {
-                             let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
-                             identifiersCopy.rackStart = e.target.value
-                             this.setState({
-                               identifiers: identifiersCopy
-                             })
-                           }}/>
-              </Grid>
 
-              <Grid item xs={3}>
-                <TextField label='Rack Range End' type="text" fullWidth
-                           onChange={e => {
-                             let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
-                             identifiersCopy.rackEnd = e.target.value
-                             this.setState({
-                               identifiers: identifiersCopy
-                             })
-                           }}/>
-              </Grid>
-
-              <Grid item xs={3}>
+              <Grid item xs={2}>
                 <Button variant="contained" type="submit" color="primary" onClick={() => this.handleSubmit}>Apply
                   Filters</Button>
               </Grid>
+              {/*<Grid item xs={2}>*/}
+              {/*  <Button variant="outlined" type="submit" color="primary" onClick={ () => this.handleClear }>Clear Filters</Button>*/}
+              {/*</Grid>*/}
             </Grid>
           </form>
         </Container>

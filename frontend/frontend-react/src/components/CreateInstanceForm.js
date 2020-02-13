@@ -1,8 +1,10 @@
 import React, {Component} from 'react'
 import axios from 'axios'
 import {Autocomplete} from "@material-ui/lab"
-import {Container, Button, Grid, TextField, Typography} from "@material-ui/core";
+import {Container, Button, Grid, TextField, Typography, Tooltip} from "@material-ui/core";
+import AddCircleIcon from '@material-ui/icons/AddCircle';
 import {Redirect, Link} from 'react-router-dom'
+import CancelIcon from '@material-ui/icons/Cancel';
 
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
@@ -207,17 +209,27 @@ export class CreateInstanceForm extends Component {
                                })
                              }}/>
                 </Grid>
-                <Grid item xs={12}>
-                  <Button variant="contained" type="submit" color="primary" onClick={() => this.handleSubmit}>Create
-                    +</Button>
+                <Grid item xs={2}>
+                  <Tooltip title='Submit'>
+                    <Button variant="contained" type="submit" color="primary" endIcon={<AddCircleIcon/>}
+                            onClick={() => this.handleSubmit}>Create
+                    </Button>
+                  </Tooltip>
+                </Grid>
+                <Grid item xs={2}>
+                  <Link to={'/assets'}>
+                    <Tooltip title='Cancel'>
+                      <Button variant="outlined" type="submit" color="primary" endIcon={<CancelIcon/>}>Cancel</Button>
+                    </Tooltip>
+                  </Link>
                 </Grid>
               </Grid>
             </form>
           </Grid>
         </Container>
       </div>
-  )
+    )
   }
-  }
+}
 
-  export default CreateInstanceForm
+export default CreateInstanceForm
