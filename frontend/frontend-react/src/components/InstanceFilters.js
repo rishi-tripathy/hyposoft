@@ -1,10 +1,7 @@
 import React, {Component} from 'react'
 import axios from 'axios'
-import Select from 'react-select';
 import {Button, TextField, Grid, Input, Container, FormControl} from "@material-ui/core";
 import {Autocomplete} from "@material-ui/lab";
-
-//import {Button, Form, FormGroup, FormText, Input, Label, Row, Col} from "reactstrap";
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 

@@ -28,28 +28,6 @@ export class EditModelForm extends Component {
     }
   }
 
-  removeEmpty = (obj) => {
-    Object.keys(obj).forEach((k) => (!obj[k] && obj[k] !== undefined) && delete obj[k]);
-    return obj;
-  };
-
-  handleSubmit = (e) => {
-    e.preventDefault();
-    let dst = '/api/models/'.concat(this.props.match.params.id).concat('/');
-
-    let stateCopy = Object.assign({}, this.state.model);
-    let stateToSend = this.removeEmpty(stateCopy);
-
-    axios.put(dst, stateToSend)
-      .then(function (response) {
-        alert('Edit was successful');
-        window.location = '/models'
-      })
-      .catch(function (error) {
-        alert('Edit was not successful.\n' + JSON.stringify(error.response.data, null, 2));
-      });
-  }
-
   loadModel = () => {
     let dst = '/api/models/'.concat(this.props.match.params.id).concat('/');
     axios.get(dst).then(res => {
@@ -106,11 +84,34 @@ export class EditModelForm extends Component {
     this.setState({selectedVendorOption});
   };
 
+  removeEmpty = (obj) => {
+    Object.keys(obj).forEach((k) => (!obj[k] && obj[k] !== undefined) && delete obj[k]);
+    return obj;
+  };
+
+  handleSubmit = (e) => {
+    e.preventDefault();
+    let dst = '/api/models/'.concat(this.props.match.params.id).concat('/');
+
+    let stateCopy = Object.assign({}, this.state.model);
+    let stateToSend = this.removeEmpty(stateCopy);
+
+    axios.put(dst, stateToSend)
+      .then(function (response) {
+        alert('Edit was successful');
+        window.location = '/models'
+      })
+      .catch(function (error) {
+        alert('Edit was not successful.\n' + JSON.stringify(error.response.data, null, 2));
+      });
+  }
+
   render() {
     return (
       <div>
         <Container maxwidth="xl">
           <Grid container className='themed-container' spacing={2}>
+            <Grid item justify="flex-start" alignContent='center' xs={12}/>
             <form onSubmit={this.handleSubmit}>
               <Grid container spacing={1}>
                 <Grid item xs={12}>

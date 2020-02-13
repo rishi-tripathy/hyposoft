@@ -1,6 +1,4 @@
 import React, {Component} from 'react'
-import DetailedModelModal from './DetailedModelModal';
-import DetailedModelFromInstance from './DetailedModelFromInstance';
 import {IconButton, Table, TableCell, TableRow, TableBody, TableSortLabel, Tooltip} from "@material-ui/core";
 import {Link} from "react-router-dom";
 import PageviewIcon from '@material-ui/icons/Pageview';

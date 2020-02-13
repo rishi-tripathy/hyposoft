@@ -41,21 +41,9 @@ export class ModelTable extends Component {
       // },
       sortingStates: ['asc', 'desc']
     }
-    this.showEditForm = this.showEditForm.bind(this);
-    this.showEditForm = this.showEditForm.bind(this);
   }
 
 
-  showDetailedModel = (id) => {
-    //this.props.sendShowTable(false);
-    this.props.sendShowDetailedModel(true);
-    this.props.sendModelID(id);
-  }
-
-  showEditForm = (id) => {
-    this.props.sendShowEdit(true);
-    this.props.sendEditID(id);
-  }
 
   showDeleteForm = (id) => {
     if (window.confirm('Are you sure you want to delete?')) {
@@ -75,10 +63,6 @@ export class ModelTable extends Component {
     this.setState(prevState => ({
       filtersOpen: !prevState.filtersOpen
     }));
-  }
-
-  showRerender = () => {
-    this.props.sendRerender(true);
   }
 
   handleHeaderClickSort = (id) => {
@@ -102,6 +86,9 @@ export class ModelTable extends Component {
     this.props.sendSortQuery(q);
   };
 
+  showRerender = () => {
+    this.props.sendRerender(true);
+  }
 
   renderTableToolbar = () => {
     return (
