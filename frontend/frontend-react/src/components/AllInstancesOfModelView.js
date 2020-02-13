@@ -54,15 +54,15 @@ export class AllInstancesOfModelView extends Component {
 
   renderTableHeader() {
     let headCells = [
-      { id: 'hostname', numeric: false, disablePadding: false, label: 'Hostname' },
       { id: 'rack', numeric: false, disablePadding: false, label: 'Rack' },
       { id: 'rack_u', numeric: true, disablePadding: false, label: 'Rack (U)' },
+      { id: 'hostname', numeric: false, disablePadding: false, label: 'Hostname' },
     ];
     return headCells.map(headCell => (
       <TableCell
         key={headCell.id}
-        align={headCell.numeric ? 'right' : 'left'}
-        padding={headCell.disablePadding ? 'none' : 'default'}
+        align={'center'}
+        padding={'default'}
       // sortDirection={orderBy === headCell.id ? order : false}
       >
         {/*<TableSortLabel*/}
@@ -95,9 +95,9 @@ export class AllInstancesOfModelView extends Component {
           tabIndex={-1}
           key={id}
         >
-          <TableCell align="center">{hostname}</TableCell>
           <TableCell align="center">{rack ? rack.rack_number : null}</TableCell>
           <TableCell align="center">{rack_u}</TableCell>
+          <TableCell align="center">{hostname}</TableCell>
           <TableCell align="right">
             <Link to={'/assets/' + id}>
               <Tooltip title='View Details'>

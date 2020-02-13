@@ -1,12 +1,20 @@
 import React, {Component} from 'react'
-import InstanceTable from './InstanceTable'
-import axios from 'axios'
+import InstanceTableMUI from './InstanceTableMUI'
+import axios, {post} from 'axios'
 import DetailedInstance from './DetailedInstance';
 import CreateInstanceForm from './CreateInstanceForm';
 import EditInstanceForm from './EditInstanceForm';
 import InstanceFilters from './InstanceFilters';
 import InstanceSort from './InstanceSort';
-import {UncontrolledCollapse, Button, ButtonGroup, Container, Card, ButtonToolbar, Row, Col} from 'reactstrap';
+//import {UncontrolledCollapse, Button, ButtonGroup, Container, Card, ButtonToolbar, Row, Col} from 'reactstrap';
+import {
+  Grid, Button, Container, Paper, ButtonGroup, Switch, FormControlLabel, Typography
+} from "@material-ui/core"
+import CloudUploadIcon from "@material-ui/icons/CloudUpload";
+import SaveAltIcon from "@material-ui/icons/SaveAlt";
+import AddCircleIcon from "@material-ui/icons/AddCircle";
+import ModelTableMUI from "./ModelTableMUI";
+import {Link} from "react-router-dom";
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
@@ -33,6 +41,8 @@ export class InstanceController extends Component {
       filterQuery: '',
       sortQuery: '',
       rerender: false,
+      file: null,
+      showingAll: false
     };
 
     this.getShowTable = this.getShowTable.bind(this);
@@ -236,7 +246,14 @@ export class InstanceController extends Component {
         alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
       });
   }
-
+  toggleShowingAll = () => {
+    this.state.showingAll ? (
+      this.getInstances()
+    ) : (this.getAllInstances())
+    this.setState(prevState => ({
+      showingAll: !prevState.showingAll
+    }));
+  }
   exportData = () => {
     let filter = this.state.filterQuery;
     let sort = this.state.sortQuery;
@@ -263,13 +280,73 @@ export class InstanceController extends Component {
       });
   }
 
+  handleImport = (e) => {
+    e.preventDefault();
+    let f = this.state.file;
+    if (f == null) {
+      alert("You must upload a file.");
+      return;
+    }
+    this.fileUpload(this.state.file).then((response) => {
+      alert("Import was successful." + JSON.stringify(response.data, null, 2));
+    })
+      .catch(function (error) {
+        console.log(error.response)
+        const fileUploadOverride = (file) => {
+          const url = '/api/instances/import_file/?override=true';
+          const formData = new FormData();
+          formData.append('file', file)
+          //formData.append('name', 'sup')
+          const config = {
+            headers: {
+              'content-type': 'multipart/form-data'
+            }
+          }
+          return post(url, formData, config)
+        }
+
+        if (window.confirm('Import was not successful.\n' + JSON.stringify(error.response.data, null, 2))) {
+          fileUploadOverride(f).then((response) => {
+            console.log(response.data);
+          })
+            .catch(function (error) {
+              console.log(error.response)
+              alert('Import was not successful.\n' + JSON.stringify(error.response.data, null, 2));
+            });
+        }
+      });
+    this.showRerender();
+  }
+
+  handleFileUpload = (e) => {
+    console.log(e.target.files[0])
+    this.setState({
+      file: e.target.files[0],
+    });
+  }
+
+  fileUpload = (file) => {
+    const url = '/api/instances/import_file/';
+    const formData = new FormData();
+    formData.append('file', file)
+    //formData.append('name', 'sup')
+    const config = {
+      headers: {
+        'content-type': 'multipart/form-data'
+      }
+    }
+    return post(url, formData, config)
+  }
+
 
   render() {
     let content;
 
     if (this.state.showTableView) {
-      content = <InstanceTable
+      content = <InstanceTableMUI
         instances={this.state.instances}
+        filter_query={this.getFilterQuery}
+        sendSortQuery={this.getSortQuery}
         sendRerender={this.getRerender}
         sendShowTable={this.getShowTable}
         sendShowDetailedInstance={this.getShowDetailedInstance}
@@ -280,7 +357,8 @@ export class InstanceController extends Component {
         is_admin={this.props.is_admin}/>;
     } else if (this.state.showIndividualInstanceView) {
       content = <DetailedInstance instanceID={this.state.detailedInstanceID}
-                                  sendShowTable={this.getShowTable}/>;
+                                  sendShowTable={this.getShowTable}
+                                  is_admin={this.props.is_admin}/>;
     } else if (this.state.showCreateView) {
       content = <CreateInstanceForm sendRerender={this.getRerender}
                                     sendShowTable={this.getShowTable}/>
@@ -294,59 +372,105 @@ export class InstanceController extends Component {
 
     let paginateNavigation = <p></p>;
     if (this.state.prevPage == null && this.state.nextPage != null) {
-      paginateNavigation = <div><ButtonGroup><Button color="link" disabled>prev page</Button>{'  '}<Button color="link"
-                                                                                                           onClick={this.paginateNext}>next
-        page</Button></ButtonGroup></div>;
+      paginateNavigation =
+
+        <ButtonGroup>
+          <Button color="primary" disabled onClick={this.paginatePrev}>prev page
+          </Button>{"  "}<Button color="primary" onClick={this.paginateNext}>next page</Button>
+        </ButtonGroup>
     } else if (this.state.prevPage != null && this.state.nextPage == null) {
       paginateNavigation =
-        <div><ButtonGroup><Button color="link" onClick={this.paginatePrev}>prev page</Button>{'  '}<Button color="link"
-                                                                                                           disabled>next
-          page</Button></ButtonGroup></div>;
+        <ButtonGroup>
+          <Button color="primary" onClick={this.paginatePrev}>prev page
+          </Button>{"  "}<Button color="primary" disabled onClick={this.paginateNext}>next page</Button>
+        </ButtonGroup>
     } else if (this.state.prevPage != null && this.state.nextPage != null) {
       paginateNavigation =
-        <div><ButtonGroup><Button color="link" onClick={this.paginatePrev}>prev page</Button>{'  '}<Button color="link"
-                                                                                                           onClick={this.paginateNext}>next
-          page</Button></ButtonGroup></div>;
+        <ButtonGroup>
+          <Button color="primary" onClick={this.paginatePrev}>prev page
+          </Button>{"  "}<Button color="primary" onClick={this.paginateNext}>next page</Button>
+        </ButtonGroup>
     }
 
-    let filters_sorts = <div><Button color="primary" id="toggler" style={{marginBottom: '1rem'}}> Toggle Filtering and
-      Sorting Dialog </Button>
-      <UncontrolledCollapse toggler="#toggler">
-        <InstanceFilters sendFilterQuery={this.getFilterQuery}/>
-        <InstanceSort sendSortQuery={this.getSortQuery}/>
-      </UncontrolledCollapse>{' '}
-    </div>;
 
     // let filters = <InstanceFilters sendFilterQuery={ this.getFilterQuery } />
     // let sorting = <InstanceSort sendSortQuery={ this.getSortQuery } />
-    let exp = <Button onClick={this.exportData}>Export</Button>
-    let showAll = <Button onClick={this.getAllInstances}>Show All</Button>
+    let exp = <Button variant="outlined" startIcon={<SaveAltIcon/>} onClick={this.exportData}>Export</Button>
+
+    let showAll = <FormControlLabel labelPlacement="left"
+                                    control={
+                                      <Switch value={this.state.showingAll} onChange={() => this.toggleShowingAll()}/>
+                                    }
+                                    label={
+                                      <Typography variant="subtitle1"> Show All</Typography>
+                                    }
+    />
+
+    let add = this.props.is_admin ? (
+      <Link to={'/assets/create'}>
+        <Button color="primary" variant="contained" endIcon={<AddCircleIcon/>}>
+          Add Instance +
+        </Button>
+      </Link>
+
+    ) : {};
+
+    let imp = this.props.is_admin ? (
+      <>
+        <Button variant="outlined" component="span" startIcon={<CloudUploadIcon/>} onClick={this.handleImport}>
+          Import
+        </Button>
+        <input
+          accept="text/csv"
+          id="outlined-button-file"
+          multiple
+          type="file"
+          onChange={this.handleFileUpload}
+        />
+      </>
+    ) : {};
 
     // if we're not on the table, then don't show pagination or filters or sorting
     if (!this.state.showTableView) {
       paginateNavigation = <p></p>;
-      filters_sorts = <p></p>;
       // filters = <p></p>;
-      // sorting = <p></p>;
-      showAll = <p></p>;
       exp = <p></p>;
+      showAll = <p></p>;
+      add = <p></p>
+      imp = <p></p>
     }
 
     return (
-      <Container className="themed-container">
-        <h2>Instances</h2>
-        <Row>
-          <Col>{filters_sorts}</Col>
-        </Row>
-        <Row>
-          <Col>{showAll}</Col>
-          <Col>{exp}</Col>
-          <Col>{paginateNavigation}</Col>
-          <Col></Col>
-        </Row>
-        <br></br>
-        {content}
-      </Container>
+      <div>
+        <Container maxwidth="xl">
+          <Grid container className="themed-container" spacing={2}>
+            <Grid item justify="flex-start" alignContent='center' xs={12}/>
+            <Grid item justify="flex-start" alignContent='center' xs={10}>
+              <Typography variant="h3">
+                Instance Table
+              </Typography>
+            </Grid>
+            <Grid item justify="flex-end" alignContent="flex-end" xs={2}>
+              {showAll}
+            </Grid>
+            <Grid item justify="flex-start" alignContent="center" xs={3}>
+              {add}
+            </Grid>
+            <Grid item justify="center" alignContent="center" xs={3}>
+              {exp}
+            </Grid>
+            <Grid item justify="center" alignContent="center" xs={3}>
+              {imp}
+            </Grid>
+            <Grid item justify="flex-end" alignContent="flex-end" xs={3}>
+              {paginateNavigation}
+            </Grid>
+            <Grid item xs={12}>
+              {content}
+            </Grid>
+          </Grid>
+        </Container>
+      </div>
     )
   }
 }

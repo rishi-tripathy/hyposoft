@@ -118,7 +118,6 @@ export class EditInstanceForm extends Component {
   }
 
 
-
   componentDidMount() {
     const delay = 50;
     this.loadInstance();
@@ -127,20 +126,22 @@ export class EditInstanceForm extends Component {
       this.loadModels();
       this.loadRacks();
       this.loadOwners();
+      this.loadInstance();
     }, delay);
 
 
   }
 
-  handleChangeModel = selectedModelOption => {
+  handleChangeModel = (event, selectedModelOption) => {
     this.setState({selectedModelOption});
+    console.log(this.state.instance)
   };
 
-  handleChangeRack = selectedRackOption => {
+  handleChangeRack = (event, selectedRackOption) => {
     this.setState({selectedRackOption});
   };
 
-  handleChangeOwner = selectedOwnerOption => {
+  handleChangeOwner = (event, selectedOwnerOption) => {
     this.setState({selectedOwnerOption});
   };
 
@@ -150,6 +151,8 @@ export class EditInstanceForm extends Component {
 
     let stateCopy = Object.assign({}, this.state.instance);
 
+    stateCopy.model = this.state.selectedModelOption ? this.state.selectedModelOption.value : null;
+    stateCopy.rack = this.state.selectedRackOption ? this.state.selectedRackOption.value : null;
     stateCopy.owner = this.state.selectedOwnerOption ? this.state.selectedOwnerOption.value : null;
 
     let stateToSend = this.removeEmpty(stateCopy);
@@ -187,7 +190,7 @@ export class EditInstanceForm extends Component {
                     options={this.state.modelOptions}
                     getOptionLabel={option => option.label}
                     onChange={this.handleChangeModel}
-                    value={this.state.instance.model.label}
+                    value={this.state.selectedModelOption}
                     renderInput={params => (
                       <TextField {...params} label="Model" fullWidth/>
                     )}
@@ -217,7 +220,7 @@ export class EditInstanceForm extends Component {
                     options={this.state.rackOptions}
                     getOptionLabel={option => option.label}
                     onChange={this.handleChangeRack}
-                    value={this.state.instance.rack.label}
+                    value={this.state.selectedRackOption}
                     renderInput={params => (
                       <TextField {...params} label="Rack" fullWidth/>
                     )}
@@ -240,11 +243,14 @@ export class EditInstanceForm extends Component {
                 <Grid item xs={6}>
                   <Autocomplete
                     id="instance-owner-select"
+                    autoComplete
+                    autoHighlight
+                    autoSelect
                     shrink
                     options={this.state.ownerOptions}
                     getOptionLabel={option => option.label}
                     onChange={this.handleChangeOwner}
-                    value={this.state.instance.owner}
+                    value={this.state.selectedOwnerOption}
                     renderInput={params => (
                       <TextField {...params} label="Owner" fullWidth/>
                     )}
@@ -268,15 +274,15 @@ export class EditInstanceForm extends Component {
                 </Grid>
                 <Grid item xs={12}>
                   <Button variant="contained" type="submit" color="primary" onClick={() => this.handleSubmit}>Update
-                    +</Button>{' '}
+                    +</Button>
                 </Grid>
               </Grid>
             </form>
           </Grid>
         </Container>
       </div>
-  )
+    )
   }
-  }
+}
 
-  export default EditInstanceForm
+export default EditInstanceForm

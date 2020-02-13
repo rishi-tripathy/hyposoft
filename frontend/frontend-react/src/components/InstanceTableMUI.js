@@ -10,7 +10,7 @@ import PageviewIcon from '@material-ui/icons/Pageview';
 import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
 import FilterListIcon from '@material-ui/icons/FilterList';
-import ModelFilters from './ModelFilters';
+import InstanceFilters from './InstanceFilters';
 import '../stylesheets/TableView.css'
 import axios, {post} from 'axios'
 import {Link} from 'react-router-dom'
@@ -18,7 +18,7 @@ import {Link} from 'react-router-dom'
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
-export class ModelTable extends Component {
+export class InstanceTableMUI extends Component {
 
   constructor() {
     super();
@@ -26,7 +26,7 @@ export class ModelTable extends Component {
     this.state = {
       filtersOpen: false,
       dense: false,
-      sortBy: 'vendor',
+      sortBy: 'model',
       sortType: 'asc',
       // sorting: {
       //   'vendor': 'none',
@@ -46,10 +46,10 @@ export class ModelTable extends Component {
   }
 
 
-  showDetailedModel = (id) => {
+  showDetailedInstance = (id) => {
     //this.props.sendShowTable(false);
-    this.props.sendShowDetailedModel(true);
-    this.props.sendModelID(id);
+    this.props.sendShowDetailedInstance(true);
+    this.props.sendInstanceID(id);
   }
 
   showEditForm = (id) => {
@@ -59,7 +59,7 @@ export class ModelTable extends Component {
 
   showDeleteForm = (id) => {
     if (window.confirm('Are you sure you want to delete?')) {
-      let dst = '/api/models/'.concat(id).concat('/');
+      let dst = '/api/instances/'.concat(id).concat('/');
       axios.delete(dst)
         .then(function (response) {
           alert('Delete was successful');
@@ -107,14 +107,14 @@ export class ModelTable extends Component {
     return (
       <Toolbar>
         {
-          <Typography style={{flex: '1 1 20%'}} variant="h6" id="modelTableTitle">
-            Models
+          <Typography style={{flex: '1 1 20%'}} variant="h6" id="instanceTableTitle">
+            Instances
           </Typography>
         }
         <Collapse in={this.state.filtersOpen}>
           <Paper>
             {
-              <ModelFilters sendFilterQuery={this.props.filter_query}/>
+              <InstanceFilters sendFilterQuery={this.props.filter_query}/>
             }
           </Paper>
         </Collapse>
@@ -130,16 +130,14 @@ export class ModelTable extends Component {
   };
 
   renderTableHeader() {
+    //These now come from sorting fields
     let headCells = [
-      {id: 'vendor', label: 'Vendor'},
-      {id: 'model_number', label: 'Model Number'},
-      {id: 'height', label: 'Height (U)'},
-      {id: 'display_color', label: 'Display Color'},
-      {id: 'ethernet_ports', label: 'Ethernet Ports'},
-      {id: 'power_ports', label: 'Power Ports'},
-      {id: 'cpu', label: 'CPU'},
-      {id: 'memory', label: 'Memory (GB)'},
-      {id: 'storage', label: 'Storage'},
+      {id: 'rack__rack_number', label: 'Rack'},
+      {id: 'rack_u', label: 'Rack U'},
+      {id: 'model__vendor', label: 'Vendor'},
+      {id: 'model__model_number', label: 'Model Number'},
+      {id: 'hostname', label: 'Hostname'},
+      {id: 'owner', label: 'Owner'}
     ];
     return headCells.map(headCell => (
       <TableCell
@@ -161,40 +159,28 @@ export class ModelTable extends Component {
   }
 
   renderTableData() {
-    if (this.props.models.length == 0) return (
+    if (this.props.instances.length == 0) return (
       <TableRow hover tabIndex={-1}>
         <TableCell align="center" colSpan={12}>No entries</TableCell>
       </TableRow>
     )
-    return this.props.models.map((model, index) => {
-      const {id, vendor, model_number, height, display_color} = model //destructuring
-      const {ethernet_ports, power_ports, cpu, memory, storage, comment} = model //more destructuring
+    return this.props.instances.map((asset) => {
+      const {id, model, hostname, rack, owner, rack_u} = asset //destructuring
       return (
         <TableRow
           hover
           tabIndex={-1}
           key={id}
         >
-          <TableCell align="center">{vendor}</TableCell>
-          <TableCell align="center">{model_number}</TableCell>
-          <TableCell align="center">{height}</TableCell>
-          <TableCell align="right">
-            <div style={{
-              width: 12,
-              height: 12,
-              backgroundColor: '#' + display_color,
-              left: 2,
-              top: 2,
-            }}></div>
-            {display_color}</TableCell>
-          <TableCell align="center">{ethernet_ports}</TableCell>
-          <TableCell align="center">{power_ports}</TableCell>
-          <TableCell align="center">{cpu}</TableCell>
-          <TableCell align="center">{memory}</TableCell>
-          <TableCell align="center">{storage}</TableCell>
+          <TableCell align="center">{rack ? rack.rack_number : null}</TableCell>
+          <TableCell align="center">{rack_u}</TableCell>
+          <TableCell align="center">{model ? model.vendor : null}</TableCell>
+          <TableCell align="center">{model ? model.model_number : null}</TableCell>
+          <TableCell align="center">{hostname}</TableCell>
+          <TableCell align="center">{owner ? owner.username : null}</TableCell>
           <div>
             <TableCell align="right">
-              <Link to={'/models/' + id}>
+              <Link to={'/assets/' + id}>
                 <Tooltip title='View Details'>
                   <IconButton size="sm">
                     <PageviewIcon/>
@@ -204,7 +190,7 @@ export class ModelTable extends Component {
             </TableCell>
             {this.props.is_admin ? (
               <TableCell align="right">
-                <Link to={'/models/' + id + '/edit'}>
+                <Link to={'/assets/' + id + '/edit'}>
                   <Tooltip title='Edit'>
                     <IconButton size="sm">
                       <EditIcon/>
@@ -238,8 +224,8 @@ export class ModelTable extends Component {
           <TableContainer>
             <Table
               size="small"
-              aria-labelledby="modelTableTitle"
-              aria-label="enhanced table"
+              aria-labelledby="instanceTableTitle"
+              aria-label="instanceTable"
             >
               <TableRow>{this.renderTableHeader()}</TableRow>
 
@@ -255,8 +241,4 @@ export class ModelTable extends Component {
 }
 
 
-ModelTable.propTypes = {
-  models: PropTypes.array.isRequired
-}
-
-export default ModelTable;
+export default InstanceTableMUI;

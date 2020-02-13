@@ -123,7 +123,7 @@ export class CreateInstanceForm extends Component {
               <Grid container spacing={1}>
                 <Grid item xs={12}>
                   <Typography variant="h3" gutterBottom>
-                    Create Model
+                    Create Instance
                   </Typography>
                 </Grid>
                 <Grid item xs={6}>
@@ -182,7 +182,6 @@ export class CreateInstanceForm extends Component {
                     id="instance-owner-select"
                     autoComplete
                     autoHighlight
-                    autoSelect
                     options={this.state.ownerOptions}
                     getOptionLabel={option => option.label}
                     onChange={this.handleChangeOwner}

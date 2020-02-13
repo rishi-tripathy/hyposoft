@@ -334,7 +334,6 @@ export class ModelController extends Component {
 
   render() {
     let content;
-    console.log("rerender")
 
     if (this.state.showTableView) {
       content = <div><ModelTableMUI models={this.state.models}
