@@ -1,6 +1,9 @@
 import React, {Component} from 'react'
 import axios from 'axios'
-import {Button, Grid, TextField} from "@material-ui/core";
+import {
+  Grid, Button, Container, Paper, ButtonGroup, Switch, FormControlLabel, TextField
+} from "@material-ui/core"
+import {Link} from 'react-router-dom'
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
@@ -46,6 +49,7 @@ export class DeleteMultipleRacksForm extends Component {
           console.log(response);
           let message = response.data.results;
           alert(response.data.results);
+          this.props.sendShowTable(true);
         })
         .catch(function (error) {
           alert('Creation was not successful.\n' + JSON.stringify(error.response.data, null, 2));
@@ -61,28 +65,28 @@ export class DeleteMultipleRacksForm extends Component {
     let start_rack;
     let end_rack;
     return (
-      <div>
-        <Button variant="outlined" onClick={() => this.props.sendShowTable(true)}>Back</Button>{' '}
+      <Container maxwidth="s">
+        <Link to='/racks/'><Button variant="outlined">Back</Button>{' '}</Link>
         <form onSubmit={this.handleSubmit}>
           <Grid container spacing={1}>
             <Grid item xs={12}>
-              <h1>Create Multiple Racks</h1>
+              <h1>Delete Racks</h1>
             </Grid>
-            <Grid item xs={6}>
+            <Grid item xs={3}>
               <TextField label='Deletion Range Start' type="text" fullWidth
                          onChange={e => this.setState({rack_num_start: e.target.value})}/>
             </Grid>
-            <Grid item xs={6}>
+            <Grid item xs={3}>
               <TextField label='Deletion Range End' type="text" fullWidth
                          onChange={e => this.setState({rack_num_end: e.target.value})}/>
             </Grid>
             <Grid item xs={12}>
-              <Button variant="contained" type="submit" color="primary" onClick={() => this.handleSubmit}>Create
-                +</Button>{' '}
+              <Button variant="contained" type="submit" color="primary" onClick={() => this.handleSubmit}>Delete
+                -</Button>{' '}
             </Grid>
           </Grid>
         </form>
-      </div>
+      </Container>
     )
   }
 

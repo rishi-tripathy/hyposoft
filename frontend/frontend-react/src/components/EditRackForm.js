@@ -2,6 +2,7 @@ import React, {Component} from 'react'
 import PropTypes from 'prop-types';
 import axios from 'axios'
 import {Button, Grid, TextField} from "@material-ui/core";
+import {Link} from 'react-router-dom'
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
@@ -55,13 +56,13 @@ export class EditRackForm extends Component {
   render() {
     return (
       <div>
-        <Button variant="outlined" onClick={() => this.props.sendShowTable(true)}>Back</Button>{' '}
+        <Link to='/racks/'><Button variant="outlined">Back</Button>{' '}</Link>
         <form onSubmit={this.handleSubmit}>
-          <Grid container spacing={1}>
+          <Grid container spacing={2}>
             <Grid item xs={12}>
               <h1>Update Rack</h1>
             </Grid>
-            <Grid item xs={12}>
+            <Grid item xs={6}>
               <TextField shrink label='Updated Rack Number' type="text" fullWidth value={this.state.rack_number}
                          onChange={e => this.setState({rack_number: e.target.value})}/>
             </Grid>

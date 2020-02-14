@@ -6,6 +6,7 @@ import axios from 'axios'
 import './stylesheets/Printing.css'
 import Landing from './components/Landing'
 import RackController from './components/RackController';
+import CreateRackForm from './components/CreateRackForm';
 import ModelController from './components/ModelController';
 import InstanceController from './components/InstanceController';
 import UserController from './components/UserController';
@@ -16,6 +17,8 @@ import CreateModelForm from './components/CreateModelForm';
 import EditModelForm from './components/EditModelForm';
 import CreateInstanceForm from "./components/CreateInstanceForm";
 import EditInstanceForm from "./components/EditInstanceForm";
+import EditRackForm from './components/EditRackForm';
+import DeleteMultipleRacksForm from './components/DeleteMultipleRacksForm';
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
@@ -99,7 +102,25 @@ class App extends React.Component {
           <Route path='/' exact component={Landing}/>
           <Route
             path='/racks'
+            exact
             render={(props) => <RackController {...props} is_admin={true}/>}/>
+
+          <Route
+            path='/racks/create'
+            exact
+            render={(props) => <CreateRackForm {...props} is_admin={true}/>} />
+
+          <Route
+            path='/racks/edit'
+            exact
+            render={(props) => <EditRackForm {...props} is_admin={true}/>} />
+
+          <Route
+            path='/racks/delete'
+            exact
+            render={(props) => <DeleteMultipleRacksForm {...props} is_admin={true}/>} />
+
+
           <Route
             path='/models'
             exact
