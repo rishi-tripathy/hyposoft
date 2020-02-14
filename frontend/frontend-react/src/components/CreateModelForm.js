@@ -1,8 +1,11 @@
 import React, {Component} from 'react'
 import axios from 'axios'
+import Select from 'react-select';
 import {Autocomplete} from "@material-ui/lab"
-import {Button, Container, TextField, Grid, Input, FormControl, Typography} from "@material-ui/core";
+import {Button, Container, TextField, Grid, Input, FormControl, Typography, Tooltip} from "@material-ui/core";
 import {Redirect, Link} from 'react-router-dom'
+import AddCircleIcon from "@material-ui/icons/AddCircle";
+import CancelIcon from '@material-ui/icons/Cancel';
 
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
@@ -196,9 +199,19 @@ export class CreateModelForm extends Component {
                                })
                              }}/>{' '}
                 </Grid>
-                <Grid item xs={12}>
-                  <Button variant="contained" type="submit" color="primary" onClick={() => this.handleSubmit}>Create
-                    +</Button>{' '}
+               <Grid item xs={2}>
+                  <Tooltip title='Submit'>
+                    <Button variant="contained" type="submit" color="primary" endIcon={<AddCircleIcon/>}
+                            onClick={() => this.handleSubmit}>Create
+                    </Button>
+                  </Tooltip>
+                </Grid>
+                <Grid item xs={2}>
+                  <Link to={'/models'}>
+                    <Tooltip title='Cancel'>
+                      <Button variant="outlined" type="submit" color="primary" endIcon={<CancelIcon/>}>Cancel</Button>
+                    </Tooltip>
+                  </Link>
                 </Grid>
               </Grid>
             </form>

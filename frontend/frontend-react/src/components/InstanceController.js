@@ -40,7 +40,6 @@ export class InstanceController extends Component {
       showingAll: false
     };
 
-
   }
 
   getInstances = () => {
@@ -267,6 +266,19 @@ export class InstanceController extends Component {
         console.log(error.response.data)
         alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
       });
+  }
+
+  fileUpload = (file) => {
+    const url = '/api/instances/import_file/';
+    const formData = new FormData();
+    formData.append('file', file)
+    //formData.append('name', 'sup')
+    const config = {
+      headers: {
+        'content-type': 'multipart/form-data'
+      }
+    }
+    return post(url, formData, config)
   }
 
 
