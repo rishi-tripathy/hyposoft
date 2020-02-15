@@ -1,7 +1,7 @@
 import React, {Component} from 'react'
 import axios from 'axios'
 import {Autocomplete} from "@material-ui/lab"
-import {Button, Container, TextField, Grid, Input, FormControl, Typography, Tooltip} from "@material-ui/core";
+import {Button, Container, TextField, Grid, Input, FormControl, Typography, Tooltip, Paper, List} from "@material-ui/core";
 import {Redirect, Link} from 'react-router-dom'
 import AddCircleIcon from "@material-ui/icons/AddCircle";
 import CancelIcon from '@material-ui/icons/Cancel';
@@ -159,7 +159,7 @@ export class CreateModelForm extends Component {
                   </FormControl>
                 </Grid>
                 <Grid item xs={4}>
-                  <TextField label='Ethernet Ports (deprecated)' type="number" fullWidth onChange={e => {
+                  <TextField label='Ethernet Ports (deprecated - get rid of this once we have new API)' type="number" fullWidth onChange={e => {
                     let modelCopy = JSON.parse(JSON.stringify(this.state.model))
                     modelCopy.ethernet_ports = e.target.value
                     this.setState({
@@ -184,7 +184,14 @@ export class CreateModelForm extends Component {
                       networkPorts: e.target.value
                     })
                   }}/>{' '}
-                  {this.openNetworkPortFields()}
+
+                  
+                    <List style={{maxHeight: 200, overflow: 'auto'}}>
+                      {this.openNetworkPortFields()}
+                    </List>
+                  
+
+                  
                 </Grid>
                 <Grid item xs={4}>
                   <TextField label='Power Ports' type="number" fullWidth onChange={e => {
