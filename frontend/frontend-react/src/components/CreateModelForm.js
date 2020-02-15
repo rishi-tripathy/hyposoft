@@ -1,6 +1,5 @@
 import React, {Component} from 'react'
 import axios from 'axios'
-import Select from 'react-select';
 import {Autocomplete} from "@material-ui/lab"
 import {Button, Container, TextField, Grid, Input, FormControl, Typography, Tooltip} from "@material-ui/core";
 import {Redirect, Link} from 'react-router-dom'
@@ -29,6 +28,7 @@ export class CreateModelForm extends Component {
       },
       vendorOptions: [],
       selectedVendorOption: null,
+      networkPorts: null,
     }
   }
 
@@ -79,8 +79,27 @@ export class CreateModelForm extends Component {
     this.setState({selectedVendorOption});
   };
 
+  openNetworkPortFields = () => {
+    let fieldList = [];
+    for (let i = 0; i < this.state.networkPorts; i++) {
+      const num = i + 1;
+      const fieldLabel = 'Network Port ' + num;
+      fieldList.push(
+        <TextField label={fieldLabel} 
+          type="text" 
+          // set its value
+          //value={}
+          fullWidth onChange={e => {
+          // do stuff on change
+        }}/>
+      )
+    }
+    return fieldList;
+  }
+
 
   render() {
+    console.log(this.state.networkPorts)
     return (
       <div>
         <Container maxwidth="xl">
@@ -140,13 +159,32 @@ export class CreateModelForm extends Component {
                   </FormControl>
                 </Grid>
                 <Grid item xs={4}>
-                  <TextField label='Ethernet Ports' type="number" fullWidth onChange={e => {
+                  <TextField label='Ethernet Ports (deprecated)' type="number" fullWidth onChange={e => {
                     let modelCopy = JSON.parse(JSON.stringify(this.state.model))
                     modelCopy.ethernet_ports = e.target.value
                     this.setState({
                       model: modelCopy
                     })
                   }}/>{' '}
+                </Grid>
+                <Grid item xs={4}>
+                  
+                </Grid>
+                <Grid item xs={4}>
+                  
+                </Grid>
+                <Grid item xs={4}>
+                  <TextField label='Network Ports' type="number" fullWidth onChange={e => {
+                    // let modelCopy = JSON.parse(JSON.stringify(this.state.model))
+                    // modelCopy.ethernet_ports = e.target.value
+                    // this.setState({
+                    //   model: modelCopy
+                    // })
+                    this.setState({ 
+                      networkPorts: e.target.value
+                    })
+                  }}/>{' '}
+                  {this.openNetworkPortFields()}
                 </Grid>
                 <Grid item xs={4}>
                   <TextField label='Power Ports' type="number" fullWidth onChange={e => {
