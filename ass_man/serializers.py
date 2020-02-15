@@ -1,8 +1,8 @@
-from ass_man.models import Model, Asset, Rack
+from ass_man.models import Model, Asset, Rack, Network_Port, Power_Port
 from rest_framework import serializers, status
 from rest_framework.validators import UniqueTogetherValidator, UniqueValidator
 from django.core.validators import MinLengthValidator, MinValueValidator
-from usr_man.serializers import UserOfInstanceSerializer
+from usr_man.serializers import UserOfAssetSerializer
 import re
 
 
@@ -20,7 +20,7 @@ class ModelSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Model
         fields = ['id', 'vendor', 'model_number', 'height', 'display_color',
-                  'ethernet_ports', 'power_ports', 'cpu', 'memory', 'storage', 'comment']
+                  'network_ports', 'power_ports', 'cpu', 'memory', 'storage', 'comment']
         validators = [
             UniqueTogetherValidator(
                 queryset=Model.objects.all(),
@@ -40,7 +40,7 @@ class UniqueModelsSerializer(serializers.HyperlinkedModelSerializer):
         fields = ['id', 'url', 'vendor', 'model_number']
 
 
-class ModelInstanceSerializer(serializers.HyperlinkedModelSerializer):
+class ModelAssetSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Model
         fields = ['url', 'vendor', 'model_number', 'display_color']
@@ -51,12 +51,24 @@ class VendorsSerializer(serializers.ModelSerializer):
         model = Model
         fields = ['vendor', 'url']
 
-class InstanceSerializer(serializers.HyperlinkedModelSerializer):
+class NetworkPortSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Network_Port
+        fields = ['name', 'mac', 'connection', 'asset']
+
+class PowerPortSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Power_Port
+        fields = ['pdu', 'port_number', 'asset']
+
+class AssetSerializer(serializers.HyperlinkedModelSerializer):
     hostname = serializers.CharField(validators=[UniqueValidator(queryset=Asset.objects.all())])
     rack_u = serializers.IntegerField(validators=[MinValueValidator(1)])
-    # model = ModelInstanceSerializer()
+    network_ports = NetworkPortSerializer()
+    power_ports = PowerPortSerializer()
+    # model = ModelAssetSerializer()
 
-    def check_rack_u_validity(self, validated_data, instance=None):
+    def check_rack_u_validity(self, validated_data, asset=None):
         rack = validated_data['rack']
         rack_u = validated_data['rack_u']
         model = validated_data['model']
@@ -64,10 +76,10 @@ class InstanceSerializer(serializers.HyperlinkedModelSerializer):
         invalid_list = []
         if (rack_u+height-1) > 42:
             raise serializers.ValidationError({
-                'Height conflict': 'this instance would exceed past the top of the rack.'
+                'Height conflict': 'this asset would exceed past the top of the rack.'
             })
         for i in range(rack_u, rack_u+height):
-            if eval('rack.u{} and (rack.u{} != instance)'.format(i, i)):
+            if eval('rack.u{} and (rack.u{} != asset)'.format(i, i)):
                 invalid_list.append('Conflict: host ' +
                                     eval('rack.u{}.__str__()'.format(i)) +
                                     ' conflicts at U{}'.format(i))
@@ -81,9 +93,9 @@ class InstanceSerializer(serializers.HyperlinkedModelSerializer):
         self.check_rack_u_validity(validated_data)
         return super().create(validated_data)
 
-    def update(self, instance, validated_data):
-        self.check_rack_u_validity(validated_data, instance)
-        return super().update(instance, validated_data)
+    def update(self, asset, validated_data):
+        self.check_rack_u_validity(validated_data, asset)
+        return super().update(asset, validated_data)
 
     # adapted from https://stackoverflow.com/questions/2063213/regular-expression-for-validating-dns-label-host-name
 
@@ -97,32 +109,32 @@ class InstanceSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Asset
-        fields = ['id', 'model', 'hostname', 'rack', 'rack_u', 'owner', 'comment']
+        fields = ['id', 'model', 'hostname', 'datacenter', 'rack', 'rack_u', 'owner', 'comment', 'network_ports', 'power_ports', 'asset_number']
 
-# Used to fetch the Rack associated with an Instance
-class RackOfInstanceSerializer(serializers.ModelSerializer):
+# Used to fetch the Rack associated with an Asset
+class RackOfAssetSerializer(serializers.ModelSerializer):
     class Meta:
         model = Rack
         fields = ['url', 'rack_number']
 
 
-# Used to fetch the Rack associated with an Instance
-class RackOfInstanceSerializer(serializers.ModelSerializer):
+# Used to fetch the Rack associated with an Asset
+class RackOfAssetSerializer(serializers.ModelSerializer):
     class Meta:
         model = Rack
         fields = ['url', 'rack_number']
 
 
-class InstanceFetchSerializer(InstanceSerializer):
-    model = ModelInstanceSerializer()
-    rack = RackOfInstanceSerializer()
-    owner = UserOfInstanceSerializer()
+class AssetFetchSerializer(AssetSerializer):
+    model = ModelAssetSerializer()
+    rack = RackOfAssetSerializer()
+    owner = UserOfAssetSerializer()
 
 
-class InstanceShortSerializer(InstanceSerializer):
-    model = ModelInstanceSerializer()
-    rack = RackOfInstanceSerializer()
-    owner = UserOfInstanceSerializer()
+class AssetShortSerializer(AssetSerializer):
+    model = ModelAssetSerializer()
+    rack = RackOfAssetSerializer()
+    owner = UserOfAssetSerializer()
 
     class Meta:
         model = Asset
@@ -150,16 +162,16 @@ class RackSerializer(serializers.HyperlinkedModelSerializer):
                   'u41', 'u42']
 
 
-class InstanceOfModelSerializer(serializers.HyperlinkedModelSerializer):
-    rack = RackOfInstanceSerializer()
+class AssetOfModelSerializer(serializers.HyperlinkedModelSerializer):
+    rack = RackOfAssetSerializer()
 
     class Meta:
         model = Asset
         fields = ['id', 'url', 'hostname', 'rack', 'rack_u', 'owner']
 
 
-class RackInstanceSerializer(serializers.ModelSerializer):
-    model = ModelInstanceSerializer()
+class RackAssetSerializer(serializers.ModelSerializer):
+    model = ModelAssetSerializer()
 
     class Meta:
         model = Asset
@@ -168,7 +180,7 @@ class RackInstanceSerializer(serializers.ModelSerializer):
 
 class RackFetchSerializer(serializers.HyperlinkedModelSerializer):
     for i in range(1, 43):
-        s = 'u{} = RackInstanceSerializer()'.format(i)
+        s = 'u{} = RackAssetSerializer()'.format(i)
         exec(s)
 
     class Meta:

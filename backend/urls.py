@@ -23,7 +23,7 @@ from ass_man.views import report
 router = routers.DefaultRouter()  # add this
 router.register(r'users', user_views.UserViewSet)
 router.register(r'models', asset_views.ModelViewSet)
-router.register(r'instances', asset_views.InstanceViewSet)
+router.register(r'assets', asset_views.AssetViewSet)
 router.register(r'racks', asset_views.RackViewSet)
 
 urlpatterns = [

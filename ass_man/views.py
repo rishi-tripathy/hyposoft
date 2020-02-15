@@ -7,14 +7,14 @@ from django.db.models.deletion import ProtectedError
 from django.db.models import CharField
 # API
 from rest_framework import viewsets
-from ass_man.serializers import (InstanceShortSerializer,
-                                 InstanceSerializer,
-                                 InstanceFetchSerializer,
+from ass_man.serializers import (AssetShortSerializer,
+                                 AssetSerializer,
+                                 AssetFetchSerializer,
                                  ModelShortSerializer,
                                  ModelSerializer,
                                  RackSerializer,
                                  RackFetchSerializer,
-                                 InstanceOfModelSerializer,
+                                 AssetOfModelSerializer,
                                  VendorsSerializer,
                                  UniqueModelsSerializer)
 
@@ -25,12 +25,12 @@ from django.contrib.auth.models import User
 from ass_man.models import Model, Asset, Rack
 from rest_framework.filters import OrderingFilter
 from django_filters import rest_framework as djfiltBackend
-from ass_man.filters import InstanceFilter, ModelFilter, RackFilter, InstanceFilterByRack
+from ass_man.filters import AssetFilter, ModelFilter, RackFilter, AssetFilterByRack
 from rest_framework.serializers import ValidationError
 from rest_framework.request import Request, HttpRequest
 import json
-from ass_man.import_manager import import_instance_file, import_model_file
-from ass_man.export_manager import export_models, export_instances
+from ass_man.import_manager import import_asset_file, import_model_file
+from ass_man.export_manager import export_models, export_assets
 
 JSON_TRUE = 'true'
 ADMIN_ACTIONS = {'create', 'update', 'partial_update', 'destroy'}
@@ -42,14 +42,14 @@ PUT = 'PUT'
 MODEL_ORDERING_FILTERING_FIELDS = ['vendor', 'model_number', 'height', 'display_color',
                                    'ethernet_ports', 'power_ports', 'cpu', 'memory', 'storage']
 MODEL_HEIGHT_UPDATE_ERROR_MSG = \
-    'This update fails- the height of models may not be changed if instances of the model exist.'
-MODEL_DESTROY_ERROR_MSG = 'Cannot delete this model as there are associated instances: '
+    'This update fails- the height of models may not be changed if assets of the model exist.'
+MODEL_DESTROY_ERROR_MSG = 'Cannot delete this model as there are associated assets: '
 
-INSTANCE_ORDERING_FILTERING_FIELDS = ['model', 'model__model_number', 'model__vendor',
+ASSET_ORDERING_FILTERING_FIELDS = ['model', 'model__model_number', 'model__vendor',
                                       'hostname', 'rack', 'rack_u', 'owner']
 
 RACK_ORDERING_FILTERING_FIELDS = ['rack_number']
-RACK_DESTROY_SINGLE_ERR_MSG = 'Cannot delete rack as it contains the following instances:'
+RACK_DESTROY_SINGLE_ERR_MSG = 'Cannot delete rack as it contains the following assets:'
 RACK_MANY_INCOMPLETE_QUERY_PARAMS_ERROR_MSG = 'Invalid rack range- must specify start and end rack number'
 RACK_MANY_BAD_LETTER_ERROR_MSG = 'Your start letter must be less than or equal to your end letter'
 RACK_MANY_BAD_NUMBER_ERROR_MSG = 'Your start number must be less than or equal to your end number'
@@ -91,13 +91,13 @@ class ModelViewSet(viewsets.ModelViewSet):
     def update(self, request, *args, **kwargs):
         model = self.get_object()
         prev_height = model.height
-        instances = Asset.objects.all().filter(model=self.get_object())
+        assets = Asset.objects.all().filter(model=self.get_object())
         serializer = self.get_serializer(model, data=request.data, partial=False)
         serializer.is_valid(raise_exception=True)
-        # Check to see if it's OK to update this model (if all instances still fit
+        # Check to see if it's OK to update this model (if all assets still fit
         new_height = int(request.data['height'])
 
-        if prev_height != new_height and instances.exists():
+        if prev_height != new_height and assets.exists():
             return Response({
                 'Error': MODEL_HEIGHT_UPDATE_ERROR_MSG
             }, status=status.HTTP_400_BAD_REQUEST)
@@ -109,16 +109,16 @@ class ModelViewSet(viewsets.ModelViewSet):
     def destroy(self, request, *args, **kwargs):
         matches = Asset.objects.filter(model=self.get_object())
         if matches.count() > 0:
-            offending_instances = []
+            offending_assets = []
             for match in matches:
-                offending_instances.append(match.hostname.__str__() +
+                offending_assets.append(match.hostname.__str__() +
                                            ' at ' +
                                            match.rack.rack_number.__str__() +
                                            ' U' +
                                            match.rack_u.__str__())
 
             return Response(MODEL_DESTROY_ERROR_MSG +
-                            ', '.join(offending_instances),
+                            ', '.join(offending_assets),
                             status=status.HTTP_400_BAD_REQUEST)
         return super().destroy(self, request, *args, **kwargs)
 
@@ -169,17 +169,17 @@ class ModelViewSet(viewsets.ModelViewSet):
         })
 
     @action(detail=True, methods=[GET])
-    def instances(self, request, *args, **kwargs):
-        instances = Asset.objects.all().filter(model=self.get_object())
-        page = self.paginate_queryset(instances)
+    def assets(self, request, *args, **kwargs):
+        assets = Asset.objects.all().filter(model=self.get_object())
+        page = self.paginate_queryset(assets)
         if page is not None:
-            serializer = InstanceOfModelSerializer(page, many=True, context={'request': request})
+            serializer = AssetOfModelSerializer(page, many=True, context={'request': request})
             return self.get_paginated_response(serializer.data)
-        serializer = InstanceOfModelSerializer(instances, many=True, context={'request': request})
+        serializer = AssetOfModelSerializer(assets, many=True, context={'request': request})
         return Response(serializer.data)
 
 
-class InstanceViewSet(viewsets.ModelViewSet):
+class AssetViewSet(viewsets.ModelViewSet):
 
     # View Housekeeping (permissions, serializers, filter fields, etc
     def get_permissions(self):
@@ -193,67 +193,67 @@ class InstanceViewSet(viewsets.ModelViewSet):
 
     def get_serializer_class(self):
         if self.request.method == GET:
-            serializer_class = InstanceFetchSerializer if self.detail else InstanceShortSerializer
+            serializer_class = AssetFetchSerializer if self.detail else AssetShortSerializer
         else:
-            serializer_class = InstanceSerializer
+            serializer_class = AssetSerializer
         return serializer_class
 
-    ordering_fields = INSTANCE_ORDERING_FILTERING_FIELDS
+    ordering_fields = ASSET_ORDERING_FILTERING_FIELDS
     ordering = ['-id']
-    filterset_fields = INSTANCE_ORDERING_FILTERING_FIELDS
+    filterset_fields = ASSET_ORDERING_FILTERING_FIELDS
 
     filter_backends = [OrderingFilter,
                        djfiltBackend.DjangoFilterBackend,
-                       InstanceFilterByRack]
-    filterset_class = InstanceFilter
+                       AssetFilterByRack]
+    filterset_class = AssetFilter
 
     # Overriding of super functions
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        instance = serializer.save()
-        rack = instance.rack
-        for i in range(instance.rack_u, instance.rack_u + instance.model.height):
-            exec('rack.u{} = instance'.format(i))
+        asset = serializer.save()
+        rack = asset.rack
+        for i in range(asset.rack_u, asset.rack_u + asset.model.height):
+            exec('rack.u{} = asset'.format(i))
         rack.save()
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
-        instance = self.get_object()
-        prev_rack = instance.rack
-        prev_rack_u = instance.rack_u
-        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        asset = self.get_object()
+        prev_rack = asset.rack
+        prev_rack_u = asset.rack_u
+        serializer = self.get_serializer(asset, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
-        for i in range(prev_rack_u, prev_rack_u + instance.model.height + 1):
+        for i in range(prev_rack_u, prev_rack_u + asset.model.height + 1):
             exec('prev_rack.u{} = None'.format(i))
         prev_rack.save()
         self.perform_update(serializer)
-        instance = self.get_object()
-        new_rack = instance.rack
-        for i in range(instance.rack_u, instance.rack_u + instance.model.height):
-            exec('new_rack.u{} = instance'.format(i))
+        asset = self.get_object()
+        new_rack = asset.rack
+        for i in range(asset.rack_u, asset.rack_u + asset.model.height):
+            exec('new_rack.u{} = asset'.format(i))
         new_rack.save()
-        if getattr(instance, '_prefetched_objects_cache', None):
+        if getattr(asset, '_prefetched_objects_cache', None):
             # If 'prefetch_related' has been applied to a queryset, we need to
-            # forcibly invalidate the prefetch cache on the instance.
-            instance._prefetched_objects_cache = {}
+            # forcibly invalidate the prefetch cache on the asset.
+            asset._prefetched_objects_cache = {}
         return Response(serializer.data)
 
     def list(self, request, *args, **kwargs):
         if request.query_params.get('export') == 'true':
             # hostname,rack,rack_position,vendor,model_number,owner,comment
             queryset = self.filter_queryset(self.get_queryset())
-            return export_instances(queryset)
+            return export_assetss(queryset)
 
         return super().list(self, request, *args, **kwargs)
 
     # Custom actions below
     @action(detail=False, methods=['POST'])
     def import_file(self, request, *args, **kwargs):
-        return import_instance_file(request)
+        return import_asset_file(request)
 
 
     @action(detail=False, methods=[GET])
@@ -313,17 +313,17 @@ class RackViewSet(viewsets.ModelViewSet):
     # Overriding of super functions
     def destroy(self, request, *args, **kwargs):
         slots = ['u{}'.format(i) for i in range(1, 43)]
-        offending_instances = []
+        offending_assets = []
         for slot in slots:
             match = getattr(self.get_object(), slot)
             if match:
-                offending_instances.append(match.hostname.__str__()
+                offending_assets.append(match.hostname.__str__()
                                            + ' at ' +
                                            match.rack.rack_number.__str__() +
                                            ' ' +
                                            slot.__str__())
-        if len(offending_instances) > 0:
-            err_message = RACK_DESTROY_SINGLE_ERR_MSG + ', '.join(offending_instances)
+        if len(offending_assets) > 0:
+            err_message = RACK_DESTROY_SINGLE_ERR_MSG + ', '.join(offending_assets)
             return Response({
                 'Error:', err_message
             }, status=status.HTTP_400_BAD_REQUEST)
@@ -449,19 +449,19 @@ def report(request):
     percentage_occupied = occupied / total * 100
     percentage_free = (total - occupied) / total * 100
 
-    instances = Asset.objects.all()
+    assets = Asset.objects.all()
     vendor_dict = {}
     model_dict = {}
     owner_dict = {}
-    for instance in instances:
-        if instance.model_id in model_dict:
-            model_dict[instance.model_id] += 1
+    for asset in assets:
+        if asset.model_id in model_dict:
+            model_dict[asset.model_id] += 1
         else:
-            model_dict[instance.model_id] = 1
-        if instance.owner_id in owner_dict:
-            owner_dict[instance.owner_id] += 1
+            model_dict[asset.model_id] = 1
+        if asset.owner_id in owner_dict:
+            owner_dict[asset.owner_id] += 1
         else:
-            owner_dict[instance.owner_id] = 1
+            owner_dict[asset.owner_id] = 1
 
     model_dict_by_model_number = {}
     for model in model_dict.keys():

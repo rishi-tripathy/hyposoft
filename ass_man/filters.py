@@ -26,7 +26,7 @@ class ModelFilter(filters.FilterSet):
                   'power_ports', 'cpu', 'memory', 'storage', 'comment']
 
 
-class InstanceFilter(filters.FilterSet):
+class AssetFilter(filters.FilterSet):
     model = filters.NumberFilter(field_name='model__pk', lookup_expr='exact')
     vendor = filters.CharFilter(field_name='model__vendor', lookup_expr='icontains')
     model_number = filters.CharFilter(field_name='model__model_number', lookup_expr='icontains')
@@ -39,7 +39,7 @@ class InstanceFilter(filters.FilterSet):
         fields = ['vendor', 'model_number', 'hostname', 'owner', 'comment']
 
 
-class InstanceFilterByRack(rest_filters.BaseFilterBackend):
+class AssetFilterByRack(rest_filters.BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
         start_letter = request.query_params.get('rack_num_start')[0].upper() if request.query_params.get(
             'rack_num_start') else 'A'
