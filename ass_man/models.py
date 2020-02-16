@@ -41,9 +41,9 @@ class Network_Port(models.Model):
     asset = models.ForeignKey('Asset', on_delete=models.CASCADE)
 
 class Power_Port(models.Model):
-    pdu = models.ForeignKey('PDU', on_delete=models.CASCADE)
+    pdu = models.ForeignKey('PDU', on_delete=models.SET_NULL, null=True)
     port_number = models.PositiveIntegerField()
-    asset = models.ForeignKey('Asset', on_delete=models.SET_NULL, null=True)
+    asset = models.ForeignKey('Asset', on_delete=models.CASCADE)
 
 class PDU(models.Model):
     name = models.CharField(max_length=20, blank=True, null=True)
