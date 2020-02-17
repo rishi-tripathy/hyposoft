@@ -33,6 +33,7 @@ def get_env_variable(var_name):
         error_msg = "Set the %s environment variable" % var_name
         raise ImproperlyConfigured(error_msg)
 
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
@@ -48,7 +49,6 @@ DEBUG = True
 SECURE_SSL_REDIRECT = False
 
 ALLOWED_HOSTS = ['.herokuapp.com', 'localhost', '127.0.0.1', '0.0.0.0', 'localhost:5000']
-
 
 # Application definition
 
@@ -118,7 +118,6 @@ DATABASES = {
     'default': dj_database_url.config(conn_max_age=600)
 }
 
-
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
 
@@ -137,7 +136,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/3.0/topics/i18n/
 
@@ -150,7 +148,6 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/

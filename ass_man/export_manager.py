@@ -1,10 +1,11 @@
 import csv
 from django.http import HttpResponse
 
-MODEL_EXPORT_FIELDS = ['vendor', 'model_number', 'height', 'display_color',\
- 'network_ports', 'power_ports', 'cpu', 'memory', 'storage', 'comment']
+MODEL_EXPORT_FIELDS = ['vendor', 'model_number', 'height', 'display_color', \
+                       'network_ports', 'power_ports', 'cpu', 'memory', 'storage', 'comment']
 ASSET_EXPORT_FIELDS = ['hostname', 'rack', 'rack_position', 'vendor', \
-'model_number', 'owner', 'comment']
+                       'model_number', 'owner', 'comment']
+
 
 def export_models(queryset):
     response = HttpResponse(content_type='text/csv')
@@ -17,6 +18,7 @@ def export_models(queryset):
                          model.display_color, model.network_ports, model.power_ports,
                          model.cpu, model.memory, model.storage, model.comment])
     return response
+
 
 def export_assets(queryset):
     response = HttpResponse(content_type='text/csv')

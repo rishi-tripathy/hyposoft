@@ -73,8 +73,8 @@ class RackFilter(rest_filters.BaseFilterBackend):
             else 'Z'
         end_number = request.query_params.get('rack_num_end')[1:] if request.query_params.get('rack_num_end') \
             else '999'
-        return queryset\
-            .filter(rack_letter__range=(start_letter, end_letter))\
+        return queryset \
+            .filter(rack_letter__range=(start_letter, end_letter)) \
             .filter(number_in_rack__range=(start_number, end_number))
 
     class Meta:

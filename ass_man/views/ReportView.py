@@ -1,7 +1,6 @@
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 
-
 # Auth
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from django.contrib.auth.models import User
@@ -22,7 +21,7 @@ MODEL_HEIGHT_UPDATE_ERROR_MSG = \
 MODEL_DESTROY_ERROR_MSG = 'Cannot delete this model as there are associated assets: '
 
 ASSET_ORDERING_FILTERING_FIELDS = ['model', 'datacenter', 'model__model_number', 'model__vendor',
-                                      'hostname', 'rack', 'rack_u', 'owner']
+                                   'hostname', 'rack', 'rack_u', 'owner']
 
 RACK_ORDERING_FILTERING_FIELDS = ['rack_number', 'datacenter']
 RACK_DESTROY_SINGLE_ERR_MSG = 'Cannot delete rack as it contains the following assets:'
@@ -35,17 +34,6 @@ RACK_MANY_DELETE_NOT_EMPTY_ERROR_MSG = 'Error: rack {} cannot be deleted as it i
 
 
 # Docs for ModelViewSet: https://www.django-rest-framework.org/api-guide/viewsets/#modelviewset
-
-
-
-
-
-
-
-
-
-
-
 
 
 # Custom actions below
@@ -84,7 +72,7 @@ def report(request):
     model_dict_by_model_number = {}
     for model in model_dict.keys():
         model_obj = Model.objects.get(pk=model)
-        model_dict_by_model_number[model_obj.vendor+' '+model_obj.model_number] = model_dict[model]
+        model_dict_by_model_number[model_obj.vendor + ' ' + model_obj.model_number] = model_dict[model]
         if model_obj.vendor in vendor_dict:
             vendor_dict[model_obj.vendor] += model_dict[model]
         else:
