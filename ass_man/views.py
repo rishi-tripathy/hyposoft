@@ -181,10 +181,14 @@ class AssetViewSet(viewsets.ModelViewSet):
             serializer_class = AssetSerializer
         return serializer_class
 
-     # def get_serializer_context(self):
-     #    context = super(AssetViewSet, self).get_serializer_context()
-     #    context["network_ports"] = request.data.get("network_ports")
-     #    return context
+    def get_serializer_context(self):
+        context = super(AssetViewSet, self).get_serializer_context()
+        try:
+            network_ports_json = self.request.data["network_ports"]
+        except KeyError:
+            network_ports_json = None
+        context["network_ports"] = network_ports_json
+        return context
 
     ordering_fields = ASSET_ORDERING_FILTERING_FIELDS
     ordering = ['-id']
@@ -202,7 +206,7 @@ class AssetViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         asset = serializer.save()
         asset.asset_number = asset.id + 100000
-        ports = []
+        # ports = []
         try:
             network_ports_json = request.data["network_ports"]
         except KeyError:
@@ -211,13 +215,15 @@ class AssetViewSet(viewsets.ModelViewSet):
         for i in network_ports_json:
             try:
                 connection_asset = Asset.objects.get(asset_number=i['connection']['asset_number'])
+                print(connection_asset.id)
                 connection_port = connection_asset.network_port_set.get(name=i['connection']['port_name'])
+                print(connection_port.id)
             except ObjectDoesNotExist:
                 connection_port = None
-            port = Network_Port.objects.create(name=i['name'], mac=i['mac'], connection=connection_port)
-            ports.append(port)
-        for p in ports:
-            asset.network_port_set.add(p)
+            port = Network_Port.objects.create(name=i['name'], mac=i['mac'], connection=connection_port, asset=asset)
+            # ports.append(port)
+        # for p in ports:
+        #     asset.network_port_set.add(p)
         asset.save()
         # asset.datacenter.asset_set.add(asset)
         rack = asset.rack
