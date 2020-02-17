@@ -24,7 +24,7 @@ from ass_man.serializers import (AssetShortSerializer,
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from django.contrib.auth.models import User
 # Project
-from ass_man.models import Model, Asset, Rack, Datacenter, Network_Port
+from ass_man.models import Model, Asset, Rack, Datacenter, Network_Port, Power_Port, PDU
 from rest_framework.filters import OrderingFilter
 from django_filters import rest_framework as djfiltBackend
 from ass_man.filters import AssetFilter, ModelFilter, RackFilter, AssetFilterByRack
@@ -188,6 +188,11 @@ class AssetViewSet(viewsets.ModelViewSet):
         except KeyError:
             network_ports_json = None
         context["network_ports"] = network_ports_json
+        try:
+            power_ports_json = self.request.data["power_ports"]
+        except KeyError:
+            power_ports_json = None
+        context["power_ports"] = power_ports_json
         return context
 
     ordering_fields = ASSET_ORDERING_FILTERING_FIELDS
@@ -211,6 +216,18 @@ class AssetViewSet(viewsets.ModelViewSet):
             network_ports_json = request.data["network_ports"]
         except KeyError:
             network_ports_json = {}
+        try:
+            power_ports_json = request.data["power_ports"]
+        except KeyError:
+            power_ports_json = {}
+
+        for i in power_ports_json:
+            try:
+                pdu = PDU.objects.get(name=i['pdu'])
+            except PDU.DoesNotExist:
+                pdu = None
+            port_num = int(i['port_number'])
+            pp = Power_Port.objects.create(pdu=pdu, port_number=port_num, asset=asset)
 
         for i in network_ports_json:
             try:
