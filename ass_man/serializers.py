@@ -12,13 +12,43 @@ class DatacenterSerializer(serializers.HyperlinkedModelSerializer):
         model = Datacenter
         fields = ['abbreviation', 'name']
 
+
 class ModelSerializer(serializers.HyperlinkedModelSerializer):
     display_color = serializers.CharField()
     network_ports = serializers.ListField(child=serializers.CharField())
 
-    def validate_network_ports(self, value):
-        print("hello again")
-        return value
+    def update(self, model, validated_data):
+        matches = Asset.objects.filter(model=model)
+        if matches:  # only need to check if there are deployed assets
+            try:
+                assert model.height == validated_data['height']
+            except AssertionError:
+                raise serializers.ValidationError({
+                    'height': 'Height may not be updated as there are {} deployed assets. See detail page of this model.'.format(
+                        len(matches))
+                }
+                )
+
+            try:
+                assert model.network_ports == validated_data['network_ports']
+            except AssertionError:
+                raise serializers.ValidationError({
+                    'network_ports': 'Network port names may not be updated as there are {} deployed assets. See detail page of this model.'.format(
+                        len(matches))
+                }
+                )
+
+            try:
+                assert model.power_ports == validated_data['power_ports']
+            except AssertionError:
+                raise serializers.ValidationError({
+                    'power_ports': 'Number of power ports may not be updated as there are {} deployed assets. See detail page of this model.'.format(
+                        len(matches))
+                }
+                )
+
+        return super().update(model, validated_data)
+
     def validate_display_color(self, value):
         if not re.match('^[A-Fa-f0-9]{6}$', value):
             raise serializers.ValidationError(
@@ -42,7 +72,9 @@ class ModelSerializer(serializers.HyperlinkedModelSerializer):
 class ModelShortSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Model
-        fields = ['id', 'vendor', 'model_number', 'height', 'display_color', 'network_ports', 'power_ports','cpu', 'memory', 'storage']
+        fields = ['id', 'vendor', 'model_number', 'height', 'display_color', 'network_ports', 'power_ports', 'cpu',
+                  'memory', 'storage']
+
 
 class UniqueModelsSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
@@ -61,19 +93,23 @@ class VendorsSerializer(serializers.ModelSerializer):
         model = Model
         fields = ['vendor', 'url']
 
+
 class NetworkPortSerializer(serializers.ModelSerializer):
     class Meta:
         model = Network_Port
         fields = ['name', 'mac', 'connection', 'asset']
+
 
 class PowerPortSerializer(serializers.ModelSerializer):
     class Meta:
         model = Power_Port
         fields = ['pdu', 'port_number', 'asset']
 
+
 class AssetSerializer(serializers.HyperlinkedModelSerializer):
     hostname = serializers.CharField(validators=[UniqueValidator(queryset=Asset.objects.all())])
     rack_u = serializers.IntegerField(validators=[MinValueValidator(1)])
+
     # network_ports = NetworkPortSerializer()
     # power_ports = PowerPortSerializer()
     # model = ModelAssetSerializer()
@@ -84,11 +120,11 @@ class AssetSerializer(serializers.HyperlinkedModelSerializer):
         model = validated_data['model']
         height = model.height
         invalid_list = []
-        if (rack_u+height-1) > 42:
+        if (rack_u + height - 1) > 42:
             raise serializers.ValidationError({
                 'Height conflict': 'this asset would exceed past the top of the rack.'
             })
-        for i in range(rack_u, rack_u+height):
+        for i in range(rack_u, rack_u + height):
             if eval('rack.u{} and (rack.u{} != asset)'.format(i, i)):
                 invalid_list.append('Conflict: host ' +
                                     eval('rack.u{}.__str__()'.format(i)) +
@@ -120,6 +156,7 @@ class AssetSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Asset
         fields = ['id', 'model', 'hostname', 'datacenter', 'rack', 'rack_u', 'owner', 'comment', 'asset_number']
+
 
 # Used to fetch the Rack associated with an Asset
 class RackOfAssetSerializer(serializers.ModelSerializer):
@@ -159,13 +196,14 @@ class RackSerializer(serializers.HyperlinkedModelSerializer):
     def validate_rack_number(self, value):
         if not re.match('^[A-Z][0-9]+$', value):
             raise serializers.ValidationError(
-                '{} is not a valid rack number. Please ensure this value is a capital letter followed by a positive number, e.g. "B12"'.format(value.__str__())
+                '{} is not a valid rack number. Please ensure this value is a capital letter followed by a positive number, e.g. "B12"'.format(
+                    value.__str__())
             )
         return value
 
     class Meta:
         model = Rack
-        fields = ['id', 'rack_number', 'u1', 'u2', 'u3', 'u4', 'u5', 'u6', 'u7', 'u8', 'u9', 'u10',
+        fields = ['id', 'rack_number', 'datacenter', 'u1', 'u2', 'u3', 'u4', 'u5', 'u6', 'u7', 'u8', 'u9', 'u10',
                   'u11', 'u12', 'u13', 'u14', 'u15', 'u16', 'u17', 'u18', 'u19', 'u20',
                   'u21', 'u22', 'u23', 'u24', 'u25', 'u26', 'u27', 'u28', 'u29', 'u30',
                   'u31', 'u32', 'u33', 'u34', 'u35', 'u36', 'u37', 'u38', 'u39', 'u40',

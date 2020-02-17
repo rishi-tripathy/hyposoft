@@ -89,25 +89,6 @@ class ModelViewSet(viewsets.ModelViewSet):
                        djfiltBackend.DjangoFilterBackend]
     filterset_class = ModelFilter
 
-    # Overriding of super functions
-    def update(self, request, *args, **kwargs):
-        model = self.get_object()
-        prev_height = model.height
-        assets = Asset.objects.all().filter(model=self.get_object())
-        serializer = self.get_serializer(model, data=request.data, partial=False)
-        serializer.is_valid(raise_exception=True)
-        # Check to see if it's OK to update this model (if all assets still fit
-        new_height = int(request.data['height'])
-
-        if prev_height != new_height and assets.exists():
-            return Response({
-                'Error': MODEL_HEIGHT_UPDATE_ERROR_MSG
-            }, status=status.HTTP_400_BAD_REQUEST)
-
-        serializer.save()  # Save updates to the model
-
-        return Response(serializer.data)
-
     def destroy(self, request, *args, **kwargs):
         matches = Asset.objects.filter(model=self.get_object())
         if matches.count() > 0:
@@ -272,7 +253,7 @@ class AssetViewSet(viewsets.ModelViewSet):
         if request.query_params.get('export') == 'true':
             # hostname,rack,rack_position,vendor,model_number,owner,comment
             queryset = self.filter_queryset(self.get_queryset())
-            return export_assetss(queryset)
+            return export_assets(queryset)
 
         return super().list(self, request, *args, **kwargs)
 
