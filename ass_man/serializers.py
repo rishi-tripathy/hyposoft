@@ -101,6 +101,25 @@ class AssetSerializer(serializers.HyperlinkedModelSerializer):
 
     def create(self, validated_data):
         self.check_rack_u_validity(validated_data)
+        if self.context['network_ports']:
+            connection_asset_num = self.context.get('network_ports')[0]['connection']['asset_number']
+            connection_port_name = self.context.get('network_ports')[0]['connection']['port_name']
+            connection_asset = Asset.objects.get(asset_number=connection_asset_num)
+            connection_port = connection_asset.network_port_set.get(name=connection_port_name)
+            # check if connected port is in the same datacenter
+            try:
+                assert connection_asset.datacenter == validated_data['datacenter']
+            except AssertionError:
+                raise serializers.ValidationError({
+                    'Network Port Error': 'the network connection port is in a different datacenter.'
+                })
+            # check if connected port is occupied
+            try:
+                assert connection_port.connection is None
+            except AssertionError:
+                raise serializers.ValidationError({
+                    'Network Port Error': 'the network connection port is already occupied.'
+                })
         return super().create(validated_data)
 
     def update(self, asset, validated_data):
@@ -139,6 +158,10 @@ class AssetFetchSerializer(AssetSerializer):
     model = ModelAssetSerializer()
     rack = RackOfAssetSerializer()
     owner = UserOfAssetSerializer()
+    network_ports = NetworkPortSerializer(source='network_port_set', many=True)
+    class Meta:
+        model = Asset
+        fields = ['id', 'model', 'hostname', 'datacenter', 'rack', 'rack_u', 'owner', 'comment', 'network_ports', 'asset_number']
 
 
 class AssetShortSerializer(AssetSerializer):
