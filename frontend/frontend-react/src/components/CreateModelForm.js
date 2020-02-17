@@ -6,7 +6,6 @@ import { Redirect, Link } from 'react-router-dom'
 import AddCircleIcon from "@material-ui/icons/AddCircle";
 import CancelIcon from '@material-ui/icons/Cancel';
 
-
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 export class CreateModelForm extends Component {
@@ -28,7 +27,10 @@ export class CreateModelForm extends Component {
       },
       vendorOptions: [],
       selectedVendorOption: null,
+
+      // dummy stuff for NPs
       networkPorts: null,
+      networkPortNames: [],
     }
   }
 
@@ -57,6 +59,43 @@ export class CreateModelForm extends Component {
     return obj;
   };
 
+  fillInEmptyDefaultNPNames = () => {
+    let tmp = this.state.networkPortNames.slice(); //creates the clone of the state
+    //console.log(tmp)
+
+    // if the user didn't change any of the names
+    // if (tmp.length == 0) {
+    //   //console.log(tmp)
+    //   for (let i = 0; i < this.state.networkPorts; i++) {
+    //     let num = i + 1;
+    //     tmp[i] = num.toString();
+    //   }
+    //   return tmp;
+    // }
+
+    for (let i = 0; i < this.state.networkPorts; i++) {
+      let num = i + 1;
+      if (! tmp[i]) {
+        tmp[i] = num.toString();
+      }
+    }
+    
+    // for (let i = 0; i < tmp.length; i++) {
+    //   if (! tmp[i]) {
+    //     let num = i + 1;
+    //     tmp[i] = num.toString();
+    //   }
+    // }
+
+    // for (let i = tmp.length - 1; i < this.state.networkPorts; i++) {
+    //   if (! tmp[i]) {
+    //     let num = i + 1;
+    //     tmp[i] = num.toString();
+    //   }
+    // }
+    return tmp
+  }
+
   handleSubmit = (e) => {
     if (e) e.preventDefault();
 
@@ -64,22 +103,44 @@ export class CreateModelForm extends Component {
     stateCopy.vendor = this.state.selectedVendorOption ? this.state.selectedVendorOption : null;
     let stateToSend = this.removeEmpty(stateCopy);
 
-    axios.post('/api/models/', stateToSend)
-      .then(function (response) {
-        alert('Created successfully');
-        window.location = '/models'
-      })
-      .catch(function (error) {
-        alert('Creation was not successful.\n' + JSON.stringify(error.response.data, null, 2));
-      });
-    //this.props.sendShowTable(true);
+    // make sure there are no empty default values
+    // parse this list of names
+    console.log(this.fillInEmptyDefaultNPNames());
+
+    // THE API CALL TO POST
+    // axios.post('/api/models/', stateToSend)
+    //   .then(function (response) {
+    //     alert('Created successfully');
+    //     window.location = '/models'
+    //   })
+    //   .catch(function (error) {
+    //     alert('Creation was not successful.\n' + JSON.stringify(error.response.data, null, 2));
+    //   });
   };
 
   handleChangeVendor = (event, selectedVendorOption) => {
     this.setState({ selectedVendorOption });
   };
 
+  handleChangeNP = (e) => {
+    this.setState({
+      networkPorts: e.target.value,
+    })
+    this.clearNetworkPortNames();
+  }
+
+  clearNetworkPortNames = () => {
+    this.setState({
+      networkPortNames: []
+    })
+  }
+
   openNetworkPortFields = () => {
+    //console.log(this.state.networkPortNames)
+    // clear network port names
+    
+
+
     let fieldList = [];
     for (let i = 0; i < this.state.networkPorts; i++) {
       const num = i + 1;
@@ -89,9 +150,13 @@ export class CreateModelForm extends Component {
           <TextField label={fieldLabel}
             type="text"
             // set its value
-            //value={}
+            //value={this.state.networkPortNames[i]}
+            //placeholder={num}
+            defaultValue={num}
             fullWidth onChange={e => {
-              // do stuff on change
+              let tmp = this.state.networkPortNames.slice(); //creates the clone of the state
+              tmp[i] = e.target.value;
+              this.setState({ networkPortNames: tmp });
             }} />
         </ListItem>
       )
@@ -101,7 +166,8 @@ export class CreateModelForm extends Component {
 
 
   render() {
-    console.log(this.state.networkPorts)
+    // console.log(this.state.networkPorts)
+    // console.log(this.state.networkPortNames)
     return (
       <div>
         <Container maxwidth="xl">
@@ -182,10 +248,9 @@ export class CreateModelForm extends Component {
                     // this.setState({
                     //   model: modelCopy
                     // })
-                    this.setState({
-                      networkPorts: e.target.value
-                    })
+                    this.handleChangeNP(e);
                   }} />{' '}
+
                   <List style={{ maxHeight: 200, overflow: 'auto' }}>
                     {this.openNetworkPortFields()}
                   </List>
