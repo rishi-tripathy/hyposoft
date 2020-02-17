@@ -52,6 +52,9 @@ class Datacenter(models.Model):
     abbreviation = models.CharField(max_length=6)
     name = models.CharField(max_length=50)
 
+    def __str__(self):
+        return self.abbreviation or ''
+
 class Rack(models.Model):
     rack_number = models.CharField(max_length=5)
     pdu_l = models.ForeignKey('PDU', on_delete=models.CASCADE, related_name='pdu_l', null=True)

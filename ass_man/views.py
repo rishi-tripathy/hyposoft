@@ -5,6 +5,7 @@ from django.db.models.fields import IntegerField
 from django.db.models.functions import Concat, Substr, Cast
 from django.db.models.deletion import ProtectedError
 from django.db.models import CharField
+from django.core.exceptions import ObjectDoesNotExist
 # API
 from rest_framework import viewsets
 from ass_man.serializers import (AssetShortSerializer,
@@ -16,13 +17,14 @@ from ass_man.serializers import (AssetShortSerializer,
                                  RackFetchSerializer,
                                  AssetOfModelSerializer,
                                  VendorsSerializer,
-                                 UniqueModelsSerializer)
+                                 UniqueModelsSerializer,
+                                 DatacenterSerializer)
 
 # Auth
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from django.contrib.auth.models import User
 # Project
-from ass_man.models import Model, Asset, Rack
+from ass_man.models import Model, Asset, Rack, Datacenter, Network_Port
 from rest_framework.filters import OrderingFilter
 from django_filters import rest_framework as djfiltBackend
 from ass_man.filters import AssetFilter, ModelFilter, RackFilter, AssetFilterByRack
@@ -40,7 +42,7 @@ DELETE = 'DELETE'
 PUT = 'PUT'
 
 MODEL_ORDERING_FILTERING_FIELDS = ['vendor', 'model_number', 'height', 'display_color',
-                                   'ethernet_ports', 'power_ports', 'cpu', 'memory', 'storage']
+                                   'network_ports', 'power_ports', 'cpu', 'memory', 'storage']
 MODEL_HEIGHT_UPDATE_ERROR_MSG = \
     'This update fails- the height of models may not be changed if assets of the model exist.'
 MODEL_DESTROY_ERROR_MSG = 'Cannot delete this model as there are associated assets: '
@@ -198,6 +200,11 @@ class AssetViewSet(viewsets.ModelViewSet):
             serializer_class = AssetSerializer
         return serializer_class
 
+     # def get_serializer_context(self):
+     #    context = super(AssetViewSet, self).get_serializer_context()
+     #    context["network_ports"] = request.data.get("network_ports")
+     #    return context
+
     ordering_fields = ASSET_ORDERING_FILTERING_FIELDS
     ordering = ['-id']
     filterset_fields = ASSET_ORDERING_FILTERING_FIELDS
@@ -213,6 +220,25 @@ class AssetViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         asset = serializer.save()
+        asset.asset_number = asset.id + 100000
+        ports = []
+        try:
+            network_ports_json = request.data["network_ports"]
+        except KeyError:
+            network_ports_json = {}
+
+        for i in network_ports_json:
+            try:
+                connection_asset = Asset.objects.get(asset_number=i['connection']['asset_number'])
+                connection_port = connection_asset.network_port_set.get(name=i['connection']['port_name'])
+            except ObjectDoesNotExist:
+                connection_port = None
+            port = Network_Port.objects.create(name=i['name'], mac=i['mac'], connection=connection_port)
+            ports.append(port)
+        for p in ports:
+            asset.network_port_set.add(p)
+        asset.save()
+        # asset.datacenter.asset_set.add(asset)
         rack = asset.rack
         for i in range(asset.rack_u, asset.rack_u + asset.model.height):
             exec('rack.u{} = asset'.format(i))
@@ -429,6 +455,20 @@ class RackViewSet(viewsets.ModelViewSet):
             'is_empty': 'true'
         })
 
+
+class DatacenterViewSet(viewsets.ModelViewSet):
+    def get_permissions(self):
+        if self.action in ADMIN_ACTIONS:
+            permission_classes = [IsAdminUser]
+        else:
+            permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]
+
+    queryset = Datacenter.objects.all()
+
+    def get_serializer_class(self):
+        serializer_class = DatacenterSerializer
+        return serializer_class
 
 # Custom actions below
 

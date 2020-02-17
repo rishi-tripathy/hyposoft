@@ -25,6 +25,7 @@ router.register(r'users', user_views.UserViewSet)
 router.register(r'models', asset_views.ModelViewSet)
 router.register(r'assets', asset_views.AssetViewSet)
 router.register(r'racks', asset_views.RackViewSet)
+router.register(r'datacenters', asset_views.DatacenterViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),

@@ -13,7 +13,7 @@ class ModelFilter(filters.FilterSet):
     model_number = filters.CharFilter(field_name='model_number', lookup_expr='icontains')
     height = filters.NumericRangeFilter(field_name='height', lookup_expr='range')
     color = filters.CharFilter(field_name='display_color', lookup_expr='iexact')
-    ethernet_ports = filters.NumericRangeFilter(field_name='ethernet_ports', lookup_expr='range')
+    network_ports = filters.NumericRangeFilter(field_name='network_ports', lookup_expr='range')
     power_ports = filters.NumericRangeFilter(field_name='power_ports', lookup_expr='range')
     cpu = filters.CharFilter(field_name='cpu', lookup_expr='icontains')
     memory = filters.NumericRangeFilter(field_name='memory', lookup_expr='range')
@@ -22,7 +22,7 @@ class ModelFilter(filters.FilterSet):
 
     class Meta:
         model = Model
-        fields = ['vendor', 'model_number', 'height', 'color', 'ethernet_ports',
+        fields = ['vendor', 'model_number', 'height', 'color', 'network_ports',
                   'power_ports', 'cpu', 'memory', 'storage', 'comment']
 
 

@@ -40,7 +40,7 @@ class Migration(migrations.Migration):
         ),
         migrations.RemoveField(
             model_name='model',
-            name='ethernet_ports',
+            name='network_ports',
         ),
         migrations.AddField(
             model_name='model',

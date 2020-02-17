@@ -1,14 +1,24 @@
-from ass_man.models import Model, Asset, Rack, Network_Port, Power_Port
+from ass_man.models import Model, Asset, Rack, Network_Port, Power_Port, Datacenter
 from rest_framework import serializers, status
 from rest_framework.validators import UniqueTogetherValidator, UniqueValidator
 from django.core.validators import MinLengthValidator, MinValueValidator
 from usr_man.serializers import UserOfAssetSerializer
 import re
+from rest_framework.fields import ListField
 
+
+class DatacenterSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Datacenter
+        fields = ['abbreviation', 'name']
 
 class ModelSerializer(serializers.HyperlinkedModelSerializer):
     display_color = serializers.CharField()
+    network_ports = serializers.ListField(child=serializers.CharField())
 
+    def validate_network_ports(self, value):
+        print("hello again")
+        return value
     def validate_display_color(self, value):
         if not re.match('^[A-Fa-f0-9]{6}$', value):
             raise serializers.ValidationError(
@@ -32,7 +42,7 @@ class ModelSerializer(serializers.HyperlinkedModelSerializer):
 class ModelShortSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Model
-        fields = ['id', 'vendor', 'model_number', 'height', 'display_color', 'ethernet_ports', 'power_ports','cpu', 'memory', 'storage']
+        fields = ['id', 'vendor', 'model_number', 'height', 'display_color', 'network_ports', 'power_ports','cpu', 'memory', 'storage']
 
 class UniqueModelsSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
@@ -64,8 +74,8 @@ class PowerPortSerializer(serializers.ModelSerializer):
 class AssetSerializer(serializers.HyperlinkedModelSerializer):
     hostname = serializers.CharField(validators=[UniqueValidator(queryset=Asset.objects.all())])
     rack_u = serializers.IntegerField(validators=[MinValueValidator(1)])
-    network_ports = NetworkPortSerializer()
-    power_ports = PowerPortSerializer()
+    # network_ports = NetworkPortSerializer()
+    # power_ports = PowerPortSerializer()
     # model = ModelAssetSerializer()
 
     def check_rack_u_validity(self, validated_data, asset=None):
@@ -109,7 +119,7 @@ class AssetSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Asset
-        fields = ['id', 'model', 'hostname', 'datacenter', 'rack', 'rack_u', 'owner', 'comment', 'network_ports', 'power_ports', 'asset_number']
+        fields = ['id', 'model', 'hostname', 'datacenter', 'rack', 'rack_u', 'owner', 'comment', 'asset_number']
 
 # Used to fetch the Rack associated with an Asset
 class RackOfAssetSerializer(serializers.ModelSerializer):

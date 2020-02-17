@@ -27,8 +27,8 @@ def import_model_file(request):
             cpu=row['cpu'], storage=row['storage'], comment=row['comment'])
             if disp_col:
                 new_model.display_color=disp_col
-            if row['ethernet_ports']:
-                new_model.ethernet_ports=row['ethernet_ports']
+            if row['network_ports']:
+                new_model.network_ports=row['network_ports']
             if row['power_ports']:
                 new_model.power_ports=row['power_ports']
             if row['memory']:
@@ -51,13 +51,13 @@ def import_model_file(request):
                 key = model.vendor + model.model_number + "_display_color"
                 fields_overriden[key] = [model.display_color, disp_col]
             override = True
-        if str(model.ethernet_ports) != row['ethernet_ports'] and (model.ethernet_ports or row['ethernet_ports']):
+        if str(model.network_ports) != row['network_ports'] and (model.network_ports or row['network_ports']):
             if should_override:
-                model.ethernet_ports = row['ethernet_ports']
+                model.network_ports = row['network_ports']
                 should_update = True
             else:
-                key = model.vendor + model.model_number + "_ethernet_ports"
-                fields_overriden[key] = [model.ethernet_ports, row['ethernet_ports']]
+                key = model.vendor + model.model_number + "_network_ports"
+                fields_overriden[key] = [model.network_ports, row['network_ports']]
             override = True
         if str(model.power_ports) != row['power_ports'] and (model.power_ports or row['power_ports']):
             if should_override:

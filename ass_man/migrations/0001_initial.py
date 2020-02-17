@@ -31,7 +31,7 @@ class Migration(migrations.Migration):
                 ('model_number', models.CharField(max_length=10)),
                 ('height', models.PositiveIntegerField()),
                 ('display_color', models.CharField(default='777777', max_length=6)),
-                ('ethernet_ports', models.PositiveIntegerField(blank=True, null=True)),
+                ('network_ports', models.PositiveIntegerField(blank=True, null=True)),
                 ('power_ports', models.PositiveIntegerField(blank=True, null=True)),
                 ('cpu', models.CharField(blank=True, max_length=50)),
                 ('memory', models.PositiveIntegerField(blank=True, null=True)),

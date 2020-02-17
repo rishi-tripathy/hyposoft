@@ -2,7 +2,7 @@ import csv
 from django.http import HttpResponse
 
 MODEL_EXPORT_FIELDS = ['vendor', 'model_number', 'height', 'display_color',\
- 'ethernet_ports', 'power_ports', 'cpu', 'memory', 'storage', 'comment']
+ 'network_ports', 'power_ports', 'cpu', 'memory', 'storage', 'comment']
 ASSET_EXPORT_FIELDS = ['hostname', 'rack', 'rack_position', 'vendor', \
 'model_number', 'owner', 'comment']
 
@@ -14,7 +14,7 @@ def export_models(queryset):
     writer.writerow(MODEL_EXPORT_FIELDS)
     for model in queryset:
         writer.writerow([model.vendor, model.model_number, model.height,
-                         model.display_color, model.ethernet_ports, model.power_ports,
+                         model.display_color, model.network_ports, model.power_ports,
                          model.cpu, model.memory, model.storage, model.comment])
     return response
 
