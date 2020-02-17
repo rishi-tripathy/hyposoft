@@ -59,7 +59,7 @@ class ModelViewSet(viewsets.ModelViewSet):
     filterset_class = ModelFilter
 
     def destroy(self, request, *args, **kwargs):
-        matches = Asset.objects.filter(model=self.get_object())
+        matches = self.get_object().asset_set
         if matches.count() > 0:
             offending_assets = []
             for match in matches:
@@ -120,6 +120,7 @@ class ModelViewSet(viewsets.ModelViewSet):
             'vendors': vendors
         })
 
+    # used on model detail page
     @action(detail=True, methods=[GET])
     def assets(self, request, *args, **kwargs):
         assets = Asset.objects.all().filter(model=self.get_object())

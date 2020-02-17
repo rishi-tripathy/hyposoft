@@ -46,7 +46,10 @@ class AssetViewSet(viewsets.ModelViewSet):
             permission_classes = [IsAuthenticated]
         return [permission() for permission in permission_classes]
 
-    queryset = Asset.objects.all()
+    queryset = Asset.objects.all() \
+        .annotate(rack_letter=Substr('rack__rack_number', 1, 1)) \
+        .annotate(numstr_in_rack=Substr('rack__rack_number', 2))
+    queryset = queryset.annotate(number_in_racknum=Cast('numstr_in_rack', IntegerField()))
 
     def get_serializer_class(self):
         if self.request.method == GET:
@@ -70,7 +73,7 @@ class AssetViewSet(viewsets.ModelViewSet):
         return context
 
     ordering_fields = ASSET_ORDERING_FILTERING_FIELDS
-    ordering = ['-id']
+    ordering = ['rack_letter', 'number_in_racknum', 'rack_u']
     filterset_fields = ASSET_ORDERING_FILTERING_FIELDS
 
     filter_backends = [OrderingFilter,

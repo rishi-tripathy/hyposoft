@@ -79,7 +79,3 @@ class ModelAssetSerializer(serializers.HyperlinkedModelSerializer):
         fields = ['url', 'vendor', 'model_number', 'display_color']
 
 
-class VendorsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Model
-        fields = ['vendor', 'url']

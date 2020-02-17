@@ -1,4 +1,4 @@
-from ass_man.models import Asset, Power_Port, PDU
+from ass_man.models import Asset, Power_Port, Network_Port, PDU
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from django.core.validators import MinValueValidator
@@ -11,6 +11,7 @@ from ass_man.serializers.model_serializers import ModelAssetSerializer
 from ass_man.serializers.network_port_serializers import NetworkPortSerializer
 from ass_man.serializers.power_port_serializers import PowerPortSerializer
 from ass_man.serializers.rack_serializers import RackOfAssetSerializer
+from ass_man.serializers.datacenter_serializers import DatacenterSerializer
 
 
 class AssetSerializer(serializers.HyperlinkedModelSerializer):
@@ -93,6 +94,12 @@ class AssetSerializer(serializers.HyperlinkedModelSerializer):
 
     def update(self, asset, validated_data):
         self.check_rack_u_validity(validated_data, asset)
+        try:
+            assert asset.model == validated_data['model']
+        except AssertionError:
+            raise serializers.ValidationError({
+                'model': 'The model of a deployed asset may not be changed to another model.'
+            })
         return super().update(asset, validated_data)
 
     # adapted from https://stackoverflow.com/questions/2063213/regular-expression-for-validating-dns-label-host-name
@@ -114,6 +121,7 @@ class AssetFetchSerializer(AssetSerializer):
     model = ModelAssetSerializer()
     rack = RackOfAssetSerializer()
     owner = UserOfAssetSerializer()
+    datacenter = DatacenterSerializer()
     network_ports = NetworkPortSerializer(source='network_port_set', many=True)
     power_ports = PowerPortSerializer(source='power_port_set', many=True)
 
@@ -127,10 +135,11 @@ class AssetShortSerializer(AssetSerializer):
     model = ModelAssetSerializer()
     rack = RackOfAssetSerializer()
     owner = UserOfAssetSerializer()
+    datacenter = DatacenterSerializer()
 
     class Meta:
         model = Asset
-        fields = ['id', 'model', 'hostname', 'rack', 'rack_u', 'owner']
+        fields = ['id', 'model', 'hostname', 'datacenter', 'rack', 'rack_u', 'owner']
 
 
 class AssetOfModelSerializer(serializers.HyperlinkedModelSerializer):
@@ -140,7 +149,66 @@ class AssetOfModelSerializer(serializers.HyperlinkedModelSerializer):
         model = Asset
         fields = ['id', 'url', 'hostname', 'rack', 'rack_u', 'owner']
 
-# This is defined in the Rack to remove a circular dependency
+
+# For the network graph
+
+class AssetTwoLevelsAwaySerializer(serializers.ModelSerializer):
+    rack = RackOfAssetSerializer()
+
+    class Meta:
+        model = Asset
+        fields = ['id', 'url,' 'hostname', 'rack', 'rack_u', 'asset_number']
+
+
+class NetworkPortTwoDegreeAwaySerializer(serializers.ModelSerializer):
+    asset = AssetTwoLevelsAwaySerializer()
+
+    class Meta:
+        model = Network_Port
+        fields = ['name', 'mac', 'asset']
+
+
+class NetworkPortOneDegreeAwaySerializer(serializers.ModelSerializer):
+    connection = NetworkPortTwoDegreeAwaySerializer()
+
+    class Meta:
+        model = Network_Port
+        fields = ['name', 'mac', 'connection']
+
+
+class AssetOneLevelAwaySerializer():
+    rack = RackOfAssetSerializer()
+    network_ports = NetworkPortOneDegreeAwaySerializer(source='network_port_set', many=True)
+
+    class Meta:
+        model = Asset
+        fields = ['id', 'url', 'hostname', 'rack', 'rack_u', 'network_ports', 'asset_number']
+
+
+class NetworkPortOneDegreeAwayNearsideSerializer(serializers.ModelSerializer):
+    asset = AssetOneLevelAwaySerializer()
+
+    class Meta:
+        model = Network_Port
+        fields = ['name', 'mac', 'asset']
+
+class NetworkPortForSeedSerializer(serializers.ModelSerializer):
+    connection = NetworkPortOneDegreeAwayNearsideSerializer()
+
+    class Meta:
+        model = Network_Port
+        fields = ['name', 'mac', 'connection']
+
+class AssetSeedForGraphSerializer(serializers.ModelSerializer):
+    rack = RackOfAssetSerializer()
+    network_ports = NetworkPortForSeedSerializer(source='network_port_set', many=True)
+
+    class Meta:
+        model = Asset
+        fields = ['id', 'url', 'hostname', 'rack', 'rack_u', 'network_ports', 'asset_number']
+
+
+# This is defined in the Rack serializer to remove a circular dependency
 
 # class RackAssetSerializer(serializers.ModelSerializer):
 #     model = ModelAssetSerializer()
