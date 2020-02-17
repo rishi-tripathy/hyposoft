@@ -18,7 +18,8 @@ from ass_man.serializers import (AssetShortSerializer,
                                  AssetOfModelSerializer,
                                  VendorsSerializer,
                                  UniqueModelsSerializer,
-                                 DatacenterSerializer)
+                                 DatacenterSerializer,
+                                 RackOfAssetSerializer)
 
 # Auth
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
@@ -476,6 +477,8 @@ class DatacenterViewSet(viewsets.ModelViewSet):
         serializer_class = DatacenterSerializer
         return serializer_class
 
+# Override superfunctions
+
     def destroy(self, request, *args, **kwargs):
         try:
             super().destroy(request, *args, **kwargs)
@@ -483,6 +486,15 @@ class DatacenterViewSet(viewsets.ModelViewSet):
             return Response({
                 'Error': 'Cannot delete this datacenter as it contains racks.'
             }, status=status.HTTP_400_BAD_REQUEST)
+
+# Custom Endpoints
+
+    @action(detail=True, methods=[GET])
+    def rack_numbers(self, request, *args, **kwargs):
+        matches = Rack.objects.filter(datacenter=self.get_object())
+        rs = RackOfAssetSerializer(matches, many=True, context={'request': request})
+        return Response(rs.data)
+
 
 # Custom actions below
 

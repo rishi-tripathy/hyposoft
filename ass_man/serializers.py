@@ -11,7 +11,7 @@ from django.core.exceptions import ObjectDoesNotExist
 class DatacenterSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Datacenter
-        fields = ['abbreviation', 'name']
+        fields = ['id', 'abbreviation', 'name']
 
 
 class ModelSerializer(serializers.HyperlinkedModelSerializer):
@@ -222,12 +222,6 @@ class RackOfAssetSerializer(serializers.ModelSerializer):
         fields = ['url', 'rack_number']
 
 
-# Used to fetch the Rack associated with an Asset
-class RackOfAssetSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Rack
-        fields = ['url', 'rack_number']
-
 
 class AssetFetchSerializer(AssetSerializer):
     model = ModelAssetSerializer()
@@ -251,9 +245,6 @@ class AssetShortSerializer(AssetSerializer):
 
 
 class RackSerializer(serializers.HyperlinkedModelSerializer):
-    rack_number = serializers.CharField(
-        validators=[UniqueValidator(queryset=Rack.objects.all())]
-    )
 
     def create(self, validated_data):
         rack = super().create(validated_data)
@@ -278,6 +269,12 @@ class RackSerializer(serializers.HyperlinkedModelSerializer):
                   'u21', 'u22', 'u23', 'u24', 'u25', 'u26', 'u27', 'u28', 'u29', 'u30',
                   'u31', 'u32', 'u33', 'u34', 'u35', 'u36', 'u37', 'u38', 'u39', 'u40',
                   'u41', 'u42']
+        validators = [
+            UniqueTogetherValidator(
+                queryset=Rack.objects.all(),
+                fields=['datacenter', 'rack_number']
+            )
+        ]
 
 
 class AssetOfModelSerializer(serializers.HyperlinkedModelSerializer):
@@ -306,7 +303,7 @@ class RackFetchSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Rack
-        fields = ['id', 'url', 'rack_number', 'pdu_l', 'pdu_r', 'u1', 'u2', 'u3', 'u4', 'u5', 'u6', 'u7', 'u8', 'u9', 'u10',
+        fields = ['id', 'url', 'datacenter', 'rack_number', 'pdu_l', 'pdu_r', 'u1', 'u2', 'u3', 'u4', 'u5', 'u6', 'u7', 'u8', 'u9', 'u10',
                   'u11', 'u12', 'u13', 'u14', 'u15', 'u16', 'u17', 'u18', 'u19', 'u20',
                   'u21', 'u22', 'u23', 'u24', 'u25', 'u26', 'u27', 'u28', 'u29', 'u30',
                   'u31', 'u32', 'u33', 'u34', 'u35', 'u36', 'u37', 'u38', 'u39', 'u40',
