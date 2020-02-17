@@ -47,10 +47,10 @@ MODEL_HEIGHT_UPDATE_ERROR_MSG = \
     'This update fails- the height of models may not be changed if assets of the model exist.'
 MODEL_DESTROY_ERROR_MSG = 'Cannot delete this model as there are associated assets: '
 
-ASSET_ORDERING_FILTERING_FIELDS = ['model', 'model__model_number', 'model__vendor',
+ASSET_ORDERING_FILTERING_FIELDS = ['model', 'datacenter', 'model__model_number', 'model__vendor',
                                       'hostname', 'rack', 'rack_u', 'owner']
 
-RACK_ORDERING_FILTERING_FIELDS = ['rack_number']
+RACK_ORDERING_FILTERING_FIELDS = ['rack_number', 'datacenter']
 RACK_DESTROY_SINGLE_ERR_MSG = 'Cannot delete rack as it contains the following assets:'
 RACK_MANY_INCOMPLETE_QUERY_PARAMS_ERROR_MSG = 'Invalid rack range- must specify start and end rack number'
 RACK_MANY_BAD_LETTER_ERROR_MSG = 'Your start letter must be less than or equal to your end letter'
@@ -360,6 +360,7 @@ class RackViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=[POST, DELETE])
     def many(self, request, *args, **kwargs):
         try:
+            dc = request.data['datacenter']
             srn = request.data['rack_num_start']
             ern = request.data['rack_num_end']
         except KeyError:
@@ -394,6 +395,7 @@ class RackViewSet(viewsets.ModelViewSet):
             results = []
             for rn in rack_numbers:
                 rn_request_data = {
+                    "datacenter": dc,
                     "rack_number": rn
                 }
                 if request.method == POST:
@@ -456,6 +458,14 @@ class DatacenterViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         serializer_class = DatacenterSerializer
         return serializer_class
+
+    def destroy(self, request, *args, **kwargs):
+        try:
+            super().destroy(request, *args, **kwargs)
+        except ProtectedError:
+            return Response({
+                'Error': 'Cannot delete this datacenter as it contains racks.'
+            }, status=status.HTTP_400_BAD_REQUEST)
 
 # Custom actions below
 

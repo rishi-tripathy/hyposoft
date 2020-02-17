@@ -1,4 +1,4 @@
-from ass_man.models import Model, Asset, Rack, Network_Port, Power_Port, Datacenter
+from ass_man.models import Model, Asset, Rack, Network_Port, Power_Port, Datacenter, PDU
 from rest_framework import serializers, status
 from rest_framework.validators import UniqueTogetherValidator, UniqueValidator
 from django.core.validators import MinLengthValidator, MinValueValidator
@@ -104,6 +104,11 @@ class PowerPortSerializer(serializers.ModelSerializer):
     class Meta:
         model = Power_Port
         fields = ['pdu', 'port_number', 'asset']
+
+class PDUSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PDU
+        fields = ['name']
 
 
 class AssetSerializer(serializers.HyperlinkedModelSerializer):
@@ -216,6 +221,14 @@ class RackSerializer(serializers.HyperlinkedModelSerializer):
         validators=[UniqueValidator(queryset=Rack.objects.all())]
     )
 
+    def create(self, validated_data):
+        rack = super().create(validated_data)
+        root_name = 'hpdu-{}-{}'.format(validated_data['datacenter'].abbreviation, validated_data['rack_number'])
+        rack.pdu_l = PDU.objects.create(name=(root_name + '-l'))
+        rack.pdu_r = PDU.objects.create(name=(root_name + '-r'))
+        rack.save()
+        return rack
+
     def validate_rack_number(self, value):
         if not re.match('^[A-Z][0-9]+$', value):
             raise serializers.ValidationError(
@@ -250,13 +263,16 @@ class RackAssetSerializer(serializers.ModelSerializer):
 
 
 class RackFetchSerializer(serializers.HyperlinkedModelSerializer):
+    pdu_l = PDUSerializer()
+    pdu_r = PDUSerializer()
+
     for i in range(1, 43):
         s = 'u{} = RackAssetSerializer()'.format(i)
         exec(s)
 
     class Meta:
         model = Rack
-        fields = ['id', 'url', 'rack_number', 'u1', 'u2', 'u3', 'u4', 'u5', 'u6', 'u7', 'u8', 'u9', 'u10',
+        fields = ['id', 'url', 'rack_number', 'pdu_l', 'pdu_r', 'u1', 'u2', 'u3', 'u4', 'u5', 'u6', 'u7', 'u8', 'u9', 'u10',
                   'u11', 'u12', 'u13', 'u14', 'u15', 'u16', 'u17', 'u18', 'u19', 'u20',
                   'u21', 'u22', 'u23', 'u24', 'u25', 'u26', 'u27', 'u28', 'u29', 'u30',
                   'u31', 'u32', 'u33', 'u34', 'u35', 'u36', 'u37', 'u38', 'u39', 'u40',
