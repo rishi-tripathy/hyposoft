@@ -47,10 +47,10 @@ MODEL_HEIGHT_UPDATE_ERROR_MSG = \
     'This update fails- the height of models may not be changed if assets of the model exist.'
 MODEL_DESTROY_ERROR_MSG = 'Cannot delete this model as there are associated assets: '
 
-ASSET_ORDERING_FILTERING_FIELDS = ['model', 'model__model_number', 'model__vendor',
+ASSET_ORDERING_FILTERING_FIELDS = ['model', 'datacenter', 'model__model_number', 'model__vendor',
                                       'hostname', 'rack', 'rack_u', 'owner']
 
-RACK_ORDERING_FILTERING_FIELDS = ['rack_number']
+RACK_ORDERING_FILTERING_FIELDS = ['rack_number', 'datacenter']
 RACK_DESTROY_SINGLE_ERR_MSG = 'Cannot delete rack as it contains the following assets:'
 RACK_MANY_INCOMPLETE_QUERY_PARAMS_ERROR_MSG = 'Invalid rack range- must specify start and end rack number'
 RACK_MANY_BAD_LETTER_ERROR_MSG = 'Your start letter must be less than or equal to your end letter'
@@ -88,25 +88,6 @@ class ModelViewSet(viewsets.ModelViewSet):
     filter_backends = [OrderingFilter,
                        djfiltBackend.DjangoFilterBackend]
     filterset_class = ModelFilter
-
-    # Overriding of super functions
-    def update(self, request, *args, **kwargs):
-        model = self.get_object()
-        prev_height = model.height
-        assets = Asset.objects.all().filter(model=self.get_object())
-        serializer = self.get_serializer(model, data=request.data, partial=False)
-        serializer.is_valid(raise_exception=True)
-        # Check to see if it's OK to update this model (if all assets still fit
-        new_height = int(request.data['height'])
-
-        if prev_height != new_height and assets.exists():
-            return Response({
-                'Error': MODEL_HEIGHT_UPDATE_ERROR_MSG
-            }, status=status.HTTP_400_BAD_REQUEST)
-
-        serializer.save()  # Save updates to the model
-
-        return Response(serializer.data)
 
     def destroy(self, request, *args, **kwargs):
         matches = Asset.objects.filter(model=self.get_object())
@@ -207,6 +188,11 @@ class AssetViewSet(viewsets.ModelViewSet):
         except KeyError:
             network_ports_json = None
         context["network_ports"] = network_ports_json
+        try:
+            power_ports_json = self.request.data["power_ports"]
+        except KeyError:
+            power_ports_json = None
+        context["power_ports"] = power_ports_json
         return context
 
     ordering_fields = ASSET_ORDERING_FILTERING_FIELDS
@@ -237,8 +223,8 @@ class AssetViewSet(viewsets.ModelViewSet):
 
         for i in power_ports_json:
             try:
-                pdu = PDU.objects.get(i['pdu'])
-            except PDU.ObjectDoesNotExist:
+                pdu = PDU.objects.get(name=i['pdu'])
+            except PDU.DoesNotExist:
                 pdu = None
             port_num = int(i['port_number'])
             pp = Power_Port.objects.create(pdu=pdu, port_number=port_num, asset=asset)
@@ -246,7 +232,9 @@ class AssetViewSet(viewsets.ModelViewSet):
         for i in network_ports_json:
             try:
                 connection_asset = Asset.objects.get(asset_number=i['connection']['asset_number'])
+                print(connection_asset.id)
                 connection_port = connection_asset.network_port_set.get(name=i['connection']['port_name'])
+                print(connection_port.id)
             except ObjectDoesNotExist:
                 connection_port = None
             port = Network_Port.objects.create(name=i['name'], mac=i['mac'], connection=connection_port, asset=asset)
@@ -288,7 +276,7 @@ class AssetViewSet(viewsets.ModelViewSet):
         if request.query_params.get('export') == 'true':
             # hostname,rack,rack_position,vendor,model_number,owner,comment
             queryset = self.filter_queryset(self.get_queryset())
-            return export_assetss(queryset)
+            return export_assets(queryset)
 
         return super().list(self, request, *args, **kwargs)
 
@@ -389,6 +377,7 @@ class RackViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=[POST, DELETE])
     def many(self, request, *args, **kwargs):
         try:
+            dc = request.data['datacenter']
             srn = request.data['rack_num_start']
             ern = request.data['rack_num_end']
         except KeyError:
@@ -423,6 +412,7 @@ class RackViewSet(viewsets.ModelViewSet):
             results = []
             for rn in rack_numbers:
                 rn_request_data = {
+                    "datacenter": dc,
                     "rack_number": rn
                 }
                 if request.method == POST:
@@ -485,6 +475,14 @@ class DatacenterViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         serializer_class = DatacenterSerializer
         return serializer_class
+
+    def destroy(self, request, *args, **kwargs):
+        try:
+            super().destroy(request, *args, **kwargs)
+        except ProtectedError:
+            return Response({
+                'Error': 'Cannot delete this datacenter as it contains racks.'
+            }, status=status.HTTP_400_BAD_REQUEST)
 
 # Custom actions below
 
