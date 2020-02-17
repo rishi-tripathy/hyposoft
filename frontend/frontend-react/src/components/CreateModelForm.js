@@ -1,7 +1,12 @@
 import React, { Component } from 'react'
 import axios from 'axios'
 import { Autocomplete } from "@material-ui/lab"
-import { Button, Container, TextField, Grid, Input, FormControl, Typography, Tooltip, Paper, List, ListItem } from "@material-ui/core";
+import {
+  Button, Container, TextField,
+  Grid, Input, FormControl, Typography,
+  Tooltip, Paper, List,
+  ListItem, Card, CardContent
+} from "@material-ui/core";
 import { Redirect, Link } from 'react-router-dom'
 import AddCircleIcon from "@material-ui/icons/AddCircle";
 import CancelIcon from '@material-ui/icons/Cancel';
@@ -63,7 +68,7 @@ export class CreateModelForm extends Component {
     let tmp = this.state.networkPortNames.slice(); //creates the clone of the state
     for (let i = 0; i < this.state.networkPorts; i++) {
       let num = i + 1;
-      if (! tmp[i]) {
+      if (!tmp[i]) {
         tmp[i] = num.toString();
       }
     }
@@ -110,9 +115,13 @@ export class CreateModelForm extends Component {
 
   openNetworkPortFields = () => {
     let fieldList = [];
+    // if (!this.state.networkPorts || this.state.networkPorts == 0) {
+    //   return fieldList;
+    // }
+
     for (let i = 0; i < this.state.networkPorts; i++) {
       const num = i + 1;
-      const fieldLabel = 'Network Port ' + num;
+      const fieldLabel = 'Network Port ' + num + ' name';
       fieldList.push(
         <ListItem>
           <TextField label={fieldLabel}
@@ -191,7 +200,7 @@ export class CreateModelForm extends Component {
                       }} />{' '}
                   </FormControl>
                 </Grid>
-                <Grid item xs={4}>
+                {/* <Grid item xs={4}>
                   <TextField label='Ethernet Ports (deprecated - get rid of this once we have new API)' type="number" fullWidth onChange={e => {
                     let modelCopy = JSON.parse(JSON.stringify(this.state.model))
                     modelCopy.ethernet_ports = e.target.value
@@ -205,7 +214,7 @@ export class CreateModelForm extends Component {
                 </Grid>
                 <Grid item xs={4}>
 
-                </Grid>
+                </Grid> */}
                 <Grid item xs={4}>
                   <TextField label='Network Ports' type="number" fullWidth onChange={e => {
                     this.handleChangeNP(e);
@@ -214,6 +223,8 @@ export class CreateModelForm extends Component {
                   <List style={{ maxHeight: 200, overflow: 'auto' }}>
                     {this.openNetworkPortFields()}
                   </List>
+
+
                 </Grid>
                 <Grid item xs={4}>
                   <TextField label='Power Ports' type="number" fullWidth onChange={e => {

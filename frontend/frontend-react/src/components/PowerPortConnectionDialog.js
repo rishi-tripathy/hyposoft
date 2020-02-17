@@ -1,31 +1,53 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react';
+
 import {
   Button, TextField, Dialog,
   DialogActions, DialogContent, DialogContentText,
-  DialogTitle, Grid, FormGroup, FormControlLabel, Checkbox
+  DialogTitle, Grid, FormGroup, FormControlLabel, Checkbox,
+  List, ListItem
 } from "@material-ui/core";
 import { Autocomplete } from "@material-ui/lab"
 
+//const powerPorts = 10;
 
 
 export default function PowerPortConnectionDialog() {
 
-  const [open, setOpen] = React.useState(false);
-  // const [selectedDatacenterOption, setDatacenterOption] = React.useState(null);
-  // const [selectedRackOption, setRackOption] = React.useState(null);
-  // const [selectedNetworkPortOption, setNetworkPortOption] = React.useState(null);
+  const [open, setOpen] = useState(false);
+  const [powerPorts, setPowerPorts] = useState(10);
+  const [powerPortSelection, setPowerPortSelection] = useState(
+    {
+      selection: [
+        {
+          pduPortNumber: null,
+          isLeft: false,
+          isRight: false,
+        }
+      ]
+    }
+  );
+
+  useEffect(() => {
+    let listOfSelections = [];
+    for (let i = 0; i < powerPorts; i++) {
+      listOfSelections.push({
+        pduPortNumber: null,
+        isLeft: false,
+        isRight: false,
+      })
+    }
+    let selectionArrayCopy = Object.assign({}, powerPortSelection.selection);
+    selectionArrayCopy = listOfSelections;
+    setPowerPortSelection({
+      selection: selectionArrayCopy
+    });
+  },[]);
 
   const handleClickOpen = () => {
-    // setDatacenterOption(selectedDatacenterOption);
-    // setRackOption(selectedRackOption);
-    // setNetworkPortOption(selectedNetworkPortOption);
     setOpen(true);
   };
 
   const handleClose = () => {
-    // setDatacenterOption(null);
-    // setRackOption(null);
-    // setNetworkPortOption(null);
     setOpen(false);
   };
 
@@ -33,10 +55,69 @@ export default function PowerPortConnectionDialog() {
     setOpen(false);
   }
 
-  // let selections = () => {
+  const showPPFields = () => {
+    let fieldList = [];
+    for (let i = 0; i < powerPorts; i++) {
+      fieldList.push(
+        <div>
+          <ListItem>
+            <Grid item xs={6}>
+              <TextField label='PDU Port Number' type="text" fullWidth onChange={e => {
+                let selectionArrayCopy = Object.assign({}, powerPortSelection.selection);
+                selectionArrayCopy[i].pduPortNumber = e.target.value;
+                setPowerPortSelection({
+                  selection: selectionArrayCopy
+                })
+              }} />
+            </Grid>
+            <Grid item xs={6}>
+              <FormGroup row>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      // checked={state.checkedB}
+                      // onChange={handleChange('checkedB')}
+                      //value="checkedB"
+                      color="primary"
+                      onChange={e => {
+                        let selectionArrayCopy = Object.assign({}, powerPortSelection.selection);
+                        selectionArrayCopy[i].isLeft = e.target.checked;
+                        setPowerPortSelection({
+                          selection: selectionArrayCopy
+                        })
+                      }}
+                    />
+                  }
+                  label="Left"
+                />
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      // checked={state.checkedB}
+                      // onChange={handleChange('checkedB')}
+                      //value="checkedB"
+                      color="primary"
+                      onChange={e => {
+                        let selectionArrayCopy = Object.assign({}, powerPortSelection.selection);
+                        selectionArrayCopy[i].isRight = e.target.checked;
+                        setPowerPortSelection({
+                          selection: selectionArrayCopy
+                        })
+                      }}
+                    />
+                  }
+                  label="Right"
+                />
+              </FormGroup>
+            </Grid>
+          </ListItem>
+        </div>
+      )
+    }
+    return fieldList;
+  }
 
-  // }
-
+  console.log(powerPortSelection)
 
   return (
     <div>
@@ -53,49 +134,9 @@ export default function PowerPortConnectionDialog() {
           <DialogContentText>
             For each Power Port, select a PDU port number and connect left/right ports.
           </DialogContentText>
-
-          <Grid container spacing={1}>
-            <Grid item xs={6}>
-              <TextField label='PDU Port Number' type="text" fullWidth onChange={e => {
-                // let instanceCopy = JSON.parse(JSON.stringify(this.state.instance))
-                // instanceCopy.hostname = e.target.value
-                // this.setState({
-                //   instance: instanceCopy
-                // })
-              }} />
-            </Grid>
-            <Grid item xs={6}>
-              <FormGroup row>
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      // checked={state.checkedB}
-                      // onChange={handleChange('checkedB')}
-                      value="checkedB"
-                      color="primary"
-                    />
-                  }
-                  label="Left"
-                />
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      // checked={state.checkedB}
-                      // onChange={handleChange('checkedB')}
-                      value="checkedB"
-                      color="primary"
-                    />
-                  }
-                  label="Right"
-                />
-              </FormGroup>
-            </Grid>
-          </Grid>
-
-
-
-
-
+          <List style={{ maxHeight: 200, overflow: 'auto' }}>
+            {showPPFields()}
+          </List>
         </DialogContent>
 
         <DialogActions>
@@ -107,11 +148,6 @@ export default function PowerPortConnectionDialog() {
           </Button>
         </DialogActions>
       </Dialog>
-
-
-      {/* <Grid item alignContent='center' xs={4}>
-        
-      </Grid> */}
     </div>
   )
 }

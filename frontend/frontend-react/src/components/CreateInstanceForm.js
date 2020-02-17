@@ -40,9 +40,16 @@ export class CreateInstanceForm extends Component {
       ownerOptions: [],
       selectedOwnerOption: null,
 
+      // dummy data
       networkPorts: 10,
+      macAddresses: [],
       powerPorts: 10,
+      ppConnection: [],
     }
+  }
+
+  getPowerPortConenctionInfo = (pduPortNumber, isLeft, isRight) => {
+
   }
 
   componentDidMount() {
@@ -103,15 +110,17 @@ export class CreateInstanceForm extends Component {
     stateCopy.owner = this.state.selectedOwnerOption ? this.state.selectedOwnerOption.value : null;
     let stateToSend = this.removeEmpty(stateCopy);
 
+    console.log(this.state)
 
-    axios.post('/api/instances/', stateToSend)
-      .then(function (response) {
-        alert('Created successfully');
-        window.location = '/assets'
-      })
-      .catch(function (error) {
-        alert('Creation was not successful.\n' + JSON.stringify(error.response.data, null, 2));
-      });
+    // CHOKE THE POST CALL
+    // axios.post('/api/instances/', stateToSend)
+    //   .then(function (response) {
+    //     alert('Created successfully');
+    //     window.location = '/assets'
+    //   })
+    //   .catch(function (error) {
+    //     alert('Creation was not successful.\n' + JSON.stringify(error.response.data, null, 2));
+    //   });
   }
 
   handleChangeModel = (event, selectedModelOption) => {
@@ -251,7 +260,7 @@ export class CreateInstanceForm extends Component {
                     <Typography variant="h6" gutterBottom>
                       Power Ports
                     </Typography>
-                    <PowerPortConnectionDialog />
+                    <PowerPortConnectionDialog sendPowerPortConnectionInfo={this.getPowerPortConenctionInfo} />
                   </Paper>
                 </Grid>
 
