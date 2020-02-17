@@ -57,8 +57,8 @@ class Datacenter(models.Model):
 
 class Rack(models.Model):
     rack_number = models.CharField(max_length=5)
-    pdu_l = models.ForeignKey('PDU', on_delete=models.CASCADE, related_name='pdu_l')
-    pdu_r = models.ForeignKey('PDU', on_delete=models.CASCADE, related_name='pdu_r')
+    pdu_l = models.ForeignKey('PDU', on_delete=models.CASCADE, related_name='pdu_l', null=True)
+    pdu_r = models.ForeignKey('PDU', on_delete=models.CASCADE, related_name='pdu_r', null=True)
     datacenter = models.ForeignKey('Datacenter', on_delete=models.PROTECT)
     u1 = models.ForeignKey(Asset, on_delete=models.SET_NULL, blank=True, null=True, related_name='Asset1')
     u2 = models.ForeignKey(Asset, on_delete=models.SET_NULL, blank=True, null=True, related_name='Asset2')

@@ -5,6 +5,7 @@ from django.core.validators import MinLengthValidator, MinValueValidator
 from usr_man.serializers import UserOfAssetSerializer
 import re
 from rest_framework.fields import ListField
+from django.core.exceptions import ObjectDoesNotExist
 
 
 class DatacenterSerializer(serializers.HyperlinkedModelSerializer):
@@ -97,7 +98,13 @@ class VendorsSerializer(serializers.ModelSerializer):
 class NetworkPortSerializer(serializers.ModelSerializer):
     class Meta:
         model = Network_Port
-        fields = ['name', 'mac', 'connection', 'asset']
+        fields = ['name', 'mac', 'connection']
+
+class PowerPortSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Power_Port
+        fields = ['pdu', 'port_number']
+
 
 
 class PowerPortSerializer(serializers.ModelSerializer):
@@ -142,25 +149,51 @@ class AssetSerializer(serializers.HyperlinkedModelSerializer):
 
     def create(self, validated_data):
         self.check_rack_u_validity(validated_data)
+        if self.context['power_ports']:
+            for i in self.context['power_ports']:
+                try:
+                    pdu = PDU.objects.get(name=i['pdu'])
+                except PDU.DoesNotExist:
+                    raise serializers.ValidationError({
+                        'PDU Error': 'the PDU referenced by name does not exist.'
+                    })
+                try:
+                    pdu_port = int(i['port_number'])
+                    pp = pdu.power_port_set.get(port_number=pdu_port)
+                except Power_Port.DoesNotExist:
+                    pp = None
+                try:
+                    assert pp is None
+                except AssertionError:
+                    raise serializers.ValidationError({
+                        'PDU Error': 'this PDU port is already in use.'
+                    })
         if self.context['network_ports']:
-            connection_asset_num = self.context.get('network_ports')[0]['connection']['asset_number']
-            connection_port_name = self.context.get('network_ports')[0]['connection']['port_name']
-            connection_asset = Asset.objects.get(asset_number=connection_asset_num)
-            connection_port = connection_asset.network_port_set.get(name=connection_port_name)
-            # check if connected port is in the same datacenter
-            try:
-                assert connection_asset.datacenter == validated_data['datacenter']
-            except AssertionError:
-                raise serializers.ValidationError({
-                    'Network Port Error': 'the network connection port is in a different datacenter.'
-                })
-            # check if connected port is occupied
-            try:
-                assert connection_port.connection is None
-            except AssertionError:
-                raise serializers.ValidationError({
-                    'Network Port Error': 'the network connection port is already occupied.'
-                })
+            for i in self.context['network_ports']:
+                connection_asset_num = i['connection']['asset_number']
+                connection_port_name = i['connection']['port_name']
+                try:
+                    connection_asset = Asset.objects.get(asset_number=connection_asset_num)
+                    connection_port = connection_asset.network_port_set.get(name=connection_port_name)
+                except ObjectDoesNotExist:
+                    connection_asset = None
+                    connection_port = None
+                    continue
+
+                # check if connected port is in the same datacenter
+                try:
+                    assert connection_asset.datacenter == validated_data['datacenter']
+                except AssertionError:
+                    raise serializers.ValidationError({
+                        'Network Port Error': 'the network connection port is in a different datacenter.'
+                    })
+                # check if connected port is occupied
+                try:
+                    assert connection_port.connection is None
+                except AssertionError:
+                    raise serializers.ValidationError({
+                        'Network Port Error': 'the network connection port is already occupied.'
+                    })
         return super().create(validated_data)
 
     def update(self, asset, validated_data):
@@ -201,9 +234,10 @@ class AssetFetchSerializer(AssetSerializer):
     rack = RackOfAssetSerializer()
     owner = UserOfAssetSerializer()
     network_ports = NetworkPortSerializer(source='network_port_set', many=True)
+    power_ports = PowerPortSerializer(source='power_port_set', many=True)
     class Meta:
         model = Asset
-        fields = ['id', 'model', 'hostname', 'datacenter', 'rack', 'rack_u', 'owner', 'comment', 'network_ports', 'asset_number']
+        fields = ['id', 'model', 'hostname', 'datacenter', 'rack', 'rack_u', 'owner', 'comment', 'network_ports', 'power_ports', 'asset_number']
 
 
 class AssetShortSerializer(AssetSerializer):

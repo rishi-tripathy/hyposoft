@@ -14,25 +14,25 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='asset',
             name='datacenter',
-            field=models.ForeignKey(default='hello', on_delete=django.db.models.deletion.PROTECT, to='ass_man.Datacenter'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='ass_man.Datacenter'),
             preserve_default=False,
         ),
         migrations.AlterField(
             model_name='rack',
             name='datacenter',
-            field=models.ForeignKey(default='hello', on_delete=django.db.models.deletion.PROTECT, to='ass_man.Datacenter'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='ass_man.Datacenter'),
             preserve_default=False,
         ),
         migrations.AlterField(
             model_name='rack',
             name='pdu_l',
-            field=models.ForeignKey(default='hello', on_delete=django.db.models.deletion.CASCADE, related_name='pdu_l', to='ass_man.PDU'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='pdu_l', to='ass_man.PDU'),
             preserve_default=False,
         ),
         migrations.AlterField(
             model_name='rack',
             name='pdu_r',
-            field=models.ForeignKey(default='hello', on_delete=django.db.models.deletion.CASCADE, related_name='pdu_r', to='ass_man.PDU'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='pdu_r', to='ass_man.PDU'),
             preserve_default=False,
         ),
     ]
