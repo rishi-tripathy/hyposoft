@@ -24,7 +24,7 @@ class Model(models.Model):
 class Asset(models.Model):
     model = models.ForeignKey(Model, on_delete=models.PROTECT)
     hostname = models.CharField(max_length=64, blank=True, null=True)
-    datacenter = models.ForeignKey('Datacenter', on_delete=models.PROTECT, null=True)
+    datacenter = models.ForeignKey('Datacenter', on_delete=models.PROTECT)
     rack = models.ForeignKey('Rack', on_delete=models.PROTECT)
     rack_u = models.PositiveIntegerField(blank=False)
     owner = models.ForeignKey(User, blank=True, null=True, on_delete=models.PROTECT)
@@ -57,9 +57,9 @@ class Datacenter(models.Model):
 
 class Rack(models.Model):
     rack_number = models.CharField(max_length=5)
-    pdu_l = models.ForeignKey('PDU', on_delete=models.CASCADE, related_name='pdu_l', null=True)
-    pdu_r = models.ForeignKey('PDU', on_delete=models.CASCADE, related_name='pdu_r', null=True)
-    datacenter = models.ForeignKey('Datacenter', on_delete=models.PROTECT, null=True)
+    pdu_l = models.ForeignKey('PDU', on_delete=models.CASCADE, related_name='pdu_l')
+    pdu_r = models.ForeignKey('PDU', on_delete=models.CASCADE, related_name='pdu_r')
+    datacenter = models.ForeignKey('Datacenter', on_delete=models.PROTECT)
     u1 = models.ForeignKey(Asset, on_delete=models.SET_NULL, blank=True, null=True, related_name='Asset1')
     u2 = models.ForeignKey(Asset, on_delete=models.SET_NULL, blank=True, null=True, related_name='Asset2')
     u3 = models.ForeignKey(Asset, on_delete=models.SET_NULL, blank=True, null=True, related_name='Asset3')
