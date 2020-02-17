@@ -9,7 +9,7 @@ from django.core.exceptions import ObjectDoesNotExist
 # API
 from rest_framework import viewsets
 
-from ass_man.serializers.asset_serializers import AssetSerializer, AssetFetchSerializer, AssetShortSerializer
+from ass_man.serializers.asset_serializers import AssetSerializer, AssetFetchSerializer, AssetShortSerializer, AssetSeedForGraphSerializer
 from ass_man.serializers.model_serializers import UniqueModelsSerializer
 
 # Auth
@@ -158,7 +158,13 @@ class AssetViewSet(viewsets.ModelViewSet):
         return super().list(self, request, *args, **kwargs)
 
     # Custom actions below
-    @action(detail=False, methods=['POST'])
+    @action(detail=True, methods=[GET])
+    def network_graph(self, request, *args, **kwargs):
+        graph_serializer = AssetSeedForGraphSerializer(self.get_object(), context={'request': request})
+        return Response(graph_serializer.data)
+
+
+    @action(detail=False, methods=[POST])
     def import_file(self, request, *args, **kwargs):
         return import_asset_file(request)
 

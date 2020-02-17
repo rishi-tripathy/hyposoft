@@ -192,12 +192,14 @@ class NetworkPortOneDegreeAwayNearsideSerializer(serializers.ModelSerializer):
         model = Network_Port
         fields = ['name', 'mac', 'asset']
 
+
 class NetworkPortForSeedSerializer(serializers.ModelSerializer):
     connection = NetworkPortOneDegreeAwayNearsideSerializer()
 
     class Meta:
         model = Network_Port
         fields = ['name', 'mac', 'connection']
+
 
 class AssetSeedForGraphSerializer(serializers.ModelSerializer):
     rack = RackOfAssetSerializer()
@@ -206,7 +208,6 @@ class AssetSeedForGraphSerializer(serializers.ModelSerializer):
     class Meta:
         model = Asset
         fields = ['id', 'url', 'hostname', 'rack', 'rack_u', 'network_ports', 'asset_number']
-
 
 # This is defined in the Rack serializer to remove a circular dependency
 
