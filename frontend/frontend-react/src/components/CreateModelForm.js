@@ -61,38 +61,12 @@ export class CreateModelForm extends Component {
 
   fillInEmptyDefaultNPNames = () => {
     let tmp = this.state.networkPortNames.slice(); //creates the clone of the state
-    //console.log(tmp)
-
-    // if the user didn't change any of the names
-    // if (tmp.length == 0) {
-    //   //console.log(tmp)
-    //   for (let i = 0; i < this.state.networkPorts; i++) {
-    //     let num = i + 1;
-    //     tmp[i] = num.toString();
-    //   }
-    //   return tmp;
-    // }
-
     for (let i = 0; i < this.state.networkPorts; i++) {
       let num = i + 1;
       if (! tmp[i]) {
         tmp[i] = num.toString();
       }
     }
-    
-    // for (let i = 0; i < tmp.length; i++) {
-    //   if (! tmp[i]) {
-    //     let num = i + 1;
-    //     tmp[i] = num.toString();
-    //   }
-    // }
-
-    // for (let i = tmp.length - 1; i < this.state.networkPorts; i++) {
-    //   if (! tmp[i]) {
-    //     let num = i + 1;
-    //     tmp[i] = num.toString();
-    //   }
-    // }
     return tmp
   }
 
@@ -104,7 +78,6 @@ export class CreateModelForm extends Component {
     let stateToSend = this.removeEmpty(stateCopy);
 
     // make sure there are no empty default values
-    // parse this list of names
     console.log(this.fillInEmptyDefaultNPNames());
 
     // THE API CALL TO POST
@@ -136,11 +109,6 @@ export class CreateModelForm extends Component {
   }
 
   openNetworkPortFields = () => {
-    //console.log(this.state.networkPortNames)
-    // clear network port names
-    
-
-
     let fieldList = [];
     for (let i = 0; i < this.state.networkPorts; i++) {
       const num = i + 1;
@@ -164,10 +132,7 @@ export class CreateModelForm extends Component {
     return fieldList;
   }
 
-
   render() {
-    // console.log(this.state.networkPorts)
-    // console.log(this.state.networkPortNames)
     return (
       <div>
         <Container maxwidth="xl">
@@ -243,11 +208,6 @@ export class CreateModelForm extends Component {
                 </Grid>
                 <Grid item xs={4}>
                   <TextField label='Network Ports' type="number" fullWidth onChange={e => {
-                    // let modelCopy = JSON.parse(JSON.stringify(this.state.model))
-                    // modelCopy.ethernet_ports = e.target.value
-                    // this.setState({
-                    //   model: modelCopy
-                    // })
                     this.handleChangeNP(e);
                   }} />{' '}
 
