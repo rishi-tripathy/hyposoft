@@ -9,6 +9,7 @@ from django.core.exceptions import ObjectDoesNotExist
 # API
 from rest_framework import viewsets
 
+from ass_man.serializers.asset_serializers import AssetShortSerializer
 from ass_man.serializers.rack_serializers import RackFetchSerializer, RackSerializer
 
 # Auth
@@ -176,6 +177,12 @@ class RackViewSet(viewsets.ModelViewSet):
         }, status=status.HTTP_207_MULTI_STATUS)
 
     @action(detail=True, methods=[GET])
+    def assets(self, request, *args, **kwargs):
+        matches = self.get_object().asset_set
+        serializer = AssetShortSerializer(matches, many=True, context={'request': request})
+        return Response(serializer.data)
+
+    @action(detail=True, methods=[GET])
     def is_empty(self, request, *args, **kwargs):
         u_filled = 0
         slots = ['u{}'.format(i) for i in range(1, 43)]
@@ -188,4 +195,25 @@ class RackViewSet(viewsets.ModelViewSet):
             })
         return Response({
             'is_empty': 'true'
+        })
+
+    @action(detail=True, methods=[GET])
+    def get_open_pdu_slots(self, request, *args, **kwargs):
+        pdu_l = self.get_object().pdu_l
+        pdu_r = self.get_object().pdu_r
+
+        pp_l = pdu_l.power_port_set
+        pp_r = pdu_r.power_port_set
+
+        l_occ = [pp.port_number for pp in pp_l.all()]
+        r_occ = [pp.port_number for pp in pp_r.all()]
+        l_free = [True if x not in l_occ else False for x in range(0, 25)]
+        r_free = [True if x not in r_occ else False for x in range(0, 25)]
+
+        resp_list = []
+        for x in range(0,25):
+            resp_list.append({'pduSlot': x, 'left': l_free[x], 'right': r_free[x]})
+
+        return Response({
+            'data': resp_list
         })

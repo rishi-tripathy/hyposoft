@@ -157,11 +157,12 @@ class AssetShortSerializer(AssetSerializer):
 
 
 class AssetOfModelSerializer(serializers.HyperlinkedModelSerializer):
+    datacenter = DatacenterSerializer()
     rack = RackOfAssetSerializer()
 
     class Meta:
         model = Asset
-        fields = ['id', 'url', 'hostname', 'rack', 'rack_u', 'owner']
+        fields = ['id', 'url', 'hostname', 'datacenter', 'rack', 'rack_u', 'owner']
 
 
 # For the network graph
