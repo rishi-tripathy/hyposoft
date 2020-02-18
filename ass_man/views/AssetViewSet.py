@@ -125,11 +125,10 @@ class AssetViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         asset = serializer.save()
-        asset.asset_number = asset.id + 100000
         network_ports_json, power_ports_json = self.get_port_jsons(request)
         self.cru_network_ports(request, asset, network_ports_json)
         self.cru_power_ports(request, asset, power_ports_json)
-        asset.save()
+        # asset.save()
         # asset.datacenter.asset_set.add(asset)
         rack = asset.rack
         for i in range(asset.rack_u, asset.rack_u + asset.model.height):

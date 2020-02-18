@@ -5,6 +5,8 @@ from django.contrib.postgres.fields import ArrayField
 
 # Create your models here.
 
+class Asset_Number(models.Model):
+    next_avail = models.PositiveIntegerField()
 
 class Model(models.Model):
     vendor = models.CharField(max_length=50)
