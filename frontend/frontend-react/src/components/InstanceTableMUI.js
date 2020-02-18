@@ -144,12 +144,12 @@ export class InstanceTableMUI extends Component {
   }
 
   renderTableData() {
-    if (this.props.instances.length == 0) return (
+    if (this.props.assets.length == 0) return (
       <TableRow hover tabIndex={-1}>
         <TableCell align="center" colSpan={12}>No entries</TableCell>
       </TableRow>
     )
-    return this.props.instances.map((asset) => {
+    return this.props.assets.map((asset) => {
       const {id, model, hostname, rack, owner, rack_u} = asset //destructuring
       return (
         <TableRow

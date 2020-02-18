@@ -13,11 +13,15 @@ export class PowerPortConnectionDialog extends Component {
   constructor() {
     super();
     this.state = {
-      data: []
+      leftFree: [],
+      rightFree: [],
+      selectedRackID: null,
     }
   }
 
   componentDidMount() {
+    this.loadLeftFree();
+    this.loadRightFree();
     // const powerPorts = 
     // let listOfSelections = [];
     // for (let i = 0; i < powerPorts; i++) {
@@ -32,6 +36,18 @@ export class PowerPortConnectionDialog extends Component {
     // setPowerPortSelection({
     //   selection: selectionArrayCopy
     // });
+  }
+
+  loadLeftFree = () => {
+    this.setState({
+      leftFree: [1,2,3,4,6,7]
+    })
+  }
+
+  loadRightFree = () => {
+    this.setState({
+      rightFree: [2,3,5,6,7]
+    })
   }
 
   // handleClickOpen = () => {

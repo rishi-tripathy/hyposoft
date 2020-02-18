@@ -19,12 +19,7 @@ export class InstanceController extends Component {
   constructor() {
     super();
     this.state = {
-      instances: [{}
-        // {
-        //   id: 99,
-        //   model: 'default',
-        //   hostname: 'default',
-        // }
+      assets: [{}
       ],
       showTableView: true,
       showIndividualInstanceView: false,
@@ -43,13 +38,13 @@ export class InstanceController extends Component {
   }
 
   getInstances = () => {
-    let dst = '/api/instances/' + '?' + this.state.filterQuery + '&' + this.state.sortQuery;
+    let dst = '/api/assets/' + '?' + this.state.filterQuery + '&' + this.state.sortQuery;
     console.log('QUERY')
     console.log(dst)
     axios.get(dst).then(res => {
       // console.log(res.data.next)
       this.setState({
-        instances: res.data.results,
+        assets: res.data.results,
         prevPage: res.data.previous,
         nextPage: res.data.next,
       });
@@ -126,7 +121,7 @@ export class InstanceController extends Component {
       sort = sort + '&'
     }
 
-    let dst = '/api/instances/' + '?' + filter + sort + 'export=true';
+    let dst = '/api/assets/' + '?' + filter + sort + 'export=true';
     console.log('exporting to:  ' + dst);
     const FileDownload = require('js-file-download');
     axios.get(dst).then(res => {
@@ -201,7 +196,7 @@ export class InstanceController extends Component {
   paginateNext = () => {
     axios.get(this.state.nextPage).then(res => {
       this.setState({
-        instances: res.data.results,
+        assets: res.data.results,
         prevPage: res.data.previous,
         nextPage: res.data.next,
       });
@@ -216,7 +211,7 @@ export class InstanceController extends Component {
   paginatePrev = () => {
     axios.get(this.state.prevPage).then(res => {
       this.setState({
-        instances: res.data.results,
+        assets: res.data.results,
         prevPage: res.data.previous,
         nextPage: res.data.next,
       });
@@ -249,7 +244,7 @@ export class InstanceController extends Component {
       sort = sort + '&'
     }
 
-    let dst = '/api/instances/' + '?' + filter + sort + 'show_all=true';
+    let dst = '/api/assets/' + '?' + filter + sort + 'show_all=true';
 
     console.log('QUERY')
     console.log(dst)
@@ -284,7 +279,7 @@ export class InstanceController extends Component {
 
   render() {
     let content = <InstanceTableMUI
-      instances={this.state.instances}
+      assets={this.state.assets}
       filter_query={this.getFilterQuery}
       sendSortQuery={this.getSortQuery}
       sendRerender={this.getRerender}
