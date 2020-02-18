@@ -31,17 +31,9 @@ export class DeleteMultipleRacksForm extends Component {
     let stateCopy = Object.assign({}, this.state);
     let stateToSend = this.removeEmpty(stateCopy);
 
-    //validate
-
-    // console.log(start_rack);
-    // console.log(end_rack);
-
     const validNumRegex = new RegExp("^[A-Z]\\d+$", 'i');
-    // console.log(validNumRegex);
 
     if (validNumRegex.test(start_rack) && validNumRegex.test(end_rack)) {
-      //  console.log(stateToSend);
-
       axios.delete('/api/racks/many/', {
         data: stateToSend
       })
@@ -49,16 +41,15 @@ export class DeleteMultipleRacksForm extends Component {
           console.log(response);
           let message = response.data.results;
           alert(response.data.results);
-          this.props.sendShowTable(true);
+          window.location = '/racks'
         })
         .catch(function (error) {
           alert('Creation was not successful.\n' + JSON.stringify(error.response.data, null, 2));
         });
     } else {
-      alert("Rack Numbers must be specified by a Single Capital Letter Followed by Multiple Numbers.");
+        alert("Rack Numbers must be specified by a Single Capital Letter Followed by Multiple Numbers.");
       return
     }
-    this.props.sendShowTable(true);
   }
 
   render() {
@@ -66,7 +57,6 @@ export class DeleteMultipleRacksForm extends Component {
     let end_rack;
     return (
       <Container maxwidth="s">
-        <Link to='/racks/'><Button variant="outlined">Back</Button>{' '}</Link>
         <form onSubmit={this.handleSubmit}>
           <Grid container spacing={1}>
             <Grid item xs={12}>
@@ -83,6 +73,8 @@ export class DeleteMultipleRacksForm extends Component {
             <Grid item xs={12}>
               <Button variant="contained" type="submit" color="primary" onClick={() => this.handleSubmit}>Delete
                 -</Button>{' '}
+              <Link to='/racks/'><Button variant="outlined">Cancel</Button>{' '}</Link>
+
             </Grid>
           </Grid>
         </form>

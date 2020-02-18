@@ -112,9 +112,9 @@ class App extends React.Component {
             render={(props) => <CreateRackForm {...props} is_admin={true}/>} />
 
           <Route
-            path='/racks/edit'
+            path='/racks/:id/edit'
             exact
-            render={(props) => <EditRackForm {...props} is_admin={true}/>} />
+            render={(props) => <EditRackForm {...props}/>} />
 
           <Route
             path='/racks/delete'

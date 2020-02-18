@@ -39,7 +39,7 @@ export class EditRackForm extends Component {
   }
 
   componentDidMount() {
-    let dst = '/api/racks/'.concat(this.props.editID).concat('/');
+    let dst = '/api/racks/'.concat(this.props.match.params.id).concat('/');
     axios.get(dst).then(res => {
       this.setState({rack_number: res.data.rack_number});
       //would not change instances

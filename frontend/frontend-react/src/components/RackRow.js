@@ -62,20 +62,19 @@ export class RackRow extends Component {
             color: textColor,
             borderBottom: 'solid',
           }}>
-            <Link to={'/assets/' + this.props.id}>
+            <Link style={{color: textColor }} to={'/assets/' + this.props.id}>
             {this.props.model} {this.displayName()}
             </Link>
           </td>;
       } else if ((this.props.row === 42) || (!objectIsNull && this.props.hostname == null)) {
         //no display name, just display color
-        console.log(this.props.id);
         content =
         // <Link to={'/assets/' + this.props.id}>
           <td style={{
             fontSize: 7,
             backgroundColor: dispColor
           }}>
-           <Link to={'/assets/' + this.props.id}>{ }</Link>
+            <Link style={{color: textColor }} to={'/assets/' + this.props.id}> { } </Link>
           </td>
         // </Link>;
       } else if (objectIsNull) {
@@ -112,7 +111,6 @@ export class RackRow extends Component {
     //not condensed
     else {
       if (!objectIsNull && this.props.hostname !== null) {
-        console.log(this.props.id);
         content =
           <td style={{
             fontSize: 7,
@@ -120,19 +118,18 @@ export class RackRow extends Component {
             color: textColor,
             borderBottom: 'solid',
           }}>
-            <Link to={'/assets/' + this.props.id}>
+          <Link style={{color: textColor }} to={'/assets/' + this.props.id}>
             {this.props.model} {this.displayName()}
           </Link>
           </td>;
       } else if (!objectIsNull && this.props.hostname == null) {
-        console.log(this.props.id);
         content =
           <td style={{
             fontSize: 7,
             backgroundColor: dispColor,
             cursor: 'pointer',
           }}>
-           <Link to={'/assets/' + this.props.id}>{ }</Link>
+            <Link style={{color: textColor }} to={'/assets/' + this.props.id}>{ }</Link>
           </td>;
       } else {
         content = <td></td>;

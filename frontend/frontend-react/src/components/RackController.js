@@ -358,27 +358,34 @@ export class RackController extends Component {
     }
 
     let filters =
-      <div><Button variant="outlined" id="toggler" style={{marginBottom: '1rem'}} endIcon={<FilterListIcon />}> Filter </Button>
+ <div id="hideOnPrint">
+   <Button variant="outlined" id="toggler" style={{marginBottom: '1rem'}} endIcon={<FilterListIcon />}> Filter </Button>
         <UncontrolledCollapse toggler="#toggler">
           <RackFilters sendFilterQuery={this.getFilterQuery}/>
         </UncontrolledCollapse>
       </div>;
-    let printButton = <Button variant="outlined" onClick={this.print} endIcon={<PrintIcon />}>Print Racks</Button>;
+    let printButton = 
+      <div id="hideOnPrint">
+        <Button variant="outlined" onClick={this.print} endIcon={<PrintIcon />}>Print Racks</Button>;
+      </div>
+
     let paginateNavigation;
 
     if (this.state.prevPage == null && this.state.nextPage != null) {
       paginateNavigation =
-        <div><Button color="link" disabled>prev page</Button>{'  '}<Button color="link" onClick={this.paginateNext}>next
+      <div id="hideOnPrint">
+        <Button color="link" disabled>prev page</Button>{'  '}<Button color="link" onClick={this.paginateNext}>next
           page</Button></div>;
     } else if (this.state.prevPage != null && this.state.nextPage == null) {
       paginateNavigation =
-        <div><Button color="link" onClick={this.paginatePrev}>prev page</Button>{'  '}<Button color="link" disabled>next
+      <div id="hideOnPrint">
+      <Button color="link" onClick={this.paginatePrev}>prev page</Button>{'  '}<Button color="link" disabled>next
           page</Button></div>;
     } else if (this.state.prevPage != null && this.state.nextPage != null) {
       paginateNavigation =
-        <div><Button color="link" onClick={this.paginatePrev}>prev page</Button>{'  '}<Button color="link"
-                                                                                              onClick={this.paginateNext}>next
-          page</Button></div>;
+      <div id="hideOnPrint">
+      <Button color="link" onClick={this.paginatePrev}>prev page</Button>{'  '}<Button color="link"
+          onClick={this.paginateNext}>next page</Button></div>;
     }
 
     // if we're not on the table, then don't show pagination
@@ -390,26 +397,34 @@ export class RackController extends Component {
 
 
     return (
-      <Container maxwidth="xl">
-      <Grid className="themed-container" spacing={2}>
-        <div id="hideOnPrint">
-        <Grid item justify="flex-start" alignContent='center' xs={12}/>
-        <Grid item justify="flex-start" alignContent='center' xs={10}>
-              <Typography variant="h3">
-                Racks
-              </Typography>
+      <div>
+        <Container maxwidth="xl">
+        <Grid container className="themed-container" spacing={2}>
+          <Grid item justify="flex-start" alignContent='center' xs={12}/>
+          <Grid item justify="flex-start" alignContent='center' xs={10}>
+                <Typography variant="h3">
+                <div id="hideOnPrint">
+                  Racks
+                </div>
+                </Typography>
+          </Grid>
+          <Grid item justify="flex-start" alignContent='center' xs={12}>
+            {filters}{' '}
+          </Grid>
+          <Grid item justify="flex-start" alignContent='center' xs={12}>
+            {printButton}{' '}
+          </Grid>
+          <Grid item justify="flex-start" alignContent='center' xs={12}>
+            {paginateNavigation}{' '}
+          </Grid>
+          <Grid item justify="flex-start" alignContent='center' xs={12}>
+          {content}
+          </Grid>
         </Grid>
-          {filters}{' '}
-          {printButton}{' '}
-          {paginateNavigation}{' '}
-        </div>
-        {content}
-        </Grid>
-      </Container>
+        </Container>
+      </div>
     )
   }
 }
-
-//}
 
 export default RackController

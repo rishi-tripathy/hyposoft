@@ -46,8 +46,8 @@ export class CreateRackForm extends Component {
       if ((validNumRegex.test(start_rack))) {
         axios.post('/api/racks/', stateToSend)
           .then(function (response) {
-            //   let message = response.data.results;
             alert('Creation of ' + start_rack + ' was successful.');
+          window.location = '/racks'
           })
           .catch(function (error) {
             alert('Creation was not successful.\n' + JSON.stringify(error.response.data, null, 2));
@@ -63,7 +63,7 @@ export class CreateRackForm extends Component {
           .then(function (response) {
             let message = response.data.results;
             alert(response.data.results);
-            this.props.sendShowTable(true);
+            window.location = '/racks'
           })
           .catch(function (error) {
             alert('Creation was not successful.\n' + JSON.stringify(error.response.data, null, 2));
@@ -76,13 +76,18 @@ export class CreateRackForm extends Component {
 
   render() {
     return (
-      <Container maxwidth="s">
-        <Link to='/racks/'><Button variant="outlined">Back</Button>{' '}</Link>
-        <form onSubmit={this.handleSubmit} action='/racks/'>
-          <Grid container spacing={1}>
-            <Grid item xs={12}>
-              <h1>Create Rack(s)</h1>
-            </Grid>
+      <div>
+      <Container maxwidth="xl">
+        <Grid container className="themed-container" spacing={2} />
+          <Grid item alignContent='center' xs={12}>
+            <form onSubmit={this.handleSubmit} action='/racks/'>>
+              <Grid container spacing={1}>
+                <Grid item xs={12}>
+                  <h1>Create Rack(s)</h1>
+                </Grid>
+                <Grid item xs={12}>
+                  <p>Enter a valid rack number (i.e. "A1) the first field to create a single rack. Enter a valid rack number in the second field to create a range of racks. </p>
+                </Grid>
             <Grid item xs={3}>
               <TextField label='Creation Range Start' type="text" fullWidth
                          onChange={e => this.setState({rack_num_start: e.target.value, rack_number: e.target.value})}/>
@@ -94,10 +99,13 @@ export class CreateRackForm extends Component {
             <Grid item xs={12}>
               <Button variant="contained" type="submit" color="primary" onClick={() => this.handleSubmit}>Create
                 +</Button>{' '}
+              <Link to='/racks/'><Button variant="outlined">Cancel</Button>{' '}</Link>
             </Grid>
           </Grid>
         </form>
+      </Grid>
       </Container>
+      </div>
     )
   }
 
