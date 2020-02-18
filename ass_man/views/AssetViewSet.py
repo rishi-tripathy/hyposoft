@@ -6,6 +6,7 @@ from django.db.models.functions import Concat, Substr, Cast
 from django.db.models.deletion import ProtectedError
 from django.db.models import CharField
 from django.core.exceptions import ObjectDoesNotExist
+import re
 # API
 from rest_framework import viewsets
 
@@ -83,12 +84,12 @@ class AssetViewSet(viewsets.ModelViewSet):
 
     # Overriding of super functions
 
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        asset = serializer.save()
-        asset.asset_number = asset.id + 100000
-        # ports = []
+    def reformat_mac_address(self, mac):
+        mac_search = re.search('([0-9a-f]{2})[-:_]?([0-9a-f]{2})[-:_]([0-9a-f]{2})[-:_]?([0-9a-f]{2})[-:_]?([0-9a-f]{2})[-:_]?([0-9a-f]{2})', mac.lower())
+        reformatted = '{}:{}:{}:{}:{}:{}'.format(mac_search.group(1), mac_search.group(2), mac_search.group(3), mac_search.group(4), mac_search.group(5), mac_search.group(6))
+        return reformatted
+
+    def get_port_jsons(self, request):
         try:
             network_ports_json = request.data["network_ports"]
         except KeyError:
@@ -97,7 +98,20 @@ class AssetViewSet(viewsets.ModelViewSet):
             power_ports_json = request.data["power_ports"]
         except KeyError:
             power_ports_json = {}
+        return network_ports_json, power_ports_json
 
+    def cru_network_ports(self, request, asset, network_ports_json):
+        for i in network_ports_json:
+            try:
+                connection_asset = Asset.objects.get(asset_number=i['connection']['asset_number'])
+                connection_port = connection_asset.network_port_set.get(name=i['connection']['port_name'])
+            except ObjectDoesNotExist:
+                connection_port = None
+            reformatted_mac = self.reformat_mac_address(i['mac'])
+            port = Network_Port.objects.create(name=i['name'], mac=reformatted_mac, connection=connection_port, asset=asset)
+        return
+
+    def cru_power_ports(self, request, asset, power_ports_json):
         for i in power_ports_json:
             try:
                 pdu = PDU.objects.get(name=i['pdu'])
@@ -105,27 +119,16 @@ class AssetViewSet(viewsets.ModelViewSet):
                 pdu = None
             port_num = int(i['port_number'])
             pp = Power_Port.objects.create(pdu=pdu, port_number=port_num, asset=asset)
+        return
 
-        for i in network_ports_json:
-            try:
-                connection_asset = Asset.objects.get(asset_number=i['connection']['asset_number'])
-                print(connection_asset.id)
-                connection_port = connection_asset.network_port_set.get(name=i['connection']['port_name'])
-                print(connection_port.id)
-            except ObjectDoesNotExist:
-                connection_port = None
-            reformatted_mac = validate_mac_address(i['mac'])
-            try:
-                assert reformatted_mac is not ''
-            except AssertionError:
-                return Response({
-                    'Bad MAC Address': i['mac'],
-                }, status=status.HTTP_400_BAD_REQUEST)
-
-            port = Network_Port.objects.create(name=i['name'], mac=reformatted_mac, connection=connection_port, asset=asset)
-            # ports.append(port)
-        # for p in ports:
-        #     asset.network_port_set.add(p)
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        asset = serializer.save()
+        asset.asset_number = asset.id + 100000
+        network_ports_json, power_ports_json = self.get_port_jsons(request)
+        self.cru_network_ports(request, asset, network_ports_json)
+        self.cru_power_ports(request, asset, power_ports_json)
         asset.save()
         # asset.datacenter.asset_set.add(asset)
         rack = asset.rack
@@ -135,16 +138,12 @@ class AssetViewSet(viewsets.ModelViewSet):
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
-    def validate_mac_address(mac):
-        if not re.match('^([0-9a-f]{2})[-:_]?([0-9a-f]{2})[-:_]([0-9a-f]{2})[-:_]?([0-9a-f]{2})[-:_]?([0-9a-f]{2})[-:_]?([0-9a-f]{2})', mac.lower()):
-            return ''
-        mac_search = re.search('([0-9a-f]{2})[-:_]?([0-9a-f]{2})[-:_]([0-9a-f]{2})[-:_]?([0-9a-f]{2})[-:_]?([0-9a-f]{2})[-:_]?([0-9a-f]{2})', mac.lower())
-        reformatted = '{}:{}:{}:{}:{}:{}'.format(mac_search.group(1), mac_search.group(2), mac_search.group(3), mac_search.group(4), mac_search.group(5), mac_search.group(6))
-        return reformatted
-
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
         asset = self.get_object()
+        network_ports_json, power_ports_json = self.get_port_jsons(request)
+        self.cru_network_ports(request, asset, network_ports_json)
+        self.cru_power_ports(request, asset, power_ports_json)
         prev_rack = asset.rack
         prev_rack_u = asset.rack_u
         serializer = self.get_serializer(asset, data=request.data, partial=partial)

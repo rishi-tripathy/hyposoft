@@ -43,10 +43,43 @@ class AssetSerializer(serializers.HyperlinkedModelSerializer):
             })
         return
 
-    def create(self, validated_data):
-        self.check_rack_u_validity(validated_data)
-        if self.context['power_ports']:
-            for i in self.context['power_ports']:
+    def check_mac_format(self, mac):
+        return re.match('^([0-9a-f]{2})[-:_]?([0-9a-f]{2})[-:_]([0-9a-f]{2})[-:_]?([0-9a-f]{2})[-:_]?([0-9a-f]{2})[-:_]?([0-9a-f]{2})', mac.lower())
+
+    def check_network_ports(self, network_ports):
+        if network_ports:
+            for i in network_ports:
+                if not self.check_mac_format(i['mac']):
+                    raise serializers.ValidationError({
+                        'Bad MAC address': i['mac']
+                    })
+                connection_asset_num = i['connection']['asset_number']
+                connection_port_name = i['connection']['port_name']
+                try:
+                    connection_asset = Asset.objects.get(asset_number=connection_asset_num)
+                    connection_port = connection_asset.network_port_set.get(name=connection_port_name)
+                except ObjectDoesNotExist:
+                    connection_asset = None
+                    connection_port = None
+                    continue
+                # check if connected port is in the same datacenter
+                try:
+                    assert connection_asset.datacenter == validated_data['datacenter']
+                except AssertionError:
+                    raise serializers.ValidationError({
+                        'Network Port Error': 'the network connection port is in a different datacenter.'
+                    })
+                # check if connected port is occupied
+                try:
+                    assert connection_port.connection is None
+                except AssertionError:
+                    raise serializers.ValidationError({
+                        'Network Port Error': 'the network connection port is already occupied.'
+                    })
+
+    def check_power_ports(self, power_ports):
+        if power_ports:
+            for i in power_ports:
                 try:
                     pdu = PDU.objects.get(name=i['pdu'])
                 except PDU.DoesNotExist:
@@ -64,36 +97,17 @@ class AssetSerializer(serializers.HyperlinkedModelSerializer):
                     raise serializers.ValidationError({
                         'PDU Error': 'this PDU port is already in use.'
                     })
-        if self.context['network_ports']:
-            for i in self.context['network_ports']:
-                connection_asset_num = i['connection']['asset_number']
-                connection_port_name = i['connection']['port_name']
-                try:
-                    connection_asset = Asset.objects.get(asset_number=connection_asset_num)
-                    connection_port = connection_asset.network_port_set.get(name=connection_port_name)
-                except ObjectDoesNotExist:
-                    connection_asset = None
-                    connection_port = None
-                    continue
 
-                # check if connected port is in the same datacenter
-                try:
-                    assert connection_asset.datacenter == validated_data['datacenter']
-                except AssertionError:
-                    raise serializers.ValidationError({
-                        'Network Port Error': 'the network connection port is in a different datacenter.'
-                    })
-                # check if connected port is occupied
-                try:
-                    assert connection_port.connection is None
-                except AssertionError:
-                    raise serializers.ValidationError({
-                        'Network Port Error': 'the network connection port is already occupied.'
-                    })
+    def create(self, validated_data):
+        self.check_rack_u_validity(validated_data)
+        self.check_power_ports(self.context['power_ports'])
+        self.check_network_ports(self.context['network_ports'])
         return super().create(validated_data)
 
     def update(self, asset, validated_data):
         self.check_rack_u_validity(validated_data, asset)
+        self.check_power_ports(self.context['power_ports'])
+        self.check_network_ports(self.context['network_ports'])
         try:
             assert asset.model == validated_data['model']
         except AssertionError:
