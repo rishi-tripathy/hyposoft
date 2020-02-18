@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField
 
+
 # Create your models here.
 
 
@@ -34,19 +35,23 @@ class Asset(models.Model):
     def __str__(self):
         return self.hostname or ''
 
+
 class Network_Port(models.Model):
     name = models.CharField(max_length=15, blank=True, default='mgmt')
     mac = models.CharField(max_length=17, blank=True, null=True)
     connection = models.ForeignKey('self', on_delete=models.SET_NULL, null=True)
     asset = models.ForeignKey('Asset', on_delete=models.CASCADE)
 
+
 class Power_Port(models.Model):
     pdu = models.ForeignKey('PDU', on_delete=models.SET_NULL, null=True)
     port_number = models.PositiveIntegerField()
     asset = models.ForeignKey('Asset', on_delete=models.CASCADE)
 
+
 class PDU(models.Model):
     name = models.CharField(max_length=20, blank=True, null=True)
+
 
 class Datacenter(models.Model):
     abbreviation = models.CharField(max_length=6)
@@ -54,6 +59,7 @@ class Datacenter(models.Model):
 
     def __str__(self):
         return self.abbreviation or ''
+
 
 class Rack(models.Model):
     rack_number = models.CharField(max_length=5)

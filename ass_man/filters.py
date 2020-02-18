@@ -27,6 +27,7 @@ class ModelFilter(filters.FilterSet):
 
 
 class AssetFilter(filters.FilterSet):
+    datacenter = filters.NumberFilter(field_name='datacenter__pk', lookup_expr='exact')
     model = filters.NumberFilter(field_name='model__pk', lookup_expr='exact')
     vendor = filters.CharFilter(field_name='model__vendor', lookup_expr='icontains')
     model_number = filters.CharFilter(field_name='model__model_number', lookup_expr='icontains')
@@ -36,7 +37,7 @@ class AssetFilter(filters.FilterSet):
 
     class Meta:
         model = Asset
-        fields = ['vendor', 'model_number', 'hostname', 'owner', 'comment']
+        fields = ['datacenter', 'vendor', 'model_number', 'hostname', 'owner', 'comment']
 
 
 class AssetFilterByRack(rest_filters.BaseFilterBackend):
@@ -61,6 +62,8 @@ class AssetFilterByRack(rest_filters.BaseFilterBackend):
 
 
 class RackFilter(rest_filters.BaseFilterBackend):
+    datacenter = filters.NumberFilter(field_name='datacenter__pk', lookup_expr='exact')
+
     def filter_queryset(self, request, queryset, view):
         start_letter = request.query_params.get('rack_num_start')[0].upper() if request.query_params.get(
             'rack_num_start') else 'A'
@@ -70,6 +73,10 @@ class RackFilter(rest_filters.BaseFilterBackend):
             else 'Z'
         end_number = request.query_params.get('rack_num_end')[1:] if request.query_params.get('rack_num_end') \
             else '999'
-        return queryset\
-            .filter(rack_letter__range=(start_letter, end_letter))\
+        return queryset \
+            .filter(rack_letter__range=(start_letter, end_letter)) \
             .filter(number_in_rack__range=(start_number, end_number))
+
+    class Meta:
+        model = Rack
+        fields = ['datacenter']

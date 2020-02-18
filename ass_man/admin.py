@@ -1,6 +1,7 @@
 from django.contrib import admin
 from .models import Model, Asset, Rack  # add this
 
+
 # Register your models here.
 
 
