@@ -3,15 +3,18 @@ import RacksView from './RacksView';
 import CreateRackForm from './CreateRackForm'
 import EditRackForm from './EditRackForm'
 import RackFilters from './RackFilters'
-import DeleteMultipleRacksForm from './DeleteMultipleRacksForm'
+import PrintIcon from '@material-ui/icons/Print';
+import FilterListIcon from '@material-ui/icons/FilterList';
 import axios from 'axios'
 import '../stylesheets/Printing.css'
 import '../stylesheets/RackTable.css'
 import '../stylesheets/RacksView.css'
-import CreateMultipleRacksForm from './CreateMultipleRacksForm';
-import {UncontrolledCollapse, Button, CardBody, Card, Container} from 'reactstrap';
+import {UncontrolledCollapse, CardBody, Card} from 'reactstrap';
 import DetailedInstance from './DetailedInstance'
-
+import {
+  Grid, Button, Container, Paper, ButtonGroup, Switch, FormControlLabel, Typography
+} from "@material-ui/core"
+import {Link} from 'react-router-dom'
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 export class RackController extends Component {
@@ -333,6 +336,9 @@ export class RackController extends Component {
     let content;
 
     if (this.state.showRacksView) {
+      if(this.state.racks == null){
+        content = "No Racks. Create a new one to view."
+      }
       content =
         <RacksView rack={this.state.racks}
                    sendRerender={this.getRerender}
@@ -346,51 +352,40 @@ export class RackController extends Component {
                    sendShowDelete={this.getShowDelete}
                    sendShowAllRacks={this.getShowAllRacks}
                    is_admin={this.props.is_admin}/>
-    } else if (this.state.showDetailedInstanceView) {
-      content = <DetailedInstance instanceID={this.state.IDurl}
-                                  sendShowTable={this.getShowRacks}/>
-    } else if (this.state.showCreateView) {
-      content = <CreateRackForm sendShowTable={this.getShowRacks}
-                                sendRerender={this.getRerender}/>
-    } else if (this.state.showMassCreateView) {
-      content = <CreateMultipleRacksForm sendShowTable={this.getShowRacks}
-                                         sendRerender={this.getRerender}/>
-    } else if (this.state.showMassDeleteView) {
-      content = <DeleteMultipleRacksForm sendShowTable={this.getShowRacks}
-                                         sendRerender={this.getRerender}/>
-    } else if (this.state.showEditView) {
-      content = <EditRackForm editID={this.state.editID}
-                              sendShowTable={this.getShowRacks}
-                              sendShowCreate={this.getShowCreate}
-                              sendShowMassCreate={this.getShowMassCreate}
-                              sendShowMassDelete={this.getShowMassDelete}
-                              sendShowEdit={this.getShowEdit}
-                              sendShowDelete={this.getShowDelete}
-                              sendRerender={this.getRerender}/>
+    }
+    else{
+      content = <p></p>;
     }
 
     let filters =
-      <div><Button color="primary" id="toggler" style={{marginBottom: '1rem'}}> Toggle Filtering Dialog </Button>
+ <div id="hideOnPrint">
+   <Button variant="outlined" id="toggler" style={{marginBottom: '1rem'}} endIcon={<FilterListIcon />}> Filter </Button>
         <UncontrolledCollapse toggler="#toggler">
           <RackFilters sendFilterQuery={this.getFilterQuery}/>
         </UncontrolledCollapse>
       </div>;
-    let printButton = <Button color="primary" onClick={this.print}>Print Racks</Button>;
+    let printButton = 
+      <div id="hideOnPrint">
+        <Button variant="outlined" onClick={this.print} endIcon={<PrintIcon />}>Print Racks</Button>;
+      </div>
+
     let paginateNavigation;
 
     if (this.state.prevPage == null && this.state.nextPage != null) {
       paginateNavigation =
-        <div><Button color="link" disabled>prev page</Button>{'  '}<Button color="link" onClick={this.paginateNext}>next
+      <div id="hideOnPrint">
+        <Button color="link" disabled>prev page</Button>{'  '}<Button color="link" onClick={this.paginateNext}>next
           page</Button></div>;
     } else if (this.state.prevPage != null && this.state.nextPage == null) {
       paginateNavigation =
-        <div><Button color="link" onClick={this.paginatePrev}>prev page</Button>{'  '}<Button color="link" disabled>next
+      <div id="hideOnPrint">
+      <Button color="link" onClick={this.paginatePrev}>prev page</Button>{'  '}<Button color="link" disabled>next
           page</Button></div>;
     } else if (this.state.prevPage != null && this.state.nextPage != null) {
       paginateNavigation =
-        <div><Button color="link" onClick={this.paginatePrev}>prev page</Button>{'  '}<Button color="link"
-                                                                                              onClick={this.paginateNext}>next
-          page</Button></div>;
+      <div id="hideOnPrint">
+      <Button color="link" onClick={this.paginatePrev}>prev page</Button>{'  '}<Button color="link"
+          onClick={this.paginateNext}>next page</Button></div>;
     }
 
     // if we're not on the table, then don't show pagination
@@ -400,21 +395,36 @@ export class RackController extends Component {
       printButton = <p></p>;
     }
 
+
     return (
-      <Container className="themed-container">
-        <div id="hideOnPrint">
-          {filters}{' '}
-          {printButton}{' '}
-          <br></br>
-          <br></br>
-          {paginateNavigation}{' '}
-        </div>
-        {content}
-      </Container>
+      <div>
+        <Container maxwidth="xl">
+        <Grid container className="themed-container" spacing={2}>
+          <Grid item justify="flex-start" alignContent='center' xs={12}/>
+          <Grid item justify="flex-start" alignContent='center' xs={10}>
+                <Typography variant="h3">
+                <div id="hideOnPrint">
+                  Racks
+                </div>
+                </Typography>
+          </Grid>
+          <Grid item justify="flex-start" alignContent='center' xs={12}>
+            {filters}{' '}
+          </Grid>
+          <Grid item justify="flex-start" alignContent='center' xs={12}>
+            {printButton}{' '}
+          </Grid>
+          <Grid item justify="flex-start" alignContent='center' xs={12}>
+            {paginateNavigation}{' '}
+          </Grid>
+          <Grid item justify="flex-start" alignContent='center' xs={12}>
+          {content}
+          </Grid>
+        </Grid>
+        </Container>
+      </div>
     )
   }
 }
-
-//}
 
 export default RackController

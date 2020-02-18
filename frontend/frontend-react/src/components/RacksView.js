@@ -5,10 +5,13 @@ import '../stylesheets/RackTable.css'
 import '../stylesheets/Printing.css'
 import RackTable from './RackTable'
 import axios from 'axios'
-import {Button} from 'reactstrap'
-import ButtonToolbar from "reactstrap/es/ButtonToolbar";
-import ButtonGroup from "reactstrap/es/ButtonGroup";
-
+import {
+  Grid, Button, Container, Paper, ButtonGroup, Switch, FormControlLabel, Typography, IconButton, Tooltip
+} from "@material-ui/core"
+import EditIcon from '@material-ui/icons/Edit';
+import DeleteIcon from '@material-ui/icons/Delete';
+import AddCircleIcon from "@material-ui/icons/AddCircle";
+import {Link} from 'react-router-dom'
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 export class RacksView extends Component {
@@ -18,6 +21,8 @@ export class RacksView extends Component {
     super();
     this.state = {
       condensedView: false,
+      showAllView: false,
+      count: 1,
     }
     this.showCreateForm = this.showCreateForm.bind(this);
     this.showMassCreateForm = this.showMassCreateForm.bind(this);
@@ -82,60 +87,139 @@ export class RacksView extends Component {
     this.props.sendViewsToController(show, id);
   }
 
+  toggleShowingAll = () => {
+    console.log("showing all");
+    console.log(this.state.count);
+    if(this.state.count === 1){
+      this.setState({
+        count: 2,
+      });
+      console.log('after');
+      console.log(this.state.count);
+      this.showAllRacks();
+    }
+    else{
+      this.setState(prevState => ({
+        showingAll: !prevState.showingAll
+      }));
+      this.state.showingAll ? (
+        this.showAllRacks()
+      ) : (this.showLessRacks())
+    }
+  }
+
+  toggleCondensed = () => {
+    this.setState(prevState => ({
+      condensedView: !prevState.condensedView
+    }));
+  }
+
   render() {
-    let adminTools;
-    if (this.props.is_admin) {
-      adminTools =
-        <ButtonGroup>
-          <Button color='success' size="sm" onClick={this.showCreateForm}>Add Single Rack +</Button>{' '}
-          <Button color='success' size="sm" onClick={this.showMassCreateForm}>Add Multiple Racks ++</Button>{' '}
-          <Button color='danger' size="sm" onClick={this.showMassDeleteForm}>Delete Multiple Racks --</Button>{' '}
-        </ButtonGroup>
-    } else {
-      adminTools = <p></p>;
+    let add = this.props.is_admin ? (
+      <Link to={'/racks/create'}>
+        <Button color="primary" variant="contained" endIcon={<AddCircleIcon/>}>
+          Add Rack(s)
+        </Button>
+      </Link>
+    ) : {};
+
+    let deleteMultiple = this.props.is_admin ? (
+      <Link to={'/racks/delete'}>
+        <Button color='primary' variant="contained" endIcon={<DeleteIcon/>}>
+          Delete Rack Range
+        </Button>
+      </Link>
+    ) : {};
+
+    let showAll = <FormControlLabel labelPlacement="left"
+      control={
+        <Switch value={this.state.showingAll} onChange={() => this.toggleShowingAll()}/>
+      }
+      label={
+        <Typography variant="subtitle1"> Show All</Typography>
+      }
+    />    
+
+    let condensed  = <FormControlLabel labelPlacement="left"
+      control={
+        <Switch value={this.state.condensedView} onChange={() => this.toggleCondensed()}/>
+      }
+      label={
+        <Typography variant="subtitle1"> Condensed</Typography>
+      }
+    />
+
+    let empty;
+
+    if(!this.props.rack){
+      empty = 
+      <Grid item justify="flex-start" alignContent='center' xs={2}>
+        No racks.
+      </Grid>;
     }
 
-    return (
-      <div>
-        <div id='hideOnPrint'>
-          <ButtonToolbar>
-            {adminTools}
-            <ButtonGroup>
-              <Button size="sm" onClick={this.handleCondensation}>Condensed Rack View</Button>{' '}
-              <Button size="sm" onClick={this.handleCondensationOff}>Heightened Rack View</Button>{' '}
-              <Button size="sm" onClick={this.showAllRacks}>Show All Racks</Button>{' '}
-              <Button size="sm" onClick={this.showLessRacks}>Show Less Racks</Button>{' '}
-            </ButtonGroup>
-          </ButtonToolbar>
-        </div>
-        <br></br>
-        <h1>Racks</h1>
 
-        {this.props.rack.map((item, key) =>
-          <div id="rackContainer">
-            <div id='hideOnPrint'>
-              {this.props.is_admin ? (
-                  <ButtonGroup>
-                    <Button color="warning" size="sm" onClick={() => this.showEditForm(item.id)}>Edit this
-                      Rack</Button>{' '}
-                    <Button color="danger" size="sm" onClick={() => this.showDeleteForm(item.id)}>Delete this
-                      Rack</Button>{' '}
-                  </ButtonGroup>
-                )
-                :
-                (<p></p>)}
+
+    return (
+      <Container maxwidth="xl">
+          <Grid container className="themed-container" spacing={2}>
+            <Grid item justify="flex-start" alignContent='center' xs={12}/>
+            <Grid item justify="flex-start" alignContent='flex-start' xs={2}>
+            <div id="hideOnPrint">
+              {add}
             </div>
-            <br></br>
-            <br></br>
-            <RackTable
-              sending={this.sendFromRow}
-              sendUrl={this.sendUrlInView}
-              rack={item}
-              condensedState={this.state.condensedView}
-              is_admin={this.props.is_admin}/>
-          </div>
+            </Grid>
+            <Grid item justify="center" alignContent="center" xs={3}>
+              <div id="hideOnPrint">
+              {deleteMultiple}
+              </div>
+            </Grid>
+            <Grid item justify="center" alignContent="center" xs={3}>
+            <div id="hideOnPrint">              
+              {condensed}
+              </div>
+            </Grid>
+            <Grid item justify="center" alignContent="center" xs={3}>
+              <div id="hideOnPrint">
+              {showAll}
+              </div>
+            </Grid>
+            <Grid item xs={12}>
+              {this.props.rack.map((item, key) =>
+              <div id="rackContainer">
+                <div id='hideOnPrint'>
+                  {this.props.is_admin ? (
+                      <ButtonGroup>
+                        <Link to={'/racks/' + item.id + '/edit'}>
+                          < Tooltip title='Edit'>
+                            <IconButton aria-label="edit">
+                              <EditIcon />
+                            </IconButton>
+                          </ Tooltip>
+                        </Link>
+                        < Tooltip title='Delete'>
+                         <IconButton color='secondary' onClick={() => this.showDeleteForm(item.id)}>
+                           <DeleteIcon />
+                          </IconButton>
+                        </Tooltip>
+                      </ButtonGroup>
+                    )
+                    :
+                    (<p></p>)}
+                </div> 
+                <Grid item justify="flex-start" alignContent='center' xs={12} p={2}>
+                    <RackTable
+                      sending={this.sendFromRow}
+                      sendUrl={this.sendUrlInView}
+                      rack={item}
+                      condensedState={this.state.condensedView}
+                      is_admin={this.props.is_admin}/>
+                </Grid>
+              </div>
         )}
-      </div>
+            </Grid>
+          </Grid>
+        </Container>
     )
   }
 }
