@@ -1,6 +1,7 @@
 import React, {Component} from 'react'
 import '../stylesheets/RackTable.css'
 import '../stylesheets/Printing.css'
+import {Link} from 'react-router-dom'
 
 export class RackRow extends Component {
 
@@ -24,7 +25,7 @@ export class RackRow extends Component {
   handleInstanceClick = (id) => {
 
     if (id !== null) {
-      this.props.sendFromRow(true, id);
+      // this.props.sendFromRow(true, id);
     }
   }
 
@@ -57,21 +58,25 @@ export class RackRow extends Component {
         content =
           <td style={{
             fontSize: 7,
-            background: dispColor,
+            backgroundColor: dispColor,
             color: textColor,
             borderBottom: 'solid',
           }}>
+            <Link style={{color: textColor }} to={'/assets/' + this.props.id}>
             {this.props.model} {this.displayName()}
+            </Link>
           </td>;
       } else if ((this.props.row === 42) || (!objectIsNull && this.props.hostname == null)) {
         //no display name, just display color
         content =
+        // <Link to={'/assets/' + this.props.id}>
           <td style={{
             fontSize: 7,
-            background: dispColor
+            backgroundColor: dispColor
           }}>
-
-          </td>;
+            <Link style={{color: textColor }} to={'/assets/' + this.props.id}> { } </Link>
+          </td>
+        // </Link>;
       } else if (objectIsNull) {
         //only null if 1 or 42
         if (this.props.row === '1') {
@@ -84,7 +89,6 @@ export class RackRow extends Component {
         } else if (this.props.row === '42') {
           content =
             <td>
-
             </td>;
         } else if (this.props.model === '...') {
           // ... case
@@ -110,20 +114,22 @@ export class RackRow extends Component {
         content =
           <td style={{
             fontSize: 7,
-            background: dispColor,
+            backgroundColor: dispColor,
             color: textColor,
             borderBottom: 'solid',
           }}>
+          <Link style={{color: textColor }} to={'/assets/' + this.props.id}>
             {this.props.model} {this.displayName()}
+          </Link>
           </td>;
       } else if (!objectIsNull && this.props.hostname == null) {
         content =
           <td style={{
             fontSize: 7,
-            background: dispColor,
+            backgroundColor: dispColor,
             cursor: 'pointer',
           }}>
-
+            <Link style={{color: textColor }} to={'/assets/' + this.props.id}>{ }</Link>
           </td>;
       } else {
         content = <td></td>;
@@ -140,15 +146,15 @@ export class RackRow extends Component {
     }
 
     return (
-      <tr onClick={() => this.handleInstanceClick(this.props.id)}>
-        <td>
-          {row}
-        </td>
-        {content}
-        <td>
-          {row}
-        </td>
-      </tr>
+        <tr>
+          <td>
+            {row}
+          </td>
+          {content}
+          <td>
+            {row}
+          </td>
+        </tr>
     )
   }
 }
