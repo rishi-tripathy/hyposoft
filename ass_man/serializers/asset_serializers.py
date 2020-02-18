@@ -1,4 +1,4 @@
-from ass_man.models import Asset, Power_Port, Network_Port, PDU
+from ass_man.models import Asset, Power_Port, Network_Port, PDU, Asset_Number
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from django.core.validators import MinValueValidator
@@ -102,6 +102,7 @@ class AssetSerializer(serializers.HyperlinkedModelSerializer):
         self.check_rack_u_validity(validated_data)
         self.check_power_ports(self.context['power_ports'])
         self.check_network_ports(self.context['network_ports'])
+        validated_data = self.check_asset_number(validated_data)
         return super().create(validated_data)
 
     def update(self, asset, validated_data):
@@ -125,6 +126,32 @@ class AssetSerializer(serializers.HyperlinkedModelSerializer):
                     value.__str__())
             )
         return value
+
+    def check_asset_number(self, validated_data):
+        try:
+            validated_data['asset_number']
+            try:
+                Asset.objects.get(asset_number=validated_data['asset_number'])
+            except Asset.DoesNotExist:
+                return validated_data
+            raise serializers.ValidationError(
+                "Asset Number: {} is already taken.".format(validated_data['asset_number'])
+            )
+        except KeyError:
+            try:
+                num = Asset_Number.objects.get(pk=1)
+            except Asset_Number.DoesNotExist:
+                num = Asset_Number.objects.create(next_avail=100000)
+            try:
+                curr = num.next_avail
+                while True:
+                    Asset.objects.get(asset_number=curr)
+                    curr += 1
+            except Asset.DoesNotExist:
+                num.next_avail = curr + 1
+                num.save()
+                validated_data['asset_number'] = curr
+                return validated_data
 
     class Meta:
         model = Asset
