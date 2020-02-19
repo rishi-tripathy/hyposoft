@@ -44,7 +44,9 @@ class AssetSerializer(serializers.HyperlinkedModelSerializer):
         return
 
     def check_mac_format(self, mac):
-        return re.match('^([0-9a-f]{2})[-:_]?([0-9a-f]{2})[-:_]([0-9a-f]{2})[-:_]?([0-9a-f]{2})[-:_]?([0-9a-f]{2})[-:_]?([0-9a-f]{2})', mac.lower())
+        return re.match(
+            '^([0-9a-f]{2})[-:_]?([0-9a-f]{2})[-:_]([0-9a-f]{2})[-:_]?([0-9a-f]{2})[-:_]?([0-9a-f]{2})[-:_]?([0-9a-f]{2})',
+            mac.lower())
 
     def check_network_ports(self, network_ports):
         if network_ports:
@@ -190,6 +192,12 @@ class AssetOfModelSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Asset
         fields = ['id', 'url', 'hostname', 'datacenter', 'rack', 'rack_u', 'owner']
+
+
+class AssetHostnameSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Asset
+        fields = ['id', 'hostname']
 
 
 # For the network graph
