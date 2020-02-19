@@ -189,7 +189,7 @@ export class RacksView extends Component {
               <div id="rackContainer">
                 <div id='hideOnPrint'>
                   {this.props.is_admin ? (
-                      <ButtonGroup>
+                      <ButtonGroup alignContent='center'>
                         <Link to={'/racks/' + item.id + '/edit'}>
                           < Tooltip title='Edit'>
                             <IconButton aria-label="edit">
