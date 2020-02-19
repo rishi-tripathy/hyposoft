@@ -15,7 +15,7 @@ class ModelFilter(filters.FilterSet):
     model_number = filters.CharFilter(field_name='model_number', lookup_expr='icontains')
     height = filters.NumericRangeFilter(field_name='height', lookup_expr='range')
     color = filters.CharFilter(field_name='display_color', lookup_expr='iexact')
-    network_ports = filters.NumericRangeFilter(field_name='network_ports', lookup_expr='range')
+    network_ports_num = filters.NumericRangeFilter(field_name='network_ports_num', lookup_expr='range')
     power_ports = filters.NumericRangeFilter(field_name='power_ports', lookup_expr='range')
     cpu = filters.CharFilter(field_name='cpu', lookup_expr='icontains')
     memory = filters.NumericRangeFilter(field_name='memory', lookup_expr='range')
@@ -24,19 +24,8 @@ class ModelFilter(filters.FilterSet):
 
     class Meta:
         model = Model
-        fields = ['vendor', 'model_number', 'height', 'color', 'network_ports',
+        fields = ['vendor', 'model_number', 'height', 'color', 'network_ports_num',
                   'power_ports', 'cpu', 'memory', 'storage', 'comment']
-
-
-class ModelFilterByNPNum(rest_filters.BaseFilterBackend):
-    def filter_queryset(self, request, queryset, view):
-        start_letter = int(request.query_params.get('num_np_min')) if request.query_params.get('num_np_min') else 0
-        end_letter = int(request.query_params.get('num_np_max')) if request.query_params.get('num_np_max') else 999
-
-        queryset = Model.objects.all().annotate(num_network_ports=ArrayLenTransform('network_ports'))
-
-        return queryset \
-            .filter(num_network_ports__range=(start_letter, end_letter))
 
 
 class AssetFilter(filters.FilterSet):
