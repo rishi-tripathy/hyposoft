@@ -236,7 +236,7 @@ export class NetworkPortConnectionDialog extends Component {
     console.log(this.state)
     //return (<div></div>)
     let configuredMessage = (this.state.selectedDatacenterOption && this.state.selectedRackOption && this.state.selectedNetworkPortOption && this.state.selectedAssetOption)
-      ? <p>Configured: {this.state.selectedNetworkPortOption.id}</p>
+      ? <p>Configured: {this.state.selectedNetworkPortOption.name}</p>
       : <p>Not configured.</p>
 
     let selections = this.createSelectionBoxes();
@@ -246,7 +246,7 @@ export class NetworkPortConnectionDialog extends Component {
         <Grid item alignContent='center' xs={12}>
           <Button variant="outlined" color="primary" onClick={this.handleClickOpen}>
             Config
-        </Button>
+          </Button>
           {configuredMessage}
         </Grid>
 

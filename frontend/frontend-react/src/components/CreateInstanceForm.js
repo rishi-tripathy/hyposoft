@@ -43,10 +43,17 @@ export class CreateInstanceForm extends Component {
       // dummy data
       networkPorts: 10,
       macAddresses: [],
-      
 
-      powerPorts: 10,
+
+      powerPorts: 3,
       ppConnection: [],
+
+      leftFreePDUs: [],
+      rightFreePDUs: [],
+
+      leftCurrentlySelectedPDUs: [],
+      rightCurrentlySelectedPDUs: [],
+
     }
   }
 
@@ -56,6 +63,18 @@ export class CreateInstanceForm extends Component {
 
   getPowerPortConenctionInfo = (pduPortNumber, isLeft, isRight) => {
 
+  }
+
+  loadLeftFreePDUs = () => {
+    this.setState({
+      leftFreePDUs: [1, 2, 3, 4, 6, 7]
+    })
+  }
+
+  loadRightFreePDUs = () => {
+    this.setState({
+      rightFreePDUs: [2, 3, 5, 6, 7]
+    })
   }
 
   componentDidMount() {
@@ -78,7 +97,7 @@ export class CreateInstanceForm extends Component {
     axios.get(dst).then(res => {
       let myOptions = [];
       for (let i = 0; i < res.data.length; i++) {
-        myOptions.push({ value: res.data[i].url, label: res.data[i].rack_number });
+        myOptions.push({ value: res.data[i].url, label: res.data[i].rack_number, id: res.data[i].id });
       }
       this.setState({ rackOptions: myOptions });
     })
@@ -100,6 +119,10 @@ export class CreateInstanceForm extends Component {
         // TODO: handle error
         alert('Could not load owners. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
       });
+
+    // L and R free PDUs
+    this.loadLeftFreePDUs();
+    this.loadRightFreePDUs();
   }
 
   removeEmpty = (obj) => {
@@ -266,7 +289,12 @@ export class CreateInstanceForm extends Component {
                     <Typography variant="h6" gutterBottom>
                       Power Ports
                     </Typography>
-                    <PowerPortConnectionDialog sendPowerPortConnectionInfo={this.getPowerPortConenctionInfo} />
+                    <PowerPortConnectionDialog
+                      sendPowerPortConnectionInfo={this.getPowerPortConenctionInfo}
+                      numberOfPowerPorts={this.state.powerPorts}
+                      leftFree={this.state.leftFreePDUs}
+                      rightFree={this.state.rightFreePDUs}
+                      selectedRack={this.selectedRackOption} />
                   </Paper>
                 </Grid>
 

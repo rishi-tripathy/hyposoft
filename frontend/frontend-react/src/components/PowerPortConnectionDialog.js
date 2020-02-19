@@ -4,7 +4,7 @@ import {
   Button, TextField, Dialog,
   DialogActions, DialogContent, DialogContentText,
   DialogTitle, Grid, FormGroup, FormControlLabel, Checkbox,
-  List, ListItem
+  List, ListItem, Radio, RadioGroup,
 } from "@material-ui/core";
 import { Autocomplete } from "@material-ui/lab"
 
@@ -15,13 +15,29 @@ export class PowerPortConnectionDialog extends Component {
     this.state = {
       leftFree: [],
       rightFree: [],
-      selectedRackID: null,
+      powerPortConfiguration: [
+        {
+          pduPortNumber: 2,
+          leftOrRight: 'left',
+        },
+        {
+          pduPortNumber: 3,
+          leftOrRight: 'right',
+        },
+        {
+          pduPortNumber: 5,
+          leftOrRight: 'left',
+        }
+      ],
+
+
+      open: false,
+      configured: false,
     }
   }
 
   componentDidMount() {
-    this.loadLeftFree();
-    this.loadRightFree();
+    this.setDefaultPowerPortConfiguration();
     // const powerPorts = 
     // let listOfSelections = [];
     // for (let i = 0; i < powerPorts; i++) {
@@ -38,124 +54,126 @@ export class PowerPortConnectionDialog extends Component {
     // });
   }
 
-  loadLeftFree = () => {
-    this.setState({
-      leftFree: [1,2,3,4,6,7]
-    })
+  setDefaultPowerPortConfiguration() {
+    const arr = [
+      {
+        pduPortNumber: 2,
+        leftOrRight: 'left',
+      },
+      {
+        pduPortNumber: 3,
+        leftOrRight: 'right',
+      },
+      {
+        pduPortNumber: 5,
+        leftOrRight: 'left',
+      }
+    ]
+    this.setState({ powerPortConfiguration: arr })
   }
 
-  loadRightFree = () => {
-    this.setState({
-      rightFree: [2,3,5,6,7]
-    })
+
+
+  handleClickOpen = () => {
+    //setPowerPortSelection()
+    this.setState({ open: true })
+  };
+
+  handleClose = () => {
+    this.setDefaultPowerPortConfiguration();
+    this.setState({ open: false, configured: false })
+  };
+
+  handleSubmit = () => {
+    this.setState({ open: false, configured: true })
   }
 
-  // handleClickOpen = () => {
-  //   setPowerPortSelection()
-  //   setOpen(true);
-  // };
+  handleLeftRightChange = (indexOfChange, e) => {
+    let tmpConfig = Object.assign({}, this.state.powerPortConfiguration);
+    tmpConfig[indexOfChange].leftOrRight = e.target.value;
+    this.setState({ powerPortConfiguration: tmpConfig });
+  }
 
-  // handleClose = () => {
-  //   setOpen(false);
-  // };
+  showPPFields = () => {
+    let fieldList = [];
+    for (let i = 0; i < this.props.numberOfPowerPorts; i++) {
+      //console.log(powerPortSelection)
+      fieldList.push(
+        <div>
+          <ListItem>
+            <Grid item xs={6}>
+              <TextField label='PDU Port Number' type="number" value={this.state.powerPortConfiguration[i].pduPortNumber} fullWidth onChange={e => {
+                let cpy = Object.assign({}, this.state.powerPortConfiguration);
+                cpy[i].pduPortNumber = e.target.value;
+                this.setState({ powerPortConfiguration: cpy });
+              }} />
+            </Grid>
+            <Grid item xs={6}>
+              <FormGroup row>
+                <RadioGroup
+                  value={this.state.powerPortConfiguration[i].leftOrRight}
+                  row
+                  onChange={(e) => this.handleLeftRightChange(i, e)}>
+                  <FormControlLabel
+                    value='left'
+                    control={<Radio />}
+                    label="Left" />
+                  <FormControlLabel
+                    value='right'
+                    control={<Radio />}
+                    label="Right" />
+                </RadioGroup>
+              </FormGroup>
+            </Grid>
+          </ListItem>
+        </div>
+      )
+    }
+    return fieldList;
+  }
 
-  // handleSubmit = () => {
-  //   setOpen(false);
-  // }
-
-  // showPPFields = () => {
-  //   let fieldList = [];
-  //   for (let i = 0; i < powerPorts; i++) {
-  //     console.log(powerPortSelection)
-  //     fieldList.push(
-  //       <div>
-  //         <ListItem>
-  //           <Grid item xs={6}>
-  //             <TextField label='PDU Port Number' type="text" fullWidth onChange={e => {
-  //               let selectionArrayCopy = Object.assign({}, powerPortSelection.selection);
-  //               selectionArrayCopy[i].pduPortNumber = e.target.value;
-  //               setPowerPortSelection({
-  //                 selection: selectionArrayCopy
-  //               })
-  //             }} />
-  //           </Grid>
-  //           <Grid item xs={6}>
-  //             <FormGroup row>
-  //               <FormControlLabel
-  //                 control={
-  //                   <Checkbox
-  //                     // checked={state.checkedB}
-  //                     // onChange={handleChange('checkedB')}
-  //                     //checked={powerPortSelection.selection[i].isLeft}
-  //                     color="primary"
-  //                     onChange={e => {
-  //                       let selectionArrayCopy = Object.assign({}, powerPortSelection.selection);
-  //                       selectionArrayCopy[i].isLeft = e.target.checked;
-  //                       setPowerPortSelection({
-  //                         selection: selectionArrayCopy
-  //                       })
-  //                     }}
-  //                   />
-  //                 }
-  //                 label="Left"
-  //               />
-  //               <FormControlLabel
-  //                 control={
-  //                   <Checkbox
-  //                     // checked={state.checkedB}
-  //                     // onChange={handleChange('checkedB')}
-  //                     // checked={powerPortSelection.selection[i].isRight}
-  //                     color="primary"
-  //                     onChange={e => {
-  //                       let selectionArrayCopy = Object.assign({}, powerPortSelection.selection);
-  //                       selectionArrayCopy[i].isRight = e.target.checked;
-  //                       setPowerPortSelection({
-  //                         selection: selectionArrayCopy
-  //                       })
-  //                     }}
-  //                   />
-  //                 }
-  //                 label="Right"
-  //               />
-  //             </FormGroup>
-  //           </Grid>
-  //         </ListItem>
-  //       </div>
-  //     )
-  //   }
-  //   return fieldList;
-  // }
 
 
   render() {
+
+    console.log(this.props.selectedRack);
+    console.log(this.state.powerPortConfiguration);
+
+
+    let configuredMessage = (this.state.configured)
+      ? <p>Configured.</p>
+      : <p>Not configured.</p>
+
+
     return (
       <div>
-        {/* <Grid item alignContent='center' xs={12}>
-          <Button variant="outlined" color="primary" onClick={handleClickOpen}>
+        <Grid item alignContent='center' xs={12}>
+          <Button variant="outlined" color="primary" onClick={this.handleClickOpen}>
             Setup Power Connections
           </Button>
+          {configuredMessage}
         </Grid>
 
-        <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
+        <Dialog open={this.state.open} onClose={this.handleClose} aria-labelledby="form-dialog-title">
           <DialogTitle id="form-dialog-title">Connect Network Port</DialogTitle>
           <DialogContent>
             <DialogContentText>
               For each Power Port, select a PDU port number and connect left/right ports.
             </DialogContentText>
             <List style={{ maxHeight: 200, overflow: 'auto' }}>
-              {showPPFields()}
+              {this.showPPFields()}
             </List>
           </DialogContent>
 
           <DialogActions>
-            <Button onClick={handleClose} color="primary">
+            <Button onClick={this.handleClose} color="primary">
               Cancel
             </Button>
-            <Button onClick={handleSubmit} color="primary">
+            <Button onClick={this.handleSubmit} color="primary">
               Confirm
             </Button>
           </DialogActions>
-        </Dialog> */}
+        </Dialog>
       </div>
     )
   }
