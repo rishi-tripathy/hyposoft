@@ -37,6 +37,10 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
 
         if self.validated_data['last_name']:
             user.last_name = self.validated_data['last_name']
+
+        if self.validated_data['is_admin'] == 'true':
+            user.is_superuser = True
+
         user.save()
         return user
 

@@ -76,7 +76,7 @@ class UserViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=[GET, POST])
     def netid_login(self, request, *args, **kwargs):
         url = 'https://api.colab.duke.edu/identity/v1/'
-        token = '00bcb96fe36201d82a1e761e9852c12574a62a15' # request.query_params.get('token') or ''
+        token = request.query_params.get('token') or ''
 
         headers ={"Accept": "application/json",
                   "Authorization": "Bearer {}".format(token),
@@ -101,12 +101,11 @@ class UserViewSet(viewsets.ModelViewSet):
         if user:
             to_log_in = authenticate(loginrequest, username=loginrequest['username'], password=loginrequest['password'])
             login(loginrequest, to_log_in)
-            return Response(to_log_in)
+            return Response({
+                'login': 'success'
+            })
         else:
             serializer = self.get_serializer(data=resp_draft)
             serializer.is_valid(raise_exception=True)
             us = serializer.create(resp_draft)
-            return Response(us)
-
-
-        return Response(resp_draft)
+            return Response(serializer.data)
