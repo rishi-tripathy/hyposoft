@@ -20,6 +20,7 @@ import EditInstanceForm from "./components/EditInstanceForm";
 import EditRackForm from './components/EditRackForm';
 import DeleteMultipleRacksForm from './components/DeleteMultipleRacksForm';
 import CreateUserForm from './components/CreateUserForm';
+import DatacenterController from './components/DatacenterController';
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
@@ -105,6 +106,11 @@ class App extends React.Component {
             path='/racks'
             exact
             render={(props) => <RackController {...props} is_admin={true}/>}/>
+
+          <Route
+            path='/datacenters'
+            // exact
+            render={(props) => <DatacenterController {...props} is_admin={true}/>}/>
 
           <Route
             path='/racks/create'
