@@ -105,9 +105,13 @@ class AssetViewSet(viewsets.ModelViewSet):
             try:
                 connection_asset = Asset.objects.get(asset_number=i['connection']['asset_number'])
                 connection_port = connection_asset.network_port_set.get(name=i['connection']['port_name'])
-            except ObjectDoesNotExist:
+            except (ObjectDoesNotExist, KeyError) as e:
                 connection_port = None
-            reformatted_mac = self.reformat_mac_address(i['mac'])
+            try:
+                reformatted_mac = self.reformat_mac_address(i['mac'])
+            except KeyError:
+                reformatted_mac = ''
+
             port = Network_Port.objects.create(name=i['name'], mac=reformatted_mac, connection=connection_port, asset=asset)
         return
 
