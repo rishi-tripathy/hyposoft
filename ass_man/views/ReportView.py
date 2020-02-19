@@ -41,7 +41,13 @@ RACK_MANY_DELETE_NOT_EMPTY_ERROR_MSG = 'Error: rack {} cannot be deleted as it i
 @api_view([GET])
 @permission_classes([IsAuthenticated])
 def report(request):
+    datacenter_abbr = request.query_params.get('datacenter') or ''
     racks = Rack.objects.all()
+    assets = Asset.objects.all()
+    if datacenter_abbr:
+        datacenter = Datacenter.objects.get(abbreviation=datacenter_abbr)
+        racks = datacenter.rack_set.all()
+        assets = datacenter.asset_set.all()
     total = 0
     occupied = 0
     slots = ['u{}'.format(i) for i in range(1, 43)]
@@ -55,7 +61,7 @@ def report(request):
     percentage_occupied = occupied / total * 100
     percentage_free = (total - occupied) / total * 100
 
-    assets = Asset.objects.all()
+    # assets = Asset.objects.all()
     vendor_dict = {}
     model_dict = {}
     owner_dict = {}
