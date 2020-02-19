@@ -52,7 +52,7 @@ class RackSerializer(serializers.HyperlinkedModelSerializer):
 class RackOfAssetSerializer(serializers.ModelSerializer):
     class Meta:
         model = Rack
-        fields = ['url', 'rack_number']
+        fields = ['id', 'url', 'rack_number']
 
 
 class RackFetchSerializer(serializers.HyperlinkedModelSerializer):

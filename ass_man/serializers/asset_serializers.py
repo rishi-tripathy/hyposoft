@@ -44,21 +44,27 @@ class AssetSerializer(serializers.HyperlinkedModelSerializer):
         return
 
     def check_mac_format(self, mac):
-        return re.match('^([0-9a-f]{2})[-:_]?([0-9a-f]{2})[-:_]([0-9a-f]{2})[-:_]?([0-9a-f]{2})[-:_]?([0-9a-f]{2})[-:_]?([0-9a-f]{2})', mac.lower())
+        return re.match(
+            '^([0-9a-f]{2})[-:_]?([0-9a-f]{2})[-:_]([0-9a-f]{2})[-:_]?([0-9a-f]{2})[-:_]?([0-9a-f]{2})[-:_]?([0-9a-f]{2})',
+            mac.lower())
 
     def check_network_ports(self, network_ports):
         if network_ports:
             for i in network_ports:
-                if not self.check_mac_format(i['mac']):
-                    raise serializers.ValidationError({
-                        'Bad MAC address': i['mac']
-                    })
-                connection_asset_num = i['connection']['asset_number']
-                connection_port_name = i['connection']['port_name']
                 try:
+                    mac = i['mac']
+                except KeyError:
+                    mac = ''
+                if mac and not self.check_mac_format(mac):
+                    raise serializers.ValidationError({
+                        'Bad MAC address': mac
+                    })
+                try:
+                    connection_asset_num = i['connection']['asset_number']
+                    connection_port_name = i['connection']['port_name']
                     connection_asset = Asset.objects.get(asset_number=connection_asset_num)
                     connection_port = connection_asset.network_port_set.get(name=connection_port_name)
-                except ObjectDoesNotExist:
+                except (ObjectDoesNotExist, KeyError) as e:
                     connection_asset = None
                     connection_port = None
                     continue
@@ -190,6 +196,8 @@ class AssetOfModelSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Asset
         fields = ['id', 'url', 'hostname', 'datacenter', 'rack', 'rack_u', 'owner']
+
+
 
 
 # For the network graph
