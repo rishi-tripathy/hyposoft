@@ -8,13 +8,14 @@ from .serializers import UserSerializer
 from rest_framework import viewsets
 from usr_man.filters import UserFilter
 import requests
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, hashers
 import rest_framework.status
 
 ADMIN_ACTIONS = {'create', 'update', 'partial_update', 'destroy'}
 GET = 'GET'
 POST = 'POST'
 USER_ORDERING_FILTERING_FIELDS = ['username', 'first_name', 'last_name', 'email']
+
 
 class UserViewSet(viewsets.ModelViewSet):
     # API endpoint that allows users to be viewed or edited.
@@ -36,7 +37,37 @@ class UserViewSet(viewsets.ModelViewSet):
     filterset_class = UserFilter
     filterset_fields = USER_ORDERING_FILTERING_FIELDS
     ordering_fields = USER_ORDERING_FILTERING_FIELDS
+
     # Override default actions here
+    def partial_update(self, request, *args, **kwargs):
+
+        user = self.get_object()
+        serializer = self.get_serializer(user, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+
+        if user.username is not 'admin': # can't update admin permissions
+
+            if request.data.get('is_admin') == 'true':
+                user.is_superuser = True
+                user.is_staff = True
+
+            if request.data.get('is_staff') == 'true':
+                user.is_staff = True
+
+            if request.data.get('is_admin') == 'false':
+                user.is_superuser = False
+
+            if request.data.get('is_staff') == 'false':
+                user.is_staff = False
+
+        self.perform_update(serializer)
+
+        if getattr(user, '_prefetched_objects_cache', None):
+            # If 'prefetch_related' has been applied to a queryset, we need to
+            # forcibly invalidate the prefetch cache on the instance.
+            user._prefetched_objects_cache = {}
+
+        return Response(serializer.data)
 
     # Implement custom actions below
     @action(detail=False, methods=[GET])
@@ -76,11 +107,11 @@ class UserViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=[GET, POST])
     def netid_login(self, request, *args, **kwargs):
         url = 'https://api.colab.duke.edu/identity/v1/'
-        token = request.query_params.get('token') or ''
+        token =  request.query_params.get('token') or ''  # 'cbe2d5243b68b6556dc879cf7e72e397ed8af57a'  #
 
-        headers ={"Accept": "application/json",
-                  "Authorization": "Bearer {}".format(token),
-                  "x-api-key": "hyposoft"}
+        headers = {"Accept": "application/json",
+                   "Authorization": "Bearer {}".format(token),
+                   "x-api-key": "hyposoft"}
 
         r = requests.get(url, headers=headers)
 
@@ -90,17 +121,12 @@ class UserViewSet(viewsets.ModelViewSet):
                       'username': netid_info['netid'],
                       'first_name': netid_info['firstName'],
                       'last_name': netid_info['lastName'],
-                      'password': hash(netid_info['LDAP']['key'])
-        }
+                      'password': hashers.make_password(None)
+                      }
 
         user = User.objects.all().filter(username=netid_info['netid']).first()
-        loginrequest = {
-                      'username': netid_info['netid'],
-                      'password': hash(netid_info['LDAP']['key'])
-        }
         if user:
-            to_log_in = authenticate(loginrequest, username=loginrequest['username'], password=loginrequest['password'])
-            login(loginrequest, to_log_in)
+            login(request, user)
             return Response({
                 'login': 'success'
             })
@@ -108,4 +134,9 @@ class UserViewSet(viewsets.ModelViewSet):
             serializer = self.get_serializer(data=resp_draft)
             serializer.is_valid(raise_exception=True)
             us = serializer.create(resp_draft)
-            return Response(serializer.data)
+
+            login(request, user)
+            return Response({
+                'creation': 'success',
+                'login': 'success'
+            })

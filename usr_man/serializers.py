@@ -15,7 +15,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
     email = serializers.EmailField(
         required=True,
         validators=[UniqueValidator(queryset=User.objects.all())]
-            )
+    )
     first_name = serializers.CharField(
         required=True,
         max_length=32,
@@ -26,7 +26,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
     )
     username = serializers.CharField(
         validators=[UniqueValidator(queryset=User.objects.all())]
-            )
+    )
     password = serializers.CharField(min_length=6, write_only=True)
 
     def create(self, validated_data):
@@ -38,15 +38,13 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         if self.validated_data['last_name']:
             user.last_name = self.validated_data['last_name']
 
-        if self.validated_data['is_admin'] == 'true':
-            user.is_superuser = True
-
         user.save()
         return user
 
     class Meta:
         model = User
         fields = ('id', 'url', 'username', 'email', 'first_name', 'last_name', 'password')
+
 
 class UserOfAssetSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
