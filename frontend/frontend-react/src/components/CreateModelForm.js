@@ -1,12 +1,15 @@
 import React, {Component} from 'react'
 import axios from 'axios'
-import Select from 'react-select';
 import {Autocomplete} from "@material-ui/lab"
-import {Button, Container, TextField, Grid, Input, FormControl, Typography, Tooltip} from "@material-ui/core";
+import {
+  Button, Container, TextField,
+  Grid, Input, FormControl, Typography,
+  Tooltip, Paper, List,
+  ListItem, Card, CardContent
+} from "@material-ui/core";
 import {Redirect, Link} from 'react-router-dom'
 import AddCircleIcon from "@material-ui/icons/AddCircle";
 import CancelIcon from '@material-ui/icons/Cancel';
-
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
@@ -20,7 +23,7 @@ export class CreateModelForm extends Component {
         'model_number': null,
         'height': null,
         'display_color': 'ffffff',
-        'ethernet_ports': null,
+        'network_ports': [],
         'power_ports': null,
         'cpu': null,
         'memory': null,
@@ -29,6 +32,8 @@ export class CreateModelForm extends Component {
       },
       vendorOptions: [],
       selectedVendorOption: null,
+
+      networkPorts: null,
     }
   }
 
@@ -57,13 +62,31 @@ export class CreateModelForm extends Component {
     return obj;
   };
 
+  fillInEmptyDefaultNPNames = () => {
+    let tmp = this.state.model.network_ports.slice(); //creates the clone of the state
+    for (let i = 0; i < this.state.networkPorts; i++) {
+      let num = i + 1;
+      if (!tmp[i]) {
+        tmp[i] = num.toString();
+      }
+    }
+    return tmp
+  }
+
   handleSubmit = (e) => {
     if (e) e.preventDefault();
 
     let stateCopy = Object.assign({}, this.state.model);
     stateCopy.vendor = this.state.selectedVendorOption ? this.state.selectedVendorOption : null;
+    stateCopy.network_ports = this.fillInEmptyDefaultNPNames();
     let stateToSend = this.removeEmpty(stateCopy);
 
+    // make sure there are no empty default values
+    //console.log(this.fillInEmptyDefaultNPNames());
+
+
+
+    //THE API CALL TO POST
     axios.post('/api/models/', stateToSend)
       .then(function (response) {
         alert('Created successfully');
@@ -72,13 +95,55 @@ export class CreateModelForm extends Component {
       .catch(function (error) {
         alert('Creation was not successful.\n' + JSON.stringify(error.response.data, null, 2));
       });
-    //this.props.sendShowTable(true);
   };
 
   handleChangeVendor = (event, selectedVendorOption) => {
     this.setState({selectedVendorOption});
   };
 
+  handleChangeNP = (e) => {
+    this.setState({
+      networkPorts: e.target.value,
+    })
+    this.clearNetworkPortNames();
+  }
+
+  clearNetworkPortNames = () => {
+    let stateCopy = Object.assign({}, this.state.model);
+    stateCopy.network_ports = [];
+    this.setState({
+      model: stateCopy
+    })
+  }
+
+  openNetworkPortFields = () => {
+    let fieldList = [];
+    // if (!this.state.networkPorts || this.state.networkPorts == 0) {
+    //   return fieldList;
+    // }
+
+    for (let i = 0; i < this.state.networkPorts; i++) {
+      const num = i + 1;
+      const fieldLabel = 'Network Port ' + num + ' name';
+      fieldList.push(
+        <ListItem>
+          <TextField label={fieldLabel}
+                     type="text"
+            // set its value
+            //value={this.state.networkPortNames[i]}
+            //placeholder={num}
+                     defaultValue={num}
+                     fullWidth onChange={e => {
+            //let tmp = this.state.model.network_ports.slice(); //creates the clone of the state
+            let stateCopy = Object.assign({}, this.state.model);
+            stateCopy.network_ports[i] = e.target.value;
+            this.setState({model: stateCopy});
+          }}/>
+        </ListItem>
+      )
+    }
+    return fieldList;
+  }
 
   render() {
     return (
@@ -140,13 +205,15 @@ export class CreateModelForm extends Component {
                   </FormControl>
                 </Grid>
                 <Grid item xs={4}>
-                  <TextField label='Ethernet Ports' type="number" fullWidth onChange={e => {
-                    let modelCopy = JSON.parse(JSON.stringify(this.state.model))
-                    modelCopy.ethernet_ports = e.target.value
-                    this.setState({
-                      model: modelCopy
-                    })
+                  <TextField label='Network Ports' type="number" fullWidth onChange={e => {
+                    this.handleChangeNP(e);
                   }}/>{' '}
+
+                  <List style={{maxHeight: 200, overflow: 'auto'}}>
+                    {this.openNetworkPortFields()}
+                  </List>
+
+
                 </Grid>
                 <Grid item xs={4}>
                   <TextField label='Power Ports' type="number" fullWidth onChange={e => {
@@ -199,7 +266,7 @@ export class CreateModelForm extends Component {
                                })
                              }}/>{' '}
                 </Grid>
-               <Grid item xs={2}>
+                <Grid item xs={2}>
                   <Tooltip title='Submit'>
                     <Button variant="contained" type="submit" color="primary" endIcon={<AddCircleIcon/>}
                             onClick={() => this.handleSubmit}>Create

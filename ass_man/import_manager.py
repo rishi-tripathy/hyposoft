@@ -1,6 +1,7 @@
 import csv, io
-from ass_man.models import Model, Instance, Rack
+from ass_man.models import Model, Asset, Rack
 from rest_framework.response import Response
+
 
 def import_model_file(request):
     file = request.FILES['file']
@@ -23,16 +24,16 @@ def import_model_file(request):
         if disp_col.startswith('#'):
             disp_col = disp_col[1:]
         if model is None:
-            new_model = Model(vendor=row['vendor'], model_number=row['model_number'],height=row['height'], \
-            cpu=row['cpu'], storage=row['storage'], comment=row['comment'])
+            new_model = Model(vendor=row['vendor'], model_number=row['model_number'], height=row['height'], \
+                              cpu=row['cpu'], storage=row['storage'], comment=row['comment'])
             if disp_col:
-                new_model.display_color=disp_col
-            if row['ethernet_ports']:
-                new_model.ethernet_ports=row['ethernet_ports']
+                new_model.display_color = disp_col
+            if row['network_ports']:
+                new_model.network_ports = row['network_ports']
             if row['power_ports']:
-                new_model.power_ports=row['power_ports']
+                new_model.power_ports = row['power_ports']
             if row['memory']:
-                new_model.memory=row['memory']
+                new_model.memory = row['memory']
             models_to_create.append(new_model)
             continue
         if str(model.height) != row['height']:
@@ -51,13 +52,13 @@ def import_model_file(request):
                 key = model.vendor + model.model_number + "_display_color"
                 fields_overriden[key] = [model.display_color, disp_col]
             override = True
-        if str(model.ethernet_ports) != row['ethernet_ports'] and (model.ethernet_ports or row['ethernet_ports']):
+        if str(model.network_ports) != row['network_ports'] and (model.network_ports or row['network_ports']):
             if should_override:
-                model.ethernet_ports = row['ethernet_ports']
+                model.network_ports = row['network_ports']
                 should_update = True
             else:
-                key = model.vendor + model.model_number + "_ethernet_ports"
-                fields_overriden[key] = [model.ethernet_ports, row['ethernet_ports']]
+                key = model.vendor + model.model_number + "_network_ports"
+                fields_overriden[key] = [model.network_ports, row['network_ports']]
             override = True
         if str(model.power_ports) != row['power_ports'] and (model.power_ports or row['power_ports']):
             if should_override:
@@ -102,50 +103,51 @@ def import_model_file(request):
         if should_update:
             models_to_update.append(model)
         if override:
-            overriden+=1
+            overriden += 1
         else:
-            ignored+=1
+            ignored += 1
             models_to_ignore.append(model)
 
     if overriden > 0 and not should_override:
-        err_message = "Do you want to overwrite the following "\
-        "fields: "
+        err_message = "Do you want to overwrite the following " \
+                      "fields: "
         count = 0
         for field in fields_overriden.keys():
             err_message += "For " + field + " overwrite " + str(fields_overriden[field][0]) \
-            + " with " + fields_overriden[field][1] + ". "
+                           + " with " + fields_overriden[field][1] + ". "
 
         return Response({
-            'Warning' : err_message,
+            'Warning': err_message,
         }, status=status.HTTP_400_BAD_REQUEST)
 
     created_models = ''
     for model in models_to_create:
         model.save()
-        created_models += model.vendor+' '+model.model_number+' ,'
+        created_models += model.vendor + ' ' + model.model_number + ' ,'
     updated_models = ''
     for model in models_to_update:
         model.save()
-        updated_models += model.vendor+' '+model.model_number+' ,'
+        updated_models += model.vendor + ' ' + model.model_number + ' ,'
     ignored_models = ''
     for model in models_to_ignore:
-        ignored_models += model.vendor+' '+model.model_number+' ,'
+        ignored_models += model.vendor + ' ' + model.model_number + ' ,'
 
     return Response({
-    'Number of models created': (len(models_to_create)),
-    'Number of models ignored': ignored,
-    'Number of models updated': overriden,
-    'Models created': created_models,
-    'Models updated': updated_models,
-    'Models ignored': ignored_models
+        'Number of models created': (len(models_to_create)),
+        'Number of models ignored': ignored,
+        'Number of models updated': overriden,
+        'Models created': created_models,
+        'Models updated': updated_models,
+        'Models ignored': ignored_models
     })
 
-def import_instance_file(request):
+
+def import_asset_file(request):
     file = request.FILES['file']
     reader = csv.DictReader(io.StringIO(file.read().decode('utf-8-sig')))
-    instances_to_create = []
-    instances_to_update = []
-    instances_to_ignore = []
+    assets_to_create = []
+    assets_to_update = []
+    assets_to_ignore = []
     racks_to_save = []
     should_override = request.query_params.get('override') or False
     overriden = 0
@@ -155,15 +157,15 @@ def import_instance_file(request):
     uncreated_objects['rack'] = []
     uncreated_objects['user'] = []
     fields_overriden = {}
-    blocked_instances = {}
+    blocked_assets = {}
     for row in reader:
         override = False
         should_update = False
         try:
-            instance = Instance.objects.get(hostname=row['hostname'])
-        except Instance.DoesNotExist:
-            instance = None
-        if instance is None:
+            asset = Asset.objects.get(hostname=row['hostname'])
+        except Asset.DoesNotExist:
+            asset = None
+        if asset is None:
             dont_add = False
             try:
                 model = Model.objects.get(vendor=row['vendor'], model_number=row['model_number'])
@@ -189,26 +191,26 @@ def import_instance_file(request):
                     uncreated_objects['user'].append(row['owner'])
                     dont_add = True
                 else:
-                    owner=None
+                    owner = None
             if not dont_add:
-                instance = Instance(model=model, hostname=row['hostname'],\
-                rack=rack, rack_u=row['rack_position'], owner=owner, comment=row['comment'])
-                for i in range(int(row['rack_position']), int(row['rack_position'])+instance.model.height):
-                    curr_instance = getattr(rack, 'u{}'.format(i))
-                    if curr_instance is not None:
+                asset = Asset(model=model, hostname=row['hostname'], \
+                              rack=rack, rack_u=row['rack_position'], owner=owner, comment=row['comment'])
+                for i in range(int(row['rack_position']), int(row['rack_position']) + asset.model.height):
+                    curr_asset = getattr(rack, 'u{}'.format(i))
+                    if curr_asset is not None:
                         blocked = True
-                        blocked_instances[instance.hostname] =row['rack']+"_u"+row['rack_position']
+                        blocked_assets[asset.hostname] = row['rack'] + "_u" + row['rack_position']
 
-                for i in range(int(row['rack_position']), int(row['rack_position'])+instance.model.height):
-                    setattr(rack, 'u{}'.format(i), instance)
+                for i in range(int(row['rack_position']), int(row['rack_position']) + asset.model.height):
+                    setattr(rack, 'u{}'.format(i), asset)
                 racks_to_save.append(rack)
 
-                instances_to_create.append(instance)
+                assets_to_create.append(asset)
             continue
 
-        uniq_model_name = instance.model.vendor + instance.model.model_number
+        uniq_model_name = asset.model.vendor + asset.model.model_number
         try:
-            owner_name = instance.owner.username
+            owner_name = asset.owner.username
         except AttributeError:
             owner_name = None
         if uniq_model_name != (row['vendor'] + row['model_number']):
@@ -218,15 +220,15 @@ def import_instance_file(request):
                 uncreated_objects['model'].append((row['vendor'] + row['model_number']))
                 model = None
             if should_override:
-                instance.model = model
+                asset.model = model
                 should_update = True
             else:
-                key = instance.hostname + "_model"
-                orig = instance.model.vendor + " " + instance.model.model_number
+                key = asset.hostname + "_model"
+                orig = asset.model.vendor + " " + asset.model.model_number
                 new = model.vendor + " " + model.model_number
                 fields_overriden[key] = [orig, new]
             override = True
-        if instance.rack.rack_number != row['rack']:
+        if asset.rack.rack_number != row['rack']:
             try:
                 rack = Rack.objects.get(rack_number=row['rack'])
             except Rack.DoesNotExist:
@@ -235,26 +237,26 @@ def import_instance_file(request):
 
             if should_override:
                 blocked = False
-                for i in range(int(row['rack_position']), int(row['rack_position'])+instance.model.height):
-                    curr_instance = getattr(rack, 'u{}'.format(i))
-                    if curr_instance is not None:
+                for i in range(int(row['rack_position']), int(row['rack_position']) + asset.model.height):
+                    curr_asset = getattr(rack, 'u{}'.format(i))
+                    if curr_asset is not None:
                         blocked = True
-                        blocked_instances[instance.hostname] =row['rack']+"_u"+row['rack_position']
+                        blocked_assets[asset.hostname] = row['rack'] + "_u" + row['rack_position']
                 if not blocked:
-                    instance.rack = rack
-                    for i in range(old_u, old_u+instance.model.height):
+                    asset.rack = rack
+                    for i in range(old_u, old_u + asset.model.height):
                         setattr(rack, 'u{}'.format(i), None)
-                    for i in range(int(row['rack_position']), int(row['rack_position'])+instance.model.height):
-                        setattr(rack, 'u{}'.format(i), instance)
+                    for i in range(int(row['rack_position']), int(row['rack_position']) + asset.model.height):
+                        setattr(rack, 'u{}'.format(i), asset)
                     racks_to_save.append(rack)
                 should_update = True
             else:
-                key = instance.hostname + "_rack"
-                orig = instance.rack.rack_number
+                key = asset.hostname + "_rack"
+                orig = asset.rack.rack_number
                 new = rack.rack_number
                 fields_overriden[key] = [orig, new]
             override = True
-        if str(instance.rack_u) != row['rack_position']:
+        if str(asset.rack_u) != row['rack_position']:
             if should_override:
                 rack_set = False
                 try:
@@ -268,25 +270,25 @@ def import_instance_file(request):
                 except Rack.DoesNotExist:
                     rack = None
                 blocked = False
-                for i in range(int(row['rack_position']), int(row['rack_position'])+instance.model.height):
-                    curr_instance = getattr(rack, 'u{}'.format(row['rack_position']))
-                    if curr_instance is not None:
+                for i in range(int(row['rack_position']), int(row['rack_position']) + asset.model.height):
+                    curr_asset = getattr(rack, 'u{}'.format(row['rack_position']))
+                    if curr_asset is not None:
                         blocked = True
-                        blocked_instances[instance.hostname] =row['rack']+"_u"+row['rack_position']
+                        blocked_assets[asset.hostname] = row['rack'] + "_u" + row['rack_position']
                 if not blocked:
-                    old_u = instance.rack_u
-                    instance.rack_u = row['rack_position']
+                    old_u = asset.rack_u
+                    asset.rack_u = row['rack_position']
                     print('old u ' + str(old_u))
-                    print('new u ' + str(instance.rack_u))
-                    for i in range(old_u, old_u+instance.model.height):
+                    print('new u ' + str(asset.rack_u))
+                    for i in range(old_u, old_u + asset.model.height):
                         setattr(rack, 'u{}'.format(i), None)
-                    for i in range(int(row['rack_position']), int(row['rack_position'])+instance.model.height):
-                        setattr(rack, 'u{}'.format(i), instance)
+                    for i in range(int(row['rack_position']), int(row['rack_position']) + asset.model.height):
+                        setattr(rack, 'u{}'.format(i), asset)
                     racks_to_save.append(rack)
                 should_update = True
             else:
-                key = instance.hostname + "_rack_position"
-                fields_overriden[key] = [instance.rack_u, row['rack_position']]
+                key = asset.hostname + "_rack_position"
+                fields_overriden[key] = [asset.rack_u, row['rack_position']]
             override = True
 
         if owner_name != row['owner'] and (owner_name or row['owner']):
@@ -298,10 +300,10 @@ def import_instance_file(request):
                 owner = None
 
             if should_override:
-                instance.owner = owner
+                asset.owner = owner
                 should_update = True
             else:
-                key = instance.hostname + "_owner"
+                key = asset.hostname + "_owner"
                 orig = owner_name
                 try:
                     new = owner.username
@@ -309,70 +311,70 @@ def import_instance_file(request):
                     new = None
                 fields_overriden[key] = [orig, new]
             override = True
-        if instance.comment != row['comment']:
+        if asset.comment != row['comment']:
             if should_override:
-                instance.comment = row['comment']
+                asset.comment = row['comment']
                 should_update = True
             else:
-                key = instance.hostname
-                fields_overriden[key] = [instance.comment, row['comment']]
+                key = asset.hostname
+                fields_overriden[key] = [asset.comment, row['comment']]
             override = True
         if should_update:
-            instances_to_update.append(instance)
+            assets_to_update.append(asset)
         if override:
-            overriden+=1
+            overriden += 1
         else:
-            ignored+=1
-            instances_to_ignore.append(instance)
+            ignored += 1
+            assets_to_ignore.append(asset)
 
     if len(uncreated_objects['model']) > 0 or len(uncreated_objects['rack']) > 0 or len(uncreated_objects['user']) > 0:
         err_message = "The following objects were referenced, but have not been created. "
         for i in uncreated_objects.keys():
-            err_message+= i + ": "
+            err_message += i + ": "
             for j in uncreated_objects[i]:
-                err_message+= j + ", "
-            err_message+=". "
+                err_message += j + ", "
+            err_message += ". "
         return Response({
-            'Warning' : err_message,
+            'Warning': err_message,
         }, status=status.HTTP_400_BAD_REQUEST)
 
-    err_message = "The following instances are blocked for placement: "
-    if len(blocked_instances.keys()) > 0:
-        for inst in blocked_instances.keys():
-            err_message+=inst + " at " + blocked_instances[inst] + ". "
+    err_message = "The following assets are blocked for placement: "
+    if len(blocked_assets.keys()) > 0:
+        for inst in blocked_assets.keys():
+            err_message += inst + " at " + blocked_assets[inst] + ". "
         return Response({
-            'Warning' : err_message,
+            'Warning': err_message,
         }, status=status.HTTP_400_BAD_REQUEST)
 
     if overriden > 0 and not should_override:
-        err_message = "Do you want to overwrite the following "\
-        "fields: "
+        err_message = "Do you want to overwrite the following " \
+                      "fields: "
         count = 0
         for field in fields_overriden.keys():
             err_message += "For " + field + " overwrite " + str(fields_overriden[field][0]) \
-            + " with " + fields_overriden[field][1] + ". "
+                           + " with " + fields_overriden[field][1] + ". "
 
         return Response({
-            'Warning' : err_message,
+            'Warning': err_message,
         }, status=status.HTTP_400_BAD_REQUEST)
-    created_instances = ''
-    updated_instances = ''
-    ignored_instances = ''
-    for instance in instances_to_create:
-        instance.save()
-        created_instances+=instance.hostname + ", "
-    for instance in instances_to_update:
-        instance.save()
-        updated_instances+=instance.hostname + ", "
-    for instance in instances_to_ignore:
-        ignored_instances+=instance.hostname + ", "
+    created_assets = ''
+    updated_assets = ''
+    ignored_assets = ''
+    for asset in assets_to_create:
+        asset.save()
+        created_assets += asset.hostname + ", "
+    for asset in assets_to_update:
+        asset.save()
+        updated_assets += asset.hostname + ", "
+    for asset in assets_to_ignore:
+        ignored_assets += asset.hostname + ", "
     for rack in racks_to_save:
         rack.save()
     return Response({
-    'Number of instances created': (len(instances_to_create)),
-    'Number of instances ignored': ignored,
-    'Number of instances updated': overriden,
-    'Created instances':created_instances,
-    'Updated instances':updated_instances,
-    'Ignored instances':ignored_instances
+        'Number of assets created': (len(assets_to_create)),
+        'Number of assets ignored': ignored,
+        'Number of assets updated': overriden,
+        'Created assets': created_assets,
+        'Updated assets': updated_assets,
+        'Ignored assets': ignored_assets
     })

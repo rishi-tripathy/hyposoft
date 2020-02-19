@@ -17,7 +17,7 @@ export class AllInstancesOfModelView extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      instances: [{}]
+      assets: [{}]
     }
   }
 
@@ -28,11 +28,11 @@ export class AllInstancesOfModelView extends Component {
 
   loadInstances = () => {
     if (this.props.modelID) {
-      let dst = '/api/models/'.concat(this.props.modelID).concat('/instances/');
+      let dst = '/api/models/'.concat(this.props.modelID).concat('/assets/');
       console.log(dst)
       axios.get(dst).then(res => {
         this.setState({
-          instances: res.data.results
+          assets: res.data.results
         });
       })
         .catch(function (error) {
@@ -82,12 +82,12 @@ export class AllInstancesOfModelView extends Component {
   }
 
   renderTableData() {
-    if (this.state.instances.length == 0) return (
+    if (this.state.assets.length === 0) return (
       <TableRow hover tabIndex={-1} >
         <TableCell align="center" colSpan={3} >No entries</TableCell>
       </TableRow>
     )
-    return this.state.instances.map((instance) => {
+    return this.state.assets.map((instance) => {
       const {id, model, hostname, rack, owner, rack_u} = instance //destructuring
       return (
         <TableRow

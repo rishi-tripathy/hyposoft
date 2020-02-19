@@ -17,7 +17,7 @@ def validate_hostname(value):
     return
     # deprecated
 
+
 def validate_rack_number(value):
     return
-    #deprecated
-
+    # deprecated
