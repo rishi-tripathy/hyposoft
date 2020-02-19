@@ -1,6 +1,11 @@
-from ass_man.models import Network_Port
+from ass_man.models import Network_Port, Asset
 from rest_framework import serializers
-from ass_man.serializers.asset_serializers import AssetHostnameSerializer
+
+
+class AssetHostnameSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Asset
+        fields = ['id', 'hostname']
 
 
 class ConnectionNPSerializer(serializers.ModelSerializer):

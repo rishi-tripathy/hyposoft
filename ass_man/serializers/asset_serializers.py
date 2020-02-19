@@ -194,10 +194,6 @@ class AssetOfModelSerializer(serializers.HyperlinkedModelSerializer):
         fields = ['id', 'url', 'hostname', 'datacenter', 'rack', 'rack_u', 'owner']
 
 
-class AssetHostnameSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Asset
-        fields = ['id', 'hostname']
 
 
 # For the network graph
