@@ -34,6 +34,14 @@ def import_model_file(request):
                 new_model.power_ports = row['power_ports']
             if row['memory']:
                 new_model.memory = row['memory']
+            nps = []
+            for i in range(1, int(row['network_ports'])+1):
+                if row['network_port_name_{}'.format(i)]:
+                    nps.append(row['network_port_name_{}'.format(i)])
+                else:
+                    nps.append(str(i))
+            if len(nps) > 0:
+                new_model.network_ports = nps
             models_to_create.append(new_model)
             continue
         if str(model.height) != row['height']:

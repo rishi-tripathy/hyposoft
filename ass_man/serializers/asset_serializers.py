@@ -48,7 +48,7 @@ class AssetSerializer(serializers.HyperlinkedModelSerializer):
             '^([0-9a-f]{2})[-:_]?([0-9a-f]{2})[-:_]([0-9a-f]{2})[-:_]?([0-9a-f]{2})[-:_]?([0-9a-f]{2})[-:_]?([0-9a-f]{2})',
             mac.lower())
 
-    def check_network_ports(self, network_ports):
+    def check_network_ports(self, network_ports, validated_data):
         if network_ports:
             for i in network_ports:
                 try:
@@ -60,17 +60,19 @@ class AssetSerializer(serializers.HyperlinkedModelSerializer):
                         'Bad MAC address': mac
                     })
                 try:
-                    connection_asset_num = i['connection']['asset_number']
-                    connection_port_name = i['connection']['port_name']
-                    connection_asset = Asset.objects.get(asset_number=connection_asset_num)
-                    connection_port = connection_asset.network_port_set.get(name=connection_port_name)
+                    # connection_asset_num = i['connection']['asset_number']
+                    # connection_port_name = i['connection']['port_name']
+                    # connection_asset = Asset.objects.get(asset_number=connection_asset_num)
+                    # connection_port = connection_asset.network_port_set.get(name=connection_port_name)
+                    connection_port_id = i['connection']['network_port_id']
+                    connection_port = Network_Port.objects.get(pk=connection_port_id)
                 except (ObjectDoesNotExist, KeyError) as e:
                     connection_asset = None
                     connection_port = None
                     continue
                 # check if connected port is in the same datacenter
                 try:
-                    assert connection_asset.datacenter == validated_data['datacenter']
+                    assert connection_port.asset.datacenter == validated_data['datacenter']
                 except AssertionError:
                     raise serializers.ValidationError({
                         'Network Port Error': 'the network connection port is in a different datacenter.'
@@ -107,7 +109,7 @@ class AssetSerializer(serializers.HyperlinkedModelSerializer):
     def create(self, validated_data):
         self.check_rack_u_validity(validated_data)
         self.check_power_ports(self.context['power_ports'])
-        self.check_network_ports(self.context['network_ports'])
+        self.check_network_ports(self.context['network_ports'], validated_data)
         validated_data = self.check_asset_number(validated_data)
         return super().create(validated_data)
 
