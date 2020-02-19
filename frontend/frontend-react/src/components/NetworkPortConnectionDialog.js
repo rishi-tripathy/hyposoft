@@ -18,10 +18,12 @@ export class NetworkPortConnectionDialog extends Component {
       racks: [],
       assets: [],
       networkPorts: [],
-      selectedDatacenterIDOption: null,
-      selectedRackIDOption: null,
-      selectedAssetIDOption: null,
-      selectedNetworkPortIDOption: null,
+      selectedDatacenterOption: null,
+      selectedRackOption: null,
+      selectedAssetOption: null,
+      selectedNetworkPortOption: null,
+
+      open: false
     }
   }
 
@@ -30,16 +32,14 @@ export class NetworkPortConnectionDialog extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (this.state.selectedDatacenterIDOption) {
-      if (prevState.racks != this.state.racks) {
-        this.loadRacks();
-      }
+    if (this.state.selectedDatacenterOption != prevState.selectedDatacenterOption) {
+      this.loadRacks();
     }
-
-    if (this.state.selectedRackIDOption) {
-      if (prevState.assets != this.state.assets) {
-        this.loadAssets();
-      }
+    if (this.state.selectedRackOption != prevState.selectedRackOption) {
+      this.loadAssets();
+    }
+    if (this.state.selectedAssetOption != prevState.selectedAssetOption) {
+      this.loadNetworkPorts();
     }
   }
 
@@ -115,161 +115,161 @@ export class NetworkPortConnectionDialog extends Component {
     })
   }
 
-  // handleClickOpen = () => {
-  //   setOpen(true);
-  // };
+  handleClickOpen = () => {
+    this.setState({ open: true })
+  };
 
-  // handleClose = () => {
-  //   // reset all selections
-  //   this.setState({
-  //     selectedDatacenterOption: null,
-  //     selectedRackOption: null,
-  //     selectedAssetOption: null,
-  //     selectedNetworkPortOption: null,
-  //   })
-  //   setOpen(false);
-  // };
+  handleClose = () => {
+    // reset all selections and close
+    this.setState({
+      selectedDatacenterOption: null,
+      selectedRackOption: null,
+      selectedAssetOption: null,
+      selectedNetworkPortOption: null,
+      open: false
+    })
 
-  // handleSubmit = () => {
-  //   setOpen(false);
-  // }
+  };
 
-  // handleChangeDatacenter = (event, dc) => {
-  //   this.setState({
-  //     selectedDatacenterOption: dc,
-  //   })
-  // };
+  handleSubmit = () => {
+    this.setState({ open: false })
+  }
 
-  // handleChangeRack = (event, r) => {
-  //   this.setState({
-  //     selectedRackOption: r,
-  //   })
-  // };
+  handleChangeDatacenter = (event, dc) => {
+    this.setState({
+      selectedDatacenterOption: dc,
+    })
+  };
 
-  // handleChangeAsset = (event, ass) => {
-  //   this.setState({
-  //     selectedAssetOption: ass,
-  //   })
-  // };
+  handleChangeRack = (event, r) => {
+    this.setState({
+      selectedRackOption: r,
+    })
+  };
 
-  // handleChangeNetworkPort = (event, np) => {
-  //   this.setState({
-  //     selectedNetworkPortOption: np,
-  //   })
-  // }
+  handleChangeAsset = (event, ass) => {
+    this.setState({
+      selectedAssetOption: ass,
+    })
+  };
 
-  // createSelectionBoxes = () => {
-  //   let selections = [];
-  //   selections.push(<Autocomplete
-  //     autoComplete
-  //     autoHighlight
-  //     autoSelect
-  //     id="dc-select"
-  //     options={datacenters}
-  //     //getOptionLabel={option => option.label}
-  //     onChange={handleChangeDatacenter}
-  //     value={selectedDatacenterOption}
-  //     renderInput={params => (
-  //       <TextField {...params} label="Datacenter" fullWidth />
-  //     )}
-  //   />);
+  handleChangeNetworkPort = (event, np) => {
+    this.setState({
+      selectedNetworkPortOption: np,
+    })
+  }
+
+  createSelectionBoxes = () => {
+    let selections = [];
+    selections.push(<Autocomplete
+      autoComplete
+      autoHighlight
+      autoSelect
+      id="dc-select"
+      options={this.state.datacenters}
+      getOptionLabel={option => option.name}
+      onChange={this.handleChangeDatacenter}
+      value={this.state.selectedDatacenterOption}
+      renderInput={params => (
+        <TextField {...params} label="Datacenter" fullWidth />
+      )}
+    />);
 
 
-  //   if (selectedDatacenterOption) {
-  //     selections.push(
-  //       <Autocomplete
-  //         autoComplete
-  //         autoHighlight
-  //         autoSelect
-  //         id="rack-select"
-  //         options={racks}
-  //         //getOptionLabel={option => option.label}
-  //         onChange={handleChangeRack}
-  //         value={selectedRackOption}
-  //         renderInput={params => (
-  //           <TextField {...params} label="Rack" fullWidth />
-  //         )}
-  //       />
-  //     );
-  //   }
+    if (this.state.selectedDatacenterOption) {
+      selections.push(
+        <Autocomplete
+          autoComplete
+          autoHighlight
+          autoSelect
+          id="rack-select"
+          options={this.state.racks}
+          getOptionLabel={option => option.rack_number}
+          onChange={this.handleChangeRack}
+          value={this.state.selectedRackOption}
+          renderInput={params => (
+            <TextField {...params} label="Rack" fullWidth />
+          )}
+        />
+      );
+    }
 
-  //   if (selectedDatacenterOption && selectedRackOption) {
-  //     selections.push(
-  //       <Autocomplete
-  //         autoComplete
-  //         autoHighlight
-  //         autoSelect
-  //         id="asset-select"
-  //         options={assets}
-  //         //getOptionLabel={option => option.label}
-  //         onChange={handleChangeAsset}
-  //         value={selectedAssetOption}
-  //         renderInput={params => (
-  //           <TextField {...params} label="Asset" fullWidth />
-  //         )}
-  //       />
-  //     )
-  //   }
+    if (this.state.selectedDatacenterOption && this.state.selectedRackOption) {
+      selections.push(
+        <Autocomplete
+          autoComplete
+          autoHighlight
+          autoSelect
+          id="asset-select"
+          options={this.state.assets}
+          getOptionLabel={option => option.hostname}
+          onChange={this.handleChangeAsset}
+          value={this.state.selectedAssetOption}
+          renderInput={params => (
+            <TextField {...params} label="Asset" fullWidth />
+          )}
+        />
+      )
+    }
 
-  //   if (selectedDatacenterOption && selectedRackOption && selectedAssetOption) {
-  //     selections.push(
-  //       <Autocomplete
-  //         autoComplete
-  //         autoHighlight
-  //         autoSelect
-  //         id="np-select"
-  //         options={nps}
-  //         //getOptionLabel={option => option.label}
-  //         onChange={handleChangeNetworkPort}
-  //         value={selectedNetworkPortOption}
-  //         renderInput={params => (
-  //           <TextField {...params} label="Network Port" fullWidth />
-  //         )}
-  //       />
-  //     )
-  //   }
-
-  //   return selections;
-  // }
+    if (this.state.selectedDatacenterOption && this.state.selectedRackOption && this.state.selectedAssetOption) {
+      selections.push(
+        <Autocomplete
+          autoComplete
+          autoHighlight
+          autoSelect
+          id="np-select"
+          options={this.state.networkPorts}
+          getOptionLabel={option => option.name}
+          onChange={this.handleChangeNetworkPort}
+          value={this.state.selectedNetworkPortOption}
+          renderInput={params => (
+            <TextField {...params} label="Network Port" fullWidth />
+          )}
+        />
+      )
+    }
+    return selections;
+  }
 
   render() {
-    return (<div></div>)
-    // let configuredMessage = (selectedDatacenterOption && selectedRackOption && selectedNetworkPortOption && selectedAssetOption)
-    //   ? <p>Configured: {selectedDatacenterOption} {selectedRackOption} {selectedNetworkPortOption} {selectedAssetOption}</p>
-    //   : <p>Not configured.</p>
+    console.log(this.state)
+    //return (<div></div>)
+    let configuredMessage = (this.state.selectedDatacenterOption && this.state.selectedRackOption && this.state.selectedNetworkPortOption && this.state.selectedAssetOption)
+      ? <p>Configured: {this.state.selectedNetworkPortOption.id}</p>
+      : <p>Not configured.</p>
 
-    // let selections = createSelectionBoxes();
+    let selections = this.createSelectionBoxes();
 
+    return (
+      <div>
+        <Grid item alignContent='center' xs={12}>
+          <Button variant="outlined" color="primary" onClick={this.handleClickOpen}>
+            Config
+        </Button>
+          {configuredMessage}
+        </Grid>
 
-    // return (
-    //   <div>
-    //     <Grid item alignContent='center' xs={12}>
-    //       <Button variant="outlined" color="primary" onClick={handleClickOpen}>
-    //         Config
-    //     </Button>
-    //       {configuredMessage}
-    //     </Grid>
+        <Dialog open={this.state.open} onClose={this.handleClose} aria-labelledby="form-dialog-title">
+          <DialogTitle id="form-dialog-title">Connect Network Port</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              Select a Network Port from a specific Rack in a Datacenter to connect to.
+          </DialogContentText>
+            {selections}
+          </DialogContent>
 
-    //     <Dialog open={open} onClose={handleClose} aria-labelledby="form-dialog-title">
-    //       <DialogTitle id="form-dialog-title">Connect Network Port</DialogTitle>
-    //       <DialogContent>
-    //         <DialogContentText>
-    //           Select a Network Port from a specific Rack in a Datacenter to connect to.
-    //       </DialogContentText>
-    //         {selections}
-    //       </DialogContent>
-
-    //       <DialogActions>
-    //         <Button onClick={handleClose} color="primary">
-    //           Cancel
-    //       </Button>
-    //         <Button onClick={handleSubmit} color="primary">
-    //           Confirm
-    //       </Button>
-    //       </DialogActions>
-    //     </Dialog>
-    //   </div>
-    // )
+          <DialogActions>
+            <Button onClick={this.handleClose} color="primary">
+              Cancel
+          </Button>
+            <Button onClick={this.handleSubmit} color="primary">
+              Confirm
+          </Button>
+          </DialogActions>
+        </Dialog>
+      </div>
+    )
   }
 }
 

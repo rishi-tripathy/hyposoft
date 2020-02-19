@@ -43,9 +43,15 @@ export class CreateInstanceForm extends Component {
       // dummy data
       networkPorts: 10,
       macAddresses: [],
+      
+
       powerPorts: 10,
       ppConnection: [],
     }
+  }
+
+  getNetworkPortConnectionID = (id) => {
+
   }
 
   getPowerPortConenctionInfo = (pduPortNumber, isLeft, isRight) => {
