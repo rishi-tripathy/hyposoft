@@ -1,57 +1,55 @@
-import React, { Component } from 'react'
-import { Table, UncontrolledCollapse, Button, Container, CardBody, Card } from 'reactstrap';
+import React, {Component} from 'react'
+import {Table, UncontrolledCollapse, Button, Container, CardBody, Card} from 'reactstrap';
 
 
 export class UserTable extends Component {
 
   renderTableHeader() {
-		let header = ['username', 'email', 'first name',
-		'last name'];
+    let header = ['username', 'email', 'first name',
+      'last name'];
     return header.map((key, index) => {
-        return <th key={index}>{key.toUpperCase()}</th>
+      return <th key={index}>{key.toUpperCase()}</th>
     })
   }
 
   renderTableData() {
     return this.props.users.map((user, index) => {
-       const { id, url, username, email, first_name, last_name } = user //destructuring
-       
-       return (
-          <tr key={id}>
-						<td>{username}</td>
-						<td>{email}</td>
-						<td>{first_name}</td>
-            <td>{last_name}</td>
-          </tr>
-       )
+      const {id, url, username, email, first_name, last_name} = user //destructuring
+
+      return (
+        <tr key={id}>
+          <td>{username}</td>
+          <td>{email}</td>
+          <td>{first_name}</td>
+          <td>{last_name}</td>
+        </tr>
+      )
     })
   }
 
   showCreateForm = () => {
-		this.props.sendShowCreate(true);
-	}
-  
+    this.props.sendShowCreate(true);
+  }
+
 
   render() {
     return (
       <div>
-        
-          <div>
-            <Button color="success" onClick={ this.showCreateForm }>Add User +</Button>
-          </div>
 
-          <br></br>
+        <div>
+          <Button color="success" onClick={this.showCreateForm}>Add User +</Button>
+        </div>
 
-          <Table hover striped>
-            <tbody>
-              <tr>{this.renderTableHeader()}</tr>
-              { this.renderTableData() }
-            </tbody>
-          </Table>
-        
-        
+        <br></br>
 
-        
+        <Table hover striped>
+          <tbody>
+          <tr>{this.renderTableHeader()}</tr>
+          {this.renderTableData()}
+          </tbody>
+        </Table>
+
+
       </div>
     )
   }

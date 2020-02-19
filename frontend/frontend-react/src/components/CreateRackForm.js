@@ -1,107 +1,111 @@
-import React, { Component } from 'react'
+import React, {Component} from 'react'
 import axios from 'axios'
-import {Button, Form, FormGroup, Input, Label} from "reactstrap";
+import {
+  Grid, Button, Container, TextField, Paper, ButtonGroup, Switch, FormControlLabel, Typography
+} from "@material-ui/core"
+import {Link} from 'react-router-dom'
+
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 export class CreateRackForm extends Component {
-    constructor() {
-        super();
-        this.state = {
-          'id': null,
-          'rack_number': null,
-          'u1': null,
-          'u2': null,
-          'u3': null,
-          'u4': null,
-          'u5': null,
-          'u6': null,
-          'u7': null,
-          'u8': null,
-          'u9': null,
-          'u10': null,
-          'u11': null,
-          'u12': null,
-          'u13': null,
-          'u14': null,
-          'u15': null,
-          'u16': null,
-          'u17': null,
-          'u18': null,
-          'u19': null,
-          'u20': null,
-          'u21': null,
-          'u22': null,
-          'u23': null,
-          'u24': null,
-          'u25': null,
-          'u26': null,
-          'u27': null,
-          'u28': null,
-          'u29': null,
-          'u30': null,
-          'u31': null,
-          'u32': null,
-          'u33': null,
-          'u34': null,
-          'u35': null,
-          'u36': null,
-          'u37': null,
-          'u38': null,
-          'u39': null,
-          'u40': null,
-          'u41': null,
-          'u42': null,
-        }
-      }
+  constructor() {
+    super();
+    this.state = {
+      'id': null,
+      'rack_number': null,
+      'rack_num_start': null,
+      'rack_num_start_valid': false,
+      'rack_num_end': null,
+      'rack_num_end_valid': false,
+    }
+  }
 
-    removeEmpty = (obj) => {
+  removeEmpty = (obj) => {
     Object.keys(obj).forEach((k) => (!obj[k] && obj[k] !== undefined) && delete obj[k]);
     return obj;
-    };
+  };
 
-    handleSubmit = (e) => {
+  handleSubmit = (e) => {
     e.preventDefault();
 
-    let rack_num = this.state.rack_number;
+    let start_rack = this.state.rack_num_start;
+    let end_rack = this.state.rack_num_end;
 
+    // let singleFirstState = Object.assign({}, this.state.id);
+    // let singleStateCopy = Object.assign(singleFirstState, this.state.rackNumber);
     let stateCopy = Object.assign({}, this.state);
+    console.log(stateCopy);
+
     let stateToSend = this.removeEmpty(stateCopy);
+
+    // let multipleFirstState = Object.assign({}, this.state.rack_num_start)
 
     const validNumRegex = new RegExp("^[A-Z]\\d+$", 'i');
 
-    if((validNumRegex.test(rack_num))){
-      axios.post('/api/racks/', stateToSend)
-    .then(function (response) {
-    //   let message = response.data.results;
-      alert('Creation of ' + rack_num +' was successful.');
-    })
-    .catch(function (error) {
-      alert('Creation was not successful.\n' + JSON.stringify(error.response.data, null, 2));
-    });
+    if(start_rack !== null && (end_rack == null || end_rack === '')){
+      if ((validNumRegex.test(start_rack))) {
+        axios.post('/api/racks/', stateToSend)
+          .then(function (response) {
+            alert('Creation of ' + start_rack + ' was successful.');
+          window.location = '/racks'
+          })
+          .catch(function (error) {
+            alert('Creation was not successful.\n' + JSON.stringify(error.response.data, null, 2));
+          });
+      } else {
+        // console.log(this.state.rack_number);
+        alert("Rack Numbers must be specified by a Single Letter Followed by Multiple Numbers.");
+      }
     }
-    else{
-      alert("Rack Numbers must be specified by a Single Letter Followed by Multiple Numbers.");
+    else if(start_rack !== null && end_rack !== null){
+      if ((validNumRegex.test(start_rack) && validNumRegex.test(end_rack))) {
+        axios.post('/api/racks/many/', stateToSend)
+          .then(function (response) {
+            let message = response.data.results;
+            alert(response.data.results);
+            window.location = '/racks'
+          })
+          .catch(function (error) {
+            alert('Creation was not successful.\n' + JSON.stringify(error.response.data, null, 2));
+          });
+      } else {
+        alert("Rack Numbers must be specified by a Single Letter Followed by Multiple Numbers.");
+      }
     }
-    this.props.sendShowTable(true);
   }
-  
+
   render() {
     return (
-  <div>
-    <Button onClick={() => this.props.sendShowTable(true)} >Back</Button>{' '}
-        <Form onSubmit={this.handleSubmit}>
-        <h1>Rack Creation form</h1>{' '}
-      <FormGroup>
-        <Label for="Rack Number">Rack Number</Label>
-        <Input type="text" onChange={e => this.setState({rack_number: e.target.value})} />
-      </FormGroup>
-          <FormGroup>
-       <Button>Submit</Button>
-      </FormGroup>
-      <FormGroup>
-      </FormGroup>
-    </Form>
-  </div>
+      <div>
+      <Container maxwidth="xl">
+        <Grid container className="themed-container" spacing={2} />
+          <Grid item alignContent='center' xs={12}>
+            <form onSubmit={this.handleSubmit} action='/racks/'>>
+              <Grid container spacing={1}>
+                <Grid item xs={12}>
+                  <h1>Create Rack(s)</h1>
+                </Grid>
+                <Grid item xs={12}>
+                  <p>Enter a valid rack number (i.e. "A1) the first field to create a single rack. Enter a valid rack number in the second field to create a range of racks. </p>
+                </Grid>
+            <Grid item xs={3}>
+              <TextField label='Creation Range Start' type="text" fullWidth
+                         onChange={e => this.setState({rack_num_start: e.target.value, rack_number: e.target.value})}/>
+            </Grid>
+            <Grid item xs={3}>
+              <TextField label='Creation Range End (optional)' type="text" fullWidth
+                         onChange={e => this.setState({rack_num_end: e.target.value})}/>
+            </Grid>
+            <Grid item xs={12}>
+              <Button variant="contained" type="submit" color="primary" onClick={() => this.handleSubmit}>Create
+                +</Button>{' '}
+              <Link to='/racks/'><Button variant="outlined">Cancel</Button>{' '}</Link>
+            </Grid>
+          </Grid>
+        </form>
+      </Grid>
+      </Container>
+      </div>
     )
   }
 

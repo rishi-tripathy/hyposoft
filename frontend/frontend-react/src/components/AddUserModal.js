@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, {Component} from 'react'
 import Popup from "reactjs-popup";
 import CreateUserForm from './CreateUserForm';
 
@@ -7,16 +7,16 @@ const AddUserModal = () => (
     {close => (
       <div className="modal">
         <a className="close" onClick={close}> &times; </a>
-        <div className="header"> Create User Below </div>
+        <div className="header"> Create User Below</div>
         <div className="content">
-          <CreateUserForm />
+          <CreateUserForm/>
         </div>
         <div className="actions">
           <button className="button"
-            onClick={() => {
-              console.log("modal closed ");
-              close();
-            }}>
+                  onClick={() => {
+                    console.log("modal closed ");
+                    close();
+                  }}>
             Close
           </button>
         </div>
