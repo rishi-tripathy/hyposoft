@@ -3,7 +3,9 @@ from django_filters import rest_framework as filters
 from ass_man.models import Model, Asset, Rack
 from rest_framework import filters as rest_filters
 from django.db.models.fields import IntegerField
-from django.db.models.functions import Substr, Cast
+from django.db.models.functions import Substr, Cast, Length
+
+import django.db.models as models
 from rest_framework.validators import ValidationError
 from rest_framework.response import Response
 
@@ -24,6 +26,17 @@ class ModelFilter(filters.FilterSet):
         model = Model
         fields = ['vendor', 'model_number', 'height', 'color', 'network_ports',
                   'power_ports', 'cpu', 'memory', 'storage', 'comment']
+
+
+class ModelFilterByNPNum(rest_filters.BaseFilterBackend):
+    def filter_queryset(self, request, queryset, view):
+        start_letter = int(request.query_params.get('num_np_min')) if request.query_params.get('num_np_min') else 0
+        end_letter = int(request.query_params.get('num_np_max')) if request.query_params.get('num_np_max') else 999
+
+        queryset = Model.objects.all().annotate(num_network_ports=ArrayLenTransform('network_ports'))
+
+        return queryset \
+            .filter(num_network_ports__range=(start_letter, end_letter))
 
 
 class AssetFilter(filters.FilterSet):
