@@ -60,7 +60,7 @@ class ModelViewSet(viewsets.ModelViewSet):
     filterset_class = ModelFilter
 
     def destroy(self, request, *args, **kwargs):
-        matches = self.get_object().asset_set
+        matches = self.get_object().asset_set.all()
         if matches.count() > 0:
             offending_assets = []
             for match in matches:
