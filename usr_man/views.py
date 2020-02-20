@@ -38,6 +38,16 @@ class UserViewSet(viewsets.ModelViewSet):
     filterset_fields = USER_ORDERING_FILTERING_FIELDS
     ordering_fields = USER_ORDERING_FILTERING_FIELDS
 
+    def destroy(self, request, *args, **kwargs):
+        user = self.get_object()
+        to_delete = User.objects.get(id=user.id)
+        if to_delete.has_usable_password():
+            super().destroy(request, *args, **kwargs)
+        else:
+            return Response({
+                "status": "Failure. You may not delete a NetID user."
+            })
+
     # Override default actions here
     def partial_update(self, request, *args, **kwargs):
 
@@ -45,20 +55,25 @@ class UserViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(user, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
 
-        if user.username is not 'admin': # can't update admin permissions
+        if user.username is 'admin': # can't update admin permissions
+            return Response({
+                "status": "You may not change the permissions of the admin user."
+            },
+                status=status.HTTP_400_BAD_REQUEST)
 
-            if request.data.get('is_admin') == 'true':
-                user.is_superuser = True
-                user.is_staff = True
+        if request.data.get('is_admin') == 'true':
+            user.is_superuser = True
+            user.is_staff = True
 
-            if request.data.get('is_staff') == 'true':
-                user.is_staff = True
+        if request.data.get('is_staff') == 'true':
+            user.is_staff = True
 
-            if request.data.get('is_admin') == 'false':
-                user.is_superuser = False
+        if request.data.get('is_admin') == 'false':
+            user.is_superuser = False
+            user.is_staff = False
 
-            if request.data.get('is_staff') == 'false':
-                user.is_staff = False
+        if request.data.get('is_staff') == 'false':
+            user.is_staff = False
 
         self.perform_update(serializer)
 
@@ -94,6 +109,7 @@ class UserViewSet(viewsets.ModelViewSet):
             un = request.user.username
             fn = request.user.first_name or None
             ln = request.user.last_name or None
+            is_admin = request.user.is_staff
         except AttributeError:
             return Response({
                 'current_user': None
@@ -101,13 +117,14 @@ class UserViewSet(viewsets.ModelViewSet):
         return Response({
             'current_user': un,
             'first_name': fn,
-            'last_name': ln
+            'last_name': ln,
+            'is_admin': is_admin
         })
 
     @action(detail=False, methods=[GET, POST])
     def netid_login(self, request, *args, **kwargs):
         url = 'https://api.colab.duke.edu/identity/v1/'
-        token =  request.query_params.get('token') or ''  # 'cbe2d5243b68b6556dc879cf7e72e397ed8af57a'  #
+        token = 'b2be76b44ca5b2a7aeecdbda7d3ac0a0f0e3ee3f' # request.query_params.get('token') or ''  # 'cbe2d5243b68b6556dc879cf7e72e397ed8af57a'  #
 
         headers = {"Accept": "application/json",
                    "Authorization": "Bearer {}".format(token),
@@ -136,7 +153,7 @@ class UserViewSet(viewsets.ModelViewSet):
         else:
             serializer = self.get_serializer(data=resp_draft)
             serializer.is_valid(raise_exception=True)
-            us = serializer.create(resp_draft)
+            user = serializer.create(resp_draft)
 
             login(request, user)
             return Response({

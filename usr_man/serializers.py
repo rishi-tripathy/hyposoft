@@ -38,6 +38,8 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         if self.validated_data['last_name']:
             user.last_name = self.validated_data['last_name']
 
+        user.set_unusable_password()
+
         user.save()
         return user
 
@@ -49,4 +51,4 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
 class UserOfAssetSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = User
-        fields = ('url', 'username')
+        fields = ('id', 'url', 'username')
