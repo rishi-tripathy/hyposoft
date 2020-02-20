@@ -104,14 +104,25 @@ export class NetworkPortConnectionDialog extends Component {
 
   loadNetworkPorts = () => {
 
-    axios.get('/api/assets/' + this.state.selectedAssetOption.id + '/')
-      .then((response) => {
-        return axios.get(response.data.model.url); // using response.data
-      })
-      .then((response) => {
-        console.log('Response', response.data);
-        this.setState({ networkPorts: response.data.network_ports })
+    let dst = '/api/assets/' + this.state.selectedAssetOption.id + '/';
+    axios.get(dst).then(res => {
+      this.setState({
+        networkPorts: res.data.network_ports,
       });
+    })
+      .catch(function (error) {
+        console.log(error.response)
+        alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+      });
+
+    // axios.get('/api/assets/' + this.state.selectedAssetOption.id + '/')
+    //   .then((response) => {
+    //     return axios.get(response.data.model.url); // using response.data
+    //   })
+    //   .then((response) => {
+    //     console.log('Response', response.data);
+    //     this.setState({ networkPorts: response.data.network_ports })
+    //   });
   }
 
   handleClickOpen = () => {
@@ -131,7 +142,7 @@ export class NetworkPortConnectionDialog extends Component {
   };
 
   handleSubmit = () => {
-    this.props.sendNetworkPortConnectionID(this.props.indexOfThisNPConfig, this.state.selectedNetworkPortOption);
+    this.props.sendNetworkPortConnectionID(this.props.indexOfThisNPConfig, this.state.selectedNetworkPortOption.id);
     this.setState({ open: false })
   }
 
@@ -220,7 +231,7 @@ export class NetworkPortConnectionDialog extends Component {
           autoSelect
           id="np-select"
           options={this.state.networkPorts}
-          getOptionLabel={option => option}
+          getOptionLabel={option => option.name}
           onChange={this.handleChangeNetworkPort}
           value={this.state.selectedNetworkPortOption}
           renderInput={params => (
@@ -234,7 +245,7 @@ export class NetworkPortConnectionDialog extends Component {
 
   render() {
     //console.log(this.props)
-    console.log(this.state)
+    //console.log(this.state)
     //return (<div></div>)
     let configuredMessage = (this.state.selectedDatacenterOption && this.state.selectedRackOption && this.state.selectedNetworkPortOption && this.state.selectedAssetOption)
       ? <p>Configured: {this.state.selectedNetworkPortOption.name}</p>

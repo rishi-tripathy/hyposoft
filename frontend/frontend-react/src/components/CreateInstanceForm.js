@@ -216,51 +216,66 @@ export class CreateInstanceForm extends Component {
     return obj;
   };
 
-  buildNetworkPorts = () => {
-    let tmp = [];
+  removeEmptyRecursive = (obj) => {
+    Object.keys(obj).forEach(k =>
+      (obj[k] && typeof obj[k] === 'object') && this.removeEmptyRecursive(obj[k]) ||
+      (!obj[k] && obj[k] !== undefined) && delete obj[k]
+    );
+    return obj;
+  };
 
-
-    for (let i = 0; i < this.state.numberOfNetworkPortsForCurrentAsset; i++) {
-
-      let currentMAC = this.state.macAddresses[i] ? this.state.macAddresses[i] : null;
-      let currentNetworkPortID = this.state.networkPortConnectionIDs[i] ? this.state.networkPortConnectionIDs[i] : null;
-      let currentNPName = this.state.networkPortNamesForCurrentAsset[i] ? this.state.networkPortNamesForCurrentAsset[i] : null;
-
-      let obj = JSON.parse('{ "mac": "' + currentMAC + '", "name": "' + currentNPName + '", "connection": { "network_port_id": ' + currentNetworkPortID + ' } }')
-      console.log(obj)
-
-      tmp.push(obj)
-    }
-
-    this.setState({ network_ports: tmp });
-
-  }
+  // buildNetworkPorts = () => {
+  //   let tmp = [];
+  //   for (let i = 0; i < this.state.numberOfNetworkPortsForCurrentAsset; i++) {
+  //     let currentMAC = this.state.macAddresses[i] ? this.state.macAddresses[i] : null;
+  //     let currentNetworkPortID = this.state.networkPortConnectionIDs[i] ? this.state.networkPortConnectionIDs[i] : null;
+  //     let currentNPName = this.state.networkPortNamesForCurrentAsset[i] ? this.state.networkPortNamesForCurrentAsset[i] : null;
+  //     let obj = JSON.parse('{ "mac": "' + currentMAC + '", "name": "' + currentNPName + '", "connection": { "network_port_id": ' + currentNetworkPortID + ' } }')
+  //     console.log(obj)
+  //     tmp.push(obj)
+  //   }
+  //   console.log(JSON.stringify(tmp, null, 2))
+  //   let stateCopy = Object.assign({}, this.state.asset);
+  //   stateCopy.network_ports = tmp
+  //   console.log(JSON.stringify(stateCopy, null, 2))
+  //   this.setState({ asset: stateCopy });
+  // }
 
   handleSubmit = (e) => {
     if (e) e.preventDefault();
 
-    this.buildNetworkPorts();
-
+    // TODO: refactor this
+    let networkPortsBuilder = [];
+    for (let i = 0; i < this.state.numberOfNetworkPortsForCurrentAsset; i++) {
+      let currentMAC = this.state.macAddresses[i] ? this.state.macAddresses[i] : null;
+      let currentNetworkPortID = this.state.networkPortConnectionIDs[i] ? this.state.networkPortConnectionIDs[i] : null;
+      let currentNPName = this.state.networkPortNamesForCurrentAsset[i] ? this.state.networkPortNamesForCurrentAsset[i] : null;
+      
+      let obj = JSON.parse('{ "mac": ' + currentMAC + ', "name": "' + currentNPName + '", "connection": { "network_port_id": ' + currentNetworkPortID + ' } }')
+      console.log(obj)
+      networkPortsBuilder.push(this.removeEmptyRecursive(obj))
+    }
 
     let stateCopy = Object.assign({}, this.state.asset);
     stateCopy.model = this.state.selectedModelOption ? this.state.selectedModelOption.value : null;
     stateCopy.datacenter = this.state.selectedDatacenterOption ? this.state.selectedDatacenterOption.value : null;
     stateCopy.rack = this.state.selectedRackOption ? this.state.selectedRackOption.value : null;
     stateCopy.owner = this.state.selectedOwnerOption ? this.state.selectedOwnerOption.value : null;
+    stateCopy.network_ports = networkPortsBuilder
     let stateToSend = this.removeEmpty(stateCopy);
 
-    console.log(stateToSend)
-    console.log(this.state)
+    console.log(JSON.stringify(stateToSend, null, 2))
+    console.log(JSON.stringify(this.state, null, 2))
 
-    // CHOKE THE POST CALL
-    // axios.post('/api/instances/', stateToSend)
-    //   .then(function (response) {
-    //     alert('Created successfully');
-    //     window.location = '/assets'
-    //   })
-    //   .catch(function (error) {
-    //     alert('Creation was not successful.\n' + JSON.stringify(error.response.data, null, 2));
-    //   });
+    //CHOKE THE POST CALL
+    axios.post('/api/assets/', stateToSend)
+      .then(function (response) {
+        alert('Created successfully');
+        window.location = '/assets'
+      })
+      .catch(function (error) {
+        alert('Creation was not successful.\n' + JSON.stringify(error.response.data, null, 2));
+      });
   }
 
   handleChangeModel = (event, selectedModelOption) => {
