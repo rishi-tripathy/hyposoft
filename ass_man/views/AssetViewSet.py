@@ -103,8 +103,9 @@ class AssetViewSet(viewsets.ModelViewSet):
     def cru_network_ports(self, request, asset, network_ports_json):
         for i in network_ports_json:
             try:
-                connection_asset = Asset.objects.get(asset_number=i['connection']['asset_number'])
-                connection_port = connection_asset.network_port_set.get(name=i['connection']['port_name'])
+                # connection_asset = Asset.objects.get(asset_number=i['connection']['asset_number'])
+                # connection_port = connection_asset.network_port_set.get(name=i['connection']['port_name'])
+                connection_port = Network_Port.objects.get(pk=i['connection']['network_port_id'])
             except (ObjectDoesNotExist, KeyError) as e:
                 connection_port = None
             try:
