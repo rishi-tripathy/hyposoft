@@ -209,7 +209,7 @@ class RackViewSet(viewsets.ModelViewSet):
         r_occ = [int(pp.port_number) for pp in pp_r.all()]
         l_free = [x for x in range(1,25) if x not in l_occ]
         r_free = [x for x in range(1,25) if x not in r_occ]
-        resp_list = [{'left': l_free}, {'right': r_free}]
+        resp_list = {'left': l_free, 'right': r_free}
         # r_free = [True if x not in r_occ else False for x in range(0, 25)]
         #
         # l_free = [True if x not in l_occ else False for x in range(0, 25)]
