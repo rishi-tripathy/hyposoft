@@ -117,6 +117,9 @@ class UserViewSet(viewsets.ModelViewSet):
 
         netid_info = r.json()
 
+        if r.status_code is not 200:
+            return Response(r.json(), status.HTTP_400_BAD_REQUEST)
+
         resp_draft = {'email': "{}@duke.edu".format(netid_info['netid']),
                       'username': netid_info['netid'],
                       'first_name': netid_info['firstName'],
