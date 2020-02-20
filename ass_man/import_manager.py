@@ -29,7 +29,7 @@ def import_model_file(request):
             if disp_col:
                 new_model.display_color = disp_col
             if row['network_ports']:
-                new_model.network_ports = row['network_ports']
+                new_model.network_ports_num = row['network_ports']
             if row['power_ports']:
                 new_model.power_ports = row['power_ports']
             if row['memory']:
@@ -44,6 +44,13 @@ def import_model_file(request):
                 new_model.network_ports = nps
             models_to_create.append(new_model)
             continue
+
+        for i in range(int(row['network_ports'])):
+            if row['network_port_name_{}'.format(i+1)] and row['network_port_name_{}'.format(i+1)] is not model.network_ports[i]:
+                if should_override:
+                    model.network_ports[i] = row['network_port_name_{}'.format(i+1)]
+                    should_update = True
+
         if str(model.height) != row['height']:
             if should_override:
                 model.height = row['height']
@@ -60,13 +67,13 @@ def import_model_file(request):
                 key = model.vendor + model.model_number + "_display_color"
                 fields_overriden[key] = [model.display_color, disp_col]
             override = True
-        if str(model.network_ports) != row['network_ports'] and (model.network_ports or row['network_ports']):
+        if str(model.network_ports_num) != row['network_ports'] and (model.network_ports_num or row['network_ports']):
             if should_override:
-                model.network_ports = row['network_ports']
+                model.network_ports_num = row['network_ports']
                 should_update = True
             else:
                 key = model.vendor + model.model_number + "_network_ports"
-                fields_overriden[key] = [model.network_ports, row['network_ports']]
+                fields_overriden[key] = [model.network_ports_num, row['network_ports']]
             override = True
         if str(model.power_ports) != row['power_ports'] and (model.power_ports or row['power_ports']):
             if should_override:
