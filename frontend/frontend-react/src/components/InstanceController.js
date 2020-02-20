@@ -126,7 +126,7 @@ export class InstanceController extends Component {
     const FileDownload = require('js-file-download');
     axios.get(dst).then(res => {
       // console.log(res.data.next)
-      FileDownload(res.data, 'instance_export.csv');
+      FileDownload(res.data, 'asset_export.csv');
       alert("Export was successful.");
     })
       .catch(function (error) {
@@ -148,7 +148,7 @@ export class InstanceController extends Component {
       .catch(function (error) {
         console.log(error.response)
         const fileUploadOverride = (file) => {
-          const url = '/api/instances/import_file/?override=true';
+          const url = '/api/assets/import_file/?override=true';
           const formData = new FormData();
           formData.append('file', file)
           //formData.append('name', 'sup')
@@ -181,7 +181,7 @@ export class InstanceController extends Component {
   }
 
   fileUpload = (file) => {
-    const url = '/api/instances/import_file/';
+    const url = '/api/assets/import_file/';
     const formData = new FormData();
     formData.append('file', file)
     //formData.append('name', 'sup')
@@ -251,7 +251,7 @@ export class InstanceController extends Component {
     axios.get(dst).then(res => {
       // console.log(res.data.next)
       this.setState({
-        instances: res.data,
+        assets: res.data,
         prevPage: null,
         nextPage: null,
       });
@@ -264,7 +264,7 @@ export class InstanceController extends Component {
   }
 
   fileUpload = (file) => {
-    const url = '/api/instances/import_file/';
+    const url = '/api/assets/import_file/';
     const formData = new FormData();
     formData.append('file', file)
     //formData.append('name', 'sup')
@@ -324,7 +324,7 @@ export class InstanceController extends Component {
     let add = this.props.is_admin ? (
       <Link to={'/assets/create'}>
         <Button color="primary" variant="contained" endIcon={<AddCircleIcon/>}>
-          Add Instance
+          Add Asset
         </Button>
       </Link>
 
@@ -362,7 +362,7 @@ export class InstanceController extends Component {
             <Grid item justify="flex-start" alignContent='center' xs={12}/>
             <Grid item justify="flex-start" alignContent='center' xs={10}>
               <Typography variant="h3">
-                Instance Table
+                Asset Table
               </Typography>
             </Grid>
             <Grid item justify="flex-end" alignContent="flex-end" xs={2}>

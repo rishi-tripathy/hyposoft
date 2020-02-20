@@ -23,16 +23,28 @@ export class CreateInstanceForm extends Component {
   constructor() {
     super();
     this.state = {
-      instance: {
+      asset: {
         model: null,
         hostname: null,
         rack: null,
         rack_u: null,
         owner: null,
         comment: null,
+        asset_number: null,
+        network_ports: []
+        // {
+        // 	"mac":"yerp", //optional
+        // 	"name":"yup",
+        // 	"connection": { //optional
+        // 		"network_port_id": 1
+        // 	  }
+        // }
       },
       modelOptions: [],
       selectedModelOption: null,
+
+      datacenterOptions: [],
+      selectedDatacenterOption: null,
 
       rackOptions: [],
       selectedRackOption: null,
@@ -40,11 +52,14 @@ export class CreateInstanceForm extends Component {
       ownerOptions: [],
       selectedOwnerOption: null,
 
-      // dummy data
-      networkPorts: 10,
+      numberOfNetworkPortsForCurrentAsset: null,
+      networkPortNamesForCurrentAsset: [],
+
       macAddresses: [],
+      networkPortConnectionIDs: [],
 
 
+      //dummy
       powerPorts: 3,
       ppConnection: [],
 
@@ -57,8 +72,26 @@ export class CreateInstanceForm extends Component {
     }
   }
 
-  getNetworkPortConnectionID = (id) => {
+  loadNetworkPortInfoForCurrentlySelectedModel = () => {
+    let modelURL = this.state.selectedModelOption.value
+    console.log(modelURL)
+    axios.get(modelURL).then(res => {
+      this.setState({
+        numberOfNetworkPortsForCurrentAsset: res.data.network_ports_num,
+        networkPortNamesForCurrentAsset: res.data.network_ports,
+      });
+    })
+      .catch(function (error) {
+        console.log(error.response)
+        alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+      });
+  }
 
+  getNetworkPortConnectionID = (index, npID) => {
+    //console.log()
+    let a = this.state.networkPortConnectionIDs.slice(); //creates the clone of the state
+    a[index] = npID;
+    this.setState({ networkPortConnectionIDs: a });
   }
 
   getPowerPortConenctionInfo = (pduPortNumber, isLeft, isRight) => {
@@ -77,9 +110,9 @@ export class CreateInstanceForm extends Component {
     })
   }
 
-  componentDidMount() {
+  loadModels = () => {
     // MODEL
-    let dst = '/api/instances/model_names/';
+    const dst = '/api/assets/model_names/';
     axios.get(dst).then(res => {
       let myOptions = [];
       for (let i = 0; i < res.data.length; i++) {
@@ -91,9 +124,13 @@ export class CreateInstanceForm extends Component {
         // TODO: handle error
         alert('Could not load model names. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
       });
+  }
 
+  loadRacks = () => {
+    console.log(this.state.selectedDatacenterOption)
     // RACK
-    dst = '/api/racks/?show_all=true';
+    const dst = '/api/datacenters/' + this.state.selectedDatacenterOption.id + '/racks/?show_all=true';
+    console.log(dst);
     axios.get(dst).then(res => {
       let myOptions = [];
       for (let i = 0; i < res.data.length; i++) {
@@ -105,9 +142,11 @@ export class CreateInstanceForm extends Component {
         // TODO: handle error
         alert('Could not load racks. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
       });
+  }
 
+  loadOwners = () => {
     // OWNER
-    dst = '/api/users/?show_all=true';
+    const dst = '/api/users/?show_all=true';
     axios.get(dst).then(res => {
       let myOptions = [];
       for (let i = 0; i < res.data.length; i++) {
@@ -119,10 +158,57 @@ export class CreateInstanceForm extends Component {
         // TODO: handle error
         alert('Could not load owners. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
       });
+  }
+
+  loadDatacenters = () => {
+    const dst = '/api/datacenters/?show_all=true';
+    axios.get(dst).then(res => {
+      let myOptions = [];
+      for (let i = 0; i < res.data.length; i++) {
+        //TODO: change value to URL
+        myOptions.push({ value: res.data[i].url, label: res.data[i].abbreviation, id: res.data[i].id });
+      }
+      console.log(myOptions)
+      this.setState({ datacenterOptions: myOptions });
+    })
+      .catch(function (error) {
+        // TODO: handle error
+        alert('Could not load owners. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+      });
+  }
+
+  componentDidMount() {
+    this.loadModels();
+    this.loadDatacenters();
+
+    this.loadOwners();
+
+
+
 
     // L and R free PDUs
-    this.loadLeftFreePDUs();
-    this.loadRightFreePDUs();
+    // this.loadLeftFreePDUs();
+    // this.loadRightFreePDUs();
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState.selectedModelOption != this.state.selectedModelOption) {
+      if (this.state.selectedModelOption) {
+        this.loadNetworkPortInfoForCurrentlySelectedModel();
+      }
+      else {
+        this.setState({ networkPortNamesForCurrentAsset: [], numberOfNetworkPortsForCurrentAsset: null });
+      }
+    }
+
+    if (this.state.selectedDatacenterOption != prevState.selectedDatacenterOption) {
+      if (this.state.selectedDatacenterOption) {
+        this.loadRacks();
+      }
+      else {
+        this.setState({ rackOptions: [], selectedRackOption: null });
+      }
+    }
   }
 
   removeEmpty = (obj) => {
@@ -130,15 +216,40 @@ export class CreateInstanceForm extends Component {
     return obj;
   };
 
+  buildNetworkPorts = () => {
+    let tmp = [];
+
+
+    for (let i = 0; i < this.state.numberOfNetworkPortsForCurrentAsset; i++) {
+
+      let currentMAC = this.state.macAddresses[i] ? this.state.macAddresses[i] : null;
+      let currentNetworkPortID = this.state.networkPortConnectionIDs[i] ? this.state.networkPortConnectionIDs[i] : null;
+      let currentNPName = this.state.networkPortNamesForCurrentAsset[i] ? this.state.networkPortNamesForCurrentAsset[i] : null;
+
+      let obj = JSON.parse('{ "mac": "' + currentMAC + '", "name": "' + currentNPName + '", "connection": { "network_port_id": ' + currentNetworkPortID + ' } }')
+      console.log(obj)
+
+      tmp.push(obj)
+    }
+
+    this.setState({ network_ports: tmp });
+
+  }
+
   handleSubmit = (e) => {
     if (e) e.preventDefault();
 
-    let stateCopy = Object.assign({}, this.state.instance);
+    this.buildNetworkPorts();
+
+
+    let stateCopy = Object.assign({}, this.state.asset);
     stateCopy.model = this.state.selectedModelOption ? this.state.selectedModelOption.value : null;
+    stateCopy.datacenter = this.state.selectedDatacenterOption ? this.state.selectedDatacenterOption.value : null;
     stateCopy.rack = this.state.selectedRackOption ? this.state.selectedRackOption.value : null;
     stateCopy.owner = this.state.selectedOwnerOption ? this.state.selectedOwnerOption.value : null;
     let stateToSend = this.removeEmpty(stateCopy);
 
+    console.log(stateToSend)
     console.log(this.state)
 
     // CHOKE THE POST CALL
@@ -153,6 +264,7 @@ export class CreateInstanceForm extends Component {
   }
 
   handleChangeModel = (event, selectedModelOption) => {
+    //console.log(selectedModelOption)
     this.setState({ selectedModelOption });
   };
 
@@ -164,37 +276,36 @@ export class CreateInstanceForm extends Component {
     this.setState({ selectedOwnerOption });
   };
 
+  handleChangeDatacenter = (event, selectedDatacenterOption) => {
+    this.setState({ selectedDatacenterOption });
+  }
+
   openNetworkPortConfigAndMAC = () => {
     let fieldList = [];
-    for (let i = 0; i < this.state.networkPorts; i++) {
+    for (let i = 0; i < this.state.numberOfNetworkPortsForCurrentAsset; i++) {
       const num = i + 1;
       //const fieldLabel = 'Network Port ' + num;
       fieldList.push(
         <ListItem>
           <Grid item alignContent='center' xs={8}>
-            <ListItemText primary='NP # hold' />
+            <ListItemText primary={this.state.networkPortNamesForCurrentAsset[i]} />
             <TextField label='MAC Address'
               fullwidth
               type="text"
               // set its value
-              //value={}
+              value={this.state.macAddresses[i]}
               onChange={e => {
-                // do stuff on change
+                let a = this.state.macAddresses.slice(); //creates the clone of the state
+                a[i] = e.target.value;
+                this.setState({ macAddresses: a });
               }} />
           </Grid>
 
           <Grid item alignContent='center' xs={4}>
-            <NetworkPortConnectionDialog />
+            <NetworkPortConnectionDialog
+              indexOfThisNPConfig={i}
+              sendNetworkPortConnectionID={this.getNetworkPortConnectionID} />
           </Grid>
-
-
-          {/* <Tooltip title='Edit'>
-            <IconButton size="sm">
-              <EditIcon />
-            </IconButton>
-          </Tooltip> */}
-
-          {/* <Button variant="contained">Default</Button> */}
         </ListItem>
       )
       fieldList.push(
@@ -215,7 +326,7 @@ export class CreateInstanceForm extends Component {
               <Grid container spacing={1}>
                 <Grid item xs={12}>
                   <Typography variant="h3" gutterBottom>
-                    Create Instance
+                    Create Asset
                   </Typography>
                 </Grid>
                 <Grid item xs={6}>
@@ -235,10 +346,10 @@ export class CreateInstanceForm extends Component {
                 </Grid>
                 <Grid item xs={6}>
                   <TextField label='Hostname' type="text" fullWidth onChange={e => {
-                    let instanceCopy = JSON.parse(JSON.stringify(this.state.instance))
+                    let instanceCopy = JSON.parse(JSON.stringify(this.state.asset))
                     instanceCopy.hostname = e.target.value
                     this.setState({
-                      instance: instanceCopy
+                      asset: instanceCopy
                     })
                   }} />
                 </Grid>
@@ -257,6 +368,10 @@ export class CreateInstanceForm extends Component {
                     //getOptionLabel={option => option.label}
                     //onChange={this.handleChangeModel}
                     //value={this.state.selectedModelOption}
+                    options={this.state.datacenterOptions}
+                    getOptionLabel={option => option.label}
+                    onChange={this.handleChangeDatacenter}
+                    value={this.state.selectedDatacenterOption}
                     renderInput={params => (
                       <TextField {...params} label="Datacenter" fullWidth />
                     )}
@@ -323,10 +438,10 @@ export class CreateInstanceForm extends Component {
                     fullWidth
                     type="number"
                     onChange={e => {
-                      let instanceCopy = JSON.parse(JSON.stringify(this.state.instance))
+                      let instanceCopy = JSON.parse(JSON.stringify(this.state.asset))
                       instanceCopy.rack_u = e.target.value
                       this.setState({
-                        instance: instanceCopy
+                        asset: instanceCopy
                       })
                     }} />
                 </Grid>
@@ -351,10 +466,10 @@ export class CreateInstanceForm extends Component {
                     rows="4"
                     type="text"
                     onChange={e => {
-                      let instanceCopy = JSON.parse(JSON.stringify(this.state.instance))
+                      let instanceCopy = JSON.parse(JSON.stringify(this.state.asset))
                       instanceCopy.comment = e.target.value
                       this.setState({
-                        instance: instanceCopy
+                        asset: instanceCopy
                       })
                     }} />
                 </Grid>

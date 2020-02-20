@@ -23,6 +23,9 @@ export class NetworkPortConnectionDialog extends Component {
       selectedAssetOption: null,
       selectedNetworkPortOption: null,
 
+
+
+
       open: false
     }
   }
@@ -32,87 +35,83 @@ export class NetworkPortConnectionDialog extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
+
     if (this.state.selectedDatacenterOption != prevState.selectedDatacenterOption) {
-      this.loadRacks();
+      if (this.state.selectedDatacenterOption) {
+        this.loadRacks();
+      }
+      else {
+        this.setState({ racks: [], selectedRackOption: null });
+      }
     }
     if (this.state.selectedRackOption != prevState.selectedRackOption) {
-      this.loadAssets();
+      if (this.state.selectedRackOption) {
+        this.loadAssets();
+      }
+      else {
+        this.setState({ assets: [], selectedAssetOption: null });
+      }
     }
     if (this.state.selectedAssetOption != prevState.selectedAssetOption) {
-      this.loadNetworkPorts();
+      if (this.state.selectedAssetOption) {
+        this.loadNetworkPorts();
+      }
+      else {
+        this.setState({ networkPorts: [], selectedNetworkPortOption: null });
+      }
+
     }
   }
 
   loadDatacenters = () => {
-    // TODO: will replace this with a one globally selected
-    this.setState({
-      datacenters: [
-        {
-          id: 1,
-          name: 'rtp1'
-        },
-        {
-          id: 2,
-          name: 'rtp2'
-        }
-      ]
+    let dst = '/api/datacenters/?show_all=true';
+    axios.get(dst).then(res => {
+      this.setState({
+        datacenters: res.data,
+      });
     })
-    // let dst = '/api/datacenters/';
-    // axios.get(dst).then(res => {
-    //   this.setState({
-    //     datacenters: res.data.results,
-    //   });
-    // })
-    //   .catch(function (error) {
-    //     console.log(error.response)
-    //     alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
-    //   });
+      .catch(function (error) {
+        console.log(error.response)
+        alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+      });
   }
 
   loadRacks = () => {
-
-    this.setState({
-      racks: [
-        {
-          id: 1,
-          rack_number: 'A12'
-        },
-        {
-          id: 2,
-          rack_number: 'B12'
-        }
-      ]
+    let dst = '/api/datacenters/' + this.state.selectedDatacenterOption.id + '/racks/?show_all=true';
+    axios.get(dst).then(res => {
+      this.setState({
+        racks: res.data,
+      });
     })
+      .catch(function (error) {
+        console.log(error.response)
+        alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+      });
   }
 
   loadAssets = () => {
-    this.setState({
-      assets: [
-        {
-          id: 1,
-          hostname: 'some name blah'
-        }
-      ]
+    let dst = '/api/racks/' + this.state.selectedRackOption.id + '/assets/?show_all=true';
+    axios.get(dst).then(res => {
+      this.setState({
+        assets: res.data,
+      });
     })
+      .catch(function (error) {
+        console.log(error.response)
+        alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+      });
   }
 
   loadNetworkPorts = () => {
-    this.setState({
-      networkPorts: [
-        {
-          id: 1,
-          name: 'np1'
-        },
-        {
-          id: 2,
-          name: 'np2'
-        },
-        {
-          id: 3,
-          name: 'np3'
-        }
-      ]
-    })
+
+    axios.get('/api/assets/' + this.state.selectedAssetOption.id + '/')
+      .then((response) => {
+        return axios.get(response.data.model.url); // using response.data
+      })
+      .then((response) => {
+        console.log('Response', response.data);
+        this.setState({ networkPorts: response.data.network_ports })
+      });
   }
 
   handleClickOpen = () => {
@@ -132,6 +131,7 @@ export class NetworkPortConnectionDialog extends Component {
   };
 
   handleSubmit = () => {
+    this.props.sendNetworkPortConnectionID(this.props.indexOfThisNPConfig, this.state.selectedNetworkPortOption);
     this.setState({ open: false })
   }
 
@@ -220,7 +220,7 @@ export class NetworkPortConnectionDialog extends Component {
           autoSelect
           id="np-select"
           options={this.state.networkPorts}
-          getOptionLabel={option => option.name}
+          getOptionLabel={option => option}
           onChange={this.handleChangeNetworkPort}
           value={this.state.selectedNetworkPortOption}
           renderInput={params => (
@@ -233,6 +233,7 @@ export class NetworkPortConnectionDialog extends Component {
   }
 
   render() {
+    //console.log(this.props)
     console.log(this.state)
     //return (<div></div>)
     let configuredMessage = (this.state.selectedDatacenterOption && this.state.selectedRackOption && this.state.selectedNetworkPortOption && this.state.selectedAssetOption)
