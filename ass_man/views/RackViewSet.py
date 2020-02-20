@@ -220,5 +220,5 @@ class RackViewSet(viewsets.ModelViewSet):
         #     resp_list.append({'pduSlot': x, 'left': l_free[x], 'right': r_free[x]})
 
         return Response({
-            'data': resp_list
+            'pdu_slots': resp_list
         })
