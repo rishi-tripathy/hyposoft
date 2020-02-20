@@ -24,6 +24,7 @@ export class CreateModelForm extends Component {
         'height': null,
         'display_color': 'ffffff',
         'network_ports': [],
+        'network_ports_num': null,
         'power_ports': null,
         'cpu': null,
         'memory': null,
@@ -79,8 +80,10 @@ export class CreateModelForm extends Component {
     let stateCopy = Object.assign({}, this.state.model);
     stateCopy.vendor = this.state.selectedVendorOption ? this.state.selectedVendorOption : null;
     stateCopy.network_ports = this.fillInEmptyDefaultNPNames();
+    stateCopy.network_ports_num = this.state.networkPorts;
+    console.log(stateCopy.network_ports_num)
     let stateToSend = this.removeEmpty(stateCopy);
-
+    console.log(stateToSend)
     // make sure there are no empty default values
     //console.log(this.fillInEmptyDefaultNPNames());
 
