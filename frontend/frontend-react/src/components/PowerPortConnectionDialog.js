@@ -13,8 +13,6 @@ export class PowerPortConnectionDialog extends Component {
   constructor() {
     super();
     this.state = {
-      leftFree: [],
-      rightFree: [],
       powerPortConfiguration: [
         {
           pduPortNumber: 2,

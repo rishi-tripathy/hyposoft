@@ -58,6 +58,8 @@ export class CreateInstanceForm extends Component {
       macAddresses: [],
       networkPortConnectionIDs: [],
 
+      
+
 
       //dummy
       powerPorts: 3,
@@ -223,23 +225,6 @@ export class CreateInstanceForm extends Component {
     );
     return obj;
   };
-
-  // buildNetworkPorts = () => {
-  //   let tmp = [];
-  //   for (let i = 0; i < this.state.numberOfNetworkPortsForCurrentAsset; i++) {
-  //     let currentMAC = this.state.macAddresses[i] ? this.state.macAddresses[i] : null;
-  //     let currentNetworkPortID = this.state.networkPortConnectionIDs[i] ? this.state.networkPortConnectionIDs[i] : null;
-  //     let currentNPName = this.state.networkPortNamesForCurrentAsset[i] ? this.state.networkPortNamesForCurrentAsset[i] : null;
-  //     let obj = JSON.parse('{ "mac": "' + currentMAC + '", "name": "' + currentNPName + '", "connection": { "network_port_id": ' + currentNetworkPortID + ' } }')
-  //     console.log(obj)
-  //     tmp.push(obj)
-  //   }
-  //   console.log(JSON.stringify(tmp, null, 2))
-  //   let stateCopy = Object.assign({}, this.state.asset);
-  //   stateCopy.network_ports = tmp
-  //   console.log(JSON.stringify(stateCopy, null, 2))
-  //   this.setState({ asset: stateCopy });
-  // }
 
   handleSubmit = (e) => {
     if (e) e.preventDefault();
@@ -422,9 +407,10 @@ export class CreateInstanceForm extends Component {
                     <PowerPortConnectionDialog
                       sendPowerPortConnectionInfo={this.getPowerPortConenctionInfo}
                       numberOfPowerPorts={this.state.powerPorts}
-                      leftFree={this.state.leftFreePDUs}
-                      rightFree={this.state.rightFreePDUs}
-                      selectedRack={this.selectedRackOption} />
+                      // leftFree={this.state.leftFreePDUs}
+                      // rightFree={this.state.rightFreePDUs}
+                      // selectedRack={this.selectedRackOption} 
+                    />
                   </Paper>
                 </Grid>
 
