@@ -18,9 +18,12 @@ export class InstanceCard extends Component {
       { id: 'model__vendor', label: 'Vendor' },
       { id: 'model__model_number', label: 'Model Number' },
       { id: 'hostname', label: 'Hostname' },
+      { id: 'datacenter', label: 'Datacenter' },
       { id: 'owner', label: 'Owner' },
+      { id: 'np', label: 'Network Ports' },
+      { id: 'pp', label: 'Power Ports' },
+      { id: 'assetNumber', label: 'Asset no.' },
       { id: 'comment', label: 'Comment' }
-
     ];
     return headCells.map(headCell => (
       <TableCell
@@ -36,7 +39,7 @@ export class InstanceCard extends Component {
 
   renderTableData() {
     return this.props.asset.map((asset) => {
-      const { id, model, hostname, rack, owner, rack_u, comment } = asset //destructuring
+      const { id, model, hostname, rack, owner, rack_u, comment, datacenter, network_ports, power_ports, asset_number  } = asset //destructuring
       return (
         <TableRow
           hover
@@ -48,7 +51,11 @@ export class InstanceCard extends Component {
           <TableCell align="center">{model ? model.vendor : null}</TableCell>
           <TableCell align="center">{model ? model.model_number : null}</TableCell>
           <TableCell align="center">{hostname}</TableCell>
+          <TableCell align="center">{datacenter ? datacenter.abbreviation : null}</TableCell>
           <TableCell align="center">{owner ? owner.username : null}</TableCell>
+          <TableCell align="center">{network_ports ? network_ports.length : null}</TableCell>
+          <TableCell align="center">{power_ports ? power_ports.length : null}</TableCell>
+          <TableCell align="center">{asset_number}</TableCell>
           <TableCell align="center">{comment}</TableCell>
         </TableRow>
       )

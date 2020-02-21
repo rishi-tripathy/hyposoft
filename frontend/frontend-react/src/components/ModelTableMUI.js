@@ -122,7 +122,7 @@ export class ModelTable extends Component {
       {id: 'model_number', label: 'Model Number'},
       {id: 'height', label: 'Height (U)'},
       {id: 'display_color', label: 'Display Color'},
-      {id: 'network_ports', label: 'Network Ports'},
+      {id: 'network_ports_num', label: 'Network Ports'},
       {id: 'power_ports', label: 'Power Ports'},
       {id: 'cpu', label: 'CPU'},
       {id: 'memory', label: 'Memory (GB)'},
