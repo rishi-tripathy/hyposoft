@@ -155,7 +155,7 @@ export class ModelTable extends Component {
     )
     return this.props.models.map((model, index) => {
       const {id, vendor, model_number, height, display_color} = model //destructuring
-      const {network_ports, power_ports, cpu, memory, storage, comment} = model //more destructuring
+      const {network_ports, network_ports_num, power_ports, cpu, memory, storage, comment} = model //more destructuring
       return (
         <TableRow
           hover
@@ -174,7 +174,7 @@ export class ModelTable extends Component {
               top: 2,
             }}></div>
             {display_color}</TableCell>
-          <TableCell align="center">{ network_ports ? network_ports.length : null}</TableCell>
+          <TableCell align="center">{ network_ports_num ? network_ports_num : null}</TableCell>
           <TableCell align="center">{power_ports}</TableCell>
           <TableCell align="center">{cpu}</TableCell>
           <TableCell align="center">{memory}</TableCell>

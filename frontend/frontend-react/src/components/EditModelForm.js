@@ -34,7 +34,7 @@ export class EditModelForm extends Component {
       vendorOptions: [],
       selectedVendorOption: null,
 
-      networkPorts: null,
+      //networkPorts: null,
     }
   }
 
@@ -105,7 +105,9 @@ export class EditModelForm extends Component {
     let dst = '/api/models/'.concat(this.props.match.params.id).concat('/');
 
     let stateCopy = Object.assign({}, this.state.model);
+    stateCopy.network_ports = this.fillInEmptyDefaultNPNames()
     let stateToSend = this.removeEmpty(stateCopy);
+    console.log(stateToSend)
 
     axios.put(dst, stateToSend)
       .then(function (response) {
@@ -119,11 +121,22 @@ export class EditModelForm extends Component {
 
   handleChangeNP = (e) => {
     let modelCopy = Object.assign({}, this.state.model);
-    modelCopy.network_ports = e.target.value
+    modelCopy.network_ports_num = e.target.value
     this.setState({
       model: modelCopy
     })
     //this.clearNetworkPortNames();
+  }
+
+  fillInEmptyDefaultNPNames = () => {
+    let tmp = this.state.model.network_ports.slice(); //creates the clone of the state
+    for (let i = 0; i < this.state.model.network_ports_num; i++) {
+      let num = i + 1;
+      if (!tmp[i]) {
+        tmp[i] = num.toString();
+      }
+    }
+    return tmp
   }
 
   openNetworkPortFields = () => {
@@ -132,7 +145,7 @@ export class EditModelForm extends Component {
     //   return fieldList;
     // }
 
-    for (let i = 0; i < this.state.model.network_ports.length; i++) {
+    for (let i = 0; i < this.state.model.network_ports_num; i++) {
       const num = i + 1;
       const fieldLabel = 'Network Port ' + num + ' name';
       fieldList.push(
@@ -142,7 +155,7 @@ export class EditModelForm extends Component {
             // set its value
             value={this.state.model.network_ports[i]}
             //placeholder={num}
-            //defaultValue={num}
+            defaultValue={num}
             fullWidth onChange={e => {
               //let tmp = this.state.model.network_ports.slice(); //creates the clone of the state
               let stateCopy = Object.assign({}, this.state.model);
