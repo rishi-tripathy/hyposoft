@@ -132,6 +132,7 @@ export class PowerPortConnectionDialog extends Component {
         <div>
           <ListItem>
             <Grid item xs={6}>
+              <p>{i+1}</p>
               <TextField label='PDU Port Number' type="number" value={this.state.powerPortConfiguration[i].port_number} fullWidth onChange={e => {
                 let cpy = Object.assign({}, this.state.powerPortConfiguration);
                 cpy[i].port_number = e.target.value;
