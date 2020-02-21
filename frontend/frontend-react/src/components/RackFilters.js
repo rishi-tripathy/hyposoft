@@ -25,6 +25,7 @@ export class RackFilters extends Component {
 
   createQuery = () => {
     const {rackStart, rackEnd} = this.state.identifiers;
+    console.log("in rack filters")
     let q = '' +
       'rack_num_start=' + rackStart + '&' +
       'rack_num_end=' + rackEnd;

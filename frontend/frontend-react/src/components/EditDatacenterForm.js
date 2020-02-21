@@ -6,12 +6,14 @@ import {Link} from 'react-router-dom'
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
-export class EditRackForm extends Component {
+export class EditDatacenterForm extends Component {
 
   constructor(props) {
     super(props);
     this.state = {
-      'rack_number': null,
+      'id': null,
+      'name': null,
+      'abbreviation': null,
     }
     //this.handleSubmit = this.handleSubmit.bind(this);
   }
@@ -23,7 +25,7 @@ export class EditRackForm extends Component {
 
   handleSubmit = (e) => {
     e.preventDefault();
-    let dst = '/api/racks/'.concat(this.props.editID).concat('/');
+    let dst = '/api/datacenters/'.concat(this.props.editID).concat('/');
 
     let stateCopy = Object.assign({}, this.state);
     let stateToSend = this.removeEmpty(stateCopy);
@@ -35,13 +37,17 @@ export class EditRackForm extends Component {
       .catch(function (error) {
         alert('Edit was not successful.\n' + JSON.stringify(error.response.data, null, 2));
       });
-    this.props.sendShowTable(true);
   }
 
   componentDidMount() {
-    let dst = '/api/racks/'.concat(this.props.match.params.id).concat('/');
+    let dst = '/api/datacenters/'.concat(this.props.match.params.id).concat('/');
     axios.get(dst).then(res => {
-      this.setState({rack_number: res.data.rack_number});
+    console.log(res);
+      this.setState({
+          id: res.data.id,
+          name: res.data.name,
+          abbreviation: res.data.abbreviation,
+    });
       //would not change instances
     })
       .then(function (response) {
@@ -59,18 +65,22 @@ export class EditRackForm extends Component {
         <form onSubmit={this.handleSubmit}>
           <Grid container spacing={2}>
             <Grid item xs={12}>
-              <h1>Update Rack</h1>
+              <h1>Update Datacenter</h1>
             </Grid>
             <Grid item xs={6}>
-              <TextField shrink label='Updated Rack Number' type="text" fullWidth value={this.state.rack_number}
-                         onChange={e => this.setState({rack_number: e.target.value})}/>
+              <TextField shrink label='Updated Name' type="text" fullWidth value={this.state.name}
+                         onChange={e => this.setState({name: e.target.value})}/>
+            </Grid>
+            <Grid item xs={6}>
+              <TextField shrink label='Updated Abbreviation' type="text" fullWidth value={this.state.abbreviation}
+                         onChange={e => this.setState({abbreviation: e.target.value})}/>
             </Grid>
             <Grid item xs={6}>
               <Button variant="contained" type="submit" color="primary"
                       onClick={() => this.handleSubmit}>Update</Button>{' '}
             </Grid>
             <Grid item xs={6}>
-               <Link to='/racks/'><Button variant="outlined">Cancel</Button>{' '}</Link>
+               <Link to='/datacenters/'><Button variant="outlined">Cancel</Button>{' '}</Link>
             </Grid>
           </Grid>
         </form>
@@ -79,8 +89,8 @@ export class EditRackForm extends Component {
   }
 }
 
-EditRackForm.propTypes = {
+EditDatacenterForm.propTypes = {
   editID: PropTypes.object.isRequired
 }
 
-export default EditRackForm
+export default EditDatacenterForm
