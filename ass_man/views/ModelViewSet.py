@@ -26,7 +26,7 @@ DELETE = 'DELETE'
 PUT = 'PUT'
 
 MODEL_ORDERING_FILTERING_FIELDS = ['vendor', 'model_number', 'height', 'display_color',
-                                   'network_ports', 'power_ports', 'cpu', 'memory', 'storage']
+                                   'network_ports_num', 'power_ports', 'cpu', 'memory', 'storage']
 MODEL_HEIGHT_UPDATE_ERROR_MSG = \
     'This update fails- the height of models may not be changed if assets of the model exist.'
 MODEL_DESTROY_ERROR_MSG = 'Cannot delete this model as there are associated assets: '
@@ -56,10 +56,11 @@ class ModelViewSet(viewsets.ModelViewSet):
     filterset_fields = MODEL_ORDERING_FILTERING_FIELDS
     filter_backends = [OrderingFilter,
                        djfiltBackend.DjangoFilterBackend]
+
     filterset_class = ModelFilter
 
     def destroy(self, request, *args, **kwargs):
-        matches = self.get_object().asset_set
+        matches = self.get_object().asset_set.all()
         if matches.count() > 0:
             offending_assets = []
             for match in matches:

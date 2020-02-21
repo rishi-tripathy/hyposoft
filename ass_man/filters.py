@@ -3,7 +3,9 @@ from django_filters import rest_framework as filters
 from ass_man.models import Model, Asset, Rack
 from rest_framework import filters as rest_filters
 from django.db.models.fields import IntegerField
-from django.db.models.functions import Substr, Cast
+from django.db.models.functions import Substr, Cast, Length
+
+import django.db.models as models
 from rest_framework.validators import ValidationError
 from rest_framework.response import Response
 
@@ -13,7 +15,7 @@ class ModelFilter(filters.FilterSet):
     model_number = filters.CharFilter(field_name='model_number', lookup_expr='icontains')
     height = filters.NumericRangeFilter(field_name='height', lookup_expr='range')
     color = filters.CharFilter(field_name='display_color', lookup_expr='iexact')
-    network_ports = filters.NumericRangeFilter(field_name='network_ports', lookup_expr='range')
+    network_ports_num = filters.NumericRangeFilter(field_name='network_ports_num', lookup_expr='range')
     power_ports = filters.NumericRangeFilter(field_name='power_ports', lookup_expr='range')
     cpu = filters.CharFilter(field_name='cpu', lookup_expr='icontains')
     memory = filters.NumericRangeFilter(field_name='memory', lookup_expr='range')
@@ -22,7 +24,7 @@ class ModelFilter(filters.FilterSet):
 
     class Meta:
         model = Model
-        fields = ['vendor', 'model_number', 'height', 'color', 'network_ports',
+        fields = ['vendor', 'model_number', 'height', 'color', 'network_ports_num',
                   'power_ports', 'cpu', 'memory', 'storage', 'comment']
 
 

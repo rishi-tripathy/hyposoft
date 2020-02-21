@@ -8,11 +8,13 @@ from django.contrib.postgres.fields import ArrayField
 class Asset_Number(models.Model):
     next_avail = models.PositiveIntegerField()
 
+
 class Model(models.Model):
     vendor = models.CharField(max_length=50)
     model_number = models.CharField(max_length=50)
     height = models.PositiveIntegerField()
     display_color = models.CharField(max_length=6, default='777777')
+    network_ports_num = models.PositiveIntegerField(blank=True, null=True)
     network_ports = ArrayField(models.CharField(max_length=10, default='e1'), null=True)
     power_ports = models.PositiveIntegerField(blank=True, null=True)
     cpu = models.CharField(blank=True, max_length=50)
