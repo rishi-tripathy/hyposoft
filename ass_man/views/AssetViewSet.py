@@ -103,8 +103,6 @@ class AssetViewSet(viewsets.ModelViewSet):
     def cru_network_ports(self, request, asset, network_ports_json):
         for i in network_ports_json:
             try:
-                # connection_asset = Asset.objects.get(asset_number=i['connection']['asset_number'])
-                # connection_port = connection_asset.network_port_set.get(name=i['connection']['port_name'])
                 connection_port = Network_Port.objects.get(pk=i['connection']['network_port_id'])
             except (ObjectDoesNotExist, KeyError) as e:
                 connection_port = None
@@ -112,8 +110,29 @@ class AssetViewSet(viewsets.ModelViewSet):
                 reformatted_mac = self.reformat_mac_address(i['mac'])
             except KeyError:
                 reformatted_mac = ''
+            try:  # Distinguish between creation and updating
+                port = asset.network_port_set.get(name=i['name'])  # Updating existing port
 
-            port = Network_Port.objects.create(name=i['name'], mac=reformatted_mac, connection=connection_port, asset=asset)
+                port.mac = reformatted_mac  # update mac address
+
+                # clear its old connection
+                old_conn_port = port.connection
+
+                if old_conn_port:
+                    old_conn_port.connection = None
+                    old_conn_port.save()
+
+                # put new connection on this port
+                port.connection = connection_port
+                port.save()
+
+            except (ObjectDoesNotExist, KeyError):  # Create new port
+                port = Network_Port.objects.create(name=i['name'], mac=reformatted_mac, connection=connection_port, asset=asset)
+
+            # update destination port
+            if connection_port:
+                connection_port.connection = port
+                connection_port.save()
         return
 
     def cru_power_ports(self, request, asset, power_ports_json):
@@ -123,7 +142,14 @@ class AssetViewSet(viewsets.ModelViewSet):
             except PDU.DoesNotExist:
                 pdu = None
             port_num = int(i['port_number'])
-            pp = Power_Port.objects.create(pdu=pdu, port_number=port_num, asset=asset)
+
+            try:
+                pp = asset.power_port_set.get(name=i['name'])
+                pp.pdu = pdu
+                pp.port_number = port_num
+                pp.save()
+            except(Power_Port.DoesNotExist, KeyError):
+                pp = Power_Port.objects.create(pdu=pdu, port_number=port_num, asset=asset)
         return
 
     def create(self, request, *args, **kwargs):

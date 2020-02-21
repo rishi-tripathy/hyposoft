@@ -5,4 +5,4 @@ from rest_framework import serializers
 class PowerPortSerializer(serializers.ModelSerializer):
     class Meta:
         model = Power_Port
-        fields = ['id', 'pdu', 'port_number', 'asset']
+        fields = ['id', 'name', 'pdu', 'port_number', 'asset']

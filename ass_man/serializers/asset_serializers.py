@@ -75,14 +75,14 @@ class AssetSerializer(serializers.HyperlinkedModelSerializer):
                     assert connection_port.asset.datacenter == validated_data['datacenter']
                 except AssertionError:
                     raise serializers.ValidationError({
-                        'Network Port Error': 'the network connection port is in a different datacenter.'
+                        'Network Port Error': 'Port {} on host {} cannot be connected to as it is in a different datacenter.'.format(connection_port.name, connection_port.asset.hostname)
                     })
                 # check if connected port is occupied
                 try:
                     assert connection_port.connection is None
                 except AssertionError:
                     raise serializers.ValidationError({
-                        'Network Port Error': 'the network connection port is already occupied.'
+                        'Network Port Error': 'Port {} on host {} is already occupied by a connection to port {} on host {}.'.format(connection_port.name, connection_port.asset.hostname, connection_port.connection.name, connection_port.connection.asset.hostname)
                     })
 
     def check_power_ports(self, power_ports):
@@ -92,7 +92,7 @@ class AssetSerializer(serializers.HyperlinkedModelSerializer):
                     pdu = PDU.objects.get(name=i['pdu'])
                 except PDU.DoesNotExist:
                     raise serializers.ValidationError({
-                        'PDU Error': 'the PDU referenced by name does not exist.'
+                        'PDU Error': 'the PDU referenced by name {} does not exist.'.format(name=i['pdu'])
                     })
                 try:
                     pdu_port = int(i['port_number'])
@@ -103,7 +103,7 @@ class AssetSerializer(serializers.HyperlinkedModelSerializer):
                     assert pp is None
                 except AssertionError:
                     raise serializers.ValidationError({
-                        'PDU Error': 'this PDU port is already in use.'
+                        'PDU Error': 'PDU port {} is already in use by asset {}.'.format(pp.port_number, pp.asset.hostname)
                     })
 
     def create(self, validated_data):

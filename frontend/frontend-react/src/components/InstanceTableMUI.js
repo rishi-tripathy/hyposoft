@@ -157,7 +157,7 @@ export class InstanceTableMUI extends Component {
       //console.log(asset)
       const { id, model, hostname, rack, owner, rack_u, datacenter, network_ports, power_ports, asset_number } = asset //destructuring
       //console.log(network_ports)
-      
+
       return (
         <TableRow
           hover
