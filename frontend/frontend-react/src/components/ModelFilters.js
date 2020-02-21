@@ -13,8 +13,8 @@ export class ModelFilters extends Component {
         height_min: '',
         height_max: '',
         display_color: '',
-        network_ports_min: '',
-        network_ports_max: '',
+        network_ports_num_min: '',
+        network_ports_num_max: '',
         power_ports_min: '',
         power_ports_max: '',
         cpu: '',
@@ -32,21 +32,23 @@ export class ModelFilters extends Component {
   };
 
   createQuery = () => {
-    const { vendor, model_number, height_min, height_max, display_color, network_ports_min, network_ports_max, power_ports_min, power_ports_max, cpu, memory_min, memory_max, storage } = this.state.identifiers;
+    const { vendor, model_number, height_min, height_max, display_color, network_ports_num_min, network_ports_num_max, power_ports_min, power_ports_max, cpu, memory_min, memory_max, storage } = this.state.identifiers;
+    console.log(this.state.identifiers)
+    
     // NO '?' here!!
     let q = '' +
       'vendor=' + vendor + '&' +
       'model_number=' + model_number + '&' +
-      'height_min=' + (height_min ? height_min : '0') + '&' +
-      'height_max=' + (height_max ? height_max : '42') + '&' +
+      'height_min=' + (height_min == '' && height_max == '' ? '' : (height_min ? height_min : '0')) + '&' +
+      'height_max=' + (height_min == '' && height_max == '' ? '' : (height_max ? height_max : '42')) + '&' +
       'display_color=' + display_color + '&' +
-      'network_ports_min=' + (network_ports_min ? network_ports_min : '0') + '&' +
-      'network_ports_max=' + (network_ports_max ? network_ports_max : '1000') + '&' +
-      'power_ports_min=' + (power_ports_min ? power_ports_min : '0') + '&' +
-      'power_ports_max=' + (power_ports_max ? power_ports_max : '1000') + '&' +
+      'network_ports_num_min=' + (network_ports_num_min == '' && network_ports_num_max == '' ? '' : (network_ports_num_min ? network_ports_num_min : '0')) + '&' +
+      'network_ports_num_max=' + (network_ports_num_min == '' && network_ports_num_max == '' ? '' : (network_ports_num_max ? network_ports_num_max : '1000')) + '&' +
+      'power_ports_min=' + (power_ports_min == '' && power_ports_max == '' ? '' : (power_ports_min ? power_ports_min : '0')) + '&' +
+      'power_ports_max=' + (power_ports_min == '' && power_ports_max == '' ? '' : (power_ports_max ? power_ports_max : '1000')) + '&' +
       'cpu=' + cpu + '&' +
-      'memory_min=' + (memory_min ? memory_min : '0') + '&' +
-      'memory_max=' + (memory_max ? memory_max : '8192')+ '&' +
+      'memory_min=' + (memory_min == '' && memory_max == '' ? '' : (memory_min ? memory_min : '0')) + '&' +
+      'memory_max=' + (memory_min == '' && memory_max == '' ? '' : (memory_max ? memory_max : '8192'))+ '&' +
       'storage=' + storage;
     this.setState({ query: q });
     return q;
@@ -118,18 +120,18 @@ export class ModelFilters extends Component {
                   }} />
               </Grid>
               <Grid item xs={2}>
-                <TextField label='Min network Ports' type="number" fullWidth value={this.state.identifiers.network_ports_min} onChange={e => {
+                <TextField label='Min network Ports' type="number" fullWidth value={this.state.identifiers.network_ports_num_min} onChange={e => {
                   let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
-                  identifiersCopy.network_ports_min = e.target.value
+                  identifiersCopy.network_ports_num_min = e.target.value
                   this.setState({
                     identifiers: identifiersCopy
                   })
                 }} />
               </Grid>
               <Grid item xs={2}>
-                <TextField label='Max network Ports' type="number" fullWidth value={this.state.identifiers.network_ports_max} onChange={e => {
+                <TextField label='Max network Ports' type="number" fullWidth value={this.state.identifiers.network_ports_num_max} onChange={e => {
                   let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
-                  identifiersCopy.network_ports_max = e.target.value
+                  identifiersCopy.network_ports_num_max = e.target.value
                   this.setState({
                     identifiers: identifiersCopy
                   })

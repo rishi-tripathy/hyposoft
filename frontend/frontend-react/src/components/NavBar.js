@@ -77,7 +77,7 @@ export class NavBar extends Component{
             </NavLink>
 
             <NavLink style={{color: 'white'}} activeStyle={{color: '#FF90AB'}} to='/assets'>
-              <Tab label='Instances'/>
+              <Tab label='Assets'/>
             </NavLink>
 
             <NavLink style={{color: 'white'}} activeStyle={{color: '#dc004e'}} to='/users'>

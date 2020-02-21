@@ -71,6 +71,14 @@ export class CreateModelForm extends Component {
         tmp[i] = num.toString();
       }
     }
+
+    // // reformatting the JSON object
+    // for (let i = 0; i < this.state.networkPorts; i++) {
+    //   let obj = JSON.parse('{ "mac": null, "name": "' + tmp[i] + '", "connection": {} }')
+    //   console.log(obj)
+    //   tmp[i] = obj;
+    // }
+
     return tmp
   }
 
