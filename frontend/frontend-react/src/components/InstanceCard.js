@@ -1,25 +1,25 @@
-import React, {Component} from 'react'
-import {IconButton, Table, TableCell, TableRow, TableBody, TableSortLabel, Tooltip} from "@material-ui/core";
-import {Link} from "react-router-dom";
+import React, { Component } from 'react'
+import { IconButton, Table, TableCell, TableRow, TableBody, TableSortLabel, Tooltip } from "@material-ui/core";
+import { Link } from "react-router-dom";
 import PageviewIcon from '@material-ui/icons/Pageview';
 import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
 
 export class InstanceCard extends Component {
   showModel = (e) => {
-    const {model} = this.props.inst;
+    const { model } = this.props.asset;
     console.log(model.url)
   }
 
   renderTableHeader() {
     let headCells = [
-      {id: 'rack__rack_number', label: 'Rack'},
-      {id: 'rack_u', label: 'Rack U'},
-      {id: 'model__vendor', label: 'Vendor'},
-      {id: 'model__model_number', label: 'Model Number'},
-      {id: 'hostname', label: 'Hostname'},
-      {id: 'owner', label: 'Owner'},
-      {id: 'comment', label: 'Comment'}
+      { id: 'rack__rack_number', label: 'Rack' },
+      { id: 'rack_u', label: 'Rack U' },
+      { id: 'model__vendor', label: 'Vendor' },
+      { id: 'model__model_number', label: 'Model Number' },
+      { id: 'hostname', label: 'Hostname' },
+      { id: 'owner', label: 'Owner' },
+      { id: 'comment', label: 'Comment' }
 
     ];
     return headCells.map(headCell => (
@@ -35,8 +35,8 @@ export class InstanceCard extends Component {
   }
 
   renderTableData() {
-    return this.props.inst.map((asset) => {
-      const {id, model, hostname, rack, owner, rack_u, comment} = asset //destructuring
+    return this.props.asset.map((asset) => {
+      const { id, model, hostname, rack, owner, rack_u, comment } = asset //destructuring
       return (
         <TableRow
           hover
