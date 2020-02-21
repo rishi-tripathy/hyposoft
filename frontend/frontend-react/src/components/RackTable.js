@@ -22,6 +22,7 @@ export class RackTable extends Component {
 
   fixRows() {
     let temp_rows = [];
+    // console.log(this.props.rack);
     temp_rows = this.props.rack;
 
     for (var i of Object.keys(temp_rows)) {
@@ -60,12 +61,13 @@ export class RackTable extends Component {
     let currentRackU;
 
     for (var i of Object.keys(rows)) {
-      if (i === "id") {
+      if (i === "id" || i === "pdu_l" || i === "pdu_r" || i === "rack_number" || i === "url" || i === "datacenter") {
         //do nothing
-      } else if (i !== "rack_number" && i !== "url" && !condensed) {
+      } else if ( !condensed) {
         rackUs.push(i);
 
         if (rows[i] !== null) {
+          console.log(currentRackU);
           idList.push(rows[i].id);
           currentRackU = rows[i];
           rackInstances.push(currentRackU.url); //push rackInstance
@@ -108,6 +110,7 @@ export class RackTable extends Component {
 
         //NOT NULL
         if (currentRackU !== null) {
+          console.log(currentRackU);
           lastNotNull = i;
           //not null, render like normal
           //push row number

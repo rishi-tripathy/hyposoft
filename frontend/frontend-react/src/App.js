@@ -21,21 +21,42 @@ import EditRackForm from './components/EditRackForm';
 import DeleteMultipleRacksForm from './components/DeleteMultipleRacksForm';
 import CreateUserForm from './components/CreateUserForm';
 import DatacenterController from './components/DatacenterController';
+import CreateDatacenterForm from './components/CreateDatacenterForm'
+import EditDatacenterForm from './components/EditDatacenterForm'
+
+import DatacenterContext from './components/DatacenterContext';
+
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 class App extends React.Component {
 
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
+
     this.state = {
       logged_in: false,
       is_admin: true,
       logged_out: true,
+      datacenter_id: null,
+      datacenter_name: null,
+      datacenter_ab: null,
+      setDatacenter: this.setDatacenter
     }
   }
 
+  setDatacenter  = (value, name, ab) =>  {
+    console.log("changing id to "+ value + " name: "+name);
+    this.setState({ 
+      datacenter_id: value,
+      datacenter_name: name,
+      datacenter_ab: ab,
+    });
+  };
+
+
   componentDidMount() {
+    console.log('rerender');
     this.checkLoginStatus();
   }
 
@@ -96,8 +117,9 @@ class App extends React.Component {
     // else {
     //   content = <SideBar is_admin={this.state.is_admin} />
     // }
-
+    console.log('in return');
     return (
+    <DatacenterContext.Provider value={{...this.state, setDatacenter: this.setDatacenter}}>
       <Router>
         <NavBar />
         <Switch>
@@ -105,12 +127,25 @@ class App extends React.Component {
           <Route
             path='/racks'
             exact
-            render={(props) => <RackController {...props} is_admin={true}/>}/>
+            render={(props) => 
+            <RackController {...props} is_admin={true}/>}/>
 
           <Route
             path='/datacenters'
-            // exact
-            render={(props) => <DatacenterController {...props} is_admin={true}/>}/>
+            exact
+            render={(props) => 
+            <DatacenterController {...props} is_admin={true}/>}
+            />
+
+          <Route
+            path='/datacenters/create'
+            exact
+            render={(props) => <CreateDatacenterForm {...props} is_admin={true}/>}/>
+
+          <Route
+            path='/datacenters/:id/edit'
+            exact
+            render={(props) => <EditDatacenterForm {...props} is_admin={true}/>}/>
 
           <Route
             path='/racks/create'
@@ -189,6 +224,7 @@ class App extends React.Component {
         </Switch>
 
       </Router>
+    </DatacenterContext.Provider>
     )
   }
 }

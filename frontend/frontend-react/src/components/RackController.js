@@ -15,6 +15,9 @@ import {
   Grid, Button, Container, Paper, ButtonGroup, Switch, FormControlLabel, Typography
 } from "@material-ui/core"
 import {Link} from 'react-router-dom'
+import DatacenterContext from './DatacenterContext';
+
+
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 export class RackController extends Component {
@@ -41,6 +44,7 @@ export class RackController extends Component {
       prevPage: null,
       nextPage: null,
       rerender: false,
+      datacenterID: null,
     };
     this.getShowRacks = this.getShowRacks.bind(this);
     this.getFilterQuery = this.getFilterQuery.bind(this);
@@ -232,7 +236,6 @@ export class RackController extends Component {
 
   componentDidMount() {
     this.refreshRacks();
-
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -250,6 +253,13 @@ export class RackController extends Component {
         this.refreshRacks();
       }, delay);
     }
+
+    if (this.context.datacenter_id !== this.state.datacenterID) {
+      setTimeout(() => {
+        this.refreshRacks();
+      }, delay);
+    }
+
     if (prevState.showAllRacks !== this.state.showAllRacks) {
       setTimeout(() => {
         this.refreshRacks();
@@ -265,8 +275,11 @@ export class RackController extends Component {
   }
 
   refreshRacks = () => {
+    this.setState({
+      datacenterID: this.context.datacenter_id,
+    });
     if (!this.state.showAllRacks) {
-      let dst = '/api/racks/' + '?' + this.state.filterQuery;
+      let dst = '/api/racks/' + '?' + 'datacenter=' + this.context.datacenter_id + '&' + this.state.filterQuery;
 
       axios.get(dst).then(res => {
         this.setState({
@@ -334,11 +347,9 @@ export class RackController extends Component {
 
   render() {
     let content;
-
+    console.log(this.state.racks)
     if (this.state.showRacksView) {
-      if(this.state.racks == null){
-        content = "No Racks. Create a new one to view."
-      }
+      if(this.state.racks!==null || this.state.racks.length!==0){
       content =
         <RacksView rack={this.state.racks}
                    sendRerender={this.getRerender}
@@ -353,9 +364,10 @@ export class RackController extends Component {
                    sendShowAllRacks={this.getShowAllRacks}
                    is_admin={this.props.is_admin}/>
     }
-    else{
-      content = <p></p>;
+    else {
+      content = <h1>no racks</h1>
     }
+  }
 
     let filters =
  <div id="hideOnPrint">
@@ -366,7 +378,7 @@ export class RackController extends Component {
       </div>;
     let printButton = 
       <div id="hideOnPrint">
-        <Button variant="outlined" onClick={this.print} endIcon={<PrintIcon />}>Print Racks</Button>;
+        <Button variant="outlined" onClick={this.print} endIcon={<PrintIcon />}>Print Racks</Button>
       </div>
 
     let paginateNavigation;
@@ -404,7 +416,7 @@ export class RackController extends Component {
           <Grid item justify="flex-start" alignContent='center' xs={10}>
                 <Typography variant="h3">
                 <div id="hideOnPrint">
-                  Racks
+                  Racks in Datacenter: {this.context.datacenter_ab}
                 </div>
                 </Typography>
           </Grid>
@@ -426,5 +438,7 @@ export class RackController extends Component {
     )
   }
 }
+
+RackController.contextType = DatacenterContext;
 
 export default RackController

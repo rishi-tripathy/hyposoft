@@ -1,7 +1,7 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
-import {lighten, makeStyles} from '@material-ui/core/styles';
+import { lighten, makeStyles } from '@material-ui/core/styles';
 import {
   Collapse, Table, TableBody, Button, TableCell, TableContainer, TableRow, Toolbar,
   Typography, Paper, IconButton, Tooltip, TableSortLabel
@@ -12,8 +12,8 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import FilterListIcon from '@material-ui/icons/FilterList';
 import InstanceFilters from './InstanceFilters';
 import '../stylesheets/TableView.css'
-import axios, {post} from 'axios'
-import {Link} from 'react-router-dom'
+import axios, { post } from 'axios'
+import { Link } from 'react-router-dom'
 
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
@@ -45,7 +45,7 @@ export class InstanceTableMUI extends Component {
 
   showDeleteForm = (id) => {
     if (window.confirm('Are you sure you want to delete?')) {
-      let dst = '/api/instances/'.concat(id).concat('/');
+      let dst = '/api/assets/'.concat(id).concat('/');
       axios.delete(dst)
         .then(function (response) {
           alert('Delete was successful');
@@ -92,19 +92,19 @@ export class InstanceTableMUI extends Component {
     return (
       <Toolbar>
         {
-          <Typography style={{flex: '1 1 20%'}} variant="h6" id="instanceTableTitle">
-            Instances
+          <Typography style={{ flex: '1 1 20%' }} variant="h6" id="instanceTableTitle">
+            Assets
           </Typography>
         }
         <Collapse in={this.state.filtersOpen}>
           <Paper>
             {
-              <InstanceFilters sendFilterQuery={this.props.filter_query}/>
+              <InstanceFilters sendFilterQuery={this.props.filter_query} />
             }
           </Paper>
         </Collapse>
         <Tooltip title="Filter list">
-          <Button endIcon={<FilterListIcon/>} onClick={() => this.handleOpenFilters()} aria-label="filter instance list">
+          <Button endIcon={<FilterListIcon />} onClick={() => this.handleOpenFilters()} aria-label="filter instance list">
             Filter
           </Button>
         </Tooltip>
@@ -117,12 +117,16 @@ export class InstanceTableMUI extends Component {
   renderTableHeader() {
     //These now come from sorting fields
     let headCells = [
-      {id: 'rack__rack_number', label: 'Rack'},
-      {id: 'rack_u', label: 'Rack U'},
-      {id: 'model__vendor', label: 'Vendor'},
-      {id: 'model__model_number', label: 'Model Number'},
-      {id: 'hostname', label: 'Hostname'},
-      {id: 'owner', label: 'Owner'}
+      { id: 'rack__rack_number', label: 'Rack' },
+      { id: 'rack_u', label: 'Rack U' },
+      { id: 'model__vendor', label: 'Vendor' },
+      { id: 'model__model_number', label: 'Model Number' },
+      { id: 'hostname', label: 'Hostname' },
+      { id: 'datacenter', label: 'Datacenter' },
+      { id: 'owner', label: 'Owner' },
+      // { id: 'np', label: 'Network Ports' },
+      // { id: 'pp', label: 'Power Ports' },
+      { id: 'assetNumber', label: 'Asset no.' },
     ];
     return headCells.map(headCell => (
       <TableCell
@@ -150,7 +154,10 @@ export class InstanceTableMUI extends Component {
       </TableRow>
     )
     return this.props.assets.map((asset) => {
-      const {id, model, hostname, rack, owner, rack_u} = asset //destructuring
+      //console.log(asset)
+      const { id, model, hostname, rack, owner, rack_u, datacenter, network_ports, power_ports, asset_number } = asset //destructuring
+      //console.log(network_ports)
+
       return (
         <TableRow
           hover
@@ -162,13 +169,17 @@ export class InstanceTableMUI extends Component {
           <TableCell align="center">{model ? model.vendor : null}</TableCell>
           <TableCell align="center">{model ? model.model_number : null}</TableCell>
           <TableCell align="center">{hostname}</TableCell>
+          <TableCell align="center">{datacenter ? datacenter.abbreviation : null}</TableCell>
           <TableCell align="center">{owner ? owner.username : null}</TableCell>
+          {/* <TableCell align="center">{network_ports ? network_ports.length : null}</TableCell>
+          <TableCell align="center">{power_ports ? power_ports.length : null}</TableCell> */}
+          <TableCell align="center">{asset_number}</TableCell>
           <div>
             <TableCell align="right">
               <Link to={'/assets/' + id}>
                 <Tooltip title='View Details'>
                   <IconButton size="sm">
-                    <PageviewIcon/>
+                    <PageviewIcon />
                   </IconButton>
                 </Tooltip>
               </Link>
@@ -178,7 +189,7 @@ export class InstanceTableMUI extends Component {
                 <Link to={'/assets/' + id + '/edit'}>
                   <Tooltip title='Edit'>
                     <IconButton size="sm">
-                      <EditIcon/>
+                      <EditIcon />
                     </IconButton>
                   </Tooltip>
                 </Link>
@@ -188,7 +199,7 @@ export class InstanceTableMUI extends Component {
               < TableCell align="right">
                 < Tooltip title='Delete'>
                   <IconButton size="sm" onClick={() => this.showDeleteForm(id)}>
-                    <DeleteIcon/>
+                    <DeleteIcon />
                   </IconButton>
                 </Tooltip>
               </TableCell>

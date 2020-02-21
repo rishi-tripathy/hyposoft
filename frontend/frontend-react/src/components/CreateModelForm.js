@@ -223,8 +223,6 @@ export class CreateModelForm extends Component {
                   <List style={{maxHeight: 200, overflow: 'auto'}}>
                     {this.openNetworkPortFields()}
                   </List>
-
-
                 </Grid>
                 <Grid item xs={4}>
                   <TextField label='Power Ports' type="number" fullWidth onChange={e => {
