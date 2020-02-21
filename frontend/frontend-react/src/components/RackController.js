@@ -349,7 +349,7 @@ export class RackController extends Component {
     let content;
     console.log(this.state.racks)
     if (this.state.showRacksView) {
-      if(this.state.racks!==null || this.state.racks!==undefined){
+      if(this.state.racks!==null || this.state.racks.length!==0){
       content =
         <RacksView rack={this.state.racks}
                    sendRerender={this.getRerender}
