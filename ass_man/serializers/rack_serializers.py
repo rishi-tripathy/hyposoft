@@ -20,8 +20,8 @@ class RackSerializer(serializers.HyperlinkedModelSerializer):
     def create(self, validated_data):
         rack = super().create(validated_data)
         root_name = 'hpdu-{}-{}'.format(validated_data['datacenter'].abbreviation, validated_data['rack_number'])
-        rack.pdu_l = PDU.objects.create(name=(root_name + '-l'))
-        rack.pdu_r = PDU.objects.create(name=(root_name + '-r'))
+        rack.pdu_l = PDU.objects.create(name=(root_name + '-l'), rack=rack)
+        rack.pdu_r = PDU.objects.create(name=(root_name + '-r'), rack=rack)
         rack.save()
         return rack
 
