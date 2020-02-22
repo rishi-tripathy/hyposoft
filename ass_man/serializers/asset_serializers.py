@@ -75,7 +75,8 @@ class AssetSerializer(serializers.HyperlinkedModelSerializer):
                     assert connection_port.asset.datacenter == validated_data['datacenter']
                 except AssertionError:
                     raise serializers.ValidationError({
-                        'Network Port Error': 'Port {} on host {} cannot be connected to as it is in a different datacenter.'.format(connection_port.name, connection_port.asset.hostname)
+                        'Network Port Error': 'This action would cause a prohibited network connection between Asset {} in Datacenter {} and Asset {} in in Datacenter {}.'
+                            .format(validated_data["hostname"], validated_data["datacenter"], connection_port.asset.hostname, connection_port.asset.datacenter)
                     })
                 # check if connected port is occupied
                 try:
@@ -116,7 +117,7 @@ class AssetSerializer(serializers.HyperlinkedModelSerializer):
     def update(self, asset, validated_data):
         self.check_rack_u_validity(validated_data, asset)
         self.check_power_ports(self.context['power_ports'])
-        self.check_network_ports(self.context['network_ports'])
+        self.check_network_ports(self.context['network_ports'], validated_data)
         try:
             assert asset.model == validated_data['model']
         except AssertionError:
