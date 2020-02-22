@@ -88,14 +88,10 @@ export class RacksView extends Component {
   }
 
   toggleShowingAll = () => {
-    console.log("showing all");
-    console.log(this.state.count);
     if(this.state.count === 1){
       this.setState({
         count: 2,
       });
-      console.log('after');
-      console.log(this.state.count);
       this.showAllRacks();
     }
     else{
@@ -149,7 +145,7 @@ export class RacksView extends Component {
       }
     />
 
-    let empty;
+    let empty = '';
 
     if(!this.props.rack){
       empty = 
@@ -185,6 +181,7 @@ export class RacksView extends Component {
               </div>
             </Grid>
             <Grid item xs={12}>
+            {empty}
               {this.props.rack.map((item, key) =>
               <div id="rackContainer">
                 <div id='hideOnPrint'>

@@ -48,6 +48,7 @@ class Network_Port(models.Model):
 
 
 class Power_Port(models.Model):
+    name = models.CharField(max_length=10)
     pdu = models.ForeignKey('PDU', on_delete=models.SET_NULL, null=True)
     port_number = models.PositiveIntegerField()
     asset = models.ForeignKey('Asset', on_delete=models.CASCADE)
@@ -55,6 +56,7 @@ class Power_Port(models.Model):
 
 class PDU(models.Model):
     name = models.CharField(max_length=20, blank=True, null=True)
+    rack = models.ForeignKey('Rack', on_delete=models.CASCADE, null=True)
 
 
 class Datacenter(models.Model):

@@ -45,7 +45,7 @@ class DatacenterViewSet(viewsets.ModelViewSet):
 
     def destroy(self, request, *args, **kwargs):
         try:
-            super().destroy(request, *args, **kwargs)
+            return super().destroy(request, *args, **kwargs)
         except ProtectedError:
             return Response({
                 'Error': 'Cannot delete this datacenter as it contains racks.'

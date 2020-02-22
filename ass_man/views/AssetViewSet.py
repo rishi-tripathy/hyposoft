@@ -103,8 +103,6 @@ class AssetViewSet(viewsets.ModelViewSet):
     def cru_network_ports(self, request, asset, network_ports_json):
         for i in network_ports_json:
             try:
-                # connection_asset = Asset.objects.get(asset_number=i['connection']['asset_number'])
-                # connection_port = connection_asset.network_port_set.get(name=i['connection']['port_name'])
                 connection_port = Network_Port.objects.get(pk=i['connection']['network_port_id'])
             except (ObjectDoesNotExist, KeyError) as e:
                 connection_port = None
@@ -112,8 +110,29 @@ class AssetViewSet(viewsets.ModelViewSet):
                 reformatted_mac = self.reformat_mac_address(i['mac'])
             except KeyError:
                 reformatted_mac = ''
+            try:  # Distinguish between creation and updating
+                port = asset.network_port_set.get(name=i['name'])  # Updating existing port
 
-            port = Network_Port.objects.create(name=i['name'], mac=reformatted_mac, connection=connection_port, asset=asset)
+                port.mac = reformatted_mac  # update mac address
+
+                # clear its old connection
+                old_conn_port = port.connection
+
+                if old_conn_port:
+                    old_conn_port.connection = None
+                    old_conn_port.save()
+
+                # put new connection on this port
+                port.connection = connection_port
+                port.save()
+
+            except (ObjectDoesNotExist, KeyError):  # Create new port
+                port = Network_Port.objects.create(name=i['name'], mac=reformatted_mac, connection=connection_port, asset=asset)
+
+            # update destination port
+            if connection_port:
+                connection_port.connection = port
+                connection_port.save()
         return
 
     def cru_power_ports(self, request, asset, power_ports_json):
@@ -123,7 +142,14 @@ class AssetViewSet(viewsets.ModelViewSet):
             except PDU.DoesNotExist:
                 pdu = None
             port_num = int(i['port_number'])
-            pp = Power_Port.objects.create(pdu=pdu, port_number=port_num, asset=asset)
+
+            try:
+                pp = asset.power_port_set.get(name=i['name'])
+                pp.pdu = pdu
+                pp.port_number = port_num
+                pp.save()
+            except(Power_Port.DoesNotExist, KeyError):
+                pp = Power_Port.objects.create(pdu=pdu, port_number=port_num, asset=asset)
         return
 
     def create(self, request, *args, **kwargs):
@@ -179,7 +205,71 @@ class AssetViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=[GET])
     def network_graph(self, request, *args, **kwargs):
         graph_serializer = AssetSeedForGraphSerializer(self.get_object(), context={'request': request})
-        return Response(graph_serializer.data)
+
+        assets = []
+        seen_asset_ids = set()
+        assets1 = []
+        nps1 = []
+        assets2 = []
+        links = []
+
+        master_data = graph_serializer.data
+        data = graph_serializer.data
+
+        root = {
+            "id": data.get("id"),
+            "hostname": data.get("hostname"),
+            "location": "Rack {} U{}".format(data.get("rack").get("rack_number"), data.get("rack_u"))
+        }
+
+        assets.append(root)
+        seen_asset_ids.add(data.get("id"))
+
+        def process_l2(np, l1_id):
+            c = np.get("connection")
+            if c:
+                data = c.get("asset")
+                if data and (data.get("id") not in seen_asset_ids):
+                    a2 = {
+                        "id": data.get("id"),
+                        "hostname": data.get("hostname"),
+                        "location": "Rack {} U{}".format(data.get("rack").get("rack_number"), data.get("rack_u"))
+                    }
+                    assets.append(a2)
+                    if int(l1_id) < int(data.get("id")):
+                        links.append("{},{}".format(l1_id, data.get("id")))
+                    else:
+                        links.append("{},{}".format( data.get("id"), l1_id,))
+
+
+        root_nps = data.get("network_ports")
+        for np in root_nps:
+            c = np.get("connection")
+            if c:
+                data = c.get("asset")
+                if data and (data.get("id") not in seen_asset_ids):
+                    a1 = {
+                        "id": data.get("id"),
+                        "hostname": data.get("hostname"),
+                        "location": "Rack {} U{}".format(data.get("rack").get("rack_number"), data.get("rack_u"))
+                    }
+                    assets.append(a1)
+                    if int(root.get("id")) < int(data.get("id")):
+                        links.append("{},{}".format(root.get("id"), data.get("id")))
+                    else:
+                        links.append("{},{}".format(data.get("id"), root.get("id")))
+
+                    for np2 in data.get("network_ports"):
+                        process_l2(np2, data.get("id"))
+
+        resp = {
+            "data": {
+                "assets": [dict(t) for t in {tuple(d.items()) for d in assets}],
+                "connections": list(set(links))
+            }
+        }
+
+        return Response(resp)
 
 
     @action(detail=False, methods=[POST])

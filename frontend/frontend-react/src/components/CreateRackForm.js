@@ -4,6 +4,7 @@ import {
   Grid, Button, Container, TextField, Paper, ButtonGroup, Switch, FormControlLabel, Typography
 } from "@material-ui/core"
 import {Link} from 'react-router-dom'
+import DatacenterContext from './DatacenterContext';
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
@@ -74,7 +75,19 @@ export class CreateRackForm extends Component {
     }
   }
 
+  getDefaultDC = () => {
+    axios.get('/api/datacenters/').then(res => {
+      //loop through and check matching context
+      for(var i = 0; i <= res.data.count; i++){
+        if(res.data.results[i].id === this.context.datacenter){
+          return res.data.results[i].abbreviation;
+        }
+      }
+    })
+  }
+
   render() {
+    let defaultDC = this.getDefaultDC();
     return (
       <div>
       <Container maxwidth="xl">
@@ -88,6 +101,11 @@ export class CreateRackForm extends Component {
                 <Grid item xs={12}>
                   <p>Enter a valid rack number (i.e. "A1) the first field to create a single rack. Enter a valid rack number in the second field to create a range of racks. </p>
                 </Grid>
+              <Grid item xs={3}>
+              <TextField label='Datacenter' type="text" fullWidth
+                 defaultValue={defaultDC}
+                         onChange={e => this.setState({datacenter: e.target.value})}/>
+            </Grid>
             <Grid item xs={3}>
               <TextField label='Creation Range Start' type="text" fullWidth
                          onChange={e => this.setState({rack_num_start: e.target.value, rack_number: e.target.value})}/>
@@ -110,5 +128,7 @@ export class CreateRackForm extends Component {
   }
 
 }
+
+CreateRackForm.contextType = DatacenterContext;
 
 export default CreateRackForm

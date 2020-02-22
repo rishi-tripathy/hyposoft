@@ -3,13 +3,42 @@ import '../stylesheets/Printing.css'
 import {AppBar, Tabs, Tab, Button, Toolbar, IconButton, Typography} from "@material-ui/core";
 import {NavLink} from 'react-router-dom'
 import {Autocomplete} from "@material-ui/lab"
-import DatacenterDropdownNavBar from './DatacenterDropdownNavBar'
+import DatacenterNavbar from './DatacenterNavbar'
+import axios, {post} from 'axios'
 
+axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 export class NavBar extends Component{
 
-  render() {
+  constructor() {
+    super();
 
+    this.state = {
+      datacenter: [{}],
+    };
+  }
+
+  getDatacenters = () => {
+    // let dst = '/api/datacenters/?show_all=true'; //want all
+    let dst = '/api/datacenters/?&';
+    console.log("QUERY")
+    console.log(dst)
+    axios.get(dst).then(res => {
+      this.setState({
+        datacenters: res.data.results,
+      });
+    })
+      .catch(function (error) {
+        // TODO: handle error
+        alert("Cannot load. Re-login.\n" + JSON.stringify(error.response, null, 2));
+      })
+  }
+
+  componentDidMount() {
+    this.getDatacenters();
+ }
+ 
+  render() {
     return (
       <div id='hideOnPrint'>
         <AppBar title="Django Unchained"  position='sticky'>
@@ -21,7 +50,7 @@ export class NavBar extends Component{
               Django Unchained
             </Typography>
             <Button style={{marginLeft: 'auto'}}>
-              <DatacenterDropdownNavBar />
+              <DatacenterNavbar datacenters={this.state.datacenters}/>
             </Button>
             <Button color="inherit"  onClick={function () {
               window.location = "/accounts/logout/"
@@ -48,7 +77,7 @@ export class NavBar extends Component{
             </NavLink>
 
             <NavLink style={{color: 'white'}} activeStyle={{color: '#FF90AB'}} to='/assets'>
-              <Tab label='Instances'/>
+              <Tab label='Assets'/>
             </NavLink>
 
             <NavLink style={{color: 'white'}} activeStyle={{color: '#dc004e'}} to='/users'>

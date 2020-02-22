@@ -71,6 +71,14 @@ export class CreateModelForm extends Component {
         tmp[i] = num.toString();
       }
     }
+
+    // // reformatting the JSON object
+    // for (let i = 0; i < this.state.networkPorts; i++) {
+    //   let obj = JSON.parse('{ "mac": null, "name": "' + tmp[i] + '", "connection": {} }')
+    //   console.log(obj)
+    //   tmp[i] = obj;
+    // }
+
     return tmp
   }
 
@@ -215,8 +223,6 @@ export class CreateModelForm extends Component {
                   <List style={{maxHeight: 200, overflow: 'auto'}}>
                     {this.openNetworkPortFields()}
                   </List>
-
-
                 </Grid>
                 <Grid item xs={4}>
                   <TextField label='Power Ports' type="number" fullWidth onChange={e => {
