@@ -209,7 +209,7 @@ class AssetTwoLevelsAwaySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Asset
-        fields = ['id', 'url,' 'hostname', 'rack', 'rack_u', 'asset_number']
+        fields = ['id', 'hostname', 'rack', 'rack_u']
 
 
 class NetworkPortTwoDegreeAwaySerializer(serializers.ModelSerializer):
@@ -217,7 +217,7 @@ class NetworkPortTwoDegreeAwaySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Network_Port
-        fields = ['name', 'mac', 'asset']
+        fields = ['name', 'asset']
 
 
 class NetworkPortOneDegreeAwaySerializer(serializers.ModelSerializer):
@@ -225,10 +225,10 @@ class NetworkPortOneDegreeAwaySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Network_Port
-        fields = ['name', 'mac', 'connection']
+        fields = ['name', 'connection']
 
 
-class AssetOneLevelAwaySerializer():
+class AssetOneLevelAwaySerializer(serializers.ModelSerializer):
     rack = RackOfAssetSerializer()
     network_ports = NetworkPortOneDegreeAwaySerializer(source='network_port_set', many=True)
 

@@ -205,7 +205,71 @@ class AssetViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=[GET])
     def network_graph(self, request, *args, **kwargs):
         graph_serializer = AssetSeedForGraphSerializer(self.get_object(), context={'request': request})
-        return Response(graph_serializer.data)
+
+        assets = []
+        seen_asset_ids = set()
+        assets1 = []
+        nps1 = []
+        assets2 = []
+        links = []
+
+        master_data = graph_serializer.data
+        data = graph_serializer.data
+
+        root = {
+            "id": data.get("id"),
+            "hostname": data.get("hostname"),
+            "location": "Rack {} U {}".format(data.get("rack").get("rack_number"), data.get("rack_u"))
+        }
+
+        assets.append(root)
+        seen_asset_ids.add(data.get("id"))
+
+        def process_l2(np, l1_id):
+            c = np.get("connection")
+            if c:
+                data = c.get("asset")
+                if data and (data.get("id") not in seen_asset_ids):
+                    a2 = {
+                        "id": data.get("id"),
+                        "hostname": data.get("hostname"),
+                        "location": "Rack {} U{}".format(data.get("rack").get("rack_number"), data.get("rack_u"))
+                    }
+                    assets.append(a2)
+                    if int(l1_id) < int(data.get("id")):
+                        links.append("{},{}".format(l1_id, data.get("id")))
+                    else:
+                        links.append("{},{}".format( data.get("id"), l1_id,))
+
+
+        root_nps = data.get("network_ports")
+        for np in root_nps:
+            c = np.get("connection")
+            if c:
+                data = c.get("asset")
+                if data and (data.get("id") not in seen_asset_ids):
+                    a1 = {
+                        "id": data.get("id"),
+                        "hostname": data.get("hostname"),
+                        "location": "Rack {} U{}".format(data.get("rack").get("rack_number"), data.get("rack_u"))
+                    }
+                    assets.append(a1)
+                    if int(root.get("id")) < int(data.get("id")):
+                        links.append("{},{}".format(root.get("id"), data.get("id")))
+                    else:
+                        links.append("{},{}".format(data.get("id"), root.get("id")))
+
+                    for np2 in data.get("network_ports"):
+                        process_l2(np2, data.get("id"))
+
+        resp = {
+            "data": {
+                "assets": [dict(t) for t in {tuple(d.items()) for d in assets}],
+                "connections": list(set(links))
+            }
+        }
+
+        return Response(resp)
 
 
     @action(detail=False, methods=[POST])
