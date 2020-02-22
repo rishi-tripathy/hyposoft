@@ -219,7 +219,7 @@ class AssetViewSet(viewsets.ModelViewSet):
         root = {
             "id": data.get("id"),
             "hostname": data.get("hostname"),
-            "location": "Rack {} U {}".format(data.get("rack").get("rack_number"), data.get("rack_u"))
+            "location": "Rack {} U{}".format(data.get("rack").get("rack_number"), data.get("rack_u"))
         }
 
         assets.append(root)
