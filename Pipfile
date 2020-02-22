@@ -16,6 +16,7 @@ dj-database-url = "*"
 psycopg2-binary = "*"
 django-cors-headers = "*"
 django-filter = "*"
+requests = "*"
 
 [requires]
 python_version = "3.7"
