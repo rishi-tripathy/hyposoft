@@ -132,7 +132,7 @@ export class PowerPortConnectionDialog extends Component {
         <div>
           <ListItem>
             <Grid item xs={6}>
-              <p>Power Port: {i+1}</p>
+              <p>Power Port: {i + 1}</p>
               <TextField label='PDU Port Number' type="number" value={this.state.powerPortConfiguration[i].port_number} fullWidth onChange={e => {
                 let cpy = Object.assign({}, this.state.powerPortConfiguration);
                 cpy[i].port_number = e.target.value;
@@ -179,7 +179,7 @@ export class PowerPortConnectionDialog extends Component {
     return (
       <div>
         <Grid item alignContent='center' xs={12}>
-          <Button variant="outlined" color="primary" onClick={this.handleClickOpen}>
+          <Button variant="outlined" color="primary" disabled={this.props.isDisabled} onClick={this.handleClickOpen}>
             Setup Power Connections
           </Button>
           {configuredMessage}

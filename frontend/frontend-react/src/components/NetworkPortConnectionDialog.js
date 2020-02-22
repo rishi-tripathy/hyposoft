@@ -130,6 +130,8 @@ export class NetworkPortConnectionDialog extends Component {
   };
 
   handleClose = () => {
+    this.props.sendNetworkPortConnectionID(this.props.indexOfThisNPConfig, null);
+
     // reset all selections and close
     this.setState({
       selectedDatacenterOption: null,
@@ -138,7 +140,6 @@ export class NetworkPortConnectionDialog extends Component {
       selectedNetworkPortOption: null,
       open: false
     })
-
   };
 
   handleSubmit = () => {
