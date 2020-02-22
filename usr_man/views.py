@@ -42,7 +42,7 @@ class UserViewSet(viewsets.ModelViewSet):
         user = self.get_object()
         to_delete = User.objects.get(id=user.id)
         if to_delete.has_usable_password():
-            super().destroy(request, *args, **kwargs)
+            return super().destroy(request, *args, **kwargs)
         else:
             return Response({
                 "status": "Failure. You may not delete a NetID user."
