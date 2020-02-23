@@ -23,6 +23,7 @@ import CreateUserForm from './components/CreateUserForm';
 import DatacenterController from './components/DatacenterController';
 import CreateDatacenterForm from './components/CreateDatacenterForm'
 import EditDatacenterForm from './components/EditDatacenterForm'
+import AuditController from './components/AuditController.js'
 
 import DatacenterContext from './components/DatacenterContext';
 
@@ -217,6 +218,10 @@ class App extends React.Component {
             path='/statistics'
             render={(props) => <StatisticsController {...props} is_admin={true} />} />
 
+          <Route
+            path='/log'
+            render={(props) => <AuditController {...props} is_admin={true} />} />
+ 
           <Route
             path='/'
             render={() => <div>404</div>} />
