@@ -1,6 +1,6 @@
 import React, {Component} from 'react'
 import '../stylesheets/Printing.css'
-import {AppBar, Tabs, Tab, Button, Toolbar, IconButton, Typography} from "@material-ui/core";
+import {AppBar, Grid, Container, Button, Toolbar, IconButton, Typography} from "@material-ui/core";
 import {NavLink} from 'react-router-dom'
 import {Autocomplete} from "@material-ui/lab"
 import DatacenterNavbar from './DatacenterNavbar'
@@ -19,7 +19,18 @@ export class AuditContoller extends Component{
   }
 
   componentDidMount() {
-    this.getLogs();
+      console.log('audit controller did mount')
+    //this.getLogs();
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    var delay = 50;
+    console.log('in update')
+    if(prevState.logs !== this.state.logs){
+        setTimeout(() => {
+            this.getLogs();
+        }, delay);
+    }
   }
 
 getLogs = () => {
@@ -27,7 +38,6 @@ getLogs = () => {
     let dst = '/api/log/';
     console.log("QUERY")
     console.log(dst)
-    setTimeout(() => {
     axios.get(dst).then(res => {
       this.setState({
         logs: res.data.results,
@@ -37,15 +47,22 @@ getLogs = () => {
         // TODO: handle error
         alert("Cannot load. Re-login.\n" + JSON.stringify(error.response, null, 2));
       });
-  }, 50);
-}
+  }
 
   render() {
       console.log(this.state.logs)
     return(
-        <div>
-            <AuditLog logs={this.state.logs}/>
-        </div>
+        <Container maxwidth="xl">
+            <Grid item="flex-start" alignContent='center' xs={12}/>
+            <Grid item justify="flex-start" alignContent='center' xs={10}>
+                <Typography variant="h3">
+                 Audit Log
+                </Typography>
+            </Grid>
+            <Grid item xs={12}>
+                <AuditLog log={this.state.logs}/>
+            </Grid>
+        </Container>
     );
   }
 }

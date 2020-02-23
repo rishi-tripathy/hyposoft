@@ -14,9 +14,26 @@ export class AuditLog extends Component{
     super();
   }
 
+  getLogs = () => {
+    // let dst = '/api/datacenters/?show_all=true'; //want all
+    let dst = '/api/log/';
+    console.log("QUERY")
+    console.log(dst)
+    axios.get(dst).then(res => {
+        let ret = res.data.results;
+        return ret;
+    });
+      // .catch(function (error) {
+      //   // TODO: handle error
+      //   alert("Cannot load. Re-login.\n" + JSON.stringify(error.response, null, 2));
+      // });
+  }
+
   fixLogs = () => {
-    console.log(this.props.logs);
-    let tempLogs = this.props.logs;
+    let log = this.getLogs();
+    // console.log(this.props.log);
+    console.log(log)
+    let tempLogs = log;
     let objectLogs = [];
     let users = [];
     let dateTimes = [];
