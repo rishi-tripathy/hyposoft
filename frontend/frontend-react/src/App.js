@@ -43,7 +43,7 @@ class App extends React.Component {
       datacenter_name: null,
       datacenter_ab: null,
       setDatacenter: this.setDatacenter,
-      setLoginInfo: this.setLoginInfo
+      auth_token: null,
     }
   }
 
@@ -56,18 +56,28 @@ class App extends React.Component {
     });
   };
 
-  setLoginInfo = () => {
-    console.log('setting login info');
-    this.checkLoginStatus();
-  }
-
 
   componentDidMount() {
     console.log('rerender');
     this.setLoginInfo();
   }
+  
 
-  checkLoginStatus() {
+  removeEmpty = (obj) => {
+    Object.keys(obj).forEach((k) => (!obj[k] && obj[k] !== undefined) && delete obj[k]);
+    return obj;
+  };
+
+  setToken = (val) => {
+    console.log('setting token')
+    this.setState({
+      auth_token: val,
+    })
+    console.log(this.state.auth_token)
+  }
+
+
+  setLoginInfo() {
     
     //OAuth stuff
 
@@ -83,16 +93,23 @@ class App extends React.Component {
 
       let tokenParams = querystring.parse(window.location.hash.substring(1));
 
-      console.log(tokenParams.access_token)
-      
-      axios.get('https://api.colab.duke.edu/meta/v1/apis/identity/v1', {
-        headers: {
-         'x-api-key': client_id,
-         'Authorization': `Bearer ${tokenParams.access_token}`
-     }}).then(res => {
-       console.log(res);
-     })
+      let tokenCopy = tokenParams.access_token;
+      console.log(tokenCopy);
+
+      this.setToken(tokenCopy);
+
+      console.log(this.state.auth_token)
+
+      axios.post('/api/users/netid_login', tokenCopy.toString())
+      .then(function (response) {
+        alert('swaggy p net id login');
+      // window.location = '/racks'
+      })
+      .catch(function (error) {
+        alert('NetID login was not successful.\n' + JSON.stringify(error.response.data, null, 2));
+      });
     }
+
 
     axios.get('api/users/who_am_i/').then(res => {
       const r = res.data.current_user;
