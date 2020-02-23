@@ -17,11 +17,13 @@ from rest_framework.filters import OrderingFilter
 from django_filters import rest_framework as djfiltBackend
 
 JSON_TRUE = 'true'
-DISALLOWED_ACTIONS = {'update', 'partial_update', 'destroy'}
+DISALLOWED_ACTIONS = {'create', 'update', 'partial_update', 'destroy'}
 GET = 'GET'
 POST = 'POST'
 DELETE = 'DELETE'
 PUT = 'PUT'
+
+
 # Docs for ModelViewSet: https://www.django-rest-framework.org/api-guide/viewsets/#modelviewset
 
 
@@ -49,4 +51,3 @@ class LogViewSet(viewsets.ModelViewSet):
             return self.get_paginated_response(serializer.data)
         serializer = CRUDEventSerializer(self.queryset, many=True, context={'request': request})
         return Response(serializer.data)
-

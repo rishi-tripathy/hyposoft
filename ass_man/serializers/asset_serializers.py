@@ -76,14 +76,17 @@ class AssetSerializer(serializers.HyperlinkedModelSerializer):
                 except AssertionError:
                     raise serializers.ValidationError({
                         'Network Port Error': 'This action would cause a prohibited network connection between Asset {} in Datacenter {} and Asset {} in in Datacenter {}.'
-                            .format(validated_data["hostname"], validated_data["datacenter"], connection_port.asset.hostname, connection_port.asset.datacenter)
+                            .format(validated_data["hostname"], validated_data["datacenter"],
+                                    connection_port.asset.hostname, connection_port.asset.datacenter)
                     })
                 # check if connected port is occupied
                 try:
                     assert connection_port.connection is None
                 except AssertionError:
                     raise serializers.ValidationError({
-                        'Network Port Error': 'Port {} on host {} is already occupied by a connection to port {} on host {}.'.format(connection_port.name, connection_port.asset.hostname, connection_port.connection.name, connection_port.connection.asset.hostname)
+                        'Network Port Error': 'Port {} on host {} is already occupied by a connection to port {} on host {}.'.format(
+                            connection_port.name, connection_port.asset.hostname, connection_port.connection.name,
+                            connection_port.connection.asset.hostname)
                     })
 
     def check_power_ports(self, power_ports):
@@ -104,7 +107,8 @@ class AssetSerializer(serializers.HyperlinkedModelSerializer):
                     assert pp is None
                 except AssertionError:
                     raise serializers.ValidationError({
-                        'PDU Error': 'PDU port {} is already in use by asset {}.'.format(pp.port_number, pp.asset.hostname)
+                        'PDU Error': 'PDU port {} is already in use by asset {}.'.format(pp.port_number,
+                                                                                         pp.asset.hostname)
                     })
 
     def create(self, validated_data):
@@ -199,8 +203,6 @@ class AssetOfModelSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Asset
         fields = ['id', 'url', 'hostname', 'datacenter', 'rack', 'rack_u', 'owner']
-
-
 
 
 # For the network graph

@@ -10,7 +10,8 @@ import re
 # API
 from rest_framework import viewsets
 
-from ass_man.serializers.asset_serializers import AssetSerializer, AssetFetchSerializer, AssetShortSerializer, AssetSeedForGraphSerializer
+from ass_man.serializers.asset_serializers import AssetSerializer, AssetFetchSerializer, AssetShortSerializer, \
+    AssetSeedForGraphSerializer
 from ass_man.serializers.model_serializers import UniqueModelsSerializer
 
 # Auth
@@ -85,8 +86,11 @@ class AssetViewSet(viewsets.ModelViewSet):
     # Overriding of super functions
 
     def reformat_mac_address(self, mac):
-        mac_search = re.search('([0-9a-f]{2})[-:_]?([0-9a-f]{2})[-:_]([0-9a-f]{2})[-:_]?([0-9a-f]{2})[-:_]?([0-9a-f]{2})[-:_]?([0-9a-f]{2})', mac.lower())
-        reformatted = '{}:{}:{}:{}:{}:{}'.format(mac_search.group(1), mac_search.group(2), mac_search.group(3), mac_search.group(4), mac_search.group(5), mac_search.group(6))
+        mac_search = re.search(
+            '([0-9a-f]{2})[-:_]?([0-9a-f]{2})[-:_]([0-9a-f]{2})[-:_]?([0-9a-f]{2})[-:_]?([0-9a-f]{2})[-:_]?([0-9a-f]{2})',
+            mac.lower())
+        reformatted = '{}:{}:{}:{}:{}:{}'.format(mac_search.group(1), mac_search.group(2), mac_search.group(3),
+                                                 mac_search.group(4), mac_search.group(5), mac_search.group(6))
         return reformatted
 
     def get_port_jsons(self, request):
@@ -127,7 +131,8 @@ class AssetViewSet(viewsets.ModelViewSet):
                 port.save()
 
             except (ObjectDoesNotExist, KeyError):  # Create new port
-                port = Network_Port.objects.create(name=i['name'], mac=reformatted_mac, connection=connection_port, asset=asset)
+                port = Network_Port.objects.create(name=i['name'], mac=reformatted_mac, connection=connection_port,
+                                                   asset=asset)
 
             # update destination port
             if connection_port:
@@ -239,8 +244,7 @@ class AssetViewSet(viewsets.ModelViewSet):
                     if int(l1_id) < int(data.get("id")):
                         links.append("{},{}".format(l1_id, data.get("id")))
                     else:
-                        links.append("{},{}".format( data.get("id"), l1_id,))
-
+                        links.append("{},{}".format(data.get("id"), l1_id, ))
 
         root_nps = data.get("network_ports")
         for np in root_nps:
@@ -270,7 +274,6 @@ class AssetViewSet(viewsets.ModelViewSet):
         }
 
         return Response(resp)
-
 
     @action(detail=False, methods=[POST])
     def import_file(self, request, *args, **kwargs):

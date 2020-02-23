@@ -33,7 +33,7 @@ urlpatterns = [
     path('accounts/', include('django.contrib.auth.urls')),
     path('api/', include(router.urls)),  # add this
     path('report/', ReportView.report),
-    #path('log/', log_views.LogViewSet.log),
+    # path('log/', log_views.LogViewSet.log),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     re_path('.*', TemplateView.as_view(template_name='index.html')),
 ]
