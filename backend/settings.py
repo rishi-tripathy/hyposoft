@@ -63,7 +63,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'django_filters',
     'usr_man',
-    'ass_man'
+    'ass_man',
+    'easyaudit'
 ]
 
 MIDDLEWARE = [
@@ -75,6 +76,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'easyaudit.middleware.easyaudit.EasyAuditMiddleware'
 ]
 
 ROOT_URLCONF = 'backend.urls'
@@ -158,3 +160,9 @@ CSRF_COOKIE_NAME = "XSRF-TOKEN"
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'frontend', 'frontend-react', 'build', 'static')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+DJANGO_EASY_AUDIT_REGISTERED_CLASSES = ["ass_man.Model",
+                                        "ass_man.Asset",
+                                        "ass_man.Rack",
+                                        "ass_man.Datacenter",
+                                        "auth.User"
+                                        ]

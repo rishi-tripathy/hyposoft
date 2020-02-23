@@ -47,4 +47,9 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
 class UserOfAssetSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = User
-        fields = ('url', 'username')
+        fields = ('url', 'id', 'username')
+
+class UserOfLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('id', 'username')
