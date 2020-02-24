@@ -27,7 +27,7 @@ import json
 from ass_man.import_manager import import_asset_file
 from ass_man.export_manager import export_assets
 
-#CHANGE THIS FOR PRODUCTION
+# CHANGE THIS FOR PRODUCTION
 NETWORX_PORT = ":8000"
 NETWORX_GET_ROOT_URL = "http://hyposoft-mgt.colab.duke.edu{}/pdu.php".format(NETWORX_PORT)
 NETWORX_POST_URL = "http://hyposoft-mgt.colab.duke.edu{}/power.php".format(NETWORX_PORT)
@@ -307,7 +307,6 @@ class AssetViewSet(viewsets.ModelViewSet):
         serializer = UniqueModelsSerializer(models, many=True, context={'request': request})
         return Response(serializer.data)
 
-
     @action(detail=True, methods=[POST])
     def update_pp_state(self, request, *args, **kwargs):
         try:
@@ -316,7 +315,7 @@ class AssetViewSet(viewsets.ModelViewSet):
             act = request.data.get('action')
         except KeyError:
             return Response({
-                'Status': "Not all fields specified You must provide a name, a port number, and an action."
+                'Status': "Not all fields specified. You must provide a name, a port number, and an action."
             }, status=status.HTTP_400_BAD_REQUEST)
         try:
             # assert re.match("hpdu-rtp1-[A-Z0-9]+[LR]]", pdu_name)
@@ -324,9 +323,8 @@ class AssetViewSet(viewsets.ModelViewSet):
             assert act in ['on', 'off', 'cycle']
         except AssertionError:
             return Response({
-                'Invalid Data': "You must choose one action of 'on', 'off', or 'cycle' on one port of port 1-24 for a valid Networx PDU."
+                'Invalid Data': "You must choose one action of 'on' or 'off', on one port of port 1-24 for a valid Networx PDU."
             }, status=status.HTTP_400_BAD_REQUEST)
-
 
         def on(name, num):
             try:
@@ -340,7 +338,6 @@ class AssetViewSet(viewsets.ModelViewSet):
                 return Response({
                     'status': 'Error. The PDU Networx 98 Pro service is unavailable.'
                 }, status=status.HTTP_400_BAD_REQUEST)
-
 
         def off(name, num):
             try:
@@ -364,15 +361,14 @@ class AssetViewSet(viewsets.ModelViewSet):
             'status': 'Error. The PDU Networx 98 Pro service is unavailable.'
         }, status=status.HTTP_400_BAD_REQUEST)
 
-
     @action(detail=True, methods=[GET])
     def get_pp_status(self, request, *args, **kwargs):
         asset = self.get_object()
         pdu_l_name = asset.rack.pdu_l.name
         pdu_r_name = asset.rack.pdu_r.name
         try:
-            assert re.match("hpdu-rtp1-[A-Z0-9]+L", pdu_l_name)
-            assert re.match("hpdu-rtp1-[A-Z0-9]+R", pdu_r_name)
+            assert re.match("hpdu-rtp1-[A-E][0-1][0-9]L", pdu_l_name)
+            assert re.match("hpdu-rtp1-[A-E][0-1][0-9]R", pdu_r_name)
         except AssertionError:
             return Response({
                 "status": "Failed to get PDU port data because this asset is not connected to a networked PDU."

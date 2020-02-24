@@ -48,10 +48,16 @@ class DatacenterViewSet(viewsets.ModelViewSet):
         if resp.status_code == 200:
             for rack in self.get_object().rack_set.all():
 
-                root_name = 'hpdu-{}-{}'.format(request.data.get('abbreviation'),
-                                                rack.rack_number)
-                rack.pdu_l.name = root_name + '-l'
-                rack.pdu_r.name = root_name + '-r'
+                if len(rack.rack_number) < 3:
+                    root_name = 'hpdu-{}-{}'.format(rack.datacenter.abbreviation,
+                                                    rack.rack_number[0] + "0" +
+                                                    rack.rack_number[1])
+                else:
+                    root_name = 'hpdu-{}-{}'.format(rack.datacenter.abbreviation,
+                                                    rack.rack_number)
+
+                rack.pdu_l.name = root_name + 'L'
+                rack.pdu_r.name = root_name + 'R'
                 rack.pdu_l.save()
                 rack.pdu_r.save()
         return resp
