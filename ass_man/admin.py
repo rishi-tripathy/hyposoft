@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Model, Asset, Rack, Network_Port, Power_Port, PDU, Datacenter, Asset_Number # add this
+from .models import Model, Asset, Rack, Network_Port, Power_Port, PDU, Datacenter, Asset_Number  # add this
 
 
 # Register your models here.

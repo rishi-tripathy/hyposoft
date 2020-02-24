@@ -6,11 +6,12 @@ from django.db.models.functions import Concat, Substr, Cast
 from django.db.models.deletion import ProtectedError
 from django.db.models import CharField
 from django.core.exceptions import ObjectDoesNotExist
-import re
+import re, requests
 # API
 from rest_framework import viewsets
 
-from ass_man.serializers.asset_serializers import AssetSerializer, AssetFetchSerializer, AssetShortSerializer, AssetSeedForGraphSerializer
+from ass_man.serializers.asset_serializers import AssetSerializer, AssetFetchSerializer, AssetShortSerializer, \
+    AssetSeedForGraphSerializer
 from ass_man.serializers.model_serializers import UniqueModelsSerializer
 
 # Auth
@@ -25,6 +26,11 @@ from rest_framework.request import Request, HttpRequest
 import json
 from ass_man.import_manager import import_asset_file
 from ass_man.export_manager import export_assets
+
+# CHANGE THIS FOR PRODUCTION
+NETWORX_PORT = ":8000"
+NETWORX_GET_ROOT_URL = "http://hyposoft-mgt.colab.duke.edu{}/pdu.php".format(NETWORX_PORT)
+NETWORX_POST_URL = "http://hyposoft-mgt.colab.duke.edu{}/power.php".format(NETWORX_PORT)
 
 JSON_TRUE = 'true'
 ADMIN_ACTIONS = {'create', 'update', 'partial_update', 'destroy'}
@@ -85,8 +91,11 @@ class AssetViewSet(viewsets.ModelViewSet):
     # Overriding of super functions
 
     def reformat_mac_address(self, mac):
-        mac_search = re.search('([0-9a-f]{2})[-:_]?([0-9a-f]{2})[-:_]([0-9a-f]{2})[-:_]?([0-9a-f]{2})[-:_]?([0-9a-f]{2})[-:_]?([0-9a-f]{2})', mac.lower())
-        reformatted = '{}:{}:{}:{}:{}:{}'.format(mac_search.group(1), mac_search.group(2), mac_search.group(3), mac_search.group(4), mac_search.group(5), mac_search.group(6))
+        mac_search = re.search(
+            '([0-9a-f]{2})[-:_]?([0-9a-f]{2})[-:_]([0-9a-f]{2})[-:_]?([0-9a-f]{2})[-:_]?([0-9a-f]{2})[-:_]?([0-9a-f]{2})',
+            mac.lower())
+        reformatted = '{}:{}:{}:{}:{}:{}'.format(mac_search.group(1), mac_search.group(2), mac_search.group(3),
+                                                 mac_search.group(4), mac_search.group(5), mac_search.group(6))
         return reformatted
 
     def get_port_jsons(self, request):
@@ -127,7 +136,8 @@ class AssetViewSet(viewsets.ModelViewSet):
                 port.save()
 
             except (ObjectDoesNotExist, KeyError):  # Create new port
-                port = Network_Port.objects.create(name=i['name'], mac=reformatted_mac, connection=connection_port, asset=asset)
+                port = Network_Port.objects.create(name=i['name'], mac=reformatted_mac, connection=connection_port,
+                                                   asset=asset)
 
             # update destination port
             if connection_port:
@@ -239,8 +249,7 @@ class AssetViewSet(viewsets.ModelViewSet):
                     if int(l1_id) < int(data.get("id")):
                         links.append("{},{}".format(l1_id, data.get("id")))
                     else:
-                        links.append("{},{}".format( data.get("id"), l1_id,))
-
+                        links.append("{},{}".format(data.get("id"), l1_id, ))
 
         root_nps = data.get("network_ports")
         for np in root_nps:
@@ -271,7 +280,6 @@ class AssetViewSet(viewsets.ModelViewSet):
 
         return Response(resp)
 
-
     @action(detail=False, methods=[POST])
     def import_file(self, request, *args, **kwargs):
         return import_asset_file(request)
@@ -298,3 +306,103 @@ class AssetViewSet(viewsets.ModelViewSet):
             filter(unique_name__icontains=name_typed).all()
         serializer = UniqueModelsSerializer(models, many=True, context={'request': request})
         return Response(serializer.data)
+
+    @action(detail=True, methods=[POST])
+    def update_pp_state(self, request, *args, **kwargs):
+        try:
+            pdu_name = request.data.get('name')
+            port_number = request.data.get('port_number')
+            act = request.data.get('action')
+        except KeyError:
+            return Response({
+                'Status': "Not all fields specified. You must provide a name, a port number, and an action."
+            }, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            # assert re.match("hpdu-rtp1-[A-Z0-9]+[LR]]", pdu_name)
+            assert int(port_number) < 25
+            assert act in ['on', 'off', 'cycle']
+        except AssertionError:
+            return Response({
+                'Invalid Data': "You must choose one action of 'on' or 'off', on one port of port 1-24 for a valid Networx PDU."
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        def on(name, num):
+            try:
+                resp = requests.post(NETWORX_POST_URL, {
+                    'pdu': name,
+                    'port': num,
+                    'v': 'on'
+                })
+                return Response(resp.text)
+            except requests.exceptions.RequestException:
+                return Response({
+                    'status': 'Error. The PDU Networx 98 Pro service is unavailable.'
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+        def off(name, num):
+            try:
+                resp = requests.post(NETWORX_POST_URL, {
+                    'pdu': name,
+                    'port': num,
+                    'v': 'off'
+                })
+                return Response(resp.text)
+            except requests.exceptions.RequestException:
+                return Response({
+                    'status': 'Error. The PDU Networx 98 Pro service is unavailable.'
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+        if act == 'on':
+            return on(pdu_name, port_number)
+        if act == 'off':
+            return off(pdu_name, port_number)
+
+        return Response({
+            'status': 'Error. The PDU Networx 98 Pro service is unavailable.'
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=True, methods=[GET])
+    def get_pp_status(self, request, *args, **kwargs):
+        asset = self.get_object()
+        pdu_l_name = asset.rack.pdu_l.name
+        pdu_r_name = asset.rack.pdu_r.name
+        try:
+            assert re.match("hpdu-rtp1-[A-E][0-1][0-9]L", pdu_l_name)
+            assert re.match("hpdu-rtp1-[A-E][0-1][0-9]R", pdu_r_name)
+        except AssertionError:
+            return Response({
+                "status": "Failed to get PDU port data because this asset is not connected to a networked PDU."
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        relevant_ports = [(pp.port_number, pp.pdu) for pp in asset.power_port_set.all()]
+        try:
+            left_html = requests.get(NETWORX_GET_ROOT_URL, params={"pdu": pdu_l_name}, timeout=3).text
+            right_html = requests.get(NETWORX_GET_ROOT_URL, params={"pdu": pdu_r_name}, timeout=3).text
+        except requests.exceptions.RequestException:
+            return Response({
+                'status': 'Error. The PDU Networx 98 Pro service is unavailable.'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        # return Response({
+        #     "left": left_html,
+        #     "right": right_html
+        # })
+
+        statuses = {}
+
+        for pp in asset.power_port_set.all():
+            regex = rf">{pp.port_number}<td><span style='background-color:\#[0-9a-f]*'>([A-Z]+)"
+            if pp.pdu.name == pdu_l_name:
+                s = re.search(regex, left_html)
+
+            else:
+                s = re.search(regex, right_html)
+
+            if s:
+                # return Response({"hello": "world"})
+
+                state = s.group(1)
+                statuses[pp.port_number] = state
+        return Response({
+            "statuses": statuses
+        })

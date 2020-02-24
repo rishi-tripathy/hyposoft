@@ -16,7 +16,6 @@ GET = 'GET'
 POST = 'POST'
 USER_ORDERING_FILTERING_FIELDS = ['username', 'first_name', 'last_name', 'email']
 
-
 class UserViewSet(viewsets.ModelViewSet):
     # API endpoint that allows users to be viewed or edited.
 
