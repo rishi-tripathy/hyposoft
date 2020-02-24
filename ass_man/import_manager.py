@@ -35,7 +35,7 @@ def import_model_file(request):
             if row['memory']:
                 new_model.memory = row['memory']
             nps = []
-            for i in range(1, int(row['network_ports'])+1):
+            for i in range(1, int(row['network_ports']) + 1):
                 if row['network_port_name_{}'.format(i)]:
                     nps.append(row['network_port_name_{}'.format(i)])
                 else:
@@ -46,9 +46,10 @@ def import_model_file(request):
             continue
 
         for i in range(int(row['network_ports'])):
-            if row['network_port_name_{}'.format(i+1)] and row['network_port_name_{}'.format(i+1)] is not model.network_ports[i]:
+            if row['network_port_name_{}'.format(i + 1)] and row['network_port_name_{}'.format(i + 1)] is not \
+                    model.network_ports[i]:
                 if should_override:
-                    model.network_ports[i] = row['network_port_name_{}'.format(i+1)]
+                    model.network_ports[i] = row['network_port_name_{}'.format(i + 1)]
                     should_update = True
 
         if str(model.height) != row['height']:

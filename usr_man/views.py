@@ -38,16 +38,6 @@ class UserViewSet(viewsets.ModelViewSet):
     filterset_fields = USER_ORDERING_FILTERING_FIELDS
     ordering_fields = USER_ORDERING_FILTERING_FIELDS
 
-    def destroy(self, request, *args, **kwargs):
-        user = self.get_object()
-        to_delete = User.objects.get(id=user.id)
-        if to_delete.has_usable_password():
-            return super().destroy(request, *args, **kwargs)
-        else:
-            return Response({
-                "status": "Failure. You may not delete a NetID user."
-            })
-
     # Override default actions here
     def partial_update(self, request, *args, **kwargs):
 

@@ -76,14 +76,17 @@ class AssetSerializer(serializers.HyperlinkedModelSerializer):
                 except AssertionError:
                     raise serializers.ValidationError({
                         'Network Port Error': 'This action would cause a prohibited network connection between Asset {} in Datacenter {} and Asset {} in in Datacenter {}.'
-                            .format(validated_data["hostname"], validated_data["datacenter"], connection_port.asset.hostname, connection_port.asset.datacenter)
+                            .format(validated_data["hostname"], validated_data["datacenter"],
+                                    connection_port.asset.hostname, connection_port.asset.datacenter)
                     })
                 # check if connected port is occupied
                 try:
                     assert connection_port.connection is None
                 except AssertionError:
                     raise serializers.ValidationError({
-                        'Network Port Error': 'Port {} on host {} is already occupied by a connection to port {} on host {}.'.format(connection_port.name, connection_port.asset.hostname, connection_port.connection.name, connection_port.connection.asset.hostname)
+                        'Network Port Error': 'Port {} on host {} is already occupied by a connection to port {} on host {}.'.format(
+                            connection_port.name, connection_port.asset.hostname, connection_port.connection.name,
+                            connection_port.connection.asset.hostname)
                     })
 
     def check_power_ports(self, power_ports):
@@ -96,15 +99,18 @@ class AssetSerializer(serializers.HyperlinkedModelSerializer):
                         'PDU Error': 'the PDU referenced by name {} does not exist.'.format(name=i['pdu'])
                     })
                 try:
+                    pdu = i['pdu']
                     pdu_port = int(i['port_number'])
-                    pp = pdu.power_port_set.get(port_number=pdu_port)
+                    pp = pdu.power_port_set.all().filter(port_number=pdu_port)
                 except Power_Port.DoesNotExist:
                     pp = None
                 try:
                     assert pp is None
                 except AssertionError:
                     raise serializers.ValidationError({
-                        'PDU Error': 'PDU port {} is already in use by asset {}.'.format(pp.port_number, pp.asset.hostname)
+                        'PDU Error': 'PDU port {} on PDU {} is already in use by asset {}.'.format(pp.port_number,
+                                                                                                   pdu.name,
+                                                                                                   pp.asset.hostname)
                     })
 
     def create(self, validated_data):
@@ -199,8 +205,6 @@ class AssetOfModelSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Asset
         fields = ['id', 'url', 'hostname', 'datacenter', 'rack', 'rack_u', 'owner']
-
-
 
 
 # For the network graph
