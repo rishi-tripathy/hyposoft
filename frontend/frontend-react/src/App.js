@@ -60,7 +60,9 @@ class App extends React.Component {
   componentDidMount() {
     console.log('rerender');
     this.setLoginInfo();
-    this.getUserPermissions();
+    if(this.state.logged_in){
+      this.getUserPermissions();
+    }
   }
   
 
@@ -106,7 +108,8 @@ class App extends React.Component {
         console.log(res)
         this.setState({
           logged_in: true,
-        })
+        });
+        console.log('netid state has been set')
       })
       .catch(function (error) {
         alert('NetID login was not successful.\n' + JSON.stringify(error.response.data, null, 2));

@@ -127,15 +127,15 @@ class UserViewSet(viewsets.ModelViewSet):
         token = request.query_params.get('token') or ''  # 'cbe2d5243b68b6556dc879cf7e72e397ed8af57a'  #
 
         headers = {"Accept": "application/json",
-                   "Authorization": "Bearer {}".format(token),
+                   "Authorization": "Bearer ${token}",
                    "x-api-key": "hyposoft-ev2"}
 
         r = requests.get(url, headers=headers)
 
-        netid_info = r.json()
+        netid_info = r.text
 
         if r.status_code is not 200:
-            return Response(r.json(), status.HTTP_400_BAD_REQUEST)
+            return Response(r.text, status.HTTP_400_BAD_REQUEST)
 
         resp_draft = {'email': "{}@duke.edu".format(netid_info['netid']),
                       'username': netid_info['netid'],
