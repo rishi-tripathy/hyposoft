@@ -476,7 +476,7 @@ export class CreateInstanceForm extends Component {
                       rightPPName={this.state.rightPPName}
                       leftFree={this.state.leftFreePDUSlots}
                       rightFree={this.state.rightFreePDUSlots}
-                      isDisabled={this.state.selectedRackOption === null}
+                      isDisabled={this.state.selectedRackOption === null || this.state.selectedModelOption === null}
                     />
                   </Paper>
                 </Grid>

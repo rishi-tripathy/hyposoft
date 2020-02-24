@@ -23,9 +23,6 @@ export class NetworkPortConnectionDialog extends Component {
       selectedAssetOption: null,
       selectedNetworkPortOption: null,
 
-
-
-
       open: false
     }
   }
