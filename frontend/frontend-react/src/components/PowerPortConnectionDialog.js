@@ -56,48 +56,38 @@ export class PowerPortConnectionDialog extends Component {
   }
 
   setDefaultPowerPortConfiguration() {
-
     let tmpConfig = []
 
     for (let i = 0; i < this.props.numberOfPowerPorts; i++) {
       let obj = {}
-      if (i === 0) {
+
+      if (this.props.leftFree.length === 0 || this.props.rightFree.length === 0) {
+        obj.pdu = ''
+        obj.port_number = null
+      }
+      else if (i === 0) {
         obj.pdu = this.props.leftPPName
         obj.port_number = this.props.leftFree[0]
       }
       else if (i === 1) {
-        obj.pdu = this.props.rightPPName
-        obj.port_number = this.props.rightFree[0]
+        let idx = this.props.rightFree.lastIndexOf(this.props.leftFree[0])
+        if (idx >= 0) {
+          obj.pdu = this.props.rightPPName
+          obj.port_number = this.props.rightFree[idx]
+        }
+        else {
+          obj.pdu = this.props.rightPPName
+          obj.port_number = this.props.rightFree[0]
+        }
       }
       else {
         obj.pdu = ''
         obj.port_number = null
       }
+
       tmpConfig.push(obj)
     }
 
-    // const arr = [
-    //   {
-    //     port_number: this.props.leftFree[0],
-    //     pdu: '',
-    //   },
-    //   {
-    //     port_number: 3,
-    //     pdu: this.props.leftPPName,
-    //   },
-    //   {
-    //     port_number: 5,
-    //     pdu: this.props.leftPPName,
-    //   },
-    //   {
-    //     port_number: 6,
-    //     pdu: this.props.leftPPName,
-    //   },
-    //   {
-    //     port_number: 8,
-    //     pdu: this.props.leftPPName,
-    //   }
-    // ]
     this.setState({ powerPortConfiguration: tmpConfig })
   }
 
@@ -105,11 +95,12 @@ export class PowerPortConnectionDialog extends Component {
 
   handleClickOpen = () => {
     //setPowerPortSelection()
+    this.setDefaultPowerPortConfiguration();
     this.setState({ open: true })
   };
 
   handleClose = () => {
-    this.setDefaultPowerPortConfiguration();
+    this.props.sendPowerPortConnectionInfo(null);
     this.setState({ open: false, configured: false })
   };
 
