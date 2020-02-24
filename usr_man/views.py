@@ -13,6 +13,7 @@ ADMIN_ACTIONS = {'create', 'update', 'partial_update', 'destroy'}
 GET = 'GET'
 USER_ORDERING_FILTERING_FIELDS = ['username', 'first_name', 'last_name', 'email']
 
+
 class UserViewSet(viewsets.ModelViewSet):
     # API endpoint that allows users to be viewed or edited.
 
@@ -33,6 +34,7 @@ class UserViewSet(viewsets.ModelViewSet):
     filterset_class = UserFilter
     filterset_fields = USER_ORDERING_FILTERING_FIELDS
     ordering_fields = USER_ORDERING_FILTERING_FIELDS
+
     # Override default actions here
 
     # Implement custom actions below
@@ -69,4 +71,3 @@ class UserViewSet(viewsets.ModelViewSet):
             'first_name': fn,
             'last_name': ln
         })
-
