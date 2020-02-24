@@ -103,7 +103,7 @@ class App extends React.Component {
 
       console.log(tokenCopy)
 
-      axios.get('/api/users/netid_login' + '?' + 'token=' + tokenCopy)
+      axios.get('/api/users/netid_login/' + '?' + 'token=' + tokenCopy)
       .then(res => {        
         console.log(res)
         this.setState({
