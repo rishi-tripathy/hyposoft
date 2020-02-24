@@ -472,6 +472,7 @@ export class CreateInstanceForm extends Component {
                     <PowerPortConnectionDialog
                       sendPowerPortConnectionInfo={this.getPowerPortConenctionInfo}
                       numberOfPowerPorts={this.state.numberOfPowerPorts}
+                      rackID={this.state.selectedRackOption ? this.state.selectedRackOption.id : null}
                       leftPPName={this.state.leftPPName}
                       rightPPName={this.state.rightPPName}
                       leftFree={this.state.leftFreePDUSlots}
