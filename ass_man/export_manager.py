@@ -2,9 +2,9 @@ import csv
 from django.http import HttpResponse
 
 MODEL_EXPORT_FIELDS = ['vendor', 'model_number', 'height', 'display_color', \
-                       'network_ports', 'power_ports', 'cpu', 'memory', 'storage',\
-                        'comment','network_port_name_1', 'network_port_name_2',\
-                        'network_port_name_3', 'network_port_name_4']
+                       'network_ports', 'power_ports', 'cpu', 'memory', 'storage', \
+                       'comment', 'network_port_name_1', 'network_port_name_2', \
+                       'network_port_name_3', 'network_port_name_4']
 ASSET_EXPORT_FIELDS = ['asset_number', 'hostname', 'datacenter', 'rack', \
                        'rack_position', 'vendor', 'model_number', 'owner', \
                        'comment', 'power_port_connection_1', 'power_port_connection_2']
@@ -63,6 +63,6 @@ def export_assets(queryset):
         asset.rack.pdu_l
         asset.rack.pdu_r
         writer.writerow([asset.asset_number, asset.hostname, asset.datacenter.abbreviation, \
-        asset.rack.rack_number, asset.rack_u, asset.model.vendor, asset.model.model_number, \
-        owner_name, asset.comment])
+                         asset.rack.rack_number, asset.rack_u, asset.model.vendor, asset.model.model_number, \
+                         owner_name, asset.comment])
     return response

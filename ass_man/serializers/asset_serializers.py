@@ -75,14 +75,18 @@ class AssetSerializer(serializers.HyperlinkedModelSerializer):
                     assert connection_port.asset.datacenter == validated_data['datacenter']
                 except AssertionError:
                     raise serializers.ValidationError({
-                        'Network Port Error': 'the network connection port is in a different datacenter.'
+                        'Network Port Error': 'This action would cause a prohibited network connection between Asset {} in Datacenter {} and Asset {} in in Datacenter {}.'
+                            .format(validated_data["hostname"], validated_data["datacenter"],
+                                    connection_port.asset.hostname, connection_port.asset.datacenter)
                     })
                 # check if connected port is occupied
                 try:
                     assert connection_port.connection is None
                 except AssertionError:
                     raise serializers.ValidationError({
-                        'Network Port Error': 'the network connection port is already occupied.'
+                        'Network Port Error': 'Port {} on host {} is already occupied by a connection to port {} on host {}.'.format(
+                            connection_port.name, connection_port.asset.hostname, connection_port.connection.name,
+                            connection_port.connection.asset.hostname)
                     })
 
     def check_power_ports(self, power_ports):
@@ -92,18 +96,21 @@ class AssetSerializer(serializers.HyperlinkedModelSerializer):
                     pdu = PDU.objects.get(name=i['pdu'])
                 except PDU.DoesNotExist:
                     raise serializers.ValidationError({
-                        'PDU Error': 'the PDU referenced by name does not exist.'
+                        'PDU Error': 'the PDU referenced by name {} does not exist.'.format(name=i['pdu'])
                     })
                 try:
+                    pdu = i['pdu']
                     pdu_port = int(i['port_number'])
-                    pp = pdu.power_port_set.get(port_number=pdu_port)
+                    pp = pdu.power_port_set.all().filter(port_number=pdu_port)
                 except Power_Port.DoesNotExist:
                     pp = None
                 try:
                     assert pp is None
                 except AssertionError:
                     raise serializers.ValidationError({
-                        'PDU Error': 'this PDU port is already in use.'
+                        'PDU Error': 'PDU port {} on PDU {} is already in use by asset {}.'.format(pp.port_number,
+                                                                                                   pdu.name,
+                                                                                                   pp.asset.hostname)
                     })
 
     def create(self, validated_data):
@@ -116,7 +123,7 @@ class AssetSerializer(serializers.HyperlinkedModelSerializer):
     def update(self, asset, validated_data):
         self.check_rack_u_validity(validated_data, asset)
         self.check_power_ports(self.context['power_ports'])
-        self.check_network_ports(self.context['network_ports'])
+        self.check_network_ports(self.context['network_ports'], validated_data)
         try:
             assert asset.model == validated_data['model']
         except AssertionError:
@@ -200,8 +207,6 @@ class AssetOfModelSerializer(serializers.HyperlinkedModelSerializer):
         fields = ['id', 'url', 'hostname', 'datacenter', 'rack', 'rack_u', 'owner']
 
 
-
-
 # For the network graph
 
 class AssetTwoLevelsAwaySerializer(serializers.ModelSerializer):
@@ -209,7 +214,7 @@ class AssetTwoLevelsAwaySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Asset
-        fields = ['id', 'url,' 'hostname', 'rack', 'rack_u', 'asset_number']
+        fields = ['id', 'hostname', 'rack', 'rack_u']
 
 
 class NetworkPortTwoDegreeAwaySerializer(serializers.ModelSerializer):
@@ -217,7 +222,7 @@ class NetworkPortTwoDegreeAwaySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Network_Port
-        fields = ['name', 'mac', 'asset']
+        fields = ['name', 'asset']
 
 
 class NetworkPortOneDegreeAwaySerializer(serializers.ModelSerializer):
@@ -225,10 +230,10 @@ class NetworkPortOneDegreeAwaySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Network_Port
-        fields = ['name', 'mac', 'connection']
+        fields = ['name', 'connection']
 
 
-class AssetOneLevelAwaySerializer():
+class AssetOneLevelAwaySerializer(serializers.ModelSerializer):
     rack = RackOfAssetSerializer()
     network_ports = NetworkPortOneDegreeAwaySerializer(source='network_port_set', many=True)
 

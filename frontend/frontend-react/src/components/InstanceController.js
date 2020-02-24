@@ -19,12 +19,7 @@ export class InstanceController extends Component {
   constructor() {
     super();
     this.state = {
-      instances: [{}
-        // {
-        //   id: 99,
-        //   model: 'default',
-        //   hostname: 'default',
-        // }
+      assets: [{}
       ],
       showTableView: true,
       showIndividualInstanceView: false,
@@ -43,13 +38,13 @@ export class InstanceController extends Component {
   }
 
   getInstances = () => {
-    let dst = '/api/instances/' + '?' + this.state.filterQuery + '&' + this.state.sortQuery;
+    let dst = '/api/assets/' + '?' + this.state.filterQuery + '&' + this.state.sortQuery;
     console.log('QUERY')
     console.log(dst)
     axios.get(dst).then(res => {
       // console.log(res.data.next)
       this.setState({
-        instances: res.data.results,
+        assets: res.data.results,
         prevPage: res.data.previous,
         nextPage: res.data.next,
       });
@@ -126,12 +121,12 @@ export class InstanceController extends Component {
       sort = sort + '&'
     }
 
-    let dst = '/api/instances/' + '?' + filter + sort + 'export=true';
+    let dst = '/api/assets/' + '?' + filter + sort + 'export=true';
     console.log('exporting to:  ' + dst);
     const FileDownload = require('js-file-download');
     axios.get(dst).then(res => {
       // console.log(res.data.next)
-      FileDownload(res.data, 'instance_export.csv');
+      FileDownload(res.data, 'asset_export.csv');
       alert("Export was successful.");
     })
       .catch(function (error) {
@@ -153,7 +148,7 @@ export class InstanceController extends Component {
       .catch(function (error) {
         console.log(error.response)
         const fileUploadOverride = (file) => {
-          const url = '/api/instances/import_file/?override=true';
+          const url = '/api/assets/import_file/?override=true';
           const formData = new FormData();
           formData.append('file', file)
           //formData.append('name', 'sup')
@@ -186,7 +181,7 @@ export class InstanceController extends Component {
   }
 
   fileUpload = (file) => {
-    const url = '/api/instances/import_file/';
+    const url = '/api/assets/import_file/';
     const formData = new FormData();
     formData.append('file', file)
     //formData.append('name', 'sup')
@@ -201,7 +196,7 @@ export class InstanceController extends Component {
   paginateNext = () => {
     axios.get(this.state.nextPage).then(res => {
       this.setState({
-        instances: res.data.results,
+        assets: res.data.results,
         prevPage: res.data.previous,
         nextPage: res.data.next,
       });
@@ -216,7 +211,7 @@ export class InstanceController extends Component {
   paginatePrev = () => {
     axios.get(this.state.prevPage).then(res => {
       this.setState({
-        instances: res.data.results,
+        assets: res.data.results,
         prevPage: res.data.previous,
         nextPage: res.data.next,
       });
@@ -249,14 +244,14 @@ export class InstanceController extends Component {
       sort = sort + '&'
     }
 
-    let dst = '/api/instances/' + '?' + filter + sort + 'show_all=true';
+    let dst = '/api/assets/' + '?' + filter + sort + 'show_all=true';
 
     console.log('QUERY')
     console.log(dst)
     axios.get(dst).then(res => {
       // console.log(res.data.next)
       this.setState({
-        instances: res.data,
+        assets: res.data,
         prevPage: null,
         nextPage: null,
       });
@@ -269,7 +264,7 @@ export class InstanceController extends Component {
   }
 
   fileUpload = (file) => {
-    const url = '/api/instances/import_file/';
+    const url = '/api/assets/import_file/';
     const formData = new FormData();
     formData.append('file', file)
     //formData.append('name', 'sup')
@@ -284,7 +279,7 @@ export class InstanceController extends Component {
 
   render() {
     let content = <InstanceTableMUI
-      instances={this.state.instances}
+      assets={this.state.assets}
       filter_query={this.getFilterQuery}
       sendSortQuery={this.getSortQuery}
       sendRerender={this.getRerender}
@@ -329,7 +324,7 @@ export class InstanceController extends Component {
     let add = this.props.is_admin ? (
       <Link to={'/assets/create'}>
         <Button color="primary" variant="contained" endIcon={<AddCircleIcon/>}>
-          Add Instance
+          Add Asset
         </Button>
       </Link>
 
@@ -367,7 +362,7 @@ export class InstanceController extends Component {
             <Grid item justify="flex-start" alignContent='center' xs={12}/>
             <Grid item justify="flex-start" alignContent='center' xs={10}>
               <Typography variant="h3">
-                Instance Table
+                Asset Table
               </Typography>
             </Grid>
             <Grid item justify="flex-end" alignContent="flex-end" xs={2}>
