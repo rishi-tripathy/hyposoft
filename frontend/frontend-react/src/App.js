@@ -60,6 +60,7 @@ class App extends React.Component {
   componentDidMount() {
     console.log('rerender');
     this.setLoginInfo();
+    this.getUserPermissions();
   }
   
 
@@ -98,19 +99,22 @@ class App extends React.Component {
 
       this.setToken(tokenCopy);
 
-      console.log(this.state.auth_token)
+      console.log(tokenCopy)
 
-      axios.post('/api/users/netid_login', tokenCopy.toString())
-      .then(function (response) {
-        alert('swaggy p net id login');
-      // window.location = '/racks'
+      axios.get('/api/users/netid_login' + '?' + 'token=' + tokenCopy)
+      .then(res => {        
+        console.log(res)
+        this.setState({
+          logged_in: true,
+        })
       })
       .catch(function (error) {
         alert('NetID login was not successful.\n' + JSON.stringify(error.response.data, null, 2));
       });
     }
+  }
 
-
+  getUserPermissions() {
     axios.get('api/users/who_am_i/').then(res => {
       const r = res.data.current_user;
       if (r != '') {
@@ -127,7 +131,7 @@ class App extends React.Component {
       });
 
 
-    axios.get('api/users/am_i_admin/').then(res => {
+    axios.get('api/users/is_admin/').then(res => {
       const r = res.data.is_admin;
       this.setState({ is_admin: r });
 
