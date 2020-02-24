@@ -34,7 +34,7 @@ class LogViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
         if self.action in DISALLOWED_ACTIONS:
-            permission_classes = [None]
+            permission_classes = []
         else:
             permission_classes = [IsAuthenticated]
         return [permission() for permission in permission_classes]
