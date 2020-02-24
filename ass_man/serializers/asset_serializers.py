@@ -99,16 +99,18 @@ class AssetSerializer(serializers.HyperlinkedModelSerializer):
                         'PDU Error': 'the PDU referenced by name {} does not exist.'.format(name=i['pdu'])
                     })
                 try:
+                    pdu = i['pdu']
                     pdu_port = int(i['port_number'])
-                    pp = pdu.power_port_set.get(port_number=pdu_port)
+                    pp = pdu.power_port_set.all().filter(port_number=pdu_port)
                 except Power_Port.DoesNotExist:
                     pp = None
                 try:
                     assert pp is None
                 except AssertionError:
                     raise serializers.ValidationError({
-                        'PDU Error': 'PDU port {} is already in use by asset {}.'.format(pp.port_number,
-                                                                                         pp.asset.hostname)
+                        'PDU Error': 'PDU port {} on PDU {} is already in use by asset {}.'.format(pp.port_number,
+                                                                                                   pdu.name,
+                                                                                                   pp.asset.hostname)
                     })
 
     def create(self, validated_data):
