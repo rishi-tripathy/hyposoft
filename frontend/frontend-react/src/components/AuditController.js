@@ -54,6 +54,7 @@ getLogs = () => {
       console.log(this.state.logs)
     return(
         <Container maxwidth="xl">
+            <Grid container className="themed-container" spacing={2}>
             <Grid item="flex-start" alignContent='center' xs={12}/>
             <Grid item justify="flex-start" alignContent='center' xs={10}>
                 <Typography variant="h3">
@@ -63,6 +64,7 @@ getLogs = () => {
             <Grid item xs={12}>
                 { this.state.logs ? <AuditLog log={this.state.logs}/> : <p></p>}
             </Grid>
+          </Grid>
         </Container>
     );
   }

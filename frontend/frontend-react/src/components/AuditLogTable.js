@@ -23,7 +23,17 @@ export class AuditLogTable extends Component {
     constructor(){
         super();
 
+        this.state={
+            filtersOpen: false,
+
+        };
     }
+
+    handleOpenFilters = () => {
+        this.setState(prevState => ({
+          filtersOpen: !prevState.filtersOpen
+        }));
+      }
 
     renderTableToolbar = () => {
         return (
@@ -33,6 +43,18 @@ export class AuditLogTable extends Component {
                 Audit Logs
               </Typography>
             }    
+        <Collapse in={this.state.filtersOpen}>
+          <Paper>
+            {
+              <AuditLogFilters sendAuditLogQuery={this.props.filter_query}/>
+            }
+          </Paper>
+        </Collapse>
+        <Tooltip title="Filter list">
+          <Button endIcon={<FilterListIcon/>} onClick={() => this.handleOpenFilters()} aria-label="filter logs">
+            Filter
+          </Button>
+        </Tooltip>
           </Toolbar>
         );
       };
