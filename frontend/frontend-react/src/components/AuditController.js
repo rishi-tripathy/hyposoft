@@ -20,18 +20,18 @@ export class AuditContoller extends Component{
 
   componentDidMount() {
       console.log('audit controller did mount')
-    //this.getLogs();
+    this.getLogs();
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    var delay = 50;
-    console.log('in update')
-    if(prevState.logs !== this.state.logs){
-        setTimeout(() => {
-            this.getLogs();
-        }, delay);
-    }
-  }
+  // componentDidUpdate(prevProps, prevState) {
+  //   var delay = 50;
+  //   console.log('in update')
+  //   if(prevState.logs !== this.state.logs){
+  //       setTimeout(() => {
+  //           this.getLogs();
+  //       }, delay);
+  //   }
+  // }
 
 getLogs = () => {
     // let dst = '/api/datacenters/?show_all=true'; //want all
@@ -39,14 +39,15 @@ getLogs = () => {
     console.log("QUERY")
     console.log(dst)
     axios.get(dst).then(res => {
+      console.log('getlogs promise')
       this.setState({
         logs: res.data.results,
       });
     })
-      .catch(function (error) {
-        // TODO: handle error
-        alert("Cannot load. Re-login.\n" + JSON.stringify(error.response, null, 2));
-      });
+      // .catch(function (error) {
+      //   // TODO: handle error
+      //   alert("Cannot load. Re-login.\n" + JSON.stringify(error.response, null, 2));
+      // });
   }
 
   render() {
@@ -60,7 +61,7 @@ getLogs = () => {
                 </Typography>
             </Grid>
             <Grid item xs={12}>
-                <AuditLog log={this.state.logs}/>
+                { this.state.logs ? <AuditLog log={this.state.logs}/> : <p></p>}
             </Grid>
         </Container>
     );

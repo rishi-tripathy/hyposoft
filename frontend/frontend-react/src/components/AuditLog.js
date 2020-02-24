@@ -3,7 +3,7 @@ import '../stylesheets/Printing.css'
 import {AppBar, Tabs, Tab, Button, Toolbar, IconButton, Typography} from "@material-ui/core";
 import {NavLink} from 'react-router-dom'
 import {Autocomplete} from "@material-ui/lab"
-import DatacenterNavbar from './DatacenterNavbar'
+import AuditLogTable from './AuditLogTable'
 import axios, {post} from 'axios'
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
@@ -14,40 +14,35 @@ export class AuditLog extends Component{
     super();
   }
 
-  getLogs = () => {
-    // let dst = '/api/datacenters/?show_all=true'; //want all
-    let dst = '/api/log/';
-    console.log("QUERY")
-    console.log(dst)
-    axios.get(dst).then(res => {
-        let ret = res.data.results;
-        return ret;
-    });
-      // .catch(function (error) {
-      //   // TODO: handle error
-      //   alert("Cannot load. Re-login.\n" + JSON.stringify(error.response, null, 2));
-      // });
-  }
-
   fixLogs = () => {
-    let log = this.getLogs();
+    // let log = this.getLogs();
     // console.log(this.props.log);
-    console.log(log)
-    let tempLogs = log;
+    console.log(this.props.log)
+    let tempLogs = this.props.log;
     let objectLogs = [];
     let users = [];
     let dateTimes = [];
 
-    for(var i in Object.keys()){
-        console.log(i);
+    for(var i in Object.keys(tempLogs)){
+      console.log(i)
+      console.log(tempLogs[i].objectlog);
+      console.log(tempLogs[i].user);
+      console.log(tempLogs[i].datetime);
+
+      objectLogs.push(tempLogs[i].objectlog);
+      users.push(tempLogs[i].user);
+      dateTimes.push(tempLogs[i].datetime);
     }
+    return (
+    <AuditLogTable objectList={objectLogs}
+      userList={users}
+      dateTimeList={dateTimes}/>
+    )
   }
 
   render() {
-    this.fixLogs();
-      let content = 'sup';
       return(
-          content
+         this.fixLogs()
       );
   }
 }
