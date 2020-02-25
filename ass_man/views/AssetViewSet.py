@@ -423,6 +423,7 @@ class AssetViewSet(viewsets.ModelViewSet):
 
         left_statuses = {}
         right_statuses = {}
+        statuses = []
 
         for pp in asset.power_port_set.all():
             regex = rf">{pp.port_number}<td><span style='background-color:\#[0-9a-f]*'>([A-Z]+)"
@@ -433,6 +434,7 @@ class AssetViewSet(viewsets.ModelViewSet):
 
                     state = s.group(1)
                     left_statuses[pp.port_number] = state
+                    statuses.append(state)
 
             else:
                 s = re.search(regex, right_html)
@@ -441,9 +443,10 @@ class AssetViewSet(viewsets.ModelViewSet):
 
                     state = s.group(1)
                     right_statuses[pp.port_number] = state
+                    statuses.append(state)
+
 
 
         return Response({
-            "right statuses": right_statuses,
-            "left statuses": left_statuses
+            "statuses": statuses
         })
