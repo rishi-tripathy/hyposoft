@@ -64,12 +64,18 @@ export class CreateRackForm extends Component {
   }
 
   handleChangeDatacenter = (event, selectedDataCenterOption) => {
-
-    let id = this.state.datacenterToIdMap.find(x => x.datacenter === selectedDataCenterOption).id;
-    let dc = '/api/datacenters/'.concat(id).concat('/');
-
-    this.setState({datacenter: dc});
-
+    if(selectedDataCenterOption!== null || selectedDataCenterOption!== undefined ){
+      console.log((this.state.datacenterToIdMap.find(x => x.datacenter === selectedDataCenterOption)))
+      let id = this.state.datacenterToIdMap.find(x => x.datacenter === selectedDataCenterOption);
+      if(id=== null || id=== undefined){
+        //do nothing (doesn't work flipped idk why JS shit)
+      }
+      else{
+        console.log(id.id)
+        let dc = '/api/datacenters/'.concat(id.id).concat('/');
+        this.setState({datacenter: dc});
+      }
+    }
   };
 
   removeEmpty = (obj) => {
@@ -80,26 +86,15 @@ export class CreateRackForm extends Component {
   handleSubmit = (e) => {
     e.preventDefault();
 
-    // console.log(this.state.datacenterToIdMap);
-    // console.log(this.state.datacenterToIdMap.find(x => x.datacenter === this.state.selectedDataCenterOption).id)
-
-
-
-
     console.log(this.state.datacenter)
 
     let start_rack = this.state.rack_num_start;
     let end_rack = this.state.rack_num_end;
   
-    // let singleFirstState = Object.assign({}, this.state.id);
-    // let singleStateCopy = Object.assign(singleFirstState, this.state.rackNumber);
     let stateCopy = Object.assign({}, this.state);
     console.log(stateCopy);
 
     let stateToSend = this.removeEmpty(stateCopy);
-
-    // let multipleFirstState = Object.assign({}, this.state.rack_num_start)
-
     const validNumRegex = new RegExp("^[A-Z]\\d+$", 'i');
 
     if(start_rack !== null && (end_rack == null || end_rack === '')){
@@ -135,6 +130,9 @@ export class CreateRackForm extends Component {
   }
 
   render() {
+    console.log(this.context.datacenter_ab)
+    let defaultVal = this.context.datacenter_ab;
+
     return (
       <div>
       <Container maxwidth="xl">
@@ -161,6 +159,7 @@ export class CreateRackForm extends Component {
                     noOptionsText={"Create New in DC tab"}
                     options={this.state.datacenterOptions}
                     onInputChange={this.handleChangeDatacenter}
+                    defaultValue={defaultVal}
                     renderInput={params => (
                       <TextField {...params} label="Datacenter" fullWidth/>
                     )}

@@ -361,8 +361,7 @@ export class RackController extends Component {
                    sendShowEdit={this.getShowEdit}
                    sendEditID={this.getEditID}
                    sendShowDelete={this.getShowDelete}
-                   sendShowAllRacks={this.getShowAllRacks}
-                   is_admin={this.props.is_admin}/>
+                   sendShowAllRacks={this.getShowAllRacks}/>
     }
     else {
       content = <h1>no racks</h1>

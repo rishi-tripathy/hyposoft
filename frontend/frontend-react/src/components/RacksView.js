@@ -12,6 +12,7 @@ import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
 import AddCircleIcon from "@material-ui/icons/AddCircle";
 import {Link} from 'react-router-dom'
+import DatacenterContext from './DatacenterContext'
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 export class RacksView extends Component {
@@ -110,21 +111,28 @@ export class RacksView extends Component {
   }
 
   render() {
-    let add = this.props.is_admin ? (
+
+    let is_admin = false;
+    console.log(this.context)
+    if(this.context.is_admin){
+      is_admin = true;
+    }
+
+    let add = is_admin? (
       <Link to={'/racks/create'}>
         <Button color="primary" variant="contained" endIcon={<AddCircleIcon/>}>
           Add Rack(s)
         </Button>
       </Link>
-    ) : {};
+    ) : <p></p>;
 
-    let deleteMultiple = this.props.is_admin ? (
+    let deleteMultiple = is_admin? (
       <Link to={'/racks/delete'}>
         <Button color='primary' variant="contained" endIcon={<DeleteIcon/>}>
           Delete Rack Range
         </Button>
       </Link>
-    ) : {};
+    ) : <p></p>;
 
     let showAll = <FormControlLabel labelPlacement="left"
       control={
@@ -152,7 +160,6 @@ export class RacksView extends Component {
         No racks.
       </Grid>;
     }
-
 
 
     return (
@@ -184,7 +191,7 @@ export class RacksView extends Component {
               {this.props.rack.map((item, key) =>
               <div id="rackContainer">
                 <div id='hideOnPrint'>
-                  {this.props.is_admin ? (
+                  {is_admin ? (
                       <ButtonGroup alignContent='center'>
                         <Link to={'/racks/' + item.id + '/edit'}>
                           < Tooltip title='Edit'>
@@ -208,8 +215,7 @@ export class RacksView extends Component {
                       sending={this.sendFromRow}
                       sendUrl={this.sendUrlInView}
                       rack={item}
-                      condensedState={this.state.condensedView}
-                      is_admin={this.props.is_admin}/>
+                      condensedState={this.state.condensedView}/>
                 </Grid>
               </div>
         )}
@@ -219,5 +225,7 @@ export class RacksView extends Component {
     )
   }
 }
+
+RacksView.contextType = DatacenterContext;
 
 export default RacksView

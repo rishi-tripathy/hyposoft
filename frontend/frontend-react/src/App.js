@@ -44,7 +44,6 @@ class App extends React.Component {
       datacenter_name: null,
       datacenter_ab: null,
       setDatacenter: this.setDatacenter,
-      auth_token: null,
       user_first: null,
       user_last: null,
       username: null,
@@ -63,6 +62,7 @@ class App extends React.Component {
 
   componentDidMount() {
     console.log('rerender');
+   // this.setDatacenter(this.context.datacenter_id, this.context.datacenter_name, this.conteext.datacenter_ab);
     this.setLoginInfo();
     if(this.state.logged_in){
       this.getUserPermissions();
@@ -74,14 +74,6 @@ class App extends React.Component {
     Object.keys(obj).forEach((k) => (!obj[k] && obj[k] !== undefined) && delete obj[k]);
     return obj;
   };
-
-  setToken = (val) => {
-    console.log('setting token')
-    this.setState({
-      auth_token: val,
-    })
-    console.log(this.state.auth_token)
-  }
 
 
   setLoginInfo() {
@@ -101,10 +93,6 @@ class App extends React.Component {
       let tokenParams = querystring.parse(window.location.hash.substring(1));
 
       let tokenCopy = tokenParams.access_token;
-      console.log(tokenCopy);
-
-      this.setToken(tokenCopy);
-
       console.log(tokenCopy)
 
       axios.get('/api/users/netid_login/' + '?' + 'token=' + tokenCopy)
@@ -182,7 +170,7 @@ class App extends React.Component {
             path='/racks'
             exact
             render={(props) => 
-            <RackController {...props} is_admin={true}/>}/>
+            <RackController {...props}/>}/>
 
           <Route
             path='/datacenters'
