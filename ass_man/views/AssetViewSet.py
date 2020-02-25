@@ -114,7 +114,8 @@ class AssetViewSet(viewsets.ModelViewSet):
     def cru_network_ports(self, request, asset, network_ports_json):
         for i in network_ports_json:
             try:
-                connection_port = Network_Port.objects.get(pk=i['connection']['network_port_id']) if i['connection'] else None
+                connection_port = Network_Port.objects.get(pk=i['connection']['network_port_id']) if i[
+                    'connection'] else None
             except (ObjectDoesNotExist, KeyError) as e:
                 connection_port = None
             try:
@@ -231,8 +232,9 @@ class AssetViewSet(viewsets.ModelViewSet):
             num = Asset_Number.objects.create(next_avail=100000)
             ass_num = num.next_avail
         return Response({
-        'asset_number':ass_num
+            'asset_number': ass_num
         })
+
     @action(detail=True, methods=[GET])
     def network_graph(self, request, *args, **kwargs):
         graph_serializer = AssetSeedForGraphSerializer(self.get_object(), context={'request': request})
@@ -351,36 +353,42 @@ class AssetViewSet(viewsets.ModelViewSet):
                 'Invalid Data': "You must choose one action of 'on' or 'off', on one port of port 1-24 for a valid Networx PDU."
             }, status=status.HTTP_400_BAD_REQUEST)
 
-        def on(name, num):
-            try:
-                resp = requests.post(NETWORX_POST_URL, {
-                    'pdu': name,
-                    'port': num,
-                    'v': 'on'
-                })
-                return Response(resp.text)
-            except requests.exceptions.RequestException:
-                return Response({
-                    'status': 'Error. The PDU Networx 98 Pro service is unavailable.'
-                }, status=status.HTTP_400_BAD_REQUEST)
+        def on():
+            for pp in self.get_object().power_port_set.all():
+                name = pp.pdu.name
+                num = pp.port_number
+                try:
+                    resp = requests.post(NETWORX_POST_URL, {
+                        'pdu': name,
+                        'port': num,
+                        'v': 'on'
+                    }, timeout=2)
+                    return Response(resp.text)
+                except requests.exceptions.RequestException:
+                    return Response({
+                        'status': 'Error. The PDU Networx 98 Pro service is unavailable.'
+                    }, status=status.HTTP_400_BAD_REQUEST)
 
-        def off(name, num):
-            try:
-                resp = requests.post(NETWORX_POST_URL, {
-                    'pdu': name,
-                    'port': num,
-                    'v': 'off'
-                })
-                return Response(resp.text)
-            except requests.exceptions.RequestException:
-                return Response({
-                    'status': 'Error. The PDU Networx 98 Pro service is unavailable.'
-                }, status=status.HTTP_400_BAD_REQUEST)
+        def off():
+            for pp in self.get_object().power_port_set.all():
+                name = pp.pdu.name
+                num = pp.port_number
+                try:
+                    resp = requests.post(NETWORX_POST_URL, {
+                        'pdu': name,
+                        'port': num,
+                        'v': 'off'
+                    }, timeout=2)
+                    return Response(resp.text)
+                except requests.exceptions.RequestException:
+                    return Response({
+                        'status': 'Error. The PDU Networx 98 Pro service is unavailable.'
+                    }, status=status.HTTP_400_BAD_REQUEST)
 
         if act == 'on':
-            return on(pdu_name, port_number)
+            return on()
         if act == 'off':
-            return off(pdu_name, port_number)
+            return off()
 
         return Response({
             'status': 'Error. The PDU Networx 98 Pro service is unavailable.'
