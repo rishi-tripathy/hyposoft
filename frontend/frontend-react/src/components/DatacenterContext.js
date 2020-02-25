@@ -7,7 +7,10 @@ const DatacenterContext = React.createContext({
     logged_in: false,
     datacenter_name: null,
     setLoginInfo: () => {},
-    setDatacenter: () => {}
+    setDatacenter: () => {},
+    user_first: null,
+    user_last: null,
+    username: null,
   });
 
 export default DatacenterContext;
