@@ -9,15 +9,23 @@ import DatacenterContext  from './DatacenterContext'
 export class DatacenterNavbar extends Component{
 
   render() {
+
+    let options = [];
+
+    // this.context.datacenterOptions.map((option, index) => {
+    //   console.log(option)
+    //   options.push(option.abbreviation)
+    // })
   return (
     <DatacenterContext.Consumer>
-    {({ datacenter,  setDatacenter }) => (
+    {({ datacenter_ab, datacenter_id, datacenter_name, datacenterOptions, setDatacenter }) => (
     <Autocomplete
       id="highlights-demo"
       style={{ width: 150, marginRight: '0px', fontSize: '10px', borderRadius: '15px'}}
-      options={this.props.datacenters}
+      options={datacenterOptions}
       onChange={(event, value) => setDatacenter(value.id, value.name, value.abbreviation)}
       getOptionLabel={option => option.abbreviation}
+      defaultValue={datacenter_ab}
       renderInput={params => (
         <TextField style={{backgroundColor: 'white', borderRadius: '15px'}} {...params} label="Datacenter" variant="outlined" fullWidth margin="normal" variant="filled"
         color="primary" />
@@ -40,5 +48,5 @@ export class DatacenterNavbar extends Component{
   );
 }
 }
-DatacenterNavbar.contextType = DatacenterNavbar;
+DatacenterNavbar.contextType = DatacenterContext;
 export default DatacenterNavbar;

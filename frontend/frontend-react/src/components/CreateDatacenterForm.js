@@ -10,6 +10,7 @@ import {
 import {Redirect, Link} from 'react-router-dom'
 import AddCircleIcon from "@material-ui/icons/AddCircle";
 import CancelIcon from '@material-ui/icons/Cancel';
+import DatacenterContext from './DatacenterContext';
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
@@ -21,6 +22,7 @@ export class CreateDatacenterForm extends Component {
         'id': null,
         'abbreviation': null,
         'name': null,
+        redirect: false,
     }
   }
 
@@ -39,10 +41,13 @@ export class CreateDatacenterForm extends Component {
 
 
     //THE API CALL TO POST
+    var self = this;
     axios.post('/api/datacenters/', stateToSend)
       .then(function (response) {
         alert('Created successfully');
-        window.location = '/datacenters'
+        self.setState({
+          redirect: true,
+        })
       })
       .catch(function (error) {
         alert('Creation was not successful.\n' + JSON.stringify(error.response.data, null, 2));
@@ -50,8 +55,18 @@ export class CreateDatacenterForm extends Component {
   };
 
   render() {
+    console.log(this.state.redirect);
     return (
       <div>
+        {/* {this.state.redirect && <Redirect to = {{pathname: '/datacenters/'}} />} */}
+        {this.state.redirect && 
+          <DatacenterContext.Consumer>
+              {({ datacenter, resetDatacenter }) => (
+                <Redirect to={{pathname: '/datacenters/'}} />
+                // resetDatacenter())}
+              )}
+          </DatacenterContext.Consumer>
+        }
         <Container maxwidth="xl">
           <Grid container className='themed-container' spacing={2}>
             <Grid item alignContent='center' xs={12}/>

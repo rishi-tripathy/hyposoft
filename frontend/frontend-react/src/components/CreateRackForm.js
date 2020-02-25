@@ -4,7 +4,7 @@ import {Autocomplete} from "@material-ui/lab"
 import {
   Grid, Button, Container, TextField, Paper, ButtonGroup, Switch, FormControlLabel, Typography
 } from "@material-ui/core"
-import {Link} from 'react-router-dom'
+import {Link, Redirect} from 'react-router-dom'
 import DatacenterContext from './DatacenterContext';
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
@@ -23,6 +23,7 @@ export class CreateRackForm extends Component {
       datacenterOptions: [],
       datacenterToIdMap: [],
       selectedDataCenterOption: null,
+      redirect: false,
     }
   }
 
@@ -92,16 +93,21 @@ export class CreateRackForm extends Component {
 
     let stateToSend = this.removeEmpty(stateCopy);
     const validNumRegex = new RegExp("^[A-Z]\\d+$", 'i');
+    var self = this;
 
     if(start_rack !== null && (end_rack == null || end_rack === '')){
       if ((validNumRegex.test(start_rack))) {
         axios.post('/api/racks/', stateToSend)
           .then(function (response) {
+            if(response)
             alert('Creation of ' + start_rack + ' was successful.');
-          window.location = '/racks'
+            self.setState({
+              redirect:true,
+            });
           })
           .catch(function (error) {
-            alert('Creation was not successful.\n' + JSON.stringify(error.response.data, null, 2));
+            console.log(error.response.data)
+            alert('Creation was not successful.\n' + JSON.stringify(error.response.data.non_field_errors, null, 2));
           });
       } else {
         // console.log(this.state.rack_number);
@@ -114,7 +120,9 @@ export class CreateRackForm extends Component {
           .then(function (response) {
             let message = response.data.results;
             alert(response.data.results);
-            window.location = '/racks'
+            self.setState({
+              redirect:true,
+            });
           })
           .catch(function (error) {
             alert('Creation was not successful.\n' + JSON.stringify(error.response.data, null, 2));
@@ -129,55 +137,65 @@ export class CreateRackForm extends Component {
     // console.log(this.context.datacenter_ab)
     let defaultVal = this.context.datacenter_ab;
 
+    console.log(this.state.redirect)
+    let content;
+
+    if(this.state.redirect){
+      return <Redirect to = {{ pathname: "/racks" }} />;
+    }
+    else{
+      content = <Container maxwidth="xl">
+      <Grid container className="themed-container" spacing={2} />
+        <Grid item alignContent='center' xs={12}>
+          <form onSubmit={this.handleSubmit} action='/racks/'>>
+            <Grid container spacing={1}>
+              <Grid item xs={12}>
+                <h1>Create Rack(s)</h1>
+              </Grid>
+              <Grid item xs={12}>
+                <p>Enter a valid rack number (i.e. "A1") the first field to create a single rack. Enter a valid rack number in the second field to create a range of racks. </p>
+              </Grid>
+            <Grid item xs={3}>
+            {/* < label='Datacenter' type="text" fullWidth
+               defaultValue={defaultDC}
+                       onChange={e => this.setState({datacenter: '/api/datacenters/'+e.target.value+'/'})}/> */}
+                <Autocomplete
+                  freeSolo
+                  autoComplete
+                  autoHighlight
+                  autoSelect
+                  id="rack-datacenter-select"
+                  noOptionsText={"Create New in DC tab"}
+                  options={this.state.datacenterOptions}
+                  onInputChange={this.handleChangeDatacenter}
+                  defaultValue={defaultVal}
+                  renderInput={params => (
+                    <TextField {...params} label="Datacenter" fullWidth/>
+                  )}
+                />
+          </Grid>
+          <Grid item xs={3}>
+            <TextField label='Creation Range Start' type="text" fullWidth
+                       onChange={e => this.setState({rack_num_start: e.target.value, rack_number: e.target.value})}/>
+          </Grid>
+          <Grid item xs={3}>
+            <TextField label='Creation Range End (optional)' type="text" fullWidth
+                       onChange={e => this.setState({rack_num_end: e.target.value})}/>
+          </Grid>
+          <Grid item xs={12}>
+            <Button variant="contained" type="submit" color="primary" onClick={() => this.handleSubmit}>Create
+              +</Button>{' '}
+            <Link to='/racks/'><Button variant="outlined">Cancel</Button>{' '}</Link>
+          </Grid>
+        </Grid>
+      </form>
+    </Grid>
+    </Container>;
+    }
+
     return (
       <div>
-      <Container maxwidth="xl">
-        <Grid container className="themed-container" spacing={2} />
-          <Grid item alignContent='center' xs={12}>
-            <form onSubmit={this.handleSubmit} action='/racks/'>>
-              <Grid container spacing={1}>
-                <Grid item xs={12}>
-                  <h1>Create Rack(s)</h1>
-                </Grid>
-                <Grid item xs={12}>
-                  <p>Enter a valid rack number (i.e. "A1") the first field to create a single rack. Enter a valid rack number in the second field to create a range of racks. </p>
-                </Grid>
-              <Grid item xs={3}>
-              {/* < label='Datacenter' type="text" fullWidth
-                 defaultValue={defaultDC}
-                         onChange={e => this.setState({datacenter: '/api/datacenters/'+e.target.value+'/'})}/> */}
-                  <Autocomplete
-                    freeSolo
-                    autoComplete
-                    autoHighlight
-                    autoSelect
-                    id="rack-datacenter-select"
-                    noOptionsText={"Create New in DC tab"}
-                    options={this.state.datacenterOptions}
-                    onInputChange={this.handleChangeDatacenter}
-                    defaultValue={defaultVal}
-                    renderInput={params => (
-                      <TextField {...params} label="Datacenter" fullWidth/>
-                    )}
-                  />
-            </Grid>
-            <Grid item xs={3}>
-              <TextField label='Creation Range Start' type="text" fullWidth
-                         onChange={e => this.setState({rack_num_start: e.target.value, rack_number: e.target.value})}/>
-            </Grid>
-            <Grid item xs={3}>
-              <TextField label='Creation Range End (optional)' type="text" fullWidth
-                         onChange={e => this.setState({rack_num_end: e.target.value})}/>
-            </Grid>
-            <Grid item xs={12}>
-              <Button variant="contained" type="submit" color="primary" onClick={() => this.handleSubmit}>Create
-                +</Button>{' '}
-              <Link to='/racks/'><Button variant="outlined">Cancel</Button>{' '}</Link>
-            </Grid>
-          </Grid>
-        </form>
-      </Grid>
-      </Container>
+     {content}
       </div>
     )
   }

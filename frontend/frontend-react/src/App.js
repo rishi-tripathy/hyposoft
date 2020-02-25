@@ -44,6 +44,8 @@ class App extends React.Component {
       datacenter_name: null,
       datacenter_ab: null,
       setDatacenter: this.setDatacenter,
+      resetDatacenter: this.resetDatacenter,
+      datacenterOptions: null,
       user_first: null,
       user_last: null,
       username: null,
@@ -57,16 +59,43 @@ class App extends React.Component {
       datacenter_name: name,
       datacenter_ab: ab,
     });
-  };
+  }
 
+  resetDatacenter = () => {
+    console.log('resetting dcs')
+    this.getDatacenters();
+    console.log(this.state.datacenterOptions)
+  }
+
+  getDatacenters = () => {
+    let self = this;
+    let dst = '/api/datacenters/?show_all=true'; //want all
+    //let dst = '/api/datacenters/?&';
+    console.log("QUERY")
+    console.log(dst)
+    axios.get(dst).then(res => {
+      console.log(res)
+      let d = [];
+      res.data.map((dc, index) => {
+        d.push(dc)
+      });
+
+      console.log(d)
+
+      this.setState({
+        datacenterOptions: d,
+      });
+    })
+      .catch(function (error) {
+        // TODO: handle error
+        alert("Cannot load. Re-login.\n" + JSON.stringify(error.response, null, 2));
+      })
+  }
 
   componentDidMount() {
     console.log('rerender');
    // this.setDatacenter(this.context.datacenter_id, this.context.datacenter_name, this.conteext.datacenter_ab);
     this.setLoginInfo();
-    if(this.state.logged_in){
-      this.getUserPermissions();
-    }
   }
 
 
@@ -108,7 +137,6 @@ class App extends React.Component {
       });
     }
     else {
-      //not Oauth login
       this.getUserPermissions();
     }
   }
@@ -124,6 +152,8 @@ class App extends React.Component {
           username: res.data.current_user,
           is_admin: res.data.is_admin,
          });
+         console.log('going to fill DCs')
+         this.resetDatacenter();
         }
     })
       .catch(error => {
@@ -143,7 +173,13 @@ class App extends React.Component {
 
     let content;
 
+    console.log(!this.state.logged_in)
+    console.log(this.setDatacenter.datacenterOptions===undefined)
+    // console.log(this.setDatacenter.datacenterOptions.length===0)
 
+    let no_render = !this.state.logged_in || this.setDatacenter.datacenterOptions===undefined;
+
+    console.log(no_render)
     if (!this.state.logged_in) {
       content =
         <div id="contentContainer">
@@ -155,15 +191,16 @@ class App extends React.Component {
           </div>
         </div>
     }
-    else {
-      content = <NavBar/>
-    }
-    console.log('in return');
+
     return (
-    <DatacenterContext.Provider value={{...this.state, setDatacenter: this.setDatacenter}}>
+      <DatacenterContext.Provider value={{...this.state, setDatacenter: this.setDatacenter, resetDatacenter: this.resetDatacenter}}>
+      <div>
+      { (!this.state.logged_in  ? 
+      (content) 
+      : <p></p>)}
+      { this.state.datacenterOptions &&
       <Router>
-        {/* <NavBar /> */}
-        {content}
+        <NavBar />
         <Switch>
           <Route path='/' exact component={Landing} />
           <Route
@@ -269,7 +306,8 @@ class App extends React.Component {
 
         </Switch>
 
-      </Router>
+      </Router>}
+    </div>
     </DatacenterContext.Provider>
     )
   }

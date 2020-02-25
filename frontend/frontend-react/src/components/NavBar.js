@@ -5,6 +5,7 @@ import {NavLink} from 'react-router-dom'
 import {Autocomplete} from "@material-ui/lab"
 import DatacenterNavbar from './DatacenterNavbar'
 import axios, {post} from 'axios'
+import DatacenterContext from './DatacenterContext'
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
@@ -35,10 +36,16 @@ export class NavBar extends Component{
   }
 
   componentDidMount() {
-    this.getDatacenters();
+    // this.getDatacenters();
+    console.log( this.context.datacenterOptions)
+    this.setState({
+      datacenters: this.context.datacenterOptions,
+    })
+    console.log('set DCs')
  }
  
   render() {
+    console.log(this.state.datacenters)
     return (
       <div id='hideOnPrint'>
         <AppBar title="Django Unchained"  position='sticky'>
@@ -50,7 +57,7 @@ export class NavBar extends Component{
               Django Unchained
             </Typography>
             <Button style={{marginLeft: 'auto'}}>
-              <DatacenterNavbar datacenters={this.state.datacenters}/>
+              <DatacenterNavbar />
             </Button>
             <Button color="inherit"  onClick={function () {
               window.location = "/accounts/logout/"
@@ -98,5 +105,7 @@ export class NavBar extends Component{
     )
   }
 }
+
+NavBar.contextType = DatacenterContext;
 
 export default NavBar
