@@ -84,12 +84,12 @@ export class PowerPortConnectionDialog extends Component {
         let myOptions = [];
         if (this.state.powerPortConfiguration[i].pdu == this.props.leftPPName) {
           for (let j = 0; j < res.data.pdu_slots.left.length; j++) {
-            myOptions.push({ value: res.data.pdu_slots.left[j], label: res.data.pdu_slots.left[j] });
+            myOptions.push(res.data.pdu_slots.left[j]);
           }
         }
         else if (this.state.powerPortConfiguration[i].pdu == this.props.rightPPName){
           for (let j = 0; j < res.data.pdu_slots.right.length; j++) {
-            myOptions.push({ value: res.data.pdu_slots.right[j], label: res.data.pdu_slots.right[j] });
+            myOptions.push(res.data.pdu_slots.right[j]);
           }
         }
         console.log(myOptions)
@@ -165,12 +165,13 @@ export class PowerPortConnectionDialog extends Component {
     this.setState({ powerPortConfiguration: tmpConfig });
   }
 
-  handleChangePDUOption = (event, selectedOption) => {
+  handleChangePDUOption = (event, selectedOption, i) => {
     console.log(selectedOption)
-    //console.log(idx)
-    //let tmpConfig = Object.assign({}, this.state.selectedPDUOptionPerEachPDU);
-    // tmpConfig[idx] = e.target.value;
-    // this.setState({ selectedPDUOptionPerEachPDU: tmpConfig });
+    console.log(i)
+    let tmpConfig = Object.assign({}, this.state.powerPortConfiguration);
+    tmpConfig[i].port_number = selectedOption;
+    console.log(tmpConfig)
+    this.setState({ powerPortConfiguration: tmpConfig });
   }
 
   showPPFields = () => {
@@ -205,9 +206,9 @@ export class PowerPortConnectionDialog extends Component {
                 autoSelect
                 //id="pp-free-select"
                 options={this.state.pduOptionsPerEachPDU[i]}
-                getOptionLabel={option => option.label}
-                onChange={this.handleChangePDUOption}
-                value={this.state.selectedPDUOptionPerEachPDU[i]}
+                //getOptionLabel={option => option.label}
+                onInputChange={(event, value) => this.handleChangePDUOption(event, value, i)}
+                value={this.state.powerPortConfiguration[i].port_number}
                 renderInput={params => (
                   <TextField {...params} label="PDU Port Number" fullWidth />
                 )}
