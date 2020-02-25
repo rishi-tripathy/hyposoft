@@ -57,7 +57,7 @@ export class StatisticsController extends Component {
   }
 
   componentDidUpdate(prevProps, prevState){
-    var delay = 50;
+    var delay = 70;
     console.log(this.state.datacenter)
     console.log(this.context.datacenter_ab)
     if (this.context.datacenter_ab !== this.state.datacenter || (this.context.datacenter_ab===null && this.state.datacenter === undefined)) {

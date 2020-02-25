@@ -14,6 +14,7 @@ import ModelFilters from './ModelFilters';
 import '../stylesheets/TableView.css'
 import axios, {post} from 'axios'
 import {Link} from 'react-router-dom'
+import DatacenterContext from './DatacenterContext'
 
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
@@ -189,7 +190,7 @@ export class ModelTable extends Component {
                 </Tooltip>
               </Link>
             </TableCell>
-            {this.props.is_admin ? (
+            {this.context.is_admin ? (
               <TableCell align="right">
                 <Link to={'/models/' + id + '/edit'}>
                   <Tooltip title='Edit'>
@@ -200,7 +201,7 @@ export class ModelTable extends Component {
                 </Link>
               </TableCell>) : <p></p>
             }
-            {this.props.is_admin ? (
+            {this.context.is_admin ? (
               < TableCell align="right">
                 < Tooltip title='Delete'>
                   <IconButton size="sm" onClick={() => this.showDeleteForm(id)}>
@@ -245,5 +246,7 @@ export class ModelTable extends Component {
 ModelTable.propTypes = {
   models: PropTypes.array.isRequired
 }
+
+ModelTable.contextType = DatacenterContext;
 
 export default ModelTable;

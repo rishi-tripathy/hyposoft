@@ -86,8 +86,7 @@ export class DetailedInstance extends Component {
             </Grid>
             <Grid item xs={12}>
               <Paper>
-                <InstanceCard is_admin={this.props.is_admin}
-                  asset={[this.state.asset]} />
+                <InstanceCard asset={[this.state.asset]} />
               </Paper>
             </Grid>
             <Grid item alignContent='center' xs={12} />

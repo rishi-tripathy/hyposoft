@@ -126,6 +126,8 @@ export class DatacenterController extends Component {
  
     render() {
 
+      console.log(this.context)
+
         let paginateNavigation = <p></p>;
             if (this.state.prevPage == null && this.state.nextPage != null) {
             paginateNavigation =
@@ -156,20 +158,19 @@ export class DatacenterController extends Component {
                                 }
         />
 
-        let add = this.props.is_admin ? (
+        let add = this.context.is_admin ? (
             <Link to={'/datacenters/create'}>
               <Button color="primary" variant="contained" endIcon={<AddCircleIcon/>}>
                 Add Datacenter
               </Button>
             </Link>
       
-          ) : {};
+          ) : <p></p>;
 
         let content = <div>< DatacenterTable 
                         datacenters={this.state.datacenters}
                         filterQuery={this.getFilterQuery}
-                        sendSortQuery={this.getSortQuery}
-                        is_admin={this.props.is_admin}/>
+                        sendSortQuery={this.getSortQuery}/>
                         </div>;
 
         return(
@@ -200,5 +201,7 @@ export class DatacenterController extends Component {
         )
     }
 }
+
+DatacenterController.contextType = DatacenterContext;
 
 export default DatacenterController

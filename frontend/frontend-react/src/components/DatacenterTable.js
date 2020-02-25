@@ -98,7 +98,7 @@ export class DatacenterTable extends Component {
               <TableCell align="center">{name}</TableCell>
               <TableCell align="center">{abbreviation}</TableCell>
               <div>
-                {this.props.is_admin ? (
+                {this.context.is_admin ? (
                   <TableCell align="right">
                     <Link to={'/datacenters/' + id + '/edit'}>
                       <Tooltip title='Edit'>
@@ -109,7 +109,7 @@ export class DatacenterTable extends Component {
                     </Link>
                   </TableCell>) : <p></p>
                 }
-                {this.props.is_admin ? (
+                {this.context.is_admin ? (
                   < TableCell align="right">
                     < Tooltip title='Delete'>
                       <IconButton size="sm" onClick={() => this.showDeleteForm(id)}>

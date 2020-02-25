@@ -212,8 +212,8 @@ class App extends React.Component {
           <Route path='/' 
           exact
           render={(props) =>
-          <DatacenterController {...props} is_admin={true}/>}/>
-          
+          <DatacenterController {...props}/>}/>
+
           <Route
             path='/racks'
             exact
@@ -224,23 +224,23 @@ class App extends React.Component {
             path='/datacenters'
             exact
             render={(props) => 
-            <DatacenterController {...props} is_admin={true}/>}
+            <DatacenterController {...props}/>}
             />
 
           <Route
             path='/datacenters/create'
             exact
-            render={(props) => <CreateDatacenterForm {...props} is_admin={true}/>}/>
+            render={(props) => <CreateDatacenterForm {...props} />}/>
 
           <Route
             path='/datacenters/:id/edit'
             exact
-            render={(props) => <EditDatacenterForm {...props} is_admin={true}/>}/>
+            render={(props) => <EditDatacenterForm {...props}/>}/>
 
           <Route
             path='/racks/create'
             exact
-            render={(props) => <CreateRackForm {...props} is_admin={true}/>} />
+            render={(props) => <CreateRackForm {...props} />} />
 
           <Route
             path='/racks/:id/edit'
@@ -250,13 +250,13 @@ class App extends React.Component {
           <Route
             path='/racks/delete'
             exact
-            render={(props) => <DeleteMultipleRacksForm {...props} is_admin={true}/>} />
+            render={(props) => <DeleteMultipleRacksForm {...props} />} />
 
 
           <Route
             path='/models'
             exact
-            render={(props) => <ModelController {...props} is_admin={true} />} />
+            render={(props) => <ModelController {...props} />} />
 
           <Route
             path='/models/create'
@@ -266,7 +266,7 @@ class App extends React.Component {
           <Route
             path='/models/:id'
             exact
-            render={(props) => <DetailedModel {...props} is_admin={true} />} />
+            render={(props) => <DetailedModel {...props} />} />
 
           <Route
             path='/models/:id/edit'
@@ -276,7 +276,7 @@ class App extends React.Component {
           <Route
             path='/assets'
             exact
-            render={(props) => <InstanceController {...props} is_admin={true} />} />
+            render={(props) => <InstanceController {...props} />} />
 
           <Route
             path='/assets/create'
@@ -286,7 +286,7 @@ class App extends React.Component {
           <Route
             path='/assets/:id'
             exact
-            render={(props) => <DetailedInstance {...props} is_admin={true} />} />
+            render={(props) => <DetailedInstance {...props} />} />
 
           <Route
             path='/assets/:id/edit'
@@ -296,7 +296,7 @@ class App extends React.Component {
           <Route
             path='/users'
             exact
-            render={(props) => <UserController {...props} is_admin={true} />} />
+            render={(props) => <UserController {...props} />} />
 
           <Route
             path='/users/:id/edit'
@@ -310,11 +310,11 @@ class App extends React.Component {
 
           <Route
             path='/statistics'
-            render={(props) => <StatisticsController {...props} is_admin={true} />} />
+            render={(props) => <StatisticsController {...props} />} />
 
           <Route
             path='/log'
-            render={(props) => <AuditController {...props} is_admin={true} />} />
+            render={(props) => <AuditController {...props} />} />
 
           <Route
             path='/'
