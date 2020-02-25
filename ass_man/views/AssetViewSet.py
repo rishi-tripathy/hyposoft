@@ -339,7 +339,7 @@ class AssetViewSet(viewsets.ModelViewSet):
         try:
             pdu_name = request.data.get('name')
             port_number = request.data.get('port_number')
-            act = request.data.get('status')
+            act = request.data.get('status').lower()
         except KeyError:
             return Response({
                 'Status': "Not all fields specified. You must provide a name, a port number, and an action."
@@ -385,9 +385,9 @@ class AssetViewSet(viewsets.ModelViewSet):
                         'status': 'Error. The PDU Networx 98 Pro service is unavailable.'
                     }, status=status.HTTP_400_BAD_REQUEST)
 
-        if act.lower() == 'on':
+        if act == 'on':
             return on()
-        if act.lower() == 'off':
+        if act == 'off':
             return off()
 
         return Response({
