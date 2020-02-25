@@ -43,7 +43,10 @@ export class DetailedInstance extends Component {
     console.log(npArray)
     for (let i = 0; i < npArray.length; i++) {
       if (npArray[i].connection) {
-        tmpConnections.push(npArray[i].connection.asset)
+        let obj = npArray[i].connection.asset;
+        obj.my_name = npArray[i].name;
+        obj.name = npArray[i].connection.name;
+        tmpConnections.push(obj)
       }
     }
     this.setState({ connectedAssets: tmpConnections })

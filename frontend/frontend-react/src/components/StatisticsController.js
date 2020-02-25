@@ -5,6 +5,7 @@ import {CircularProgressbarWithChildren} from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import '../stylesheets/TableView.css'
 import {UncontrolledCollapse, Button, ButtonGroup, Table, Container, Card, Row, Col} from 'reactstrap';
+import DatacenterContext from './DatacenterContext';
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
@@ -13,6 +14,7 @@ export class StatisticsController extends Component {
   constructor() {
     super();
     this.state = {
+      datacenter: null,
       rackspace_used: null,
       rackspace_free: null,
       models_allocated: [],
@@ -22,8 +24,25 @@ export class StatisticsController extends Component {
   }
 
   componentDidMount() {
-    let dst = '/report/';
+    console.log(this.context.datacenter_ab)
+    console.log(this.context.datacenter_ab)
+    this.refreshDatacenter();
+  }
+
+  refreshDatacenter = () => {
+    this.setState({
+      datacenter: this.context.datacenter_ab
+    })
+    let dst;
+    if(this.state.datacenter == null || this.state.datacenter== 'ALL'){
+      dst = '/report/?show_all=true';
+    }
+    else {
+      dst = '/report/?datacenter=' + this.state.datacenter;
+    }
+    console.log(dst)
     axios.get(dst).then(res => {
+      console.log(res)
       this.setState({
         rackspace_used: Math.round(res.data.rackspace_used * 10) / 10,
         rackspace_free: Math.round(res.data.rackspace_free * 10) / 10,
@@ -35,6 +54,18 @@ export class StatisticsController extends Component {
       .catch(function (error) {
         alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
       });
+  }
+
+  componentDidUpdate(prevProps, prevState){
+    var delay = 50;
+    console.log(this.state.datacenter)
+    console.log(this.context.datacenter_ab)
+    if (this.context.datacenter_ab !== this.state.datacenter || (this.context.datacenter_ab===null && this.state.datacenter === undefined)) {
+      console.log('datacenter selection has changed')
+      setTimeout(() => {
+        this.refreshDatacenter();
+      }, delay);
+    }
   }
 
   renderModelsData() {
@@ -75,10 +106,17 @@ export class StatisticsController extends Component {
   }
 
   render() {
+    let name;
+    if(this.context.datacenter_ab == null){
+      name = 'All Datacenters'
+    }
+    else {
+      name = this.context.datacenter_ab;
+    }
 
     return (
       <Container className="themed-container">
-        <h2>Statistics</h2>
+        <h2>Statistics in {name} </h2>
         <Row>
           <Col xs="6">
             <div style={{width: "60%"}}>
@@ -165,5 +203,7 @@ export class StatisticsController extends Component {
     )
   }
 }
+
+StatisticsController.contextType = DatacenterContext;
 
 export default StatisticsController
