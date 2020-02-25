@@ -114,7 +114,8 @@ class AssetViewSet(viewsets.ModelViewSet):
     def cru_network_ports(self, request, asset, network_ports_json):
         for i in network_ports_json:
             try:
-                connection_port = Network_Port.objects.get(pk=i['connection']['network_port_id']) if i['connection'] else None
+                connection_port = Network_Port.objects.get(pk=i['connection']['network_port_id']) if i[
+                    'connection'] else None
             except (ObjectDoesNotExist, KeyError) as e:
                 connection_port = None
             try:
@@ -231,8 +232,9 @@ class AssetViewSet(viewsets.ModelViewSet):
             num = Asset_Number.objects.create(next_avail=100000)
             ass_num = num.next_avail
         return Response({
-        'asset_number':ass_num
+            'asset_number': ass_num
         })
+
     @action(detail=True, methods=[GET])
     def network_graph(self, request, *args, **kwargs):
         graph_serializer = AssetSeedForGraphSerializer(self.get_object(), context={'request': request})
@@ -337,7 +339,7 @@ class AssetViewSet(viewsets.ModelViewSet):
         try:
             pdu_name = request.data.get('name')
             port_number = request.data.get('port_number')
-            act = request.data.get('action')
+            act = request.data.get('status').lower()
         except KeyError:
             return Response({
                 'Status': "Not all fields specified. You must provide a name, a port number, and an action."
@@ -351,36 +353,42 @@ class AssetViewSet(viewsets.ModelViewSet):
                 'Invalid Data': "You must choose one action of 'on' or 'off', on one port of port 1-24 for a valid Networx PDU."
             }, status=status.HTTP_400_BAD_REQUEST)
 
-        def on(name, num):
-            try:
-                resp = requests.post(NETWORX_POST_URL, {
-                    'pdu': name,
-                    'port': num,
-                    'v': 'on'
-                })
-                return Response(resp.text)
-            except requests.exceptions.RequestException:
-                return Response({
-                    'status': 'Error. The PDU Networx 98 Pro service is unavailable.'
-                }, status=status.HTTP_400_BAD_REQUEST)
+        def on():
+            for pp in self.get_object().power_port_set.all():
+                name = pp.pdu.name
+                num = pp.port_number
+                try:
+                    resp = requests.post(NETWORX_POST_URL, {
+                        'pdu': name,
+                        'port': num,
+                        'v': 'on'
+                    }, timeout=2)
+                    return Response(resp.text)
+                except requests.exceptions.RequestException:
+                    return Response({
+                        'status': 'Error. The PDU Networx 98 Pro service is unavailable.'
+                    }, status=status.HTTP_400_BAD_REQUEST)
 
-        def off(name, num):
-            try:
-                resp = requests.post(NETWORX_POST_URL, {
-                    'pdu': name,
-                    'port': num,
-                    'v': 'off'
-                })
-                return Response(resp.text)
-            except requests.exceptions.RequestException:
-                return Response({
-                    'status': 'Error. The PDU Networx 98 Pro service is unavailable.'
-                }, status=status.HTTP_400_BAD_REQUEST)
+        def off():
+            for pp in self.get_object().power_port_set.all():
+                name = pp.pdu.name
+                num = pp.port_number
+                try:
+                    resp = requests.post(NETWORX_POST_URL, {
+                        'pdu': name,
+                        'port': num,
+                        'v': 'off'
+                    }, timeout=2)
+                    return Response(resp.text)
+                except requests.exceptions.RequestException:
+                    return Response({
+                        'status': 'Error. The PDU Networx 98 Pro service is unavailable.'
+                    }, status=status.HTTP_400_BAD_REQUEST)
 
         if act == 'on':
-            return on(pdu_name, port_number)
+            return on()
         if act == 'off':
-            return off(pdu_name, port_number)
+            return off()
 
         return Response({
             'status': 'Error. The PDU Networx 98 Pro service is unavailable.'
@@ -392,8 +400,8 @@ class AssetViewSet(viewsets.ModelViewSet):
         pdu_l_name = asset.rack.pdu_l.name
         pdu_r_name = asset.rack.pdu_r.name
         try:
-            assert re.match("hpdu-rtp1-[A-E][0-1][0-9]L", pdu_l_name)
-            assert re.match("hpdu-rtp1-[A-E][0-1][0-9]R", pdu_r_name)
+            assert re.match("hpdu-rtp1-[a-e][0-1][0-9]l", pdu_l_name.lower())
+            assert re.match("hpdu-rtp1-[a-e][0-1][0-9]r", pdu_r_name.lower())
         except AssertionError:
             return Response({
                 "status": "Failed to get PDU port data because this asset is not connected to a networked PDU."
@@ -413,21 +421,32 @@ class AssetViewSet(viewsets.ModelViewSet):
         #     "right": right_html
         # })
 
-        statuses = {}
+        left_statuses = {}
+        right_statuses = {}
+        statuses = []
 
         for pp in asset.power_port_set.all():
             regex = rf">{pp.port_number}<td><span style='background-color:\#[0-9a-f]*'>([A-Z]+)"
             if pp.pdu.name == pdu_l_name:
                 s = re.search(regex, left_html)
+                if s:
+                    # return Response({"hello": "world"})
+
+                    state = s.group(1)
+                    left_statuses[pp.port_number] = state
+                    statuses.append(state)
 
             else:
                 s = re.search(regex, right_html)
+                if s:
+                    # return Response({"hello": "world"})
 
-            if s:
-                # return Response({"hello": "world"})
+                    state = s.group(1)
+                    right_statuses[pp.port_number] = state
+                    statuses.append(state)
 
-                state = s.group(1)
-                statuses[pp.port_number] = state
+
+
         return Response({
             "statuses": statuses
         })
