@@ -84,7 +84,15 @@ export class EditInstanceForm extends Component {
     for (let i = 0; i < a.length; i++) {
       console.log(a[i])
       if (Object.entries(a[i]).length > 0 && a[i].constructor === Object) {
-        a[i].id = this.state.asset.power_ports[i].id
+        if (! a[i]) {
+          let obj = {}
+          obj.id = this.state.asset.power_ports[i].id
+          a.push(obj)
+        }
+        else {
+          a[i].id = this.state.asset.power_ports[i].id
+        }
+        
       }
       console.log(a[i])
     }

@@ -151,7 +151,7 @@ export class PowerPortConnectionDialog extends Component {
   };
 
   handleClose = () => {
-    this.props.sendPowerPortConnectionInfo(null);
+    this.props.sendPowerPortConnectionInfo([]);
     this.setState({ 
       open: false, 
       configured: false,
