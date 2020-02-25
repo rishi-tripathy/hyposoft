@@ -92,15 +92,18 @@ export class CreateInstanceForm extends Component {
   }
 
   getNetworkPortConnectionID = (index, npID) => {
-    //console.log()
     let a = this.state.networkPortConnectionIDs.slice(); //creates the clone of the state
     a[index] = npID;
     this.setState({ networkPortConnectionIDs: a });
   }
 
-  getPowerPortConenctionInfo = (ppArray) => {
-    let a = this.state.ppConnections.slice(); //creates the clone of the state
-    a = ppArray;
+  getPowerPortConnectionInfo = (ppArray) => {
+    // let a;
+    // if (this.state.ppConnections == null) {
+
+    // }
+    // leta = this.state.ppConnections.slice(); //creates the clone of the state
+    let a = ppArray;
     this.setState({ ppConnections: a });
   }
 
@@ -122,7 +125,9 @@ export class CreateInstanceForm extends Component {
 
   loadRacks = () => {
     // RACK
+    console.log(this.state.selectedDatacenterOption)
     const dst = '/api/datacenters/' + this.state.selectedDatacenterOption.id + '/racks/?show_all=true';
+    console.log(dst)
     axios.get(dst).then(res => {
       let myOptions = [];
       for (let i = 0; i < res.data.length; i++) {
@@ -213,7 +218,7 @@ export class CreateInstanceForm extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (prevState.selectedModelOption != this.state.selectedModelOption) {
+    if (prevState.selectedModelOption !== this.state.selectedModelOption) {
       if (this.state.selectedModelOption) {
         this.loadNetworkPortInfoForCurrentlySelectedModel();
         this.loadNumberOfPowerPortsForModel();
@@ -223,7 +228,7 @@ export class CreateInstanceForm extends Component {
       }
     }
 
-    if (this.state.selectedDatacenterOption != prevState.selectedDatacenterOption) {
+    if (prevState.selectedDatacenterOption !== this.state.selectedDatacenterOption) {
       if (this.state.selectedDatacenterOption) {
         this.loadRacks();
       }
@@ -232,7 +237,7 @@ export class CreateInstanceForm extends Component {
       }
     }
 
-    if (this.state.selectedRackOption != prevState.selectedRackOption) {
+    if (this.state.selectedRackOption !== prevState.selectedRackOption) {
       if (this.state.selectedRackOption) {
         this.loadLeftAndRightPDUNames();
         this.loadFreePDUsAndSetDefaultConfigurations();
@@ -318,6 +323,7 @@ export class CreateInstanceForm extends Component {
 
   handleChangeDatacenter = (event, selectedDatacenterOption) => {
     this.setState({ selectedDatacenterOption });
+    console.log(selectedDatacenterOption)
   }
 
   openNetworkPortConfigAndMAC = () => {
@@ -431,6 +437,7 @@ export class CreateInstanceForm extends Component {
                     getOptionLabel={option => option.label}
                     onChange={this.handleChangeRack}
                     value={this.state.selectedRackOption}
+                    disabled={this.state.selectedDatacenterOption === null}
                     renderInput={params => (
                       <TextField {...params} label="Rack" fullWidth />
                     )}
@@ -467,12 +474,14 @@ export class CreateInstanceForm extends Component {
                       Power Ports
                     </Typography>
                     <PowerPortConnectionDialog
-                      sendPowerPortConnectionInfo={this.getPowerPortConenctionInfo}
+                      sendPowerPortConnectionInfo={this.getPowerPortConnectionInfo}
                       numberOfPowerPorts={this.state.numberOfPowerPorts}
+                      rackID={this.state.selectedRackOption ? this.state.selectedRackOption.id : null}
                       leftPPName={this.state.leftPPName}
                       rightPPName={this.state.rightPPName}
                       leftFree={this.state.leftFreePDUSlots}
                       rightFree={this.state.rightFreePDUSlots}
+                      isDisabled={this.state.selectedRackOption === null || this.state.selectedModelOption === null}
                     />
                   </Paper>
                 </Grid>
