@@ -421,21 +421,29 @@ class AssetViewSet(viewsets.ModelViewSet):
         #     "right": right_html
         # })
 
-        statuses = {}
+        left_statuses = {}
+        right_statuses = {}
 
         for pp in asset.power_port_set.all():
             regex = rf">{pp.port_number}<td><span style='background-color:\#[0-9a-f]*'>([A-Z]+)"
             if pp.pdu.name == pdu_l_name:
                 s = re.search(regex, left_html)
+                if s:
+                    # return Response({"hello": "world"})
+
+                    state = s.group(1)
+                    left_statuses[pp.port_number] = state
 
             else:
                 s = re.search(regex, right_html)
+                if s:
+                    # return Response({"hello": "world"})
 
-            if s:
-                # return Response({"hello": "world"})
+                    state = s.group(1)
+                    right_statuses[pp.port_number] = state
 
-                state = s.group(1)
-                statuses[pp.port_number] = state
+
         return Response({
-            "statuses": statuses
+            "right statuses": right_statuses,
+            "left statuses": left_statuses
         })
