@@ -40,6 +40,12 @@ class UserViewSet(viewsets.ModelViewSet):
     def destroy(self, request, *args, **kwargs):
         user = self.get_object()
         to_delete = User.objects.get(id=user.id)
+        if user.username is 'admin':
+            return Response({
+                "status": "You may not  delete the admin user."
+            },
+                status=status.HTTP_400_BAD_REQUEST)
+
         if to_delete.has_usable_password():
             return super().destroy(request, *args, **kwargs)
         else:
