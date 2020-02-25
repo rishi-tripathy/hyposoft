@@ -38,6 +38,18 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         if self.validated_data['last_name']:
             user.last_name = self.validated_data['last_name']
 
+        user.save()
+        return user
+
+    def create_netid(self, validated_data):
+        user = User.objects.create_user(validated_data['username'], validated_data['email'],
+                                        validated_data['password'])
+        if self.validated_data['first_name']:
+            user.first_name = self.validated_data['first_name']
+
+        if self.validated_data['last_name']:
+            user.last_name = self.validated_data['last_name']
+
         user.set_unusable_password()
 
         user.save()

@@ -152,7 +152,7 @@ class UserViewSet(viewsets.ModelViewSet):
         else:
             serializer = self.get_serializer(data=resp_draft)
             serializer.is_valid(raise_exception=True)
-            user = serializer.create(resp_draft)
+            user = serializer.create_netid(resp_draft)
 
             login(request, user)
             return Response({
