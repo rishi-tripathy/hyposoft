@@ -4,7 +4,7 @@ from rest_framework import status, request
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
-from .serializers import UserSerializer
+from .serializers import UserSerializer, UserFetchSerializer
 from rest_framework import viewsets
 from usr_man.filters import UserFilter
 import requests
@@ -32,7 +32,9 @@ class UserViewSet(viewsets.ModelViewSet):
     # permission_classes = [AllowAny]
     queryset = User.objects.all().order_by('last_name')
 
-    serializer_class = UserSerializer
+    def get_serializer_class(self, *args, **kwargs):
+        return UserSerializer if self.action not in ['retrieve', 'list'] else UserFetchSerializer
+
     filterset_class = UserFilter
     filterset_fields = USER_ORDERING_FILTERING_FIELDS
     ordering_fields = USER_ORDERING_FILTERING_FIELDS
