@@ -45,6 +45,9 @@ class App extends React.Component {
       datacenter_ab: null,
       setDatacenter: this.setDatacenter,
       auth_token: null,
+      user_first: null,
+      user_last: null,
+      username: null,
     }
   }
 
@@ -116,33 +119,25 @@ class App extends React.Component {
         alert('NetID login was not successful.\n' + JSON.stringify(error.response.data, null, 2));
       });
     }
+    else {
+      //not Oauth login
+      this.getUserPermissions();
+    }
   }
 
   getUserPermissions() {
     axios.get('api/users/who_am_i/').then(res => {
-      const r = res.data.current_user;
-      if (r != '') {
-        this.setState({ logged_in: true });
-      } else {
-        this.setState({ logged_in: false });
-      }
+      console.log(res.data)
+      if (res.data.current_user != '') {
+        this.setState({ 
+          logged_in: true,
+          user_first: res.data.first_name,
+          user_last: res.data.last_name,
+          username: res.data.current_user,
+          is_admin: res.data.is_admin,
+         });
+        }
     })
-      .then(response => {
-        console.log(response)
-      })
-      .catch(error => {
-        console.log(error.response)
-      });
-
-
-    axios.get('api/users/is_admin/').then(res => {
-      const r = res.data.is_admin;
-      this.setState({ is_admin: r });
-
-    })
-      .then(response => {
-        console.log(response)
-      })
       .catch(error => {
         console.log(error.response)
       });
