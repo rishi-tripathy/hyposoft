@@ -61,24 +61,34 @@ export class EditInstanceForm extends Component {
       rightPPName: null,
       ppConnections: [],
 
-      ppIDs: [],
+      //ppIDs: [],
     }
   }
 
-  loadPowerPortIDs = () => {
-    let PPs = this.state.asset.power_ports
-    let tmpIDs = []
-    for (let i = 0; i < this.state.numberOfPowerPorts; i++) {
-      tmpIDs[i] = PPs[i].connection.id;
-    }
-    console.log(tmpIDs)
-    this.setState({
-      ppIDs: tmpIDs
-    })
-  }
+  // loadPowerPortIDs = () => {
+  //   let PPs = this.state.asset.power_ports
+  //   let tmpIDs = []
+  //   for (let i = 0; i < this.state.numberOfPowerPorts; i++) {
+  //     tmpIDs[i] = PPs[i].id;
+  //   }
+  //   console.log(tmpIDs)
+  //   this.setState({
+  //     ppIDs: tmpIDs
+  //   })
+  // }
 
   getPowerPortConnectionInfo = (ppArray) => {
     let a = ppArray;
+
+    // add id to each PP for PUT
+    for (let i = 0; i < a.length; i++) {
+      console.log(a[i])
+      if (Object.entries(a[i]).length > 0 && a[i].constructor === Object) {
+        a[i].id = this.state.asset.power_ports[i].id
+      }
+      console.log(a[i])
+    }
+
     this.setState({ ppConnections: a });
   }
 
@@ -95,29 +105,33 @@ export class EditInstanceForm extends Component {
 
   loadLeftAndRightPDUNames = () => {
     const dst = '/api/racks/' + this.state.selectedRackOption.id + '/';
+    console.log(dst)
     axios.get(dst).then(res => {
       this.setState({ leftPPName: res.data.pdu_l.name });
       this.setState({ rightPPName: res.data.pdu_r.name });
     })
       .catch(function (error) {
         // TODO: handle error
-        alert('Could not load model names. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+        console.log(error.response)
+        //alert('Could not load model names. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
       });
   }
 
   loadFreePDUsAndSetDefaultConfigurations = () => {
     const dst = '/api/racks/' + this.state.selectedRackOption.id + '/get_open_pdu_slots/';
+    console.log(dst)
     axios.get(dst).then(res => {
       this.setState({ leftFreePDUSlots: res.data.pdu_slots.left });
       this.setState({ rightFreePDUSlots: res.data.pdu_slots.right });
     })
       .catch(function (error) {
         // TODO: handle error
-        alert('Could not load model names. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+        console.log(error.response)
+        //alert('Could not load model names. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
       });
 
-    console.log(this.state.leftFreePDUSlots)
-    console.log(this.state.rightFreePDUSlots)
+    // console.log(this.state.leftFreePDUSlots)
+    // console.log(this.state.rightFreePDUSlots)
   }
 
   removeEmpty = (obj) => {
@@ -186,10 +200,10 @@ export class EditInstanceForm extends Component {
     }
 
     if (this.state.selectedRackOption !== prevState.selectedRackOption) {
-      if (this.state.selectedRackOption) {
+      if (this.state.selectedRackOption.id) {
         this.loadLeftAndRightPDUNames();
         this.loadFreePDUsAndSetDefaultConfigurations();
-        this.loadPowerPortIDs();
+        //this.loadPowerPortIDs();
       }
     }
 
@@ -269,7 +283,8 @@ export class EditInstanceForm extends Component {
         modelOptions: myOptions,
         selectedModelOption: {
           value: this.state.asset.model.url,
-          label: this.state.asset.model.vendor + ' ' + this.state.asset.model.model_number
+          label: this.state.asset.model.vendor + ' ' + this.state.asset.model.model_number,
+          id: this.state.asset.model.id,
         }
       });
     })
@@ -386,7 +401,9 @@ export class EditInstanceForm extends Component {
     let tmpPP = []
     for (let i = 0; i < this.state.ppConnections.length; i++) {
       let currentObj = this.removeEmptyRecursive(this.state.ppConnections[i]);
-      currentObj.id = this.state.ppIDs[i]
+      //console.log(this.state.ppIDs)
+      //currentObj.id = this.state.ppIDs[i]
+      //console.log(currentObj)
       if (Object.entries(currentObj).length > 0 && currentObj.constructor === Object) {
         tmpPP.push(currentObj)
       }
