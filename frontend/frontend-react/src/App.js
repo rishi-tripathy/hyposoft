@@ -23,6 +23,9 @@ import CreateUserForm from './components/CreateUserForm';
 import DatacenterController from './components/DatacenterController';
 import CreateDatacenterForm from './components/CreateDatacenterForm'
 import EditDatacenterForm from './components/EditDatacenterForm'
+import AuditController from './components/AuditController.js'
+import LandingPage from './components/LandingPage'
+import { Button } from "@material-ui/core"
 
 import DatacenterContext from './components/DatacenterContext';
 
@@ -36,12 +39,12 @@ class App extends React.Component {
 
     this.state = {
       logged_in: false,
-      is_admin: true,
-      logged_out: true,
+      is_admin: false,
       datacenter_id: null,
       datacenter_name: null,
       datacenter_ab: null,
-      setDatacenter: this.setDatacenter
+      setDatacenter: this.setDatacenter,
+      auth_token: null,
     }
   }
 
@@ -57,10 +60,65 @@ class App extends React.Component {
 
   componentDidMount() {
     console.log('rerender');
-    this.checkLoginStatus();
+    this.setLoginInfo();
+    if(this.state.logged_in){
+      this.getUserPermissions();
+    }
   }
 
-  checkLoginStatus() {
+
+  removeEmpty = (obj) => {
+    Object.keys(obj).forEach((k) => (!obj[k] && obj[k] !== undefined) && delete obj[k]);
+    return obj;
+  };
+
+  setToken = (val) => {
+    console.log('setting token')
+    this.setState({
+      auth_token: val,
+    })
+    console.log(this.state.auth_token)
+  }
+
+
+  setLoginInfo() {
+
+    //OAuth stuff
+
+    const querystring = require('querystring');
+
+    if(window.location.href.indexOf("token") > -1){ //exists
+      console.log('back from oit')
+      // console.log(window.location.hash)
+      // console.log(window.location.hash.substring(1));
+      // console.log(querystring.parse(window.location.hash.substring(1)));
+
+      let client_id = 'hyposoft-ev2';
+
+      let tokenParams = querystring.parse(window.location.hash.substring(1));
+
+      let tokenCopy = tokenParams.access_token;
+      console.log(tokenCopy);
+
+      this.setToken(tokenCopy);
+
+      console.log(tokenCopy)
+
+      axios.get('/api/users/netid_login/' + '?' + 'token=' + tokenCopy)
+      .then(res => {
+        console.log(res)
+        this.setState({
+          logged_in: true,
+        });
+        console.log('netid state has been set')
+      })
+      .catch(function (error) {
+        alert('NetID login was not successful.\n' + JSON.stringify(error.response.data, null, 2));
+      });
+    }
+  }
+
+  getUserPermissions() {
     axios.get('api/users/who_am_i/').then(res => {
       const r = res.data.current_user;
       if (r != '') {
@@ -77,7 +135,7 @@ class App extends React.Component {
       });
 
 
-    axios.get('api/users/am_i_admin/').then(res => {
+    axios.get('api/users/is_admin/').then(res => {
       const r = res.data.is_admin;
       this.setState({ is_admin: r });
 
@@ -103,25 +161,26 @@ class App extends React.Component {
     let content;
 
 
-    // if (!this.state.logged_in) {
-    //   content =
-    //     <div id="contentContainer">
-    //       <LandingPage />
-    //       <div id='login'>
-    //         <Button color='primary' onClick={this.handleOnClick}>
-    //           Log In!
-    //       </Button>
-    //       </div>
-    //     </div>
-    // }
-    // else {
-    //   content = <SideBar is_admin={this.state.is_admin} />
-    // }
+    if (!this.state.logged_in) {
+      content =
+        <div id="contentContainer">
+          <LandingPage />
+          <div id='login'>
+            <Button color='primary' onClick={this.handleOnClick}>
+              Log In!
+          </Button>
+          </div>
+        </div>
+    }
+    else {
+      content = <NavBar/>
+    }
     console.log('in return');
     return (
     <DatacenterContext.Provider value={{...this.state, setDatacenter: this.setDatacenter}}>
       <Router>
-        <NavBar />
+        {/* <NavBar /> */}
+        {content}
         <Switch>
           <Route path='/' exact component={Landing} />
           <Route
@@ -216,6 +275,10 @@ class App extends React.Component {
           <Route
             path='/statistics'
             render={(props) => <StatisticsController {...props} is_admin={true} />} />
+
+          <Route
+            path='/log'
+            render={(props) => <AuditController {...props} is_admin={true} />} />
 
           <Route
             path='/'

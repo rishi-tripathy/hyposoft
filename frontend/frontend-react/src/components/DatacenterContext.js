@@ -3,7 +3,10 @@ import axios from 'axios'
 
 const DatacenterContext = React.createContext({
     datacenter: null,
+    is_admin: false,
+    logged_in: false,
     datacenter_name: null,
+    setLoginInfo: () => {},
     setDatacenter: () => {}
   });
 
