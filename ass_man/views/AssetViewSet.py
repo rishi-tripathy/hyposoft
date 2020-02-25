@@ -24,7 +24,7 @@ from ass_man.filters import AssetFilter, AssetFilterByRack
 from rest_framework.serializers import ValidationError
 from rest_framework.request import Request, HttpRequest
 import json
-from ass_man.import_manager import import_asset_file
+from ass_man.import_manager import import_asset_file, import_network_port_file
 from ass_man.export_manager import export_assets
 
 # CHANGE THIS FOR PRODUCTION
@@ -283,6 +283,10 @@ class AssetViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=[POST])
     def import_file(self, request, *args, **kwargs):
         return import_asset_file(request)
+
+    @action(detail=False, methods=[POST])
+    def import_network_connections(self, request, *args, **kwargs):
+        return import_network_port_file(request)
 
     @action(detail=False, methods=[GET])
     def filter_fields(self, request, *args, **kwargs):
