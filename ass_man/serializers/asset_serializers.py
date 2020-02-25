@@ -99,9 +99,9 @@ class AssetSerializer(serializers.HyperlinkedModelSerializer):
                         'PDU Error': 'the PDU referenced by name {} does not exist.'.format(name=i['pdu'])
                     })
                 try:
-                    pdu = i['pdu']
+                    # pdu = i['pdu']
                     pdu_port = int(i['port_number'])
-                    pp = pdu.power_port_set.all().filter(port_number=pdu_port)
+                    pp = pdu.power_port_set.all().filter(port_number=pdu_port).first()
                 except Power_Port.DoesNotExist:
                     pp = None
                 try:

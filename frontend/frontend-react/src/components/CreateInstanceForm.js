@@ -97,9 +97,13 @@ export class CreateInstanceForm extends Component {
     this.setState({ networkPortConnectionIDs: a });
   }
 
-  getPowerPortConenctionInfo = (ppArray) => {
-    let a = this.state.ppConnections.slice(); //creates the clone of the state
-    a = ppArray;
+  getPowerPortConnectionInfo = (ppArray) => {
+    // let a;
+    // if (this.state.ppConnections == null) {
+
+    // }
+    // leta = this.state.ppConnections.slice(); //creates the clone of the state
+    let a = ppArray;
     this.setState({ ppConnections: a });
   }
 
@@ -470,7 +474,7 @@ export class CreateInstanceForm extends Component {
                       Power Ports
                     </Typography>
                     <PowerPortConnectionDialog
-                      sendPowerPortConnectionInfo={this.getPowerPortConenctionInfo}
+                      sendPowerPortConnectionInfo={this.getPowerPortConnectionInfo}
                       numberOfPowerPorts={this.state.numberOfPowerPorts}
                       rackID={this.state.selectedRackOption ? this.state.selectedRackOption.id : null}
                       leftPPName={this.state.leftPPName}

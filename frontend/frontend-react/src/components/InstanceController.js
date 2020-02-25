@@ -187,7 +187,7 @@ export class InstanceController extends Component {
       .catch(function (error) {
         console.log(error.response)
         const fileUploadOverride = (file) => {
-          const url = '/api/assets/import_network_connections';
+          const url = '/api/assets/import_network_connections/?override=true';
           const formData = new FormData();
           formData.append('file', file)
           //formData.append('name', 'sup')
@@ -447,7 +447,7 @@ export class InstanceController extends Component {
         <Container maxwidth="xl">
           <Grid container className="themed-container" spacing={2}>
             <Grid item justify="flex-start" alignContent='center' xs={12}/>
-            <Grid item justify="flex-start" alignContent='center' xs={7}>
+            <Grid item justify="flex-start" alignContent='center' xs={6}>
               <Typography variant="h3">
                 Asset Table
               </Typography>
@@ -455,7 +455,7 @@ export class InstanceController extends Component {
             <Grid item justify="center" alignContent="center" xs={3}>
               {importNetworkConnections}
             </Grid>
-            <Grid item justify="flex-end" alignContent="flex-end" xs={2}>
+            <Grid item justify="flex-end" alignContent="flex-end" xs={3}>
               {showAll}
             </Grid>
             <Grid item justify="flex-start" alignContent="center" xs={3}>
