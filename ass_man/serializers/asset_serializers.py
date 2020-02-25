@@ -195,7 +195,7 @@ class AssetShortSerializer(AssetSerializer):
 
     class Meta:
         model = Asset
-        fields = ['id', 'model', 'hostname', 'datacenter', 'rack', 'rack_u', 'owner']
+        fields = ['id', 'model', 'hostname', 'datacenter', 'rack', 'rack_u', 'asset_number', 'owner']
 
 
 class AssetOfModelSerializer(serializers.HyperlinkedModelSerializer):

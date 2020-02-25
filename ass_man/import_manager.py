@@ -1,6 +1,9 @@
 import csv, io
-from ass_man.models import Model, Asset, Rack, Datacenter, Power_Port, Network_Port
+from ass_man.models import Model, Asset, Rack, Datacenter, Power_Port, Network_Port, Asset_Number
+from django.contrib.auth.models import User
 from rest_framework.response import Response
+from rest_framework import status
+import re
 
 
 def import_model_file(request):
@@ -36,7 +39,7 @@ def import_model_file(request):
                 new_model.memory = row['memory']
             nps = []
             for i in range(1, int(row['network_ports']) + 1):
-                if row['network_port_name_{}'.format(i)]:
+                if i <= 4 and row['network_port_name_{}'.format(i)]:
                     nps.append(row['network_port_name_{}'.format(i)])
                 else:
                     nps.append(str(i))
@@ -165,6 +168,7 @@ def import_asset_file(request):
     assets_to_update = []
     assets_to_ignore = []
     racks_to_save = []
+    power_ports_to_create = []
     should_override = request.query_params.get('override') or False
     overriden = 0
     ignored = 0
@@ -176,12 +180,16 @@ def import_asset_file(request):
     fields_overriden = {}
     blocked_assets = {}
     blocked_pps = {}
+    # current_ass_num = Asset_Number.objects.get(pk=1).next_avail
     for row in reader:
         override = False
         should_update = False
-        try:
-            asset = Asset.objects.get(asset_number=row['asset_number'])
-        except Asset.DoesNotExist:
+        if row['asset_number']:
+            try:
+                asset = Asset.objects.get(asset_number=row['asset_number'])
+            except Asset.DoesNotExist:
+                asset = None
+        else:
             asset = None
         #creating a new asset
         if asset is None:
@@ -201,7 +209,7 @@ def import_asset_file(request):
                 rack_set = False
                 #check if rack has already used during this import
                 for r in racks_to_save:
-                    if (r.datacenter.abbreviation+'-'+rack_number) == (row['datacenter'] +"-"+ row['rack']):
+                    if (r.datacenter.abbreviation+'-'+r.rack_number) == (row['datacenter'] +"-"+ row['rack']):
                         rack = r
                         rack_set = True
                         break
@@ -210,21 +218,25 @@ def import_asset_file(request):
             except Rack.DoesNotExist:
                 uncreated_objects['rack'].append(row['datacenter']+'-'+row['rack'])
                 dont_add = True
+
+            pp1=re.search('([A-Z])([0-9]{1,2})$', row['power_port_connection_1'])
+            pp2=re.search('([A-Z])([0-9]{1,2})$', row['power_port_connection_2'])
             try:
-                pp1=re.search('([A-Z])([0-9]{1,2})$', row['power_port_connection_1'])
-                pp2=re.search('([A-Z])([0-9]{1,2})$', row['power_port_connection_2'])
-                pp1_pdu = eval('rack.pdu_{}'.format(pp1.group(1).lower()))
-                pp2_pdu = eval('rack.pdu_{}'.format(pp1.group(1).lower()))
-                try:
+                if pp1:
+                    pp1_pdu = eval('rack.pdu_{}'.format(pp1.group(1).lower()))
                     pp_connected = pp1_pdu.power_port_set.get(port_number=pp1.group(2))
                     blocked_pps[asset.asset_number] = row['datacenter']+'-'+row['rack']+'-'+\
                     row['power_port_connection_1']
+                    dont_add=True
+                if pp2:
+                    pp2_pdu = eval('rack.pdu_{}'.format(pp1.group(1).lower()))
                     pp_connected = pp2_pdu.power_port_set.get(port_number=pp2.group(2))
                     blocked_pps[asset.asset_number] = row['datacenter']+'-'+row['rack']+'-'+\
                     row['power_port_connection_2']
                     dont_add=True
-                except Power_Port.DoesNotExist:
-                    pass
+            except Power_Port.DoesNotExist:
+                pp1_pdu=None
+                pp2_pdu=None
 
             try:
                 owner = User.objects.get(username=row['owner'])
@@ -235,9 +247,12 @@ def import_asset_file(request):
                 else:
                     owner = None
             if not dont_add:
+                my_asset_number=row['asset_number']
+                if not my_asset_number:
+                    my_asset_number=None
                 asset = Asset(model=model, hostname=row['hostname'], \
                               datacenter=datacenter, rack=rack, rack_u=row['rack_position'], \
-                              owner=owner, comment=row['comment'], asset_number=row['asset_number'])
+                              owner=owner, comment=row['comment'], asset_number=my_asset_number)
                 if pp1:
                     power_port = Power_Port(pdu=pp1_pdu, port_number=pp1.group(2), asset=asset)
                     power_ports_to_create.append(power_port)
@@ -272,7 +287,7 @@ def import_asset_file(request):
                 asset.model = model
                 should_update = True
             else:
-                key = asset.asset_number + "_model"
+                key = str(asset.asset_number) + "_model"
                 orig = asset.model.vendor + " " + asset.model.model_number
                 new = model.vendor + " " + model.model_number
                 fields_overriden[key] = [orig, new]
@@ -290,6 +305,8 @@ def import_asset_file(request):
                 except Rack.DoesNotExist:
                     uncreated_objects['rack'].append(row['datacenter']+'-'+row['rack'])
                     rack = None
+            else:
+                rack = None
             if should_override:
                 asset.datacenter = datacenter
                 asset.rack = rack
@@ -301,6 +318,7 @@ def import_asset_file(request):
                         blocked_assets[asset.asset_number] = row['rack'] + "_u" + row['rack_position']
                 if not blocked:
                     asset.rack = rack
+                    old_u = asset.rack_u
                     for i in range(old_u, old_u + asset.model.height):
                         setattr(rack, 'u{}'.format(i), None)
                     for i in range(int(row['rack_position']), int(row['rack_position']) + asset.model.height):
@@ -308,7 +326,7 @@ def import_asset_file(request):
                     racks_to_save.append(rack)
                 should_update = True
             else:
-                fields_overriden[asset.asset_number+'_datacenter'] = [asset.datacenter.abbreviation, row['datacenter']]
+                fields_overriden[str(asset.asset_number)+'_datacenter'] = [asset.datacenter.abbreviation, row['datacenter']]
         if not rack_handled and (asset.datacenter.abbreviation+'-'+asset.rack.rack_number) != row['datacenter']+'-'+row['rack']:
             try:
                 rack = datacenter.rack_set.get(rack_number=row['rack'])
@@ -325,6 +343,7 @@ def import_asset_file(request):
                         blocked_assets[asset.asset_number] = row['rack'] + "_u" + row['rack_position']
                 if not blocked:
                     asset.rack = rack
+                    old_u = asset.rack_u
                     for i in range(old_u, old_u + asset.model.height):
                         setattr(rack, 'u{}'.format(i), None)
                     for i in range(int(row['rack_position']), int(row['rack_position']) + asset.model.height):
@@ -332,7 +351,7 @@ def import_asset_file(request):
                     racks_to_save.append(rack)
                 should_update = True
             else:
-                key = asset.asset_number + "_rack"
+                key = str(asset.asset_number) + "_rack"
                 orig = asset.rack.rack_number
                 new = rack.rack_number
                 fields_overriden[key] = [orig, new]
@@ -368,7 +387,7 @@ def import_asset_file(request):
                     racks_to_save.append(rack)
                 should_update = True
             else:
-                key = asset.asset_number + "_rack_position"
+                key = str(asset.asset_number) + "_rack_position"
                 fields_overriden[key] = [asset.rack_u, row['rack_position']]
             override = True
 
@@ -384,7 +403,7 @@ def import_asset_file(request):
                 asset.owner = owner
                 should_update = True
             else:
-                key = asset.asset_number + "_owner"
+                key = str(asset.asset_number) + "_owner"
                 orig = owner_name
                 try:
                     new = owner.username
@@ -397,7 +416,7 @@ def import_asset_file(request):
                 asset.comment = row['comment']
                 should_update = True
             else:
-                key = asset.asset_number
+                key = str(asset.asset_number)
                 fields_overriden[key] = [asset.comment, row['comment']]
             override = True
         if should_update:
@@ -408,7 +427,7 @@ def import_asset_file(request):
             ignored += 1
             assets_to_ignore.append(asset)
 
-    if len(uncreated_objects['model']) > 0 or len(uncreated_objects['rack']) > 0 or len(uncreated_objects['user']) > 0:
+    if len(uncreated_objects['model']) > 0 or len(uncreated_objects['rack']) > 0 or len(uncreated_objects['user']) > 0 or len(uncreated_objects['datacenter']):
         err_message = "The following objects were referenced, but have not been created. "
         for i in uncreated_objects.keys():
             err_message += i + ": "
@@ -422,7 +441,7 @@ def import_asset_file(request):
     err_message = "The following assets are blocked for placement: "
     if len(blocked_assets.keys()) > 0:
         for inst in blocked_assets.keys():
-            err_message += inst + " at " + blocked_assets[inst] + ". "
+            err_message += str(inst) + " at " + blocked_assets[inst] + ". "
         return Response({
             'Warning': err_message,
         }, status=status.HTTP_400_BAD_REQUEST)
@@ -441,18 +460,33 @@ def import_asset_file(request):
     created_assets = ''
     updated_assets = ''
     ignored_assets = ''
+    current_ass_num = 0
+    assets_without_ass_nums = []
     for asset in assets_to_create:
-        asset.save()
-        created_assets += asset.asset_number + ", "
-    for power_port in power_ports_to_create:
-        power_port.save()
+        if not asset.asset_number:
+            assets_without_ass_nums.append(asset)
+        else:
+            asset.save()
+            created_assets += str(asset.asset_number) + ", "
     for asset in assets_to_update:
         asset.save()
-        updated_assets += asset.asset_number + ", "
+        updated_assets += str(asset.asset_number) + ", "
     for asset in assets_to_ignore:
-        ignored_assets += asset.asset_number + ", "
+        ignored_assets += str(asset.asset_number) + ", "
+    for asset in assets_without_ass_nums:
+        asset.asset_number = assign_ass_num(current_ass_num)
+        asset.save()
+        created_assets += str(asset.asset_number) + ", "
+        current_ass_num = asset.asset_number + 1
+    for power_port in power_ports_to_create:
+        power_port.save()
     for rack in racks_to_save:
         rack.save()
+    try:
+        num = Asset_Number.objects.get(pk=1)
+        num.next_avail = current_ass_num
+    except Assset_Nmber.DoesNotExist:
+        pass
     return Response({
         'Number of assets created': (len(assets_to_create)),
         'Number of assets ignored': ignored,
@@ -460,4 +494,136 @@ def import_asset_file(request):
         'Created assets': created_assets,
         'Updated assets': updated_assets,
         'Ignored assets': ignored_assets
+    })
+
+def assign_ass_num(curr):
+    if curr == 0:
+        try:
+            num = Asset_Number.objects.get(pk=1)
+        except Asset_Number.DoesNotExist:
+            num = Asset_Number.objects.create(next_avail=100000)
+    curr = num.next_avail
+    try:
+        while True:
+            Asset.objects.get(asset_number=curr)
+            curr += 1
+    except Asset.DoesNotExist:
+        return curr
+
+def import_network_port_file(request):
+    file = request.FILES['file']
+    reader = csv.DictReader(io.StringIO(file.read().decode('utf-8-sig')))
+    should_override = request.query_params.get('override') or False
+    uncreated_objects = {}
+    uncreated_objects['asset'] = []
+    uncreated_objects['network_port'] = []
+    fields_overriden = {}
+    for row in reader:
+        try:
+            src_asset=Asset.objects.get(hostname=row['src_hostname'])
+        except Asset.DoesNotExist:
+            uncreated_objects['asset'].append(row['src_hostname'])
+            src_asset=None
+        try:
+            src_port=src_asset.network_ports.get(name=row['src_port']) if src_asset else None
+        except Network_Port.DoesNotExist:
+            uncreated_objects['network_port'].append(row['src_port'])
+            src_port=None
+        try:
+            dest_asset=Asset.objects.get(hostname=row['dest_hostname']) if row['dest_hostname'] else None
+        except Asset.DoesNotExist:
+            uncreated_objects['asset'].append(row['dest_hostname'])
+            dest_asset=None
+        try:
+            dest_port=dest_asset.network_ports.get(name=row['dest_port']) if dest_asset else None
+        except Network_Port.DoesNotExist:
+            uncreated_objects['network_port'].append(row['dest_port'])
+            dest_port=None
+        if src_port and src_port.connection:
+            if should_override:
+                src_port.connection.connection=None
+                src_port.connection=dest_port
+                updated=True
+            else:
+                fields_overriden[row['src_asset']+'-'+row['src_port']] = \
+                [src_port.asset.hostname+'-'+src_port.connection.name, \
+                row['dest_asset']+'-'+row['dest_port']]
+                override=True
+        if src_port and src_port.mac:
+            if should_override:
+                src_port.mac=row['mac']
+                updated=True
+            else:
+                fields_overriden[row['src_asset']+'-'+row['src_port']] = \
+                [src_port.mac, row['mac']]
+                override=True
+        if dest_port and dest_port.connection:
+            if should_override:
+                dest_port.connection.connection = None
+                dest_port.connection=src_port
+                updated=True
+            else:
+                fields_overriden[row['dest_asset']+'-'+row['dest_port']] = \
+                [dest_port.asset.hostname+'-'+dest_port.connection.name, \
+                row['src_asset']+'-'+row['src_port']]
+                override=True
+            if not override and not updated:
+                if src_port.mac != row['mac'] or (src_port and src_port.connection!=dest_port) \
+                or (dest_port and dest_port.connection!=src_port):
+                    src_port.mac = row['mac']
+                    src_port.connection=dest_port if src_port else None
+                    dest_port.connection=src_port if dest_port else None
+                    created=True
+                else:
+                    ignored=True
+                if updated:
+                    updated_nps.append(src_port)
+                elif created:
+                    created_nps.append(src_port)
+                elif ignored:
+                    ignored_nps.append(src_port)
+                elif override:
+                    overriden+=1
+
+    if len(uncreated_objects['asset']) > 0 or len(uncreated_objects['network_port']) > 0:
+        err_message = "The following objects were referenced, but have not been created. "
+        for i in uncreated_objects.keys():
+            err_message += i + ": "
+            for j in uncreated_objects[i]:
+                err_message += j + ", "
+            err_message += ". "
+        return Response({
+            'Warning': err_message,
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    if overriden > 0 and not should_override:
+        err_message = "Do you want to overwrite the following " \
+                      "fields: "
+        for field in fields_overriden.keys():
+            err_message += "For " + field + " overwrite " + str(fields_overriden[field][0]) \
+                           + " with " + fields_overriden[field][1] + ". "
+        return Response({
+            'Warning': err_message,
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    created_nps = ''
+    updated_nps = ''
+    ignored_nps = ''
+    for np in updated_nps:
+        np.save()
+        updated_nps += src_port + ', '
+    for np in created_nps:
+        np.save()
+        created_nps += src_port + ', '
+    for np in ignored_nps:
+        ignored_nps += src_port + ', '
+
+
+    return Response({
+        'Number of connections created': (len(created_nps)),
+        'Number of assets ignored': len(ignored_nps),
+        'Number of assets updated': len(updated_nps),
+        'Created connections': created_nps,
+        'Updated connections': updated_nps,
+        'Ignored connections': ignored_nps
     })
