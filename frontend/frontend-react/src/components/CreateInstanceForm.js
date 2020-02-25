@@ -24,6 +24,7 @@ export class CreateInstanceForm extends Component {
       asset: {
         model: null,
         hostname: null,
+        datacenter: null,
         rack: null,
         rack_u: null,
         owner: null,
@@ -31,14 +32,8 @@ export class CreateInstanceForm extends Component {
         asset_number: null,
         network_ports: [],
         power_ports: [],
-        // {
-        // 	"mac":"yerp", //optional
-        // 	"name":"yup",
-        // 	"connection": { //optional
-        // 		"network_port_id": 1
-        // 	  }
-        // }
       },
+
       modelOptions: [],
       selectedModelOption: null,
 
@@ -65,16 +60,6 @@ export class CreateInstanceForm extends Component {
       leftPPName: null,
       rightPPName: null,
       ppConnections: [],
-
-      //dummy
-      //powerPorts: 3,
-
-
-
-
-      leftCurrentlySelectedPDUs: [],
-      rightCurrentlySelectedPDUs: [],
-
     }
   }
 
@@ -98,11 +83,6 @@ export class CreateInstanceForm extends Component {
   }
 
   getPowerPortConnectionInfo = (ppArray) => {
-    // let a;
-    // if (this.state.ppConnections == null) {
-
-    // }
-    // leta = this.state.ppConnections.slice(); //creates the clone of the state
     let a = ppArray;
     this.setState({ ppConnections: a });
   }

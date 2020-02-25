@@ -383,8 +383,6 @@ def import_asset_file(request):
                 if not blocked:
                     old_u = asset.rack_u
                     asset.rack_u = row['rack_position']
-                    print('old u ' + str(old_u))
-                    print('new u ' + str(asset.rack_u))
                     for i in range(old_u, old_u + asset.model.height):
                         setattr(rack, 'u{}'.format(i), None)
                     for i in range(int(row['rack_position']), int(row['rack_position']) + asset.model.height):
@@ -549,8 +547,6 @@ def import_network_port_file(request):
             src_asset=None
         try:
             src_port=src_asset.network_port_set.get(name=row['src_port']) if src_asset else None
-            print('source port:')
-            print(src_port)
         except Network_Port.DoesNotExist:
             uncreated_objects['network_port'].append(row['src_port'])
             src_port=None
@@ -561,8 +557,6 @@ def import_network_port_file(request):
             dest_asset=None
         try:
             dest_port=dest_asset.network_port_set.get(name=row['dest_port']) if dest_asset else None
-            print('dest port:')
-            print(dest_port)
         except Network_Port.DoesNotExist:
             uncreated_objects['network_port'].append(row['dest_port'])
             dest_port=None
@@ -603,10 +597,6 @@ def import_network_port_file(request):
                 created=True
             else:
                 ignored=True
-        print(updated)
-        print(created)
-        print(ignored)
-        print(override)
         if updated:
             updated_nps.append(src_port)
         elif created:
