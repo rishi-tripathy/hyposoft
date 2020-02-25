@@ -139,7 +139,13 @@ class RackViewSet(viewsets.ModelViewSet):
                             for y in
                             (str(j) for j in range(s_number, e_number + 1))
                             ]
-            results = []
+            create_success = []
+            create_failure = []
+
+            delete_success = []
+            delete_nonexistent = []
+            delete_failure = []
+
             for rn in rack_numbers:
                 rn_request_data = {
                     "datacenter": dc,
@@ -150,31 +156,52 @@ class RackViewSet(viewsets.ModelViewSet):
                         serializer = self.get_serializer(data=rn_request_data)
                         serializer.is_valid(raise_exception=True)
                         serializer.save()
-                        results.append(rn + ' successfully created')
+                        create_success.append(rn)
                     except ValidationError:
-                        results.append(RACK_MANY_CREATE_EXISTING_RACK_WARNING_MSG.format(rn))
+                        create_failure.append(rn)
 
                 elif request.method == DELETE:
                     try:
                         rack = self.queryset.get(rack_number__iexact=rn)
                     except self.queryset.model.DoesNotExist:
-                        results.append((RACK_MANY_DELETE_NONEXISTENT_ERROR_MSG.format(rn)))
+                        delete_nonexistent.append(rn)
                         continue
                     try:
                         rack.delete()
                     except ProtectedError:
-                        results.append(RACK_MANY_DELETE_NOT_EMPTY_ERROR_MSG.format(rn))
+                        delete_failure.append(rn)
                         continue
-                    results.append(rn + ' successfully deleted')
+                    delete_success.append(rn)
 
         except (IndexError, ValueError) as e:
             return Response({
                 'Error': e.detail
             }, status=status.HTTP_400_BAD_REQUEST)
 
-        return Response({
-            'results': ', '.join(results)
-        }, status=status.HTTP_207_MULTI_STATUS)
+        # return Response({
+        #     'results': ', '.join(results)
+        # }, status=status.HTTP_207_MULTI_STATUS)
+
+        if request.method == POST:
+            return Response({
+                'results': {
+                    'successfully created': '{} racks'.format(len(create_success)),
+                    'failed to create': '{} racks'.format(len(create_failure)),
+                    'failed racks': ', '.join(create_failure)
+
+                }
+            }, status=status.HTTP_207_MULTI_STATUS)
+
+        if request.method == DELETE:
+            return Response({
+                'results': {
+                    'successfully deleted': '{} racks'.format(len(delete_success)),
+                    'failed to delete (nonexistent)': '{} racks'.format(len(delete_nonexistent)),
+                    'failed to delete (occupied)': '{} racks'.format(len(delete_failure)),
+                    'failed racks': ', '.join(delete_failure)
+
+                }
+            }, status=status.HTTP_207_MULTI_STATUS)
 
     @action(detail=True, methods=[GET])
     def assets(self, request, *args, **kwargs):
