@@ -15,7 +15,6 @@ import {Link} from 'react-router-dom'
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 export class RacksView extends Component {
-  //rack isn't variable/no other API endpoint for individual rack
 
   constructor() {
     super();

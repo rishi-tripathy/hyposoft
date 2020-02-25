@@ -32,6 +32,7 @@ export class InstanceController extends Component {
       sortQuery: '',
       rerender: false,
       file: null,
+      npFile: null,
       showingAll: false
     };
 
@@ -173,6 +174,44 @@ export class InstanceController extends Component {
     this.showRerender();
   }
 
+  handleNPImport = (e) => {
+    e.preventDefault();
+    let f = this.state.npFile;
+    if (f == null) {
+      alert("You must upload a file.");
+      return;
+    }
+    this.fileNPUpload(this.state.npFile).then((response) => {
+      alert("Import was successful." + JSON.stringify(response.data, null, 2));
+    })
+      .catch(function (error) {
+        console.log(error.response)
+        const fileUploadOverride = (file) => {
+          const url = '/api/assets/import_network_connections/?override=true';
+          const formData = new FormData();
+          formData.append('file', file)
+          //formData.append('name', 'sup')
+          const config = {
+            headers: {
+              'content-type': 'multipart/form-data'
+            }
+          }
+          return post(url, formData, config)
+        }
+
+        if (window.confirm('Import was not successful.\n' + JSON.stringify(error.response.data, null, 2))) {
+          fileUploadOverride(f).then((response) => {
+            console.log(response.data);
+          })
+            .catch(function (error) {
+              console.log(error.response)
+              alert('Import was not successful.\n' + JSON.stringify(error.response.data, null, 2));
+            });
+        }
+      });
+    this.showRerender();
+  }
+
   handleFileUpload = (e) => {
     console.log(e.target.files[0])
     this.setState({
@@ -180,8 +219,28 @@ export class InstanceController extends Component {
     });
   }
 
+  handleNPFileUpload = (e) => {
+    console.log(e.target.files[0])
+    this.setState({
+      npFile: e.target.files[0],
+    });
+  }
+
   fileUpload = (file) => {
     const url = '/api/assets/import_file/';
+    const formData = new FormData();
+    formData.append('file', file)
+    //formData.append('name', 'sup')
+    const config = {
+      headers: {
+        'content-type': 'multipart/form-data'
+      }
+    }
+    return post(url, formData, config)
+  }
+
+  fileNPUpload = (file) => {
+    const url = '/api/assets/import_network_connections/';
     const formData = new FormData();
     formData.append('file', file)
     //formData.append('name', 'sup')
@@ -276,6 +335,19 @@ export class InstanceController extends Component {
     return post(url, formData, config)
   }
 
+  fileUpload = (file) => {
+    const url = '/api/assets/import_file/';
+    const formData = new FormData();
+    formData.append('file', file)
+    //formData.append('name', 'sup')
+    const config = {
+      headers: {
+        'content-type': 'multipart/form-data'
+      }
+    }
+    return post(url, formData, config)
+  }
+
 
   render() {
     let content = <InstanceTableMUI
@@ -345,6 +417,21 @@ export class InstanceController extends Component {
       </>
     ) : {};
 
+    let importNetworkConnections = this.props.is_admin ? (
+      <>
+        <Button variant="outlined" component="span" startIcon={<CloudUploadIcon/>} onClick={this.handleNPImport}>
+          Import NPs
+        </Button>
+        <input
+          accept="text/csv"
+          id="outlined-button-file"
+          multiple
+          type="file"
+          onChange={this.handleNPFileUpload}
+        />
+      </>
+    ) : {};
+
     // if we're not on the table, then don't show pagination or filters or sorting
     if (!this.state.showTableView) {
       paginateNavigation = <p></p>;
@@ -360,12 +447,15 @@ export class InstanceController extends Component {
         <Container maxwidth="xl">
           <Grid container className="themed-container" spacing={2}>
             <Grid item justify="flex-start" alignContent='center' xs={12}/>
-            <Grid item justify="flex-start" alignContent='center' xs={10}>
+            <Grid item justify="flex-start" alignContent='center' xs={6}>
               <Typography variant="h3">
                 Asset Table
               </Typography>
             </Grid>
-            <Grid item justify="flex-end" alignContent="flex-end" xs={2}>
+            <Grid item justify="center" alignContent="center" xs={3}>
+              {importNetworkConnections}
+            </Grid>
+            <Grid item justify="flex-end" alignContent="flex-end" xs={3}>
               {showAll}
             </Grid>
             <Grid item justify="flex-start" alignContent="center" xs={3}>

@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-
+import axios from 'axios'
 import {
   Button, TextField, Dialog,
   DialogActions, DialogContent, DialogContentText,
@@ -7,6 +7,8 @@ import {
   List, ListItem, Radio, RadioGroup,
 } from "@material-ui/core";
 import { Autocomplete } from "@material-ui/lab"
+
+axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 export class PowerPortConnectionDialog extends Component {
 
@@ -39,65 +41,103 @@ export class PowerPortConnectionDialog extends Component {
 
       open: false,
       configured: false,
+
+      pduOptionsPerEachPDU: [],
+      selectedPDUOptionPerEachPDU: [],
+
+      //leftRightSelected: false,
     }
   }
 
   componentDidMount() {
     //this.setDefaultPowerPortConfiguration();
+    //this.loadFreePowerPorts
   }
 
   componentDidUpdate(prevProps, prevState) {
     if (prevProps.leftFree != this.props.leftFree
       || prevProps.rightFree != this.props.rightFree
       || prevProps.leftPPName != this.props.leftPPName
-      || prevProps.rightPPName != this.props.rightPPName) {
+      || prevProps.rightPPName != this.props.rightPPName
+      || prevProps.rackID != this.props.rackID ) {
       this.setDefaultPowerPortConfiguration();
+      if (this.props.rackID) {
+        this.loadFreePowerPorts();
+      }
     }
+
+    if (prevState.powerPortConfiguration != this.state.powerPortConfiguration) {
+      console.log('get new powerports')
+      if (this.props.rackID) {
+        this.loadFreePowerPorts();
+      }
+    }
+
   }
 
-  setDefaultPowerPortConfiguration() {
+  loadFreePowerPorts = () => {
+    const dst = '/api/racks/' + this.props.rackID + '/get_open_pdu_slots/';
+    console.log(dst)
+    axios.get(dst).then(res => {
+      let optionsPerPDU = []
+      for (let i = 0; i < this.props.numberOfPowerPorts; i++) {
+        let myOptions = [];
+        if (this.state.powerPortConfiguration[i].pdu == this.props.leftPPName) {
+          for (let j = 0; j < res.data.pdu_slots.left.length; j++) {
+            myOptions.push(res.data.pdu_slots.left[j].toString());
+          }
+        }
+        else if (this.state.powerPortConfiguration[i].pdu == this.props.rightPPName){
+          for (let j = 0; j < res.data.pdu_slots.right.length; j++) {
+            myOptions.push(res.data.pdu_slots.right[j].toString());
+          }
+        }
+        console.log(myOptions)
+        optionsPerPDU[i] = myOptions
+      }
+      console.log(optionsPerPDU)
+      this.setState({ pduOptionsPerEachPDU: optionsPerPDU });
+    })
+      .catch(function (error) {
+        // TODO: handle error
+        alert('Could not load model names. Re-login.\n' + JSON.stringify(error.response, null, 2));
+      });
+  }
 
+
+  setDefaultPowerPortConfiguration() {
     let tmpConfig = []
 
     for (let i = 0; i < this.props.numberOfPowerPorts; i++) {
       let obj = {}
-      if (i === 0) {
+
+      if (this.props.leftFree.length === 0 || this.props.rightFree.length === 0) {
+        obj.pdu = ''
+        obj.port_number = null
+      }
+      else if (i === 0) {
         obj.pdu = this.props.leftPPName
-        obj.port_number = this.props.leftFree[0]
+        obj.port_number = this.props.leftFree[0].toString()
       }
       else if (i === 1) {
-        obj.pdu = this.props.rightPPName
-        obj.port_number = this.props.rightFree[0]
+        let idx = this.props.rightFree.lastIndexOf(this.props.leftFree[0])
+        if (idx >= 0) {
+          obj.pdu = this.props.rightPPName
+          obj.port_number = this.props.rightFree[idx].toString()
+        }
+        else {
+          obj.pdu = this.props.rightPPName
+          obj.port_number = this.props.rightFree[0].toString()
+        }
       }
       else {
         obj.pdu = ''
         obj.port_number = null
       }
+
       tmpConfig.push(obj)
     }
 
-    // const arr = [
-    //   {
-    //     port_number: this.props.leftFree[0],
-    //     pdu: '',
-    //   },
-    //   {
-    //     port_number: 3,
-    //     pdu: this.props.leftPPName,
-    //   },
-    //   {
-    //     port_number: 5,
-    //     pdu: this.props.leftPPName,
-    //   },
-    //   {
-    //     port_number: 6,
-    //     pdu: this.props.leftPPName,
-    //   },
-    //   {
-    //     port_number: 8,
-    //     pdu: this.props.leftPPName,
-    //   }
-    // ]
     this.setState({ powerPortConfiguration: tmpConfig })
   }
 
@@ -105,22 +145,48 @@ export class PowerPortConnectionDialog extends Component {
 
   handleClickOpen = () => {
     //setPowerPortSelection()
+    this.setDefaultPowerPortConfiguration();
     this.setState({ open: true })
   };
 
   handleClose = () => {
-    this.setDefaultPowerPortConfiguration();
-    this.setState({ open: false, configured: false })
+    this.props.sendPowerPortConnectionInfo(null);
+    this.setState({ 
+      open: false, 
+      configured: false,
+      pduOptionsPerEachPDU: [],
+      selectedPDUOptionPerEachPDU: [], 
+    })
   };
 
   handleSubmit = () => {
-    this.props.sendPowerPortConnectionInfo(this.state.powerPortConfiguration);
+
+    let configCopy = Object.assign({}, this.state.powerPortConfiguration);
+    let outArray = []
+    for (let i = 0; i < this.props.numberOfPowerPorts; i++) {
+      let str = configCopy[i].port_number
+      configCopy[i].port_number = parseInt(str)
+      outArray.push(configCopy[i])
+    }
+    // console.log(JSON.stringify(configCopy, null, 2))
+    console.log(outArray)
+    this.props.sendPowerPortConnectionInfo(outArray);
+    //this.props.sendPowerPortConnectionInfo(this.state.powerPortConfiguration);
     this.setState({ open: false, configured: true })
   }
 
   handleLeftRightChange = (indexOfChange, e) => {
     let tmpConfig = Object.assign({}, this.state.powerPortConfiguration);
     tmpConfig[indexOfChange].pdu = e.target.value;
+    this.setState({ powerPortConfiguration: tmpConfig });
+  }
+
+  handleChangePDUOption = (event, selectedOption, i) => {
+    // console.log(selectedOption)
+    // console.log(i)
+    let tmpConfig = Object.assign({}, this.state.powerPortConfiguration);
+    tmpConfig[i].port_number = selectedOption;
+    console.log(tmpConfig)
     this.setState({ powerPortConfiguration: tmpConfig });
   }
 
@@ -131,14 +197,6 @@ export class PowerPortConnectionDialog extends Component {
       fieldList.push(
         <div>
           <ListItem>
-            <Grid item xs={6}>
-              <p>Power Port: {i+1}</p>
-              <TextField label='PDU Port Number' type="number" value={this.state.powerPortConfiguration[i].port_number} fullWidth onChange={e => {
-                let cpy = Object.assign({}, this.state.powerPortConfiguration);
-                cpy[i].port_number = e.target.value;
-                this.setState({ powerPortConfiguration: cpy });
-              }} />
-            </Grid>
             <Grid item xs={6}>
               <FormGroup row>
                 <RadioGroup
@@ -156,6 +214,28 @@ export class PowerPortConnectionDialog extends Component {
                 </RadioGroup>
               </FormGroup>
             </Grid>
+            <Grid item xs={6}>
+              <p>Power Port #{i + 1}</p>
+              <Autocomplete
+                autoComplete
+                autoHighlight
+                autoSelect
+                //id="pp-free-select"
+                //label={this.state.selectedPDUOptionPerEachPDU[i] ? this.state.selectedPDUOptionPerEachPDU[i].label : null}
+                options={this.state.pduOptionsPerEachPDU[i]}
+                //getOptionLabel={option => option.label}
+                onChange={(event, value) => this.handleChangePDUOption(event, value, i)}
+                value={this.state.powerPortConfiguration[i].port_number}
+                renderInput={params => (
+                  <TextField {...params} label="PDU Port Number" fullWidth />
+                )}
+              />
+              {/* <TextField label='PDU Port Number' type="number" value={this.state.powerPortConfiguration[i].port_number} fullWidth onChange={e => {
+                let cpy = Object.assign({}, this.state.powerPortConfiguration);
+                cpy[i].port_number = e.target.value;
+                this.setState({ powerPortConfiguration: cpy });
+              }} /> */}
+            </Grid>
           </ListItem>
         </div>
       )
@@ -166,20 +246,17 @@ export class PowerPortConnectionDialog extends Component {
 
 
   render() {
-
-    console.log(this.props);
-    console.log(this.state.powerPortConfiguration);
-
+    // console.log(this.props);
+    // console.log(this.state.powerPortConfiguration);
 
     let configuredMessage = (this.state.configured)
       ? <p>Configured.</p>
       : <p>Not configured.</p>
 
-
     return (
       <div>
         <Grid item alignContent='center' xs={12}>
-          <Button variant="outlined" color="primary" onClick={this.handleClickOpen}>
+          <Button variant="outlined" color="primary" disabled={this.props.isDisabled} onClick={this.handleClickOpen}>
             Setup Power Connections
           </Button>
           {configuredMessage}
