@@ -10,6 +10,7 @@ from rest_framework import viewsets
 
 # Auth
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
+from backend.paginators import BigUnpaginatable
 from django.contrib.auth.models import User
 # Project
 from ass_man.models import Model, Asset, Rack, Datacenter, Network_Port, Power_Port, PDU
@@ -31,6 +32,7 @@ PUT = 'PUT'
 
 class LogViewSet(viewsets.ModelViewSet):
     queryset = CRUDEvent.objects.all()
+    pagination_class = BigUnpaginatable
 
     def get_permissions(self):
         if self.action in DISALLOWED_ACTIONS:

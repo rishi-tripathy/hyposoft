@@ -133,14 +133,14 @@ export class AuditLogTable extends Component {
         let action_object_type = this.props.objectList[i].object_type;
         let action_object_id = this.props.objectList[i].object_id;
         let action = '' + action_type + 'd ' + action_object_type + ' : ' + action_object;
-        if (action_object_type === 'datacenter' || action_object_type === 'user' || action_object_type === 'rack') {
+        if (action_object_type === 'datacenter' || action_object_type === 'user' || action_object_type === 'rack' || action_type === 'Delete') {
           action_object_id = ''
         }
 
         // id for onclick instance to send?
 
 
-        let datetime = this.props.dateTimeList[i];
+        let datetime = this.props.dateTimeList[i].substring(0,19).replace("T", " --- ");
 
 
         return (
@@ -155,16 +155,6 @@ export class AuditLogTable extends Component {
             </TableCell>
             <TableCell align="center">{datetime}</TableCell>
             <div>
-              <TableCell align="right" onClick={() => this.handleClick(action_object_id, action_object_id)}>
-                {/* changee lol */}
-                <Link to={'/models/'}>
-                  <Tooltip title='View Details'>
-                    <IconButton size="sm">
-                      <PageviewIcon/>
-                    </IconButton>
-                  </Tooltip>
-                </Link>
-              </TableCell>
             </div>
           </TableRow>)
       })
