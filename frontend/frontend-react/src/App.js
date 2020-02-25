@@ -50,6 +50,7 @@ class App extends React.Component {
       user_first: null,
       user_last: null,
       username: null,
+      delay: false,
     }
   }
 
@@ -131,6 +132,7 @@ class App extends React.Component {
         console.log(res)
         this.setState({
           logged_in: true,
+          delay: true,
         });
         console.log('netid state has been set')
         this.getUserPermissions();
@@ -183,29 +185,35 @@ class App extends React.Component {
     let no_render = !this.state.logged_in || this.setDatacenter.datacenterOptions===undefined;
 
     console.log(no_render)
+    
     if (!this.state.logged_in) {
-      content =
-        <div id="contentContainer">
-          <LandingPage />
-          <div id='login'>
-            <Button color='primary' onClick={this.handleOnClick}>
-              Log In!
-          </Button>
-          </div>
-        </div>
-    }
+     content =         
+     <div id="contentContainer">
+      <LandingPage />
+      <div id='login'>
+        <Button color='primary' onClick={this.handleOnClick}>
+          Log In!
+      </Button>
+      </div>
+    </div>;
+  }
+  console.log(this.state.delay)
 
     return (
       <DatacenterContext.Provider value={{...this.state, setDatacenter: this.setDatacenter, resetDatacenter: this.resetDatacenter}}>
       <div>
-      { (!this.state.logged_in  ? 
-      (content) 
-      : <p></p>)}
+      { (this.state.delay  ? 
+      <p></p> :
+      (content) )}
       { this.state.datacenterOptions &&
       <Router>
         <NavBar />
         <Switch>
-          <Route path='/' exact component={Landing} />
+          <Route path='/' 
+          exact
+          render={(props) =>
+          <DatacenterController {...props} is_admin={true}/>}/>
+          
           <Route
             path='/racks'
             exact
