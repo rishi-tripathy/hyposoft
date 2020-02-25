@@ -8,10 +8,15 @@ import axios, {post} from 'axios'
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
-export class AuditLog extends Component{
+export class AuditLog extends Component {
 
   constructor() {
     super();
+  }
+
+  getToLogLevel = (fq) => {
+      console.log(fq)
+    this.props.sendToTopLevel(fq)
   }
 
   fixLogs = () => {
@@ -23,7 +28,7 @@ export class AuditLog extends Component{
     let users = [];
     let dateTimes = [];
 
-    for(var i in Object.keys(tempLogs)){
+    for (var i in Object.keys(tempLogs)) {
       console.log(i)
       console.log(tempLogs[i].objectlog);
       console.log(tempLogs[i].user);
@@ -34,16 +39,18 @@ export class AuditLog extends Component{
       dateTimes.push(tempLogs[i].datetime);
     }
     return (
-    <AuditLogTable objectList={objectLogs}
-      userList={users}
-      dateTimeList={dateTimes}/>
+      <AuditLogTable
+                    sendToLogLevel={this.getToLogLevel}
+                     objectList={objectLogs}
+                     userList={users}
+                     dateTimeList={dateTimes}/>
     )
   }
 
   render() {
-      return(
-         this.fixLogs()
-      );
+    return (
+      this.fixLogs()
+    );
   }
 }
 
