@@ -45,7 +45,7 @@ class AssetSerializer(serializers.HyperlinkedModelSerializer):
 
     def check_mac_format(self, mac):
         return re.match(
-            '^([0-9a-f]{2})[-:_]?([0-9a-f]{2})[-:_]([0-9a-f]{2})[-:_]?([0-9a-f]{2})[-:_]?([0-9a-f]{2})[-:_]?([0-9a-f]{2})',
+            '^([0-9a-f]{2})[-:_]?([0-9a-f]{2})[-:_]?([0-9a-f]{2})[-:_]?([0-9a-f]{2})[-:_]?([0-9a-f]{2})[-:_]?([0-9a-f]{2})',
             mac.lower())
 
     def check_network_ports(self, network_ports, validated_data):
