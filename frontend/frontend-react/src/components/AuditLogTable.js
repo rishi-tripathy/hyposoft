@@ -12,6 +12,7 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import FilterListIcon from '@material-ui/icons/FilterList';
 import ModelFilters from './ModelFilters';
 import '../stylesheets/TableView.css'
+// import AuditLogFilters from './AuditLogFilters'
 import axios, {post} from 'axios'
 import {Link} from 'react-router-dom'
 
@@ -46,7 +47,7 @@ export class AuditLogTable extends Component {
         <Collapse in={this.state.filtersOpen}>
           <Paper>
             {
-              <AuditLogFilters sendAuditLogQuery={this.props.filter_query}/>
+              // <AuditLogFilters sendAuditLogQuery={this.props.filter_query}/>
             }
           </Paper>
         </Collapse>
@@ -110,7 +111,16 @@ export class AuditLogTable extends Component {
                 console.log(this.props.userList[i])
                 console.log(this.props.dateTimeList[i])
 
-                let user = this.props.userList[i].username;
+                let user;
+                
+                if(this.props.userList[i] == null){
+                  user = 'deleted user';
+                }
+                else {
+                 user = this.props.userList[i].username;
+                }
+
+                
                 let action_type = this.props.objectList[i].action_type;
                 let action_object = this.props.objectList[i].object_repr;
                 let action_object_type = this.props.objectList[i].object_type;
