@@ -400,8 +400,8 @@ class AssetViewSet(viewsets.ModelViewSet):
         pdu_l_name = asset.rack.pdu_l.name
         pdu_r_name = asset.rack.pdu_r.name
         try:
-            assert re.match("hpdu-rtp1-[a-e][0-1][0-9]a", pdu_l_name.lower())
-            assert re.match("hpdu-rtp1-[a-e][0-1][0-9]e", pdu_r_name.lower())
+            assert re.match("hpdu-rtp1-[a-e][0-1][0-9]l", pdu_l_name.lower())
+            assert re.match("hpdu-rtp1-[a-e][0-1][0-9]r", pdu_r_name.lower())
         except AssertionError:
             return Response({
                 "status": "Failed to get PDU port data because this asset is not connected to a networked PDU."
