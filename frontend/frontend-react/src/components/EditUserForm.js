@@ -105,7 +105,7 @@ export class EditUserForm extends Component {
                   </Tooltip>
                 </Grid>
                 <Grid item xs={2}>
-                  <Link to={'/assets'}>
+                  <Link to={'/users'}>
                     <Tooltip title='Cancel'>
                       <Button variant="outlined" type="submit" color="primary" endIcon={<CancelIcon/>}>Cancel</Button>
                     </Tooltip>
