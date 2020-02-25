@@ -162,7 +162,7 @@ class RackViewSet(viewsets.ModelViewSet):
 
                 elif request.method == DELETE:
                     try:
-                        rack = self.queryset.get(rack_number__iexact=rn)
+                        rack = self.queryset.filter(datacenter=dc).get(rack_number__iexact=rn)
                     except self.queryset.model.DoesNotExist:
                         delete_nonexistent.append(rn)
                         continue

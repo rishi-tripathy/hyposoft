@@ -17,7 +17,7 @@ from ass_man.serializers.model_serializers import UniqueModelsSerializer
 # Auth
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 # Project
-from ass_man.models import Model, Asset, Rack, Datacenter, Network_Port, Power_Port, PDU
+from ass_man.models import Model, Asset, Rack, Datacenter, Network_Port, Power_Port, PDU, Asset_Number
 from rest_framework.filters import OrderingFilter
 from django_filters import rest_framework as djfiltBackend
 from ass_man.filters import AssetFilter, AssetFilterByRack
@@ -212,6 +212,17 @@ class AssetViewSet(viewsets.ModelViewSet):
         return super().list(self, request, *args, **kwargs)
 
     # Custom actions below
+    @action(detail=False, methods=[GET])
+    def asset_number(self, request, *args, **kwargs):
+        try:
+            num = Asset_Number.objects.get(pk=1)
+            ass_num = num.next_avail
+        except Asset_Number.DoesNotExist:
+            num = Asset_Number.objects.create(next_avail=100000)
+            ass_num = num.next_avail
+        return Response({
+        'asset_number':ass_num
+        })
     @action(detail=True, methods=[GET])
     def network_graph(self, request, *args, **kwargs):
         graph_serializer = AssetSeedForGraphSerializer(self.get_object(), context={'request': request})

@@ -25,6 +25,7 @@ import CreateDatacenterForm from './components/CreateDatacenterForm'
 import EditDatacenterForm from './components/EditDatacenterForm'
 import AuditController from './components/AuditController.js'
 import LandingPage from './components/LandingPage'
+import EditUserForm from './components/EditUserForm'
 import { Button } from "@material-ui/core"
 
 import DatacenterContext from './components/DatacenterContext';
@@ -103,7 +104,6 @@ class App extends React.Component {
     Object.keys(obj).forEach((k) => (!obj[k] && obj[k] !== undefined) && delete obj[k]);
     return obj;
   };
-
 
   setLoginInfo() {
 
@@ -286,6 +286,11 @@ class App extends React.Component {
             path='/users'
             exact
             render={(props) => <UserController {...props} is_admin={true} />} />
+
+          <Route
+            path='/users/:id/edit'
+            exact
+            render={(props) => <EditUserForm {...props}/>} />
 
           <Route
             path='/users/create'
