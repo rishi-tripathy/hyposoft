@@ -45,7 +45,17 @@ class LogViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=[GET])
     def log(self, request, *args, **kwargs):
-        page = self.paginate_queryset(self.queryset)
+        myqueryset = self.queryset
+        try:
+            obj_id = request.query_params.get('id')
+            obj_type = request.query_params.get('type')
+            if obj_type == 'user':
+                myqueryset = myqueryset.filter(user_pk_as_string__contains=obj_id)
+            if obj_type == 'asset':
+                myqueryset = myqueryset.filter(object_json_repr__contains="ass_man.asset").filter(object_id=obj_id)
+        except KeyError:
+            pass
+        page = self.paginate_queryset(myqueryset)
         if page is not None:
             serializer = CRUDEventSerializer(page, many=True, context={'request': request})
             return self.get_paginated_response(serializer.data)
