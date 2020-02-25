@@ -50,6 +50,7 @@ class AssetSerializer(serializers.HyperlinkedModelSerializer):
 
     def check_network_ports(self, network_ports, validated_data):
         if network_ports:
+            np_list = []
             for i in network_ports:
                 try:
                     mac = i['mac']
@@ -88,9 +89,16 @@ class AssetSerializer(serializers.HyperlinkedModelSerializer):
                             connection_port.name, connection_port.asset.hostname, connection_port.connection.name,
                             connection_port.connection.asset.hostname)
                     })
+                if connection_port and connection_port in np_list:
+                    raise serializers.ValidationError({
+                    'Network Port Error': 'Connection port {} on asset {} is used multiple times by this asset'.format(connection_port.name,connection_port.asset.asset_number)
+                    })
+                else:
+                    np_list.append(connection_port)
 
     def check_power_ports(self, power_ports):
         if power_ports:
+            pp_dict = {}
             for i in power_ports:
                 try:
                     pdu = PDU.objects.get(name=i['pdu'])
@@ -112,6 +120,15 @@ class AssetSerializer(serializers.HyperlinkedModelSerializer):
                                                                                                    pdu.name,
                                                                                                    pp.asset.hostname)
                     })
+                if i['pdu'] in pp_dict.keys():
+                    if i['port_number'] in pp_dict[i['pdu']]:
+                        raise serializers.ValidationError({
+                        'PDU Port Error': 'PDU port {} on PDU {} is used multiple times by this asset'.format(i['port_number'], i['pdu'])
+                        })
+                    else:
+                        pp_dict[i['pdu']].append(i['port_number'])
+                else:
+                    pp_dict[i['pdu']] = [i['port_number']]
 
     def create(self, validated_data):
         self.check_rack_u_validity(validated_data)
