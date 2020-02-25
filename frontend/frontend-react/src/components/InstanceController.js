@@ -136,6 +136,32 @@ export class InstanceController extends Component {
       });
   }
 
+  exportNPData = () => {
+    let filter = this.state.filterQuery;
+    let sort = this.state.sortQuery;
+
+    if (this.state.filterQuery.length !== 0) {
+      filter = filter + '&';
+    }
+
+    if (this.state.sortQuery.length !== 0) {
+      sort = sort + '&'
+    }
+
+    let dst = '/api/assets/' + '?' + filter + sort + 'export=true&network_ports=true';
+    console.log('exporting to:  ' + dst);
+    const FileDownload = require('js-file-download');
+    axios.get(dst).then(res => {
+      // console.log(res.data.next)
+      FileDownload(res.data, 'np_asset_export.csv');
+      alert("Export was successful.");
+    })
+      .catch(function (error) {
+        // TODO: handle error
+        alert('Export was not successful.\n' + JSON.stringify(error.response.data, null, 2));
+      });
+  }
+
   handleImport = (e) => {
     e.preventDefault();
     let f = this.state.file;
@@ -384,6 +410,8 @@ export class InstanceController extends Component {
     // let sorting = <InstanceSort sendSortQuery={ this.getSortQuery } />
     let exp = <Button variant="outlined" startIcon={<SaveAltIcon/>} onClick={this.exportData}>Export</Button>
 
+    let np_exp = <Button variant="outlined" startIcon={<SaveAltIcon/>} onClick={this.exportNPData}>Export NP</Button>
+
     let showAll = <FormControlLabel labelPlacement="left"
                                     control={
                                       <Switch value={this.state.showingAll} onChange={() => this.toggleShowingAll()}/>
@@ -447,10 +475,13 @@ export class InstanceController extends Component {
         <Container maxwidth="xl">
           <Grid container className="themed-container" spacing={2}>
             <Grid item justify="flex-start" alignContent='center' xs={12}/>
-            <Grid item justify="flex-start" alignContent='center' xs={6}>
+            <Grid item justify="flex-start" alignContent='center' xs={3}>
               <Typography variant="h3">
                 Asset Table
               </Typography>
+            </Grid>
+            <Grid item justify="center" alignContent="center" xs={3}>
+              {np_exp}
             </Grid>
             <Grid item justify="center" alignContent="center" xs={3}>
               {importNetworkConnections}

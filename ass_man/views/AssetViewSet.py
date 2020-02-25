@@ -346,7 +346,7 @@ class AssetViewSet(viewsets.ModelViewSet):
             }, status=status.HTTP_400_BAD_REQUEST)
         try:
             # assert re.match("hpdu-rtp1-[A-Z0-9]+[LR]]", pdu_name)
-            assert int(port_number) < 25
+            # assert int(port_number) < 25
             assert act in ['on', 'off', 'cycle']
         except AssertionError:
             return Response({

@@ -7,6 +7,7 @@ import {
 import PageviewIcon from '@material-ui/icons/Pageview';
 import { Link } from 'react-router-dom'
 import AllConnectedAssetsView from './AllConnectedAssetsView'
+import PowerManagement from './PowerManagement'
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
@@ -110,17 +111,18 @@ export class DetailedInstance extends Component {
               ) : <p></p>}
             </Grid>
 
-            <Grid item xs={12}>
+            <Grid item xs={6}>
               <Typography variant="h4" gutterBottom>
                 Connected Assets
               </Typography>
-            </Grid>
-
-            <Grid item xs={6}>
               <AllConnectedAssetsView connectedAssets={this.state.connectedAssets} />
             </Grid>
-            <Grid item xs={6}></Grid>
-
+            <Grid item xs={6}>
+              <Typography variant="h4" gutterBottom>
+                Power Management
+              </Typography>
+              <PowerManagement assetID={this.props.match.params.id} />
+            </Grid>
 
           </Grid>
         </Container>

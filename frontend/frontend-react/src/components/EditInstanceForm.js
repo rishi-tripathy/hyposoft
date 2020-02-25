@@ -453,6 +453,7 @@ export class EditInstanceForm extends Component {
               fullwidth
               type="text"
               // set its value
+              InputLabelProps={{ shrink: true }}
               value={this.state.macAddresses[i]}
               onChange={e => {
                 let a = this.state.macAddresses.slice(); //creates the clone of the state
