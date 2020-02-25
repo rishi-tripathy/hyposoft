@@ -55,7 +55,7 @@ class RackViewSet(viewsets.ModelViewSet):
         .annotate(numstr_in_rack=Substr('rack_number', 2))
     queryset = queryset.annotate(number_in_rack=Cast('numstr_in_rack', IntegerField()))
 
-    ordering = ['rack_letter', 'number_in_rack']
+    ordering = ['datacenter', 'rack_letter', 'number_in_rack']
     ordering_fields = RACK_ORDERING_FILTERING_FIELDS
 
     filter_backends = [OrderingFilter,
