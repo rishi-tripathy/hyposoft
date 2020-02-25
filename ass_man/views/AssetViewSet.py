@@ -91,6 +91,8 @@ class AssetViewSet(viewsets.ModelViewSet):
     # Overriding of super functions
 
     def reformat_mac_address(self, mac):
+        if not mac:
+            return mac
         mac_search = re.search(
             '([0-9a-f]{2})[-:_]?([0-9a-f]{2})[-:_]([0-9a-f]{2})[-:_]?([0-9a-f]{2})[-:_]?([0-9a-f]{2})[-:_]?([0-9a-f]{2})',
             mac.lower())
@@ -112,7 +114,7 @@ class AssetViewSet(viewsets.ModelViewSet):
     def cru_network_ports(self, request, asset, network_ports_json):
         for i in network_ports_json:
             try:
-                connection_port = Network_Port.objects.get(pk=i['connection']['network_port_id'])
+                connection_port = Network_Port.objects.get(pk=i['connection']['network_port_id']) if i['connection'] else None
             except (ObjectDoesNotExist, KeyError) as e:
                 connection_port = None
             try:

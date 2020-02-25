@@ -263,7 +263,7 @@ export class PowerPortConnectionDialog extends Component {
         </Grid>
 
         <Dialog open={this.state.open} onClose={this.handleClose} aria-labelledby="form-dialog-title">
-          <DialogTitle id="form-dialog-title">Connect Network Port</DialogTitle>
+          <DialogTitle id="form-dialog-title">Connect Power Port</DialogTitle>
           <DialogContent>
             <DialogContentText>
               For each Power Port, select a PDU port number and connect left/right ports.
