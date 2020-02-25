@@ -28,6 +28,10 @@ export class CreateRackForm extends Component {
 
   componentDidMount() {
     this.loadDatacenters();
+    this.setState({
+      datacenter: '/api/datacenters/'.concat(this.context.datacenter_id).toString().concat('/'),
+    })
+    console.log(this.state.datacenter)
   }
 
   loadDatacenters = () => {
@@ -37,16 +41,11 @@ export class CreateRackForm extends Component {
       let myOptions = [];
       let myIds = [];
       let myIdMap = [];
-      console.log(res.data.results)
       for(var i = 0; i < res.data.results.length; i++) {
-        console.log('populating arrays')
-        console.log(res.data.results[i])
         myOptions.push(res.data.results[i].abbreviation);
         myIds.push(res.data.results[i].id);
-        console.log('here')
         var obj = {id: res.data.results[i].id, datacenter: res.data.results[i].abbreviation};
 
-        console.log(obj);
         myIdMap.push(obj);
       }
       this.setState({
@@ -54,8 +53,6 @@ export class CreateRackForm extends Component {
         datacenterToIdMap: myIdMap,
       });
 
-      // console.log(myOptions)
-      // console.log(myIdMap)
     })
       .catch(function (error) {
         // TODO: handle error
@@ -65,13 +62,12 @@ export class CreateRackForm extends Component {
 
   handleChangeDatacenter = (event, selectedDataCenterOption) => {
     if(selectedDataCenterOption!== null || selectedDataCenterOption!== undefined ){
-      console.log((this.state.datacenterToIdMap.find(x => x.datacenter === selectedDataCenterOption)))
+      // console.log((this.state.datacenterToIdMap.find(x => x.datacenter === selectedDataCenterOption)))
       let id = this.state.datacenterToIdMap.find(x => x.datacenter === selectedDataCenterOption);
       if(id=== null || id=== undefined){
         //do nothing (doesn't work flipped idk why JS shit)
       }
       else{
-        console.log(id.id)
         let dc = '/api/datacenters/'.concat(id.id).concat('/');
         this.setState({datacenter: dc});
       }
@@ -86,7 +82,7 @@ export class CreateRackForm extends Component {
   handleSubmit = (e) => {
     e.preventDefault();
 
-    console.log(this.state.datacenter)
+    // console.log(this.state.datacenter)
 
     let start_rack = this.state.rack_num_start;
     let end_rack = this.state.rack_num_end;
@@ -130,7 +126,7 @@ export class CreateRackForm extends Component {
   }
 
   render() {
-    console.log(this.context.datacenter_ab)
+    // console.log(this.context.datacenter_ab)
     let defaultVal = this.context.datacenter_ab;
 
     return (
