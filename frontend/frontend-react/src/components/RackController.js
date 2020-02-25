@@ -45,6 +45,7 @@ export class RackController extends Component {
       nextPage: null,
       rerender: false,
       datacenterID: null,
+      allCase: false,
     };
     this.getShowRacks = this.getShowRacks.bind(this);
     this.getFilterQuery = this.getFilterQuery.bind(this);
@@ -278,16 +279,31 @@ export class RackController extends Component {
     this.setState({
       datacenterID: this.context.datacenter_id,
     });
+
+    console.log(this.context)
+
+    console.log(this.state.datacenterID)
+    console.log(this.context.datacenter_id)
     if (!this.state.showAllRacks) {
 
       //all or one datacenter?
       console.log(this.state.datacenterID)
       let dst; 
-      if(this.state.datacenterID===-1 || this.state.datacenterID == null){
+      // if(this.state.datacenterID===-1 || this.state.datacenterID == null){
+      if(this.context.datacenter_id===-1){
         dst = '/api/racks/' + this.state.filterQuery; //gets from all dc's
+        console.log('all case true')
+        this.setState({
+          allCase: true,
+        });
       }
       else {
         dst = '/api/racks/' + '?' + 'datacenter=' + this.context.datacenter_id + '&' + this.state.filterQuery;
+        console.log('all case false')
+        
+        this.setState({
+          allCase: false,
+        });
       }
 
       axios.get(dst).then(res => {
@@ -306,11 +322,20 @@ export class RackController extends Component {
       //show all racks
       let dst;
 
-      if(this.state.datacenterID===-1 || this.state.datacenterID == null){
+      // if(this.state.datacenterID===-1 || this.state.datacenterID == null){
+      if(this.context.datacenter_id===-1){
         dst = '/api/racks/' + '?show_all=true' + this.state.filterQuery; //gets from all dc's
+        console.log('all case true')
+        this.setState({
+          allCase: true,
+        });
       }
       else {
         dst = '/api/racks/' + '?' + 'datacenter=' + this.context.datacenter_id + '&' + 'show_all=true' + '&' + this.state.filterQuery;
+        console.log('all case false')       
+        this.setState({
+          allCase: false,
+        });
       }
 
       axios.get(dst).then(res => {
@@ -379,7 +404,8 @@ export class RackController extends Component {
                    sendShowEdit={this.getShowEdit}
                    sendEditID={this.getEditID}
                    sendShowDelete={this.getShowDelete}
-                   sendShowAllRacks={this.getShowAllRacks}/>
+                   sendShowAllRacks={this.getShowAllRacks}
+                   allCase={this.state.allCase}/>
     }
   }
 

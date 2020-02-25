@@ -41,9 +41,9 @@ class App extends React.Component {
     this.state = {
       logged_in: false,
       is_admin: false,
-      datacenter_id: null,
-      datacenter_name: null,
-      datacenter_ab: null,
+      datacenter_id: -1,
+      datacenter_name: 'ALL',
+      datacenter_ab: 'ALL',
       setDatacenter: this.setDatacenter,
       resetDatacenter: this.resetDatacenter,
       datacenterOptions: null,

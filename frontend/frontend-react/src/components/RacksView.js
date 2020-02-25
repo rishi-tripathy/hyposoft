@@ -23,6 +23,7 @@ export class RacksView extends Component {
       condensedView: false,
       showAllView: false,
       count: 1,
+      datacenterListForShowAll: [],
     }
     this.showCreateForm = this.showCreateForm.bind(this);
     this.showMassCreateForm = this.showMassCreateForm.bind(this);
@@ -110,10 +111,54 @@ export class RacksView extends Component {
     }));
   }
 
+  getDatacentersForTableHeaders = () => {
+    let datacenterAbs = [];
+    let dcOptions = [];
+    dcOptions = this.context.datacenterOptions;
+    console.log(dcOptions)
+    
+      let datacenterIds = [];
+      this.props.rack.map((r, index) => {
+        datacenterIds.push(r.datacenter.substring(r.datacenter.length-2, r.datacenter.length-1))
+      })
+      console.log(datacenterIds)
+
+      datacenterIds.map((r, index) => {
+        console.log(r)
+        for(var i = 0 ; i < dcOptions.length; i++){
+          console.log(dcOptions[i].id)
+          console.log(dcOptions[i].abbreviation)
+          if(r === dcOptions[i].id.toString()){
+            console.log('match found')
+            datacenterAbs.push(dcOptions[i].abbreviation)
+          }
+        }
+      })
+      console.log(datacenterAbs)
+      this.setState({
+        datacenterListForShowAll: datacenterAbs,
+      })
+    }
+
+    componentDidMount () {
+      if(this.props.allCase){
+        if(this.state.datacenterListForShowAll.length === 0){
+          this.getDatacentersForTableHeaders();
+        }
+      }
+      else {
+        this.setState({
+          datacenterIds: [],
+        })
+      }
+    }
+
   render() {
 
+    console.log(this.props.rack)
+
     let is_admin = false;
-    console.log(this.context)
+
     if(this.context.is_admin){
       is_admin = true;
     }
@@ -188,7 +233,7 @@ export class RacksView extends Component {
             </Grid>
             <Grid item xs={12}>
             {empty}
-              {this.props.rack.map((item, key) =>
+              {this.props.rack.map((item, index) =>
               <div id="rackContainer">
                 <div id='hideOnPrint'>
                   {is_admin ? (
@@ -215,7 +260,9 @@ export class RacksView extends Component {
                       sending={this.sendFromRow}
                       sendUrl={this.sendUrlInView}
                       rack={item}
-                      condensedState={this.state.condensedView}/>
+                      condensedState={this.state.condensedView}
+                      allCase={this.props.allCase}
+                      dc = {this.state.datacenterListForShowAll[index]}/>
                 </Grid>
               </div>
         )}
