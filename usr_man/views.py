@@ -123,11 +123,11 @@ class UserViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=[GET, POST])
     def netid_login(self, request, *args, **kwargs):
         url = 'https://api.colab.duke.edu/identity/v1/'
-        token = 'b2be76b44ca5b2a7aeecdbda7d3ac0a0f0e3ee3f' # request.query_params.get('token') or ''  # 'cbe2d5243b68b6556dc879cf7e72e397ed8af57a'  #
+        token = request.query_params.get('token') or ''  # 'cbe2d5243b68b6556dc879cf7e72e397ed8af57a'  #
 
         headers = {"Accept": "application/json",
                    "Authorization": "Bearer {}".format(token),
-                   "x-api-key": "hyposoft"}
+                   "x-api-key": "hyposoft-ev2"}
 
         r = requests.get(url, headers=headers)
 
@@ -159,3 +159,4 @@ class UserViewSet(viewsets.ModelViewSet):
                 'creation': 'success',
                 'login': 'success'
             })
+
