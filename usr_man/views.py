@@ -16,7 +16,6 @@ GET = 'GET'
 POST = 'POST'
 USER_ORDERING_FILTERING_FIELDS = ['username', 'first_name', 'last_name', 'email']
 
-
 class UserViewSet(viewsets.ModelViewSet):
     # API endpoint that allows users to be viewed or edited.
 
@@ -37,6 +36,16 @@ class UserViewSet(viewsets.ModelViewSet):
     filterset_class = UserFilter
     filterset_fields = USER_ORDERING_FILTERING_FIELDS
     ordering_fields = USER_ORDERING_FILTERING_FIELDS
+
+    def destroy(self, request, *args, **kwargs):
+        user = self.get_object()
+        to_delete = User.objects.get(id=user.id)
+        if to_delete.has_usable_password():
+            return super().destroy(request, *args, **kwargs)
+        else:
+            return Response({
+                "status": "Failure. You may not delete a NetID user."
+            })
 
     # Override default actions here
     def partial_update(self, request, *args, **kwargs):
@@ -143,10 +152,11 @@ class UserViewSet(viewsets.ModelViewSet):
         else:
             serializer = self.get_serializer(data=resp_draft)
             serializer.is_valid(raise_exception=True)
-            user = serializer.create(resp_draft)
+            user = serializer.create_netid(resp_draft)
 
             login(request, user)
             return Response({
                 'creation': 'success',
                 'login': 'success'
             })
+
