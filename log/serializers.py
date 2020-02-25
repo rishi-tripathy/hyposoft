@@ -9,10 +9,10 @@ class CRUDEventSerializer(serializers.ModelSerializer):
 
     def get_obj_type(self, event):
         content_type_map = {
-            "ass_man | model": "models",
-            "ass_man | rack": "racks",
-            "ass_man | asset": "assets",
-            "ass_man | datacenter": "datacenters",
+            "ass_man | model": "model",
+            "ass_man | rack": "rack",
+            "ass_man | asset": "asset",
+            "ass_man | datacenter": "datacenter",
             "auth | user": "user",
         }
         return content_type_map.get(str(event.content_type))
