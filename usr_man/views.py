@@ -4,7 +4,7 @@ from rest_framework import status, request
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated, IsAdminUser
-from .serializers import UserSerializer
+from .serializers import UserSerializer, UserFetchSerializer
 from rest_framework import viewsets
 from usr_man.filters import UserFilter
 import requests
@@ -32,7 +32,9 @@ class UserViewSet(viewsets.ModelViewSet):
     # permission_classes = [AllowAny]
     queryset = User.objects.all().order_by('last_name')
 
-    serializer_class = UserSerializer
+    def get_serializer_class(self, *args, **kwargs):
+        return UserSerializer if self.action not in ['retrieve', 'list'] else UserFetchSerializer
+
     filterset_class = UserFilter
     filterset_fields = USER_ORDERING_FILTERING_FIELDS
     ordering_fields = USER_ORDERING_FILTERING_FIELDS
@@ -40,6 +42,12 @@ class UserViewSet(viewsets.ModelViewSet):
     def destroy(self, request, *args, **kwargs):
         user = self.get_object()
         to_delete = User.objects.get(id=user.id)
+        if user.username is 'admin':
+            return Response({
+                "status": "You may not  delete the admin user."
+            },
+                status=status.HTTP_400_BAD_REQUEST)
+
         if to_delete.has_usable_password():
             return super().destroy(request, *args, **kwargs)
         else:
