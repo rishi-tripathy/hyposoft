@@ -16,10 +16,9 @@
       <p>Please login to see this page.</p>
     {% endif %}
   {% endif %}
-  
+  <center>
   <form method="post" action="{% url 'login' %}">
     {% csrf_token %}
-    <center>
     <table>
       <tr>
         <td>{{ form.username.label_tag }}</td>
@@ -33,9 +32,12 @@
       <!-- <Input type="submit" value="login" />
       <Input type="hidden" name="next" value="{{ next }}" /> -->
       <button> Submit</button>
-  </center>
-  </form>
   
+  </form>
+  <Button onclick="window.location.href = 'https://oauth.oit.duke.edu/oauth/authorize.php?client_id=hyposoft-ev2&client_secret=X8ctUJYCH33Z31wAbz6*v4Ezz%MqWPrdMsSxIdB2eLA2+B@=d@&redirect_uri=http%3A%2F%2F0.0.0.0%3A5000%2F&response_type=token&state=1129&scope=basic'">
+    Click here to sign in with Duke NetID.
+  </Button>
+</center>
   {# Assumes you setup the password_reset view in your URLconf #}
  {#  <p><a href="{% url 'password_reset' %}">Lost password?</a></p> #}
   
