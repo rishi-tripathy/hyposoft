@@ -432,6 +432,14 @@ def import_asset_file(request):
             ignored += 1
             assets_to_ignore.append(asset)
 
+        pp1=re.search('([A-Z])([0-9]{1,2})$', row['power_port_connection_1'])
+        pp2=re.search('([A-Z])([0-9]{1,2})$', row['power_port_connection_2'])
+        # if asset.power_port_set.first().port_number != pp1.group(2):
+        #     if should_override:
+        #         asset.power_port_set.first().
+        if pp1.group(2) != asset.power_port_set.first().port_number or (pp1.group(1).upper() != asset.power_port_set.first().pdu.name.upper()[-1]):
+            pass
+
     if len(uncreated_objects['model']) > 0 or len(uncreated_objects['rack']) > 0 or len(uncreated_objects['user']) > 0 or len(uncreated_objects['datacenter']):
         err_message = "The following objects were referenced, but have not been created. "
         for i in uncreated_objects.keys():

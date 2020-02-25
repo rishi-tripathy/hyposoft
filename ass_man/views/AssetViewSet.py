@@ -25,7 +25,7 @@ from rest_framework.serializers import ValidationError
 from rest_framework.request import Request, HttpRequest
 import json
 from ass_man.import_manager import import_asset_file, import_network_port_file
-from ass_man.export_manager import export_assets
+from ass_man.export_manager import export_assets, export_network_ports
 
 # CHANGE THIS FOR PRODUCTION
 NETWORX_PORT = ":8000"
@@ -151,7 +151,7 @@ class AssetViewSet(viewsets.ModelViewSet):
                 pdu = PDU.objects.get(name=i['pdu'])
             except PDU.DoesNotExist:
                 pdu = None
-            port_num = int(i['port_number'])
+            port_num = int(i.get('port_number'))
 
             try:
                 pp = asset.power_port_set.get(name=i['name'])
@@ -160,6 +160,9 @@ class AssetViewSet(viewsets.ModelViewSet):
                 pp.save()
             except(Power_Port.DoesNotExist, KeyError):
                 pp = Power_Port.objects.create(pdu=pdu, port_number=port_num, asset=asset)
+        if not power_ports_json:
+            for i in range(asset.model.power_ports):
+                Power_Port.objects.create(pdu=None, asset=asset)
         return
 
     def create(self, request, *args, **kwargs):
@@ -205,8 +208,9 @@ class AssetViewSet(viewsets.ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         if request.query_params.get('export') == 'true':
-            # hostname,rack,rack_position,vendor,model_number,owner,comment
             queryset = self.filter_queryset(self.get_queryset())
+            if request.query_params.get('np') == 'true':
+                return export_network_ports(queryset)
             return export_assets(queryset)
 
         return super().list(self, request, *args, **kwargs)
