@@ -383,8 +383,6 @@ def import_asset_file(request):
                 if not blocked:
                     old_u = asset.rack_u
                     asset.rack_u = row['rack_position']
-                    print('old u ' + str(old_u))
-                    print('new u ' + str(asset.rack_u))
                     for i in range(old_u, old_u + asset.model.height):
                         setattr(rack, 'u{}'.format(i), None)
                     for i in range(int(row['rack_position']), int(row['rack_position']) + asset.model.height):
@@ -431,6 +429,14 @@ def import_asset_file(request):
         else:
             ignored += 1
             assets_to_ignore.append(asset)
+
+        pp1=re.search('([A-Z])([0-9]{1,2})$', row['power_port_connection_1'])
+        pp2=re.search('([A-Z])([0-9]{1,2})$', row['power_port_connection_2'])
+        # if asset.power_port_set.first().port_number != pp1.group(2):
+        #     if should_override:
+        #         asset.power_port_set.first().
+        if pp1.group(2) != asset.power_port_set.first().port_number or (pp1.group(1).upper() != asset.power_port_set.first().pdu.name.upper()[-1]):
+            pass
 
     if len(uncreated_objects['model']) > 0 or len(uncreated_objects['rack']) > 0 or len(uncreated_objects['user']) > 0 or len(uncreated_objects['datacenter']):
         err_message = "The following objects were referenced, but have not been created. "
@@ -541,8 +547,6 @@ def import_network_port_file(request):
             src_asset=None
         try:
             src_port=src_asset.network_port_set.get(name=row['src_port']) if src_asset else None
-            print('source port:')
-            print(src_port)
         except Network_Port.DoesNotExist:
             uncreated_objects['network_port'].append(row['src_port'])
             src_port=None
@@ -553,8 +557,6 @@ def import_network_port_file(request):
             dest_asset=None
         try:
             dest_port=dest_asset.network_port_set.get(name=row['dest_port']) if dest_asset else None
-            print('dest port:')
-            print(dest_port)
         except Network_Port.DoesNotExist:
             uncreated_objects['network_port'].append(row['dest_port'])
             dest_port=None
@@ -595,10 +597,6 @@ def import_network_port_file(request):
                 created=True
             else:
                 ignored=True
-        print(updated)
-        print(created)
-        print(ignored)
-        print(override)
         if updated:
             updated_nps.append(src_port)
         elif created:

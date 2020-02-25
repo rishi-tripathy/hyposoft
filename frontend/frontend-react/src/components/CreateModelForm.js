@@ -39,7 +39,6 @@ export class CreateModelForm extends Component {
   }
 
   loadVendors = () => {
-    // MODEL
     let dst = '/api/models/vendors/';
     axios.get(dst).then(res => {
       let myOptions = [];

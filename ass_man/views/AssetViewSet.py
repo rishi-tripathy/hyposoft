@@ -25,7 +25,7 @@ from rest_framework.serializers import ValidationError
 from rest_framework.request import Request, HttpRequest
 import json
 from ass_man.import_manager import import_asset_file, import_network_port_file
-from ass_man.export_manager import export_assets
+from ass_man.export_manager import export_assets, export_network_ports
 
 # CHANGE THIS FOR PRODUCTION
 NETWORX_PORT = ":8000"
@@ -91,6 +91,8 @@ class AssetViewSet(viewsets.ModelViewSet):
     # Overriding of super functions
 
     def reformat_mac_address(self, mac):
+        if not mac:
+            return mac
         mac_search = re.search(
             '([0-9a-f]{2})[-:_]?([0-9a-f]{2})[-:_]([0-9a-f]{2})[-:_]?([0-9a-f]{2})[-:_]?([0-9a-f]{2})[-:_]?([0-9a-f]{2})',
             mac.lower())
@@ -112,7 +114,7 @@ class AssetViewSet(viewsets.ModelViewSet):
     def cru_network_ports(self, request, asset, network_ports_json):
         for i in network_ports_json:
             try:
-                connection_port = Network_Port.objects.get(pk=i['connection']['network_port_id'])
+                connection_port = Network_Port.objects.get(pk=i['connection']['network_port_id']) if i['connection'] else None
             except (ObjectDoesNotExist, KeyError) as e:
                 connection_port = None
             try:
@@ -149,17 +151,24 @@ class AssetViewSet(viewsets.ModelViewSet):
         for i in power_ports_json:
             try:
                 pdu = PDU.objects.get(name=i['pdu'])
-            except PDU.DoesNotExist:
+            except (PDU.DoesNotExist, KeyError):
                 pdu = None
-            port_num = int(i['port_number'])
+
+            port_num_a = i.get('port_number')
+            if port_num_a:
+                port_num = int(port_num_a)
 
             try:
-                pp = asset.power_port_set.get(name=i['name'])
-                pp.pdu = pdu
-                pp.port_number = port_num
-                pp.save()
+                pp = asset.power_port_set.get(id=i['id'])
+                if (pp.pdu != pdu or pp.port_number != port_num):
+                    pp.pdu = pdu
+                    pp.port_number = port_num
+                    pp.save()
             except(Power_Port.DoesNotExist, KeyError):
                 pp = Power_Port.objects.create(pdu=pdu, port_number=port_num, asset=asset)
+        if not power_ports_json:
+            for i in range(asset.model.power_ports):
+                Power_Port.objects.create(pdu=None, asset=asset)
         return
 
     def create(self, request, *args, **kwargs):
@@ -181,9 +190,6 @@ class AssetViewSet(viewsets.ModelViewSet):
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
         asset = self.get_object()
-        network_ports_json, power_ports_json = self.get_port_jsons(request)
-        self.cru_network_ports(request, asset, network_ports_json)
-        self.cru_power_ports(request, asset, power_ports_json)
         prev_rack = asset.rack
         prev_rack_u = asset.rack_u
         serializer = self.get_serializer(asset, data=request.data, partial=partial)
@@ -197,6 +203,9 @@ class AssetViewSet(viewsets.ModelViewSet):
         for i in range(asset.rack_u, asset.rack_u + asset.model.height):
             exec('new_rack.u{} = asset'.format(i))
         new_rack.save()
+        network_ports_json, power_ports_json = self.get_port_jsons(request)
+        self.cru_network_ports(request, asset, network_ports_json)
+        self.cru_power_ports(request, asset, power_ports_json)
         if getattr(asset, '_prefetched_objects_cache', None):
             # If 'prefetch_related' has been applied to a queryset, we need to
             # forcibly invalidate the prefetch cache on the asset.
@@ -205,8 +214,9 @@ class AssetViewSet(viewsets.ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         if request.query_params.get('export') == 'true':
-            # hostname,rack,rack_position,vendor,model_number,owner,comment
             queryset = self.filter_queryset(self.get_queryset())
+            if request.query_params.get('np') == 'true':
+                return export_network_ports(queryset)
             return export_assets(queryset)
 
         return super().list(self, request, *args, **kwargs)
