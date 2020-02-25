@@ -169,6 +169,7 @@ def import_asset_file(request):
     assets_to_ignore = []
     racks_to_save = []
     power_ports_to_create = []
+    nps_to_create = []
     should_override = request.query_params.get('override') or False
     overriden = 0
     ignored = 0
@@ -253,6 +254,10 @@ def import_asset_file(request):
                 asset = Asset(model=model, hostname=row['hostname'], \
                               datacenter=datacenter, rack=rack, rack_u=row['rack_position'], \
                               owner=owner, comment=row['comment'], asset_number=my_asset_number)
+                num_nps = model.network_ports_num if model else 0
+                for i in range(num_nps):
+                    np = Network_Port(name=model.network_ports[i], connection=None, asset=asset)
+                    nps_to_create.append(np)
                 if pp1:
                     power_port = Power_Port(pdu=pp1_pdu, port_number=pp1.group(2), asset=asset)
                     power_ports_to_create.append(power_port)
@@ -482,6 +487,8 @@ def import_asset_file(request):
         power_port.save()
     for rack in racks_to_save:
         rack.save()
+    for np in nps_to_create:
+        np.save()
     try:
         num = Asset_Number.objects.get(pk=1)
         num.next_avail = current_ass_num
@@ -518,14 +525,24 @@ def import_network_port_file(request):
     uncreated_objects['asset'] = []
     uncreated_objects['network_port'] = []
     fields_overriden = {}
+    updated_nps = []
+    ignored_nps = []
+    created_nps = []
+    overriden = 0
     for row in reader:
+        override=False
+        updated=False
+        ignored=False
+        created=False
         try:
             src_asset=Asset.objects.get(hostname=row['src_hostname'])
         except Asset.DoesNotExist:
             uncreated_objects['asset'].append(row['src_hostname'])
             src_asset=None
         try:
-            src_port=src_asset.network_ports.get(name=row['src_port']) if src_asset else None
+            src_port=src_asset.network_port_set.get(name=row['src_port']) if src_asset else None
+            print('source port:')
+            print(src_port)
         except Network_Port.DoesNotExist:
             uncreated_objects['network_port'].append(row['src_port'])
             src_port=None
@@ -535,55 +552,61 @@ def import_network_port_file(request):
             uncreated_objects['asset'].append(row['dest_hostname'])
             dest_asset=None
         try:
-            dest_port=dest_asset.network_ports.get(name=row['dest_port']) if dest_asset else None
+            dest_port=dest_asset.network_port_set.get(name=row['dest_port']) if dest_asset else None
+            print('dest port:')
+            print(dest_port)
         except Network_Port.DoesNotExist:
             uncreated_objects['network_port'].append(row['dest_port'])
             dest_port=None
-        if src_port and src_port.connection:
+        if src_port and src_port.connection and src_port.connection.name != row['dest_hostname']:
             if should_override:
                 src_port.connection.connection=None
                 src_port.connection=dest_port
                 updated=True
             else:
-                fields_overriden[row['src_asset']+'-'+row['src_port']] = \
+                fields_overriden[row['src_hostname']+'-'+row['src_port']] = \
                 [src_port.asset.hostname+'-'+src_port.connection.name, \
-                row['dest_asset']+'-'+row['dest_port']]
+                row['dest_hostname']+'-'+row['dest_port']]
                 override=True
-        if src_port and src_port.mac:
+        if src_port and src_port.mac != row['src_mac']:
             if should_override:
-                src_port.mac=row['mac']
+                src_port.mac=row['src_mac']
                 updated=True
             else:
-                fields_overriden[row['src_asset']+'-'+row['src_port']] = \
-                [src_port.mac, row['mac']]
+                fields_overriden[row['src_hostname']+'-'+row['src_port']] = \
+                [src_port.mac, row['src_mac']]
                 override=True
-        if dest_port and dest_port.connection:
+        if dest_port and dest_port.connection and dest_port.connection.name != row['src_hostname']:
             if should_override:
                 dest_port.connection.connection = None
                 dest_port.connection=src_port
                 updated=True
             else:
-                fields_overriden[row['dest_asset']+'-'+row['dest_port']] = \
+                fields_overriden[row['dest_hostname']+'-'+row['dest_port']] = \
                 [dest_port.asset.hostname+'-'+dest_port.connection.name, \
-                row['src_asset']+'-'+row['src_port']]
+                row['src_hostname']+'-'+row['src_port']]
                 override=True
-            if not override and not updated:
-                if src_port.mac != row['mac'] or (src_port and src_port.connection!=dest_port) \
-                or (dest_port and dest_port.connection!=src_port):
-                    src_port.mac = row['mac']
-                    src_port.connection=dest_port if src_port else None
-                    dest_port.connection=src_port if dest_port else None
-                    created=True
-                else:
-                    ignored=True
-                if updated:
-                    updated_nps.append(src_port)
-                elif created:
-                    created_nps.append(src_port)
-                elif ignored:
-                    ignored_nps.append(src_port)
-                elif override:
-                    overriden+=1
+        if not override and not updated:
+            if src_port.mac != row['src_mac'] or (src_port and src_port.connection!=dest_port) \
+            or (dest_port and dest_port.connection!=src_port):
+                src_port.mac = row['src_mac']
+                src_port.connection=dest_port if src_port else None
+                dest_port.connection=src_port if dest_port else None
+                created=True
+            else:
+                ignored=True
+        print(updated)
+        print(created)
+        print(ignored)
+        print(override)
+        if updated:
+            updated_nps.append(src_port)
+        elif created:
+            created_nps.append(src_port)
+        elif ignored:
+            ignored_nps.append(src_port)
+        elif override:
+            overriden+=1
 
     if len(uncreated_objects['asset']) > 0 or len(uncreated_objects['network_port']) > 0:
         err_message = "The following objects were referenced, but have not been created. "
@@ -606,24 +629,24 @@ def import_network_port_file(request):
             'Warning': err_message,
         }, status=status.HTTP_400_BAD_REQUEST)
 
-    created_nps = ''
-    updated_nps = ''
-    ignored_nps = ''
+    created_nps_str = ''
+    updated_nps_str = ''
+    ignored_nps_str = ''
     for np in updated_nps:
         np.save()
-        updated_nps += src_port + ', '
+        updated_nps_str += src_port.name + ', '
     for np in created_nps:
         np.save()
-        created_nps += src_port + ', '
+        created_nps_str += src_port.name + ', '
     for np in ignored_nps:
-        ignored_nps += src_port + ', '
+        ignored_nps_str += src_port.name + ', '
 
 
     return Response({
         'Number of connections created': (len(created_nps)),
         'Number of assets ignored': len(ignored_nps),
         'Number of assets updated': len(updated_nps),
-        'Created connections': created_nps,
-        'Updated connections': updated_nps,
-        'Ignored connections': ignored_nps
+        'Created connections': created_nps_str,
+        'Updated connections': updated_nps_str,
+        'Ignored connections': ignored_nps_str
     })
