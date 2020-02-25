@@ -77,6 +77,8 @@ class App extends React.Component {
     axios.get(dst).then(res => {
       console.log(res)
       let d = [];
+      let allCase = {id: -1, url: null, abbreviation: 'ALL', name: 'ALL'};
+      d.push(allCase);
       res.data.map((dc, index) => {
         d.push(dc)
       });
@@ -131,6 +133,7 @@ class App extends React.Component {
           logged_in: true,
         });
         console.log('netid state has been set')
+        this.getUserPermissions();
       })
       .catch(function (error) {
         alert('NetID login was not successful.\n' + JSON.stringify(error.response.data, null, 2));

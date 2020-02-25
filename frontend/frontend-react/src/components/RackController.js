@@ -279,7 +279,16 @@ export class RackController extends Component {
       datacenterID: this.context.datacenter_id,
     });
     if (!this.state.showAllRacks) {
-      let dst = '/api/racks/' + '?' + 'datacenter=' + this.context.datacenter_id + '&' + this.state.filterQuery;
+
+      //all or one datacenter?
+      console.log(this.state.datacenterID)
+      let dst; 
+      if(this.state.datacenterID===-1 || this.state.datacenterID == null){
+        dst = '/api/racks/' + this.state.filterQuery; //gets from all dc's
+      }
+      else {
+        dst = '/api/racks/' + '?' + 'datacenter=' + this.context.datacenter_id + '&' + this.state.filterQuery;
+      }
 
       axios.get(dst).then(res => {
         this.setState({
@@ -295,7 +304,14 @@ export class RackController extends Component {
         });
     } else {
       //show all racks
-      let dst = '/api/racks/?show_all=true' + '&' + this.state.filterQuery;
+      let dst;
+
+      if(this.state.datacenterID===-1 || this.state.datacenterID == null){
+        dst = '/api/racks/' + '?show_all=true' + this.state.filterQuery; //gets from all dc's
+      }
+      else {
+        dst = '/api/racks/' + '?' + 'datacenter=' + this.context.datacenter_id + '&' + 'show_all=true' + '&' + this.state.filterQuery;
+      }
 
       axios.get(dst).then(res => {
         this.setState({
@@ -349,7 +365,9 @@ export class RackController extends Component {
     let content;
     console.log(this.state.racks)
     if (this.state.showRacksView) {
-      if(this.state.racks!==null || this.state.racks.length!==0){
+      if(this.state.racks == null || this.state.racks.length===0){
+      content = <h1>no racks</h1>
+      } else {
       content =
         <RacksView rack={this.state.racks}
                    sendRerender={this.getRerender}
@@ -362,9 +380,6 @@ export class RackController extends Component {
                    sendEditID={this.getEditID}
                    sendShowDelete={this.getShowDelete}
                    sendShowAllRacks={this.getShowAllRacks}/>
-    }
-    else {
-      content = <h1>no racks</h1>
     }
   }
 
@@ -406,6 +421,15 @@ export class RackController extends Component {
       printButton = <p></p>;
     }
 
+    let name;
+
+    if(this.state.datacenterID=== null || this.state.datacenterID === -1 ){
+      name = 'Racks in All Datacenters'
+    }
+    else {
+      name = 'Racks in Datacenter: ' + this.context.datacenter_ab;
+    }
+
 
     return (
       <div>
@@ -415,7 +439,7 @@ export class RackController extends Component {
           <Grid item justify="flex-start" alignContent='center' xs={10}>
                 <Typography variant="h3">
                 <div id="hideOnPrint">
-                  Racks in Datacenter: {this.context.datacenter_ab}
+                  {name}
                 </div>
                 </Typography>
           </Grid>

@@ -16,6 +16,7 @@ export class DatacenterNavbar extends Component{
     //   console.log(option)
     //   options.push(option.abbreviation)
     // })
+    console.log(this.context.datacenterOptions[0].name);
   return (
     <DatacenterContext.Consumer>
     {({ datacenter_ab, datacenter_id, datacenter_name, datacenterOptions, setDatacenter }) => (
@@ -25,7 +26,8 @@ export class DatacenterNavbar extends Component{
       options={datacenterOptions}
       onChange={(event, value) => setDatacenter(value.id, value.name, value.abbreviation)}
       getOptionLabel={option => option.abbreviation}
-      defaultValue={datacenter_ab}
+      disableClearable={true}
+      defaultValue={datacenterOptions[0]}
       renderInput={params => (
         <TextField style={{backgroundColor: 'white', borderRadius: '15px'}} {...params} label="Datacenter" variant="outlined" fullWidth margin="normal" variant="filled"
         color="primary" />
