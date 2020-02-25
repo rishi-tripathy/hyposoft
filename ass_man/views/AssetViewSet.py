@@ -151,15 +151,19 @@ class AssetViewSet(viewsets.ModelViewSet):
         for i in power_ports_json:
             try:
                 pdu = PDU.objects.get(name=i['pdu'])
-            except PDU.DoesNotExist:
+            except (PDU.DoesNotExist, KeyError):
                 pdu = None
-            port_num = int(i['port_number'])
+            
+            port_num_a = i.get('port_number')
+            if port_num_a:
+                port_num = int(port_num_a)
 
             try:
-                pp = asset.power_port_set.get(name=i['name'])
-                pp.pdu = pdu
-                pp.port_number = port_num
-                pp.save()
+                pp = asset.power_port_set.get(id=i['id'])
+                if (pp.pdu != pdu || pp.port_number != port_num):
+                    pp.pdu = pdu
+                    pp.port_number = port_num
+                    pp.save()
             except(Power_Port.DoesNotExist, KeyError):
                 pp = Power_Port.objects.create(pdu=pdu, port_number=port_num, asset=asset)
         return
