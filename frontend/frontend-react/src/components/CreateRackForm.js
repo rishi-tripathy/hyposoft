@@ -37,16 +37,16 @@ export class CreateRackForm extends Component {
       let myOptions = [];
       let myIds = [];
       let myIdMap = [];
-      // console.log(res.data.results)
+      console.log(res.data.results)
       for(var i = 0; i < res.data.results.length; i++) {
-        // console.log('populating arrays')
-        // console.log(res.data.results[i])
+        console.log('populating arrays')
+        console.log(res.data.results[i])
         myOptions.push(res.data.results[i].abbreviation);
         myIds.push(res.data.results[i].id);
-        // console.log('here')
+        console.log('here')
         var obj = {id: res.data.results[i].id, datacenter: res.data.results[i].abbreviation};
 
-        // console.log(obj);
+        console.log(obj);
         myIdMap.push(obj);
       }
       this.setState({
@@ -84,7 +84,9 @@ export class CreateRackForm extends Component {
     // console.log(this.state.datacenterToIdMap.find(x => x.datacenter === this.state.selectedDataCenterOption).id)
 
 
-    // console.log(this.state.datacenter)
+
+
+    console.log(this.state.datacenter)
 
     let start_rack = this.state.rack_num_start;
     let end_rack = this.state.rack_num_end;
