@@ -100,7 +100,8 @@ export class PowerPortConnectionDialog extends Component {
     })
       .catch(function (error) {
         // TODO: handle error
-        alert('Could not load model names. Re-login.\n' + JSON.stringify(error.response, null, 2));
+        console.log(error.response)
+        //alert('Could not load model names. Re-login.\n' + JSON.stringify(error.response, null, 2));
       });
   }
 
@@ -150,7 +151,7 @@ export class PowerPortConnectionDialog extends Component {
   };
 
   handleClose = () => {
-    this.props.sendPowerPortConnectionInfo(null);
+    this.props.sendPowerPortConnectionInfo([]);
     this.setState({ 
       open: false, 
       configured: false,
@@ -200,7 +201,7 @@ export class PowerPortConnectionDialog extends Component {
             <Grid item xs={6}>
               <FormGroup row>
                 <RadioGroup
-                  value={this.state.powerPortConfiguration[i].pdu}
+                  value={this.state.powerPortConfiguration[i] ? this.state.powerPortConfiguration[i].pdu : null}
                   row
                   onChange={(e) => this.handleLeftRightChange(i, e)}>
                   <FormControlLabel
@@ -225,7 +226,7 @@ export class PowerPortConnectionDialog extends Component {
                 options={this.state.pduOptionsPerEachPDU[i]}
                 //getOptionLabel={option => option.label}
                 onChange={(event, value) => this.handleChangePDUOption(event, value, i)}
-                value={this.state.powerPortConfiguration[i].port_number}
+                value={this.state.powerPortConfiguration[i] ? this.state.powerPortConfiguration[i].port_number : null}
                 renderInput={params => (
                   <TextField {...params} label="PDU Port Number" fullWidth />
                 )}
@@ -246,7 +247,7 @@ export class PowerPortConnectionDialog extends Component {
 
 
   render() {
-    // console.log(this.props);
+    console.log(this.props);
     // console.log(this.state.powerPortConfiguration);
 
     let configuredMessage = (this.state.configured)
@@ -263,7 +264,7 @@ export class PowerPortConnectionDialog extends Component {
         </Grid>
 
         <Dialog open={this.state.open} onClose={this.handleClose} aria-labelledby="form-dialog-title">
-          <DialogTitle id="form-dialog-title">Connect Network Port</DialogTitle>
+          <DialogTitle id="form-dialog-title">Connect Power Port</DialogTitle>
           <DialogContent>
             <DialogContentText>
               For each Power Port, select a PDU port number and connect left/right ports.

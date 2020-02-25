@@ -56,7 +56,10 @@ export class NetworkPortConnectionDialog extends Component {
       else {
         this.setState({ networkPorts: [], selectedNetworkPortOption: null });
       }
+    }
 
+    if (prevProps.connectedPortID !== this.props.connectedPortID) {
+      this.props.sendNetworkPortConnectionID(this.props.indexOfThisNPConfig, this.props.connectedPortID)
     }
   }
 
@@ -244,10 +247,19 @@ export class NetworkPortConnectionDialog extends Component {
   render() {
     //console.log(this.props)
     //console.log(this.state)
-    //return (<div></div>)
-    let configuredMessage = (this.state.selectedDatacenterOption && this.state.selectedRackOption && this.state.selectedNetworkPortOption && this.state.selectedAssetOption)
-      ? <p>Configured: {this.state.selectedNetworkPortOption.name}</p>
-      : <p>Not configured.</p>
+    // console.log(this.state.selectedAssetOption)
+    // console.log(this.state.selectedNetworkPortOption)
+
+    let configuredMessage;
+
+    if (this.props.connectedPortID) {
+      configuredMessage = <p>Configured. Asset: {this.props.connectedAssetHostname} Port: {this.props.connectedPortName}</p>
+    }
+    else {
+      configuredMessage = ((this.state.selectedDatacenterOption && this.state.selectedRackOption && this.state.selectedNetworkPortOption && this.state.selectedAssetOption))
+        ? <p>Configured. Asset: {this.state.selectedAssetOption.hostname} Port: {this.state.selectedNetworkPortOption.name}</p>
+        : <p>Not configured.</p>
+    }
 
     let selections = this.createSelectionBoxes();
 

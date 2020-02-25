@@ -4,7 +4,7 @@ import {
   Typography, Paper, IconButton, Tooltip, TableSortLabel
 } from "@material-ui/core";
 import PageviewIcon from '@material-ui/icons/Pageview';
-import {Link} from 'react-router-dom'
+import { Link } from 'react-router-dom'
 
 
 export class AllConnectedAssetsView extends Component {
@@ -12,7 +12,9 @@ export class AllConnectedAssetsView extends Component {
 
   renderTableHeader() {
     let headCells = [
-      { id: 'hostname', label: 'Hostname' },
+      { id: 'my_name', label: 'Network Port Name' },
+      { id: 'hostname', label: 'Connected Hostname' },
+      { id: 'name', label: 'Connected Network Port' },
     ];
     return headCells.map(headCell => (
       <TableCell
@@ -34,15 +36,17 @@ export class AllConnectedAssetsView extends Component {
     )
 
     return this.props.connectedAssets.map((asset) => {
-      const { id, hostname } = asset //destructuring
+      const { id, hostname, name, my_name } = asset //destructuring
       return (
         <TableRow
           hover
           tabIndex={-1}
           key={id}
         >
-
+          <TableCell align="center">{my_name}</TableCell>
           <TableCell align="center">{hostname}</TableCell>
+          <TableCell align="center">{name}</TableCell>
+
           <TableCell align="right">
             <Link to={'/assets/' + id}>
               <Tooltip title='View Details'>
