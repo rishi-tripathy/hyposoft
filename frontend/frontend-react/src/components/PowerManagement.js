@@ -50,7 +50,7 @@ export class PowerManagement extends Component {
     })
       .catch(function (error) {
         // TODO: handle error
-        alert('Could not load statuses.\n' + JSON.stringify(error.response, null, 2));
+        alert('Could not load statuses.\n' + JSON.stringify(error.response.data, null, 2));
         this.setState({ isLoading: false })
       });
   }
@@ -63,11 +63,11 @@ export class PowerManagement extends Component {
     let self = this
     axios.post(dst, onState)
       .then(function (response) {
-        alert('Toggle was successful.\n' + JSON.stringify(response.data, null, 2));
+        alert('Toggle response below. A failure status may indicate that PDU Networkx 98 Pro is down\n' + JSON.stringify(response.data, null, 2));
         self.setState({ isLoading: false })
       })
       .catch(function (error) {
-        alert('Toggle was not successful (on).\n' + JSON.stringify(error.response, null, 2));
+        alert('Toggle was not successful (on).\n' + JSON.stringify(error.response.data, null, 2));
         //this.setState({ isLoading: false })
       });
     this.setState({ isLoading: false })
@@ -82,11 +82,11 @@ export class PowerManagement extends Component {
     let self = this
     axios.post(dst, offState)
       .then(function (response) {
-        alert('Toggle was successful.\n' + JSON.stringify(response.data, null, 2));
+        alert('Toggle response below. A failure status may indicate that PDU Networkx 98 Pro is down\n' + JSON.stringify(response.data, null, 2));
         self.setState({ isLoading: false })
       })
       .catch(function (error) {
-        alert('Toggle was not successful (off).\n' + JSON.stringify(error.response, null, 2));
+        alert('Toggle was not successful (off).\n' + JSON.stringify(error.response.data, null, 2));
         //this.setState({ isLoading: false })
       });
     this.setState({ isLoading: false })
@@ -112,18 +112,18 @@ export class PowerManagement extends Component {
       })
       .then((res) => {
         // do something with Apple res
-        alert('Toggle was successful.\n' + JSON.stringify(res.data, null, 2));
+        alert('Toggle response below. A failure status may indicate that PDU Networkx 98 Pro is down\n' + JSON.stringify(res.data, null, 2));
         self.setState({ isLoading: false })
         self.handleStatusUpdate()
       })
       .catch((err) => {
         // handle err
-        alert('Toggle was un-successful.\n' + JSON.stringify(err.response, null, 2));
+        alert('Toggle was un-successful.\n' + JSON.stringify(err.response.data, null, 2));
         self.handleStatusUpdate()
         //this.setState({ isLoading: false })
       });
     this.setState({ isLoading: false })
-  }
+  };
 
   render() {
     return (
