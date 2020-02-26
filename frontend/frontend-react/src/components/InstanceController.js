@@ -15,6 +15,7 @@ import AddCircleIcon from "@material-ui/icons/AddCircle";
 import HelpIcon from '@material-ui/icons/Help';
 import SettingsEthernetIcon from '@material-ui/icons/SettingsEthernet';
 import { Link } from "react-router-dom";
+import DatacenterContext from './DatacenterContext'
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
@@ -384,8 +385,7 @@ export class InstanceController extends Component {
       assets={this.state.assets}
       filter_query={this.getFilterQuery}
       sendSortQuery={this.getSortQuery}
-      sendRerender={this.getRerender}
-      is_admin={this.props.is_admin} />;
+      sendRerender={this.getRerender}/>;
 
     let paginateNavigation = <p></p>;
     if (this.state.prevPage == null && this.state.nextPage != null) {
@@ -428,16 +428,16 @@ export class InstanceController extends Component {
       />
     }
 
-    let add = this.props.is_admin ? (
+    let add = this.context.is_admin ? (
       <Link to={'/assets/create'}>
         <Button color="primary" variant="contained" endIcon={<AddCircleIcon />}>
           Add Asset
         </Button>
       </Link>
 
-    ) : {};
+    ) : <p></p>;
 
-    let imp = this.props.is_admin ? (
+    let imp = this.context.is_admin ? (
       <>
         <Button variant="outlined" component="span" startIcon={<CloudUploadIcon />} onClick={this.handleImport}>
           Import
@@ -450,9 +450,9 @@ export class InstanceController extends Component {
           onChange={this.handleFileUpload}
         />
       </>
-    ) : {};
+    ) : <p></p>;
 
-    let importNetworkConnections = this.props.is_admin ? (
+    let importNetworkConnections = this.context.is_admin ? (
       <>
         <Button variant="outlined" component="span" startIcon={<SettingsEthernetIcon />} onClick={this.handleNPImport}>
           Import NetPorts
@@ -465,7 +465,7 @@ export class InstanceController extends Component {
           onChange={this.handleNPFileUpload}
         />
       </>
-    ) : {};
+    ) : <p></p>;
 
     // if we're not on the table, then don't show pagination or filters or sorting
     if (!this.state.showTableView) {
@@ -527,5 +527,7 @@ export class InstanceController extends Component {
     )
   }
 }
+
+InstanceController.contextType = DatacenterContext;
 
 export default InstanceController

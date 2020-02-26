@@ -14,6 +14,7 @@ import InstanceFilters from './InstanceFilters';
 import '../stylesheets/TableView.css'
 import axios, { post } from 'axios'
 import { Link } from 'react-router-dom'
+import DatacenterContext from './DatacenterContext';
 
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
@@ -126,7 +127,7 @@ export class InstanceTableMUI extends Component {
       { id: 'owner', label: 'Owner' },
       // { id: 'np', label: 'Network Ports' },
       // { id: 'pp', label: 'Power Ports' },
-      { id: 'assetNumber', label: 'Asset no.' },
+      { id: 'asset_number', label: 'Asset no.' },
     ];
     return headCells.map(headCell => (
       <TableCell
@@ -184,7 +185,7 @@ export class InstanceTableMUI extends Component {
                 </Tooltip>
               </Link>
             </TableCell>
-            {this.props.is_admin ? (
+            {this.context.is_admin ? (
               <TableCell align="right">
                 <Link to={'/assets/' + id + '/edit'}>
                   <Tooltip title='Edit'>
@@ -195,7 +196,7 @@ export class InstanceTableMUI extends Component {
                 </Link>
               </TableCell>) : <p></p>
             }
-            {this.props.is_admin ? (
+            {this.context.is_admin ? (
               < TableCell align="right">
                 < Tooltip title='Delete'>
                   <IconButton size="sm" onClick={() => this.showDeleteForm(id)}>
@@ -236,5 +237,6 @@ export class InstanceTableMUI extends Component {
   }
 }
 
+InstanceTableMUI.contextType = DatacenterContext;
 
 export default InstanceTableMUI;

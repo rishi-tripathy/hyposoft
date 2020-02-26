@@ -9,6 +9,7 @@ import {
 } from "@material-ui/core"
 import { Link } from 'react-router-dom'
 import AddCircleIcon from "@material-ui/icons/AddCircle";
+import DatacenterContext from './DatacenterContext';
 
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
@@ -97,14 +98,14 @@ export class UserController extends Component {
         </ButtonGroup>
     }
 
-    let add = this.props.is_admin ? (
+    let add = this.context.is_admin ? (
       <Link to={'/users/create'}>
         <Button color="primary" variant="contained" endIcon={<AddCircleIcon />}>
           Add User
         </Button>
       </Link>
 
-    ) : {};
+    ) : <p></p>;
 
     return (
       <Container maxwidth="xl">
@@ -132,5 +133,7 @@ export class UserController extends Component {
     )
   }
 }
+
+UserController.contextType = DatacenterContext;
 
 export default UserController

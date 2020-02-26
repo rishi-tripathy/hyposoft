@@ -34,9 +34,16 @@ export class DatacenterController extends Component {
       }
 
       getDatacenters = () => {
+        // console.log(this.props.location.state)
+        if(this.props.location.state === undefined){
+        }
+        else{
+         window.location = '/';
+
+        }
         let dst = "/api/datacenters/" + "?" + this.state.filterQuery + "&" + this.state.sortQuery;
-        console.log("QUERY")
-        console.log(dst)
+        // console.log("QUERY")
+        // console.log(dst)
         axios.get(dst).then(res => {
           this.setState({
             datacenters: res.data.results,
@@ -52,12 +59,12 @@ export class DatacenterController extends Component {
 
       getFilterQuery = (q) => {
         this.setState({filterQuery: q});
-        console.log(this.state.filterQuery);
+        // console.log(this.state.filterQuery);
       }
     
       getSortQuery = (q) => {
         this.setState({sortQuery: q})
-        console.log(this.state.sortQuery);
+        // console.log(this.state.sortQuery);
       }
     
       componentDidMount() {
@@ -123,8 +130,19 @@ export class DatacenterController extends Component {
             alert("Cannot load. Re-login.\n" + JSON.stringify(error.response.data, null, 2));
           });
       }
+
+      toggleShowingAll = () => {
+        this.state.showingAll ? (
+          this.getDatacenters()
+        ) : (this.getAllDatacenters())
+        this.setState(prevState => ({
+          showingAll: !prevState.showingAll
+        }));
+      }
  
     render() {
+
+      // console.log(this.context)
 
         let paginateNavigation = <p></p>;
             if (this.state.prevPage == null && this.state.nextPage != null) {
@@ -156,20 +174,19 @@ export class DatacenterController extends Component {
                                 }
         />
 
-        let add = this.props.is_admin ? (
+        let add = this.context.is_admin ? (
             <Link to={'/datacenters/create'}>
               <Button color="primary" variant="contained" endIcon={<AddCircleIcon/>}>
                 Add Datacenter
               </Button>
             </Link>
       
-          ) : {};
+          ) : <p></p>;
 
         let content = <div>< DatacenterTable 
                         datacenters={this.state.datacenters}
                         filterQuery={this.getFilterQuery}
-                        sendSortQuery={this.getSortQuery}
-                        is_admin={this.props.is_admin}/>
+                        sendSortQuery={this.getSortQuery}/>
                         </div>;
 
         return(
@@ -200,5 +217,7 @@ export class DatacenterController extends Component {
         )
     }
 }
+
+DatacenterController.contextType = DatacenterContext;
 
 export default DatacenterController

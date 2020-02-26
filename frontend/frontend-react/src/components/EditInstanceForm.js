@@ -9,7 +9,7 @@ import {
 import { Autocomplete } from "@material-ui/lab";
 import CancelIcon from '@material-ui/icons/Cancel';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
-import { Link } from "react-router-dom";
+import { Link, Redirect } from "react-router-dom";
 import NetworkPortConnectionDialog from './NetworkPortConnectionDialog';
 import PowerPortConnectionDialog from './PowerPortConnectionDialog';
 
@@ -61,6 +61,7 @@ export class EditInstanceForm extends Component {
       rightPPName: null,
       ppConnections: [],
 
+      redirect: false,
       //ppIDs: [],
     }
   }
@@ -429,11 +430,15 @@ export class EditInstanceForm extends Component {
 
     let stateToSend = this.removeEmpty(stateCopy);
     console.log(JSON.stringify(stateToSend, null, 2))
+    var self = this;
 
     axios.put(dst, stateToSend)
       .then(function (response) {
         alert('Edit was successful');
-        window.location = '/assets'
+        // window.location = '/assets'
+        self.setState({
+          redirect: true,
+        });
       })
       .catch(function (error) {
         alert('Edit was not successful.\n' + JSON.stringify(error.response.data, null, 2));
@@ -482,6 +487,7 @@ export class EditInstanceForm extends Component {
   render() {
     return (
       <div>
+        {this.state.redirect && <Redirect to={{pathname: '/assets'}} />}
         <Container maxwidth="xl">
           <Grid container className='themed-container' spacing={2}>
             <Grid item alignContent='center' xs={12} />
@@ -643,7 +649,7 @@ export class EditInstanceForm extends Component {
                 <Grid item xs={2}>
                   <Tooltip title='Submit'>
                     <Button variant="contained" type="submit" color="primary" endIcon={<AddCircleIcon />}
-                      onClick={() => this.handleSubmit}>Create
+                      onClick={() => this.handleSubmit}>Update
                     </Button>
                   </Tooltip>
                 </Grid>

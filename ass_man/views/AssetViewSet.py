@@ -40,7 +40,7 @@ DELETE = 'DELETE'
 PUT = 'PUT'
 
 ASSET_ORDERING_FILTERING_FIELDS = ['model', 'datacenter', 'model__model_number', 'model__vendor',
-                                   'hostname', 'rack', 'rack_u', 'owner']
+                                   'hostname', 'rack', 'rack_u', 'owner', 'asset_number']
 
 
 class AssetViewSet(viewsets.ModelViewSet):

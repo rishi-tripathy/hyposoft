@@ -179,7 +179,7 @@ export class NetworkPortConnectionDialog extends Component {
       autoSelect
       id="dc-select"
       options={this.state.datacenters}
-      getOptionLabel={option => option.name}
+      getOptionLabel={option => option.abbreviation}
       onChange={this.handleChangeDatacenter}
       value={this.state.selectedDatacenterOption}
       renderInput={params => (

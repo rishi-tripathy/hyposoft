@@ -184,7 +184,10 @@ export class RackTable extends Component {
   render() {
 
     let rackNumber = this.getRackNum();
-
+    if(this.props.allCase){
+      console.log(this.props.dc)
+      rackNumber = rackNumber.concat(' ('+ this.props.dc+')');
+    }
 
     return (
       <table id="entries1">

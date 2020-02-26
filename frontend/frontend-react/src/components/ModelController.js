@@ -11,6 +11,7 @@ import CloudUploadIcon from "@material-ui/icons/CloudUpload";
 import SaveAltIcon from "@material-ui/icons/SaveAlt";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
 import {Link} from 'react-router-dom'
+import DatacenterContext from "./DatacenterContext";
 
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
@@ -256,8 +257,7 @@ export class ModelController extends Component {
     let content = <div><ModelTableMUI models={this.state.models}
                                       filter_query={this.getFilterQuery}
                                       sendSortQuery={this.getSortQuery}
-                                      sendRerender={this.getRerender}
-                                      is_admin={this.props.is_admin}/>
+                                      sendRerender={this.getRerender}/>
     </div>
 
 
@@ -296,17 +296,17 @@ export class ModelController extends Component {
       />
     }
 
-    let add = this.props.is_admin ? (
+    let add = this.context.is_admin ? (
       <Link to={'/models/create'}>
         <Button color="primary" variant="contained" endIcon={<AddCircleIcon/>}>
           Add Model
         </Button>
       </Link>
 
-    ) : {};
+    ) : <p></p>;
 
 
-    let imp = this.props.is_admin ? (
+    let imp = this.context.is_admin ? (
       <>
         <Button variant="outlined" component="span" startIcon={<CloudUploadIcon/>} onClick={this.handleImport}>
           Import
@@ -319,7 +319,7 @@ export class ModelController extends Component {
           onChange={this.handleFileUpload}
         />
       </>
-    ) : {};
+    ) : <p></p>;
 
 
     return (
@@ -356,5 +356,7 @@ export class ModelController extends Component {
     )
   }
 }
+
+ModelController.contextType = DatacenterContext;
 
 export default ModelController
