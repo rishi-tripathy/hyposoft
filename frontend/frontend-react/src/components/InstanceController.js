@@ -430,7 +430,7 @@ export class InstanceController extends Component {
     // let sorting = <InstanceSort sendSortQuery={ this.getSortQuery } />
     let exp = <Button variant="outlined" startIcon={<SaveAltIcon />} onClick={this.exportData}>Export Assets</Button>
 
-    let np_exp = <Button variant="outlined" startIcon={<SaveAltIcon />} onClick={this.exportNPData}>Export NetPorts</Button>
+    let np_exp = <Button variant="outlined" startIcon={<SaveAltIcon />} onClick={this.exportNPData}>Export Network Connections</Button>
 
     let showAll = <p></p>;
     if (this.state.prevPage != null || this.state.nextPage != null) {
@@ -471,7 +471,7 @@ export class InstanceController extends Component {
     let importNetworkConnections = this.context.is_admin ? (
       <>
         <Button variant="outlined" component="span" startIcon={<SettingsEthernetIcon />} onClick={this.handleNPImport}>
-          Import NetPorts
+          Import Network Connections
         </Button>
         <input
           accept="text/csv"
