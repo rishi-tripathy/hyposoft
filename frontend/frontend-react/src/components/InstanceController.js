@@ -491,7 +491,7 @@ export class InstanceController extends Component {
                   </IconButton>
                 </a>
               </Tooltip>
-
+              <p> Import Documentation</p>
             </Grid>
             <Grid item justify="center" alignContent="center" xs={3}>
               {np_exp}
