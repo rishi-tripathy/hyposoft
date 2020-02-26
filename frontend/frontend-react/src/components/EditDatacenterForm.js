@@ -35,9 +35,10 @@ export class EditDatacenterForm extends Component {
     axios.put(dst, stateToSend)
       .then(function (response) {
         alert('Edit was successful');
-        self.setState({
-          redirect: true,
-        })
+        window.location = '/datacenters'
+        // self.setState({
+        //   redirect: true,
+        // })
       })
       .catch(function (error) {
         alert('Edit was not successful.\n' + JSON.stringify(error.response.data, null, 2));
