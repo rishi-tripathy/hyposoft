@@ -26,7 +26,6 @@ export class DatacenterController extends Component {
           prevPage: null,
           nextPage: null,
           filterQuery: "",
-          sortQuery: "",
           rerender: false,
         //   file: null
         };
@@ -41,7 +40,7 @@ export class DatacenterController extends Component {
          window.location = '/';
 
         }
-        let dst = "/api/datacenters/" + "?" + this.state.filterQuery + "&" + this.state.sortQuery;
+        let dst = "/api/datacenters/" + "?" + this.state.filterQuery + "&";
         // console.log("QUERY")
         // console.log(dst)
         axios.get(dst).then(res => {
@@ -60,11 +59,6 @@ export class DatacenterController extends Component {
       getFilterQuery = (q) => {
         this.setState({filterQuery: q});
         // console.log(this.state.filterQuery);
-      }
-    
-      getSortQuery = (q) => {
-        this.setState({sortQuery: q})
-        // console.log(this.state.sortQuery);
       }
     
       componentDidMount() {
@@ -106,17 +100,12 @@ export class DatacenterController extends Component {
 
       getAllDatacenters = () => {
         let filter = this.state.filterQuery;
-        let sort = this.state.sortQuery;
     
         if (this.state.filterQuery.length !== 0) {
           filter = filter + "&";
         }
     
-        if (this.state.sortQuery.length !== 0) {
-          sort = sort + "&"
-        }
-    
-        let dst = "/api/datacenters/" + "?" + filter + sort + "show_all=true";
+        let dst = "/api/datacenters/" + "?" + filter + "show_all=true";
     
         axios.get(dst).then(res => {
           this.setState({

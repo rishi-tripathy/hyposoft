@@ -99,6 +99,8 @@ class AssetSerializer(serializers.HyperlinkedModelSerializer):
         if power_ports:
             pp_dict = {}
             for i in power_ports:
+                if not i.get('pdu'):
+                    continue
                 try:
                     pdu = PDU.objects.get(name=i['pdu'])
                 except PDU.DoesNotExist:
