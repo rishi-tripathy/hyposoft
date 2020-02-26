@@ -167,7 +167,7 @@ class AssetViewSet(viewsets.ModelViewSet):
                     pp.save()
             except(Power_Port.DoesNotExist, KeyError):
                 pp = Power_Port.objects.create(pdu=pdu, port_number=port_num, asset=asset)
-        if not power_ports_json:
+        if not power_ports_json and request.method == 'POST':
             for i in range(asset.model.power_ports):
                 Power_Port.objects.create(pdu=None, asset=asset)
         return
