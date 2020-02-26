@@ -30,7 +30,7 @@ export class DeleteMultipleRacksForm extends Component {
     console.log(this.context)
     this.loadDatacenters();
     this.setState({
-      datacenter: '/api/datacenters/'.concat(this.context.datacenter_id).toString().concat('/'),
+      datacenter: this.context.datacenter_id,
     })
     console.log(this.state.datacenter)
   }
@@ -42,7 +42,7 @@ export class DeleteMultipleRacksForm extends Component {
       let myOptions = [];
       let myIds = [];
       let myIdMap = [];
-      for(var i = 0; i < res.data.results.length; i++) {
+      for(var i = 1; i < res.data.results.length; i++) {
         myOptions.push(res.data.results[i].abbreviation);
         myIds.push(res.data.results[i].id);
         var obj = {id: res.data.results[i].id, datacenter: res.data.results[i].abbreviation};
@@ -74,7 +74,8 @@ export class DeleteMultipleRacksForm extends Component {
         //do nothing (doesn't work flipped idk why JS shit)
       }
       else{
-        let dc = '/api/datacenters/'.concat(id.id).concat('/');
+        let dc = id.id;
+        console.log(dc)
         this.setState({datacenter: dc});
       }
     }
@@ -95,15 +96,16 @@ export class DeleteMultipleRacksForm extends Component {
         data: stateToSend
       })
         .then(function (response) {
-          console.log(response);
-          let message = response.data.results;
-          alert(response.data.results);
+          console.log(response.data.results.successfully_deleted);
+          alert('Successfully Deleted: '+response.data.results.successfully_deleted + '\n'
+          + 'Failed to delete ' +  response.data.results.failed_to_delete_nonexistent + ' because they are nonexistent \n'
+          + 'Failed to delete ' + response.data.results.failed_to_delete_occupied + ' because they contain assets \n');
           self.setState({
             redirect: true,
           });
         })
         .catch(function (error) {
-          alert('Creation was not successful.\n' + JSON.stringify(error.response.data, null, 2));
+          alert('Deletion was not successful.\n' + JSON.stringify(error.response.data, null, 2));
         });
     } else {
         alert("Rack Numbers must be specified by a Single Capital Letter Followed by Multiple Numbers.");
@@ -114,6 +116,14 @@ export class DeleteMultipleRacksForm extends Component {
   render() {
     let start_rack;
     let end_rack;
+    let defVal;
+
+    if(this.context.datacenter_id === -1){
+      defVal = '';
+    }
+    else{
+      defVal = this.context.datacenter_ab;
+    }
     return (
       <div>
       {this.state.redirect && <Redirect to= {{pathname: '/racks/'}}/>}
@@ -133,7 +143,7 @@ export class DeleteMultipleRacksForm extends Component {
                   noOptionsText={"Create New in DC tab"}
                   options={this.state.datacenterOptions}
                   onInputChange={this.handleChangeDatacenter}
-                  defaultValue={this.context.datacenter_ab}
+                  defaultValue={defVal}
                   renderInput={params => (
                     <TextField {...params} label="Datacenter" fullWidth/>
                   )}

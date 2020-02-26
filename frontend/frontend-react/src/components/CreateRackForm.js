@@ -42,7 +42,7 @@ export class CreateRackForm extends Component {
       let myOptions = [];
       let myIds = [];
       let myIdMap = [];
-      for(var i = 0; i < res.data.results.length; i++) {
+      for(var i = 1; i < res.data.results.length; i++) {
         myOptions.push(res.data.results[i].abbreviation);
         myIds.push(res.data.results[i].id);
         var obj = {id: res.data.results[i].id, datacenter: res.data.results[i].abbreviation};
@@ -119,7 +119,8 @@ export class CreateRackForm extends Component {
         axios.post('/api/racks/many/', stateToSend)
           .then(function (response) {
             let message = response.data.results;
-            alert(response.data.results);
+            alert('Succesfully created '+response.data.results.successfully_created
+            + '\n Failed to create: ' +response.data.results.failed_to_create);
             self.setState({
               redirect:true,
             });
@@ -135,7 +136,15 @@ export class CreateRackForm extends Component {
 
   render() {
     // console.log(this.context.datacenter_ab)
-    let defaultVal = this.context.datacenter_ab;
+
+    let defVal;
+    
+    if(this.context.datacenter_id === -1){
+      defVal = '';
+    }
+    else{
+      defVal = this.context.datacenter_ab;
+    }
 
     console.log(this.state.redirect)
     let content;
@@ -168,7 +177,7 @@ export class CreateRackForm extends Component {
                   noOptionsText={"Create New in DC tab"}
                   options={this.state.datacenterOptions}
                   onInputChange={this.handleChangeDatacenter}
-                  defaultValue={defaultVal}
+                  defaultValue={defVal}
                   renderInput={params => (
                     <TextField {...params} label="Datacenter" fullWidth/>
                   )}
