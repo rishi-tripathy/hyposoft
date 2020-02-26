@@ -9,6 +9,8 @@ import { Link } from 'react-router-dom'
 import AllConnectedAssetsView from './AllConnectedAssetsView'
 import PowerManagement from './PowerManagement'
 import AssetNetworkGraph from './AssetNetworkGraph'
+import DatacenterContext from './DatacenterContext';
+
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
@@ -75,6 +77,7 @@ export class DetailedInstance extends Component {
   }
 
   render() {
+    console.log(this.context)
     const regex = /[a-e][0-1]?[0-9]$/
     const { id, model, hostname, rack, rack_u, owner, comment } = this.state.asset;
     return (
@@ -122,8 +125,11 @@ export class DetailedInstance extends Component {
               {
                 this.state.asset.datacenter
                   && this.state.asset.rack
+                  && this.state.asset.owner
+                  && (this.context.username === this.state.asset.owner || this.context.username === 'admin')
                   && this.state.asset.datacenter.abbreviation.toLowerCase() === 'rtp1'
                   && regex.test(this.state.asset.rack.rack_number.toLowerCase())
+
                   ?
                   (<div>
                     <Typography variant="h4" gutterBottom>
@@ -155,5 +161,7 @@ export class DetailedInstance extends Component {
     )
   }
 }
+
+DetailedInstance.contextType = DatacenterContext;
 
 export default DetailedInstance

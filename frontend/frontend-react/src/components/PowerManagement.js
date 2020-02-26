@@ -187,4 +187,5 @@ export class PowerManagement extends Component {
   }
 }
 
+
 export default PowerManagement
