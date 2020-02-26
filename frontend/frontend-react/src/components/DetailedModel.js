@@ -1,10 +1,14 @@
 import React, { Component } from 'react'
 import axios from 'axios'
 import ModelCard from './ModelCard'
-import DetailedInstance from './DetailedInstance'
 import AllInstancesOfModelView from './AllInstancesOfModelView';
-import DetailedInstanceFromModel from './DetailedInstanceFromModel';
-import Button from "reactstrap/es/Button";
+import Typography from '@material-ui/core/Typography';
+
+import {
+  Grid, Button, Container, Paper, ButtonGroup, Switch, FormControlLabel
+} from '@material-ui/core'
+import PropTypes from 'prop-types';
+
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 
@@ -14,22 +18,26 @@ export class DetailedModel extends Component {
     super();
     this.state = {
       model: {
-        // 'id': 37,
-        // 'vendor': 'Dell',
-        // 'model_number': '34d',
-        // 'height': 3,
-        // 'display_color': '000000',
-        // 'ethernet_ports': null,
-        // 'power_ports': null,
-        // 'cpu': '',
-        // 'memory': null,
-        // 'storage': '',
-        // 'comment': '',
-        
       },
       detailedInstanceID: 0,
       showIndividualInstanceView: false,
-      showTableView : true,
+      showTableView: true,
+    }
+  }
+
+  loadModelData = () => {
+    if (this.props.match.params.id) {
+      let dst = '/api/models/'.concat(this.props.match.params.id).concat('/');
+      console.log(dst);
+      axios.get(dst).then(res => {
+        this.setState({
+          model: res.data
+        });
+      })
+        .catch(function (error) {
+          // TODO: handle error
+          alert('Cannot load models. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+        });
     }
   }
 
@@ -37,80 +45,66 @@ export class DetailedModel extends Component {
     show ? this.setState({
       showIndividualInstanceView: true,
       // everything else false
-      showTableView : false,
+      showTableView: false,
     })
-    : this.setState({
-      showIndividualInstanceView : false,
-    }) 
-  }
-
-  getShowTableView = (show) => {
-    show ? this.setState({
-      showTableView : true,
-      // everything else false
-      showIndividualInstanceView: false,
-    })
-    : this.setState({
-      showTableView : false,
-    })
+      : this.setState({
+        showIndividualInstanceView: false,
+      })
   }
 
   getDetailedInstanceID = (id) => {
-    this.setState({ detailedInstanceID: id});
-  }
-
-  loadModelData = () => {
-    if (this.props.modelID) {
-      let dst = '/api/models/'.concat(this.props.modelID).concat('/');
-      console.log(dst);
-      axios.get(dst).then(res => {
-        this.setState({
-          model: res.data
-        });
-      })
-      .catch(function (error) {
-        // TODO: handle error
-        alert('Cannot load models. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
-      });
-    }
+    this.setState({ detailedInstanceID: id });
   }
 
   componentDidMount() {
     this.loadModelData();
   }
 
-  // componentDidUpdate(prevProps, prevState) {
-  //   if (this.props.modelID !== undefined) {
-  //     this.loadModelData();
-  //   }
-  // }
-
   render() {
-
-    let content;
-    if (this.state.showTableView) {
-      content = <AllInstancesOfModelView modelID={this.state.model.id} 
-                  sendInstanceID={ this.getDetailedInstanceID }
-                  sendShowDetailedInstance={ this.getShowDetailedInstance } />;
-    }
-    else if (this.state.showIndividualInstanceView) {
-      content = <DetailedInstanceFromModel instanceID={ this.state.detailedInstanceID }
-                  sendShowTable={ this.getShowTableView }  /> ;
-    }
+    console.log(this.props.match)
+    // let content = <AllInstancesOfModelView modelID={this.state.model.id}
+    //   sendInstanceID={this.getDetailedInstanceID}
+    //   sendShowDetailedInstance={this.getShowDetailedInstance} />;
 
     return (
       <div>
-        <Button onClick={() => this.props.sendShowTable(true)} >Back</Button>
-        <br></br>
-        {/* // TODO: this is such bad code lmao */}
-        <ModelCard model={ [this.state.model] } />
-        <br></br>
-        <br></br>
-        <h4>Instances of this Model</h4>
-        { content }
+        <Container maxwidth="xl">
+          <Grid container className="themed-container" spacing={2}>
+            <Grid item justify="flex-start" alignContent='center' xs={12} />
+            <Grid item justify="flex-start" alignContent='center' xs={10}>
+              <Typography variant="h3">
+                Detailed Model View
+              </Typography>
+            </Grid>
+            <Grid item xs={12}>
+              <Paper>
+                <ModelCard model={[this.state.model]} />
+              </Paper>
+            </Grid>
+            <Grid item alignContent='center' xs={12} />
+            <Grid item xs={6}>
+              <Typography variant="h4" gutterBottom>
+                Assets
+              </Typography>
+            </Grid>
+            <Grid item xs={6} />
+            <Grid item xs={6}>
+              <Paper>
+                <AllInstancesOfModelView modelID={this.state.model.id}
+                  sendInstanceID={this.getDetailedInstanceID}
+                  sendShowDetailedInstance={this.getShowDetailedInstance} />
+              </Paper>
+            </Grid>
+          </Grid>
+        </Container>
       </div>
     )
   }
+}
+
+DetailedModel.propTypes = {
+  //modelID: PropTypes.number.isRequired,
+  //sendShowTable: PropTypes.func.isRequired,
 }
 
 export default DetailedModel

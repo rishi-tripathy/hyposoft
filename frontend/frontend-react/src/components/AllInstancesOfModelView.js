@@ -1,6 +1,14 @@
-import React, { Component } from 'react'
+import React, {Component} from 'react'
 import axios from 'axios'
-import { UncontrolledCollapse, Button, Table, FormGroup, Input, Form, ButtonGroup, Container, Card, Row, Col } from 'reactstrap';
+// import { Button, Table } from '@material-ui/core'
+import { Link } from 'react-router-dom'
+import {
+  Collapse, Table, TableBody, Button, TableCell, TableContainer, TableRow, Toolbar,
+  Typography, Paper, IconButton, Tooltip
+} from "@material-ui/core";
+import PageviewIcon from '@material-ui/icons/Pageview';
+
+ 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 
@@ -9,7 +17,7 @@ export class AllInstancesOfModelView extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      instances: [{}]
+      assets: [{}]
     }
   }
 
@@ -20,17 +28,17 @@ export class AllInstancesOfModelView extends Component {
 
   loadInstances = () => {
     if (this.props.modelID) {
-      let dst = '/api/models/'.concat(this.props.modelID).concat('/instances/');
+      let dst = '/api/models/'.concat(this.props.modelID).concat('/assets/');
       console.log(dst)
       axios.get(dst).then(res => {
         this.setState({
-          instances: res.data.results
+          assets: res.data.results
         });
       })
-      .catch(function (error) {
-        // TODO: handle error
-        alert('Cannot load instances. Re-login..\n' + JSON.stringify(error.response.data, null, 2));
-      });
+        .catch(function (error) {
+          // TODO: handle error
+          alert('Cannot load instances. Re-login..\n' + JSON.stringify(error.response.data, null, 2));
+        });
     }
   }
 
@@ -45,23 +53,50 @@ export class AllInstancesOfModelView extends Component {
   }
 
   renderTableHeader() {
-    let header = ['hostname', 'rack', 'rack u'];
-    return header.map((key, index) => {
-        return <th key={index}>{key.toUpperCase()}</th>
-    })
+    let headCells = [
+      { id: 'rack', numeric: false, disablePadding: false, label: 'Rack' },
+      { id: 'rack_u', numeric: true, disablePadding: false, label: 'Rack (U)' },
+      { id: 'hostname', numeric: false, disablePadding: false, label: 'Hostname' },
+    ];
+    return headCells.map(headCell => (
+      <TableCell
+        key={headCell.id}
+        align={'center'}
+        padding={'default'}
+      // sortDirection={orderBy === headCell.id ? order : false}
+      >
+        {headCell.label.toUpperCase()}
+      </TableCell>
+    ))
   }
 
   renderTableData() {
-    //if (this.state.instances == null) return;
-    return this.state.instances.map((instance) => {
-      const { id, model, hostname, rack, owner, rack_u } = instance //destructuring
+    if (this.state.assets.length === 0) return (
+      <TableRow hover tabIndex={-1} >
+        <TableCell align="center" colSpan={3} >No entries</TableCell>
+      </TableRow>
+    )
+    return this.state.assets.map((instance) => {
+      const {id, model, hostname, rack, owner, rack_u} = instance //destructuring
       return (
-        <tr key={id}>
-          <td>{hostname}</td>
-          <td>{rack ? rack.rack_number : null}</td>
-          <td>{rack_u}</td>
-          <td><Button color="info" onClick={ () => this.showDetailedInstance(id) }>More details</Button></td>
-        </tr>
+        <TableRow
+          hover
+          tabIndex={-1}
+          key={id}
+        >
+          <TableCell align="center">{rack ? rack.rack_number : null}</TableCell>
+          <TableCell align="center">{rack_u}</TableCell>
+          <TableCell align="center">{hostname}</TableCell>
+          <TableCell align="right">
+            <Link to={'/assets/' + id}>
+              <Tooltip title='View Details'>
+                <IconButton size="sm" >
+                  <PageviewIcon />
+                </IconButton>
+              </Tooltip>
+            </Link>
+          </TableCell>   
+        </TableRow>
       )
     })
   }
@@ -69,14 +104,21 @@ export class AllInstancesOfModelView extends Component {
   render() {
     return (
       <div>
+        <Paper>
+          <TableContainer>
+            <Table
+              aria-labelledby="modelTableTitle"
+              aria-label="enhanced table"
+            >
+              <TableRow>{this.renderTableHeader()}</TableRow>
+
+              <TableBody>
+                {this.renderTableData()}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Paper>
         {/* <h3>Instances of this Model</h3> */}
-        <Table striped hover>
-          <tbody>
-            <tr>{this.renderTableHeader()}</tr>
-            { this.renderTableData() }
-          </tbody>
-        </Table>
-          
       </div>
     )
   }
