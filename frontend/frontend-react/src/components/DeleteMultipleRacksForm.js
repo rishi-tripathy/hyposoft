@@ -30,7 +30,7 @@ export class DeleteMultipleRacksForm extends Component {
     console.log(this.context)
     this.loadDatacenters();
     this.setState({
-      datacenter: '/api/datacenters/'.concat(this.context.datacenter_id).toString().concat('/'),
+      datacenter: this.context.datacenter_id,
     })
     console.log(this.state.datacenter)
   }
@@ -42,7 +42,7 @@ export class DeleteMultipleRacksForm extends Component {
       let myOptions = [];
       let myIds = [];
       let myIdMap = [];
-      for(var i = 0; i < res.data.results.length; i++) {
+      for(var i = 1; i < res.data.results.length; i++) {
         myOptions.push(res.data.results[i].abbreviation);
         myIds.push(res.data.results[i].id);
         var obj = {id: res.data.results[i].id, datacenter: res.data.results[i].abbreviation};
@@ -74,7 +74,8 @@ export class DeleteMultipleRacksForm extends Component {
         //do nothing (doesn't work flipped idk why JS shit)
       }
       else{
-        let dc = '/api/datacenters/'.concat(id.id).concat('/');
+        let dc = id.id;
+        console.log(dc)
         this.setState({datacenter: dc});
       }
     }
