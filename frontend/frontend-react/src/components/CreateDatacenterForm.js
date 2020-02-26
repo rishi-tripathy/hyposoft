@@ -83,7 +83,7 @@ export class CreateDatacenterForm extends Component {
                   </Typography>
                 </Grid>
                 <Grid item xs={4}>
-                  <TextField label='Datacenter Name' type="text" fullWidth onChange={e => {
+                  <TextField label='Datacenter Name' type="text" inputProps = {{ maxLength: 50  }} fullWidth onChange={e => {
                     let nameField = e.target.value;
                     this.setState({
                       name: nameField,
@@ -91,7 +91,7 @@ export class CreateDatacenterForm extends Component {
                   }}/>
                 </Grid>
                 <Grid item xs={4}>
-                  <TextField label='Datacenter Abbreviation' type="text" fullWidth onChange={e => {
+                  <TextField label='Datacenter Abbreviation' type="text"  inputProps = {{ maxLength: 6}} fullWidth onChange={e => {
                     let abbreviationField = e.target.value;
                     this.setState({
                       abbreviation: abbreviationField, 
