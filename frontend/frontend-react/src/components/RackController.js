@@ -277,26 +277,26 @@ export class RackController extends Component {
       datacenterID: this.context.datacenter_id,
     });
 
-    console.log(this.context)
+    // console.log(this.context)
 
-    console.log(this.state.datacenterID)
-    console.log(this.context.datacenter_id)
+    // console.log(this.state.datacenterID)
+    // console.log(this.context.datacenter_id)
     if (!this.state.showAllRacks) {
 
       //all or one datacenter?
-      console.log(this.state.datacenterID)
+      // console.log(this.state.datacenterID)
       let dst; 
       // if(this.state.datacenterID===-1 || this.state.datacenterID == null){
       if(this.context.datacenter_id===-1){
         dst = '/api/racks/' + this.state.filterQuery; //gets from all dc's
-        console.log('all case true')
+        // console.log('all case true')
         this.setState({
           allCase: true,
         });
       }
       else {
         dst = '/api/racks/' + '?' + 'datacenter=' + this.context.datacenter_id + '&' + this.state.filterQuery;
-        console.log('all case false')
+        // console.log('all case false')
         
         this.setState({
           allCase: false,
@@ -312,7 +312,7 @@ export class RackController extends Component {
       })
         .catch(function (error) {
           // TODO: handle error
-          console.log(error.response);
+          // console.log(error.response);
           alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
         });
     } else {
@@ -322,14 +322,14 @@ export class RackController extends Component {
       // if(this.state.datacenterID===-1 || this.state.datacenterID == null){
       if(this.context.datacenter_id===-1){
         dst = '/api/racks/' + '?show_all=true' + this.state.filterQuery; //gets from all dc's
-        console.log('all case true')
+        // console.log('all case true')
         this.setState({
           allCase: true,
         });
       }
       else {
         dst = '/api/racks/' + '?' + 'datacenter=' + this.context.datacenter_id + '&' + 'show_all=true' + '&' + this.state.filterQuery;
-        console.log('all case false')       
+        // console.log('all case false')       
         this.setState({
           allCase: false,
         });
@@ -356,7 +356,7 @@ export class RackController extends Component {
     
       let datacenterIds = [];
       let racksArr = [];
-      console.log(this.state.racks)
+      // console.log(this.state.racks)
       // if(this.state.showAllRacks){
       //   console.log(this.state.racks.results)
       //   this.state.racks.results.map((r, index) => {
@@ -366,7 +366,7 @@ export class RackController extends Component {
       // }
       // else {
         this.state.racks.map((r, index) => {
-          console.log(r)
+          // console.log(r)
           datacenterIds.push(r.datacenter.substring(r.datacenter.length-2, r.datacenter.length-1))
         })
       // }
@@ -374,17 +374,17 @@ export class RackController extends Component {
       console.log(datacenterIds)
 
       datacenterIds.map((r, index) => {
-        console.log(r)
+        // console.log(r)
         for(var i = 0 ; i < dcOptions.length; i++){
-          console.log(dcOptions[i].id)
-          console.log(dcOptions[i].abbreviation)
+          // console.log(dcOptions[i].id)
+          // console.log(dcOptions[i].abbreviation)
           if(r === dcOptions[i].id.toString()){
-            console.log('match found')
+            // console.log('match found')
             datacenterAbs.push(dcOptions[i].abbreviation)
           }
         }
       })
-      console.log(datacenterAbs)
+      // console.log(datacenterAbs)
       return datacenterAbs;
     }
 
@@ -399,7 +399,7 @@ export class RackController extends Component {
     })
       .catch(function (error) {
         // TODO: handle error
-        console.log(error.response);
+        // console.log(error.response);
       });
   }
 
@@ -413,7 +413,7 @@ export class RackController extends Component {
     })
       .catch(function (error) {
         // TODO: handle error
-        console.log(error.response);
+        // console.log(error.response);
       });
   }
 
@@ -425,10 +425,10 @@ export class RackController extends Component {
   render() {
     let content;
     let list = [];
-    console.log(this.state.racks)
-    console.log(this.context.datacenter_id)
+    // console.log(this.state.racks)
+    // console.log(this.context.datacenter_id)
     if(this.context.datacenter_id === -1){
-      console.log('in allcase')
+      // console.log('in allcase')
       // console.log(this.getDatacentersForTableHeaders());
       list = this.getDatacentersForTableHeaders();
     }

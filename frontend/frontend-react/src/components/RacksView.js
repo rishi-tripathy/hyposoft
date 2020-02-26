@@ -143,7 +143,7 @@ export class RacksView extends Component {
 
   render() {
 
-    console.log(this.props.rack)
+    // console.log(this.props.rack)
 
     let is_admin = false;
 

@@ -55,7 +55,7 @@ class App extends React.Component {
   }
 
   setDatacenter  = (value, name, ab) =>  {
-    console.log("changing id to "+ value + " name: "+name);
+    // console.log("changing id to "+ value + " name: "+name);
     this.setState({ 
       datacenter_id: value,
       datacenter_name: name,
@@ -64,19 +64,19 @@ class App extends React.Component {
   }
 
   resetDatacenter = () => {
-    console.log('resetting dcs')
+    // console.log('resetting dcs')
     this.getDatacenters();
-    console.log(this.state.datacenterOptions)
+    // console.log(this.state.datacenterOptions)
   }
 
   getDatacenters = () => {
     let self = this;
     let dst = '/api/datacenters/?show_all=true'; //want all
     //let dst = '/api/datacenters/?&';
-    console.log("QUERY")
-    console.log(dst)
+    // console.log("QUERY")
+    // console.log(dst)
     axios.get(dst).then(res => {
-      console.log(res)
+      // console.log(res)
       let d = [];
       let allCase = {id: -1, url: null, abbreviation: 'ALL', name: 'ALL'};
       d.push(allCase);
@@ -84,7 +84,7 @@ class App extends React.Component {
         d.push(dc)
       });
 
-      console.log(d)
+      // console.log(d)
 
       this.setState({
         datacenterOptions: d,
@@ -97,7 +97,7 @@ class App extends React.Component {
   }
 
   componentDidMount() {
-    console.log('rerender');
+    // console.log('rerender');
    // this.setDatacenter(this.context.datacenter_id, this.context.datacenter_name, this.conteext.datacenter_ab);
     this.setLoginInfo();
   }
@@ -115,7 +115,7 @@ class App extends React.Component {
     const querystring = require('querystring');
 
     if(window.location.href.indexOf("token") > -1){ //exists
-      console.log('back from oit')
+      // console.log('back from oit')
       // console.log(window.location.hash)
       // console.log(window.location.hash.substring(1));
       // console.log(querystring.parse(window.location.hash.substring(1)));
@@ -125,16 +125,15 @@ class App extends React.Component {
       let tokenParams = querystring.parse(window.location.hash.substring(1));
 
       let tokenCopy = tokenParams.access_token;
-      console.log(tokenCopy)
 
       axios.get('/api/users/netid_login/' + '?' + 'token=' + tokenCopy)
       .then(res => {
-        console.log(res)
+        // console.log(res)
         this.setState({
           logged_in: true,
           delay: true,
         });
-        console.log('netid state has been set')
+        // console.log('netid state has been set')
         this.getUserPermissions();
       })
       .catch(function (error) {
@@ -148,7 +147,7 @@ class App extends React.Component {
 
   getUserPermissions() {
     axios.get('api/users/who_am_i/').then(res => {
-      console.log(res.data)
+      // console.log(res.data)
       if (res.data.current_user != '') {
         this.setState({ 
           logged_in: true,
@@ -157,12 +156,12 @@ class App extends React.Component {
           username: res.data.current_user,
           is_admin: res.data.is_admin,
          });
-         console.log('going to fill DCs')
+        //  console.log('going to fill DCs')
          this.resetDatacenter();
         }
     })
       .catch(error => {
-        console.log(error.response)
+        // console.log(error.response)
       });
   }
 
@@ -178,13 +177,13 @@ class App extends React.Component {
 
     let content;
 
-    console.log(!this.state.logged_in)
-    console.log(this.setDatacenter.datacenterOptions===undefined)
+    // console.log(!this.state.logged_in)
+    // console.log(this.setDatacenter.datacenterOptions===undefined)
     // console.log(this.setDatacenter.datacenterOptions.length===0)
 
     let no_render = !this.state.logged_in || this.setDatacenter.datacenterOptions===undefined;
 
-    console.log(no_render)
+    // console.log(no_render)
     
     if (!this.state.logged_in) {
      content =         
@@ -197,7 +196,7 @@ class App extends React.Component {
       </div>
     </div>;
   }
-  console.log(this.state.delay)
+  // console.log(this.state.delay)
 
     return (
       <DatacenterContext.Provider value={{...this.state, setDatacenter: this.setDatacenter, resetDatacenter: this.resetDatacenter}}>

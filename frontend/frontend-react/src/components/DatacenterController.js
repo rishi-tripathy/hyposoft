@@ -34,7 +34,7 @@ export class DatacenterController extends Component {
       }
 
       getDatacenters = () => {
-        console.log(this.props.location.state)
+        // console.log(this.props.location.state)
         if(this.props.location.state === undefined){
         }
         else{
@@ -42,8 +42,8 @@ export class DatacenterController extends Component {
 
         }
         let dst = "/api/datacenters/" + "?" + this.state.filterQuery + "&" + this.state.sortQuery;
-        console.log("QUERY")
-        console.log(dst)
+        // console.log("QUERY")
+        // console.log(dst)
         axios.get(dst).then(res => {
           this.setState({
             datacenters: res.data.results,
@@ -59,12 +59,12 @@ export class DatacenterController extends Component {
 
       getFilterQuery = (q) => {
         this.setState({filterQuery: q});
-        console.log(this.state.filterQuery);
+        // console.log(this.state.filterQuery);
       }
     
       getSortQuery = (q) => {
         this.setState({sortQuery: q})
-        console.log(this.state.sortQuery);
+        // console.log(this.state.sortQuery);
       }
     
       componentDidMount() {
@@ -142,7 +142,7 @@ export class DatacenterController extends Component {
  
     render() {
 
-      console.log(this.context)
+      // console.log(this.context)
 
         let paginateNavigation = <p></p>;
             if (this.state.prevPage == null && this.state.nextPage != null) {
