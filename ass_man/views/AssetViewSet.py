@@ -409,7 +409,7 @@ class AssetViewSet(viewsets.ModelViewSet):
                         'pdu': name,
                         'port': num,
                         'v': 'on'
-                    }, timeout=2)
+                    }, timeout=0.0002)
                     responses.append({
                         "port": "PDU{} port{}".format(name, num),
                         "status": "successfully turned on"
@@ -417,7 +417,7 @@ class AssetViewSet(viewsets.ModelViewSet):
                 except requests.exceptions.RequestException:
                     responses.append({
                         "port": "PDU{} port{}".format(name, num),
-                        "status": "failure"
+                        "status": "failure- the PDU Networx 98 service is down."
                     })
 
             if any(r.get("status") == 'failure' for r in responses):
@@ -450,7 +450,7 @@ class AssetViewSet(viewsets.ModelViewSet):
                         'pdu': name,
                         'port': num,
                         'v': 'off'
-                    }, timeout=2)
+                    }, timeout=0.0002)
                     responses.append({
                         "port": "PDU{} port{}".format(name, num),
                         "status": "successfully turned off"
@@ -458,7 +458,7 @@ class AssetViewSet(viewsets.ModelViewSet):
                 except requests.exceptions.RequestException:
                     responses.append({
                         "port": "PDU{} port{}".format(name, num),
-                        "status": "failure"
+                        "status": "failure- the PDU Networx 98 service is down."
                     })
 
             if any(r.get("status") == 'failure' for r in responses):
@@ -494,8 +494,8 @@ class AssetViewSet(viewsets.ModelViewSet):
 
         relevant_ports = [(pp.port_number, pp.pdu) for pp in asset.power_port_set.all()]
         try:
-            left_html = requests.get(NETWORX_GET_ROOT_URL, params={"pdu": pdu_l_name}, timeout=3).text
-            right_html = requests.get(NETWORX_GET_ROOT_URL, params={"pdu": pdu_r_name}, timeout=3).text
+            left_html = requests.get(NETWORX_GET_ROOT_URL, params={"pdu": pdu_l_name}, timeout=0.0002).text
+            right_html = requests.get(NETWORX_GET_ROOT_URL, params={"pdu": pdu_r_name}, timeout=0.0002).text
         except requests.exceptions.RequestException:
             return Response({
                 'status': 'Error. The PDU Networx 98 Pro service is unavailable.'
