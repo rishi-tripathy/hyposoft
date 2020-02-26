@@ -658,6 +658,7 @@ def import_network_port_file(request):
                 override=True
 
         if dest_port and dest_port.connection != src_port:
+            if should_override:
                 if dest_port.connection:
                     dest_port.connection.connection = None
                 dest_port.connection = src_port
