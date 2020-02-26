@@ -281,13 +281,13 @@ class AssetViewSet(viewsets.ModelViewSet):
                         links.append("{},{}".format(l1_id, data.get("id")))
                         newlinks.append({
                             'source': Asset.objects.get(id=l1_id).hostname,
-                            'destination': data.get("hostname"),
+                            'target': data.get("hostname"),
                         })
                     else:
                         links.append("{},{}".format(data.get("id"), l1_id, ))
                         newlinks.append({
                             'source': data.get("hostname"),
-                            'destination': Asset.objects.get(id=l1_id).hostname,
+                            'target': Asset.objects.get(id=l1_id).hostname,
                         })
 
         root_nps = data.get("network_ports")
@@ -309,13 +309,13 @@ class AssetViewSet(viewsets.ModelViewSet):
                         links.append("{},{}".format(root.get("id"), data.get("id")))
                         newlinks.append({
                             'source': root.get("hostname"),
-                            'destination': data.get("hostname")
+                            'target': data.get("hostname")
                         })
                     else:
                         links.append("{},{}".format(data.get("id"), root.get("id")))
                         newlinks.append({
                             'source': data.get("hostname"),
-                            'destination': root.get("hostname")
+                            'target': root.get("hostname")
                         })
 
                     for np2 in data.get("network_ports"):

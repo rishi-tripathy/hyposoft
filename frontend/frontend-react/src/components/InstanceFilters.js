@@ -13,8 +13,8 @@ export class InstanceFilters extends Component {
       modelOptions: [],
       selectedModelOption: null,
 
-      rackOptions: [],
-      selectedRackOption: null,
+      // rackOptions: [],
+      // selectedRackOption: null,
 
       ownerOptions: [],
       selectedOwnerOption: null,
@@ -56,22 +56,22 @@ export class InstanceFilters extends Component {
       });
   }
 
-  mountRacks = () => {
-    // RACK
-    let dst = '/api/racks/?show_all=true';
-    axios.get(dst).then(res => {
-      let myOptions = [];
-      for (let i = 0; i < res.data.length; i++) {
-        myOptions.push({value: res.data[i].id, label: res.data[i].rack_number});
-      }
-      //console.log(res.data)
-      this.setState({rackOptions: myOptions});
-    })
-      .catch(function (error) {
-        // TODO: handle error
-        alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
-      });
-  }
+  // mountRacks = () => {
+  //   // RACK
+  //   let dst = '/api/racks/?show_all=true';
+  //   axios.get(dst).then(res => {
+  //     let myOptions = [];
+  //     for (let i = 0; i < res.data.length; i++) {
+  //       myOptions.push({value: res.data[i].id, label: res.data[i].rack_number});
+  //     }
+  //     //console.log(res.data)
+  //     this.setState({rackOptions: myOptions});
+  //   })
+  //     .catch(function (error) {
+  //       // TODO: handle error
+  //       alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+  //     });
+  // }
 
   mountOwners = () => {
     // OWNER
@@ -105,14 +105,14 @@ export class InstanceFilters extends Component {
     })
   };
 
-  handleChangeRack = (event, selectedRackOption) => {
-    let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
-    identifiersCopy.rackID = (selectedRackOption ? selectedRackOption.value : '')
-    this.setState({
-      selectedRackOption,
-      identifiers: identifiersCopy,
-    })
-  };
+  // handleChangeRack = (event, selectedRackOption) => {
+  //   let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
+  //   identifiersCopy.rackID = (selectedRackOption ? selectedRackOption.value : '')
+  //   this.setState({
+  //     selectedRackOption,
+  //     identifiers: identifiersCopy,
+  //   })
+  // };
 
   handleChangeOwner = (event, selectedOwnerOption) => {
     let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
@@ -155,7 +155,7 @@ export class InstanceFilters extends Component {
     }
     this.setState({
       selectedModelOption: null,
-      selectedRackOption: null,
+      //selectedRackOption: null,
       selectedOwnerOption: null,
       identifiers: identifiersEmpty,
     })

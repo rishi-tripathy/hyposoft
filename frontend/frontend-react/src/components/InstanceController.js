@@ -5,7 +5,9 @@ import DetailedInstance from './DetailedInstance';
 import CreateInstanceForm from './CreateInstanceForm';
 import EditInstanceForm from './EditInstanceForm';
 import {
-  Grid, Button, Container, Paper, ButtonGroup, Switch, FormControlLabel, Typography
+  Grid, Button, Container, Paper,
+  ButtonGroup, Switch, FormControlLabel,
+  Typography, Tooltip, IconButton
 } from "@material-ui/core"
 import CloudUploadIcon from "@material-ui/icons/CloudUpload";
 import SaveAltIcon from "@material-ui/icons/SaveAlt";
@@ -486,9 +488,14 @@ export class InstanceController extends Component {
               </Typography>
             </Grid>
             <Grid item justify="flex-start" alignContent='center' xs={3}>
-              {/* <IconButton size="sm"> */}
-                <HelpIcon />
-              {/* </IconButton> */}
+              <Tooltip title='View import/export guidelines'>
+                <a target="_blank" href="https://d1b10bmlvqabco.cloudfront.net/attach/k4u27qnccr45oo/i515p00jifO/k6wckku7h5ne/ECE458__Bulk_Format_Proposal__v3.2.pdf">
+                  <IconButton size="sm">
+                    <HelpIcon />
+                  </IconButton>
+                </a>
+              </Tooltip>
+
             </Grid>
             <Grid item justify="center" alignContent="center" xs={3}>
               {np_exp}

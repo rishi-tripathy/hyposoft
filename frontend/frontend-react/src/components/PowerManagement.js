@@ -9,9 +9,16 @@ import {
   Grid, TextField
 } from "@material-ui/core";
 import CircularProgress from '@material-ui/core/CircularProgress';
+import PowerIcon from '@material-ui/icons/Power';
+import PowerOffIcon from '@material-ui/icons/PowerOff';
+import { green } from '@material-ui/core/colors';
+
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
+const sleep = (milliseconds) => {
+  return new Promise(resolve => setTimeout(resolve, milliseconds))
+}
 
 export class PowerManagement extends Component {
 
@@ -53,16 +60,18 @@ export class PowerManagement extends Component {
     const dst = '/api/assets/' + this.props.assetID + '/update_pp_state/';
     const onState = {}
     onState.status = 'ON'
+    let self = this
     axios.post(dst, onState)
       .then(function (response) {
         alert('Toggle was successful.\n' + JSON.stringify(response.data, null, 2));
-        this.setState({ isLoading: false })
+        self.setState({ isLoading: false })
       })
       .catch(function (error) {
         alert('Toggle was not successful (on).\n' + JSON.stringify(error.response, null, 2));
         //this.setState({ isLoading: false })
       });
     this.setState({ isLoading: false })
+    this.handleStatusUpdate()
   }
 
   handleOffToggle = () => {
@@ -70,16 +79,18 @@ export class PowerManagement extends Component {
     const dst = '/api/assets/' + this.props.assetID + '/update_pp_state/';
     const offState = {}
     offState.status = 'OFF'
+    let self = this
     axios.post(dst, offState)
       .then(function (response) {
         alert('Toggle was successful.\n' + JSON.stringify(response.data, null, 2));
-        this.setState({ isLoading: false })
+        self.setState({ isLoading: false })
       })
       .catch(function (error) {
         alert('Toggle was not successful (off).\n' + JSON.stringify(error.response, null, 2));
         //this.setState({ isLoading: false })
       });
     this.setState({ isLoading: false })
+    this.handleStatusUpdate()
   }
 
   handleCycleToggle = () => {
@@ -89,22 +100,26 @@ export class PowerManagement extends Component {
     const onState = {}
     onState.status = 'ON'
     const dst = '/api/assets/' + this.props.assetID + '/update_pp_state/';
+    let self = this
+    const delay = 2000;
     axios.post(dst, offState)
       .then((res) => {
         // do something with Google res
-        const delay = 2000;
-        setTimeout(() => {
-          return axios.post(dst, onState);
-        }, delay);
+        sleep(delay)
+        //setTimeout(() => {
+        return axios.post(dst, onState);
+        //}, delay);
       })
       .then((res) => {
         // do something with Apple res
         alert('Toggle was successful.\n' + JSON.stringify(res.data, null, 2));
-        this.setState({ isLoading: false })
+        self.setState({ isLoading: false })
+        self.handleStatusUpdate()
       })
       .catch((err) => {
         // handle err
         alert('Toggle was un-successful.\n' + JSON.stringify(err.response, null, 2));
+        self.handleStatusUpdate()
         //this.setState({ isLoading: false })
       });
     this.setState({ isLoading: false })
@@ -116,7 +131,15 @@ export class PowerManagement extends Component {
         <Paper>
           <Grid container spacing={3}>
             <Grid item xs={6}>
-              <TextField
+              Status: 
+              {
+                this.state.status === 'ON' 
+                ?
+                <PowerIcon style={{ color: green[500] }} /> 
+                :
+                <PowerOffIcon color="secondary" />
+              }
+              {/* <TextField
                 label='PDU Status'
                 type="text"
                 fullWidth
@@ -129,7 +152,7 @@ export class PowerManagement extends Component {
                   // this.setState({
                   //   model: modelCopy
                   // })
-                }} />{' '}
+                }} />{' '} */}
             </Grid>
 
             <Grid item xs={6}>
@@ -163,5 +186,6 @@ export class PowerManagement extends Component {
     )
   }
 }
+
 
 export default PowerManagement
