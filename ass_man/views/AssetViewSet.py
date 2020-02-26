@@ -28,7 +28,7 @@ from ass_man.import_manager import import_asset_file, import_network_port_file
 from ass_man.export_manager import export_assets, export_network_ports
 
 # CHANGE THIS FOR PRODUCTION
-NETWORX_PORT = ":8000"
+NETWORX_PORT = ":8004"
 NETWORX_GET_ROOT_URL = "http://hyposoft-mgt.colab.duke.edu{}/pdu.php".format(NETWORX_PORT)
 NETWORX_POST_URL = "http://hyposoft-mgt.colab.duke.edu{}/power.php".format(NETWORX_PORT)
 
