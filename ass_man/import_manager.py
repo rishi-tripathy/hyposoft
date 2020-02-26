@@ -582,7 +582,7 @@ def import_asset_file(request):
     try:
         num = Asset_Number.objects.get(pk=1)
         num.next_avail = current_ass_num
-    except Assset_Nmber.DoesNotExist:
+    except Asset_Number.DoesNotExist:
         pass
     return Response({
         'Number of assets created': (len(assets_to_create)),

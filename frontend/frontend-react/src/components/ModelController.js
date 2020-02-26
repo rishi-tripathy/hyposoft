@@ -165,7 +165,9 @@ export class ModelController extends Component {
             });
         }
       });
-    this.showRerender();
+    this.setState({
+      rerender: true
+    });
   }
 
   handleFileUpload = (e) => {

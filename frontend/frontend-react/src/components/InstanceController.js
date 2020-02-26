@@ -386,18 +386,6 @@ export class InstanceController extends Component {
     return post(url, formData, config)
   }
 
-  fileUpload = (file) => {
-    const url = '/api/assets/import_file/';
-    const formData = new FormData();
-    formData.append('file', file)
-    //formData.append('name', 'sup')
-    const config = {
-      headers: {
-        'content-type': 'multipart/form-data'
-      }
-    }
-    return post(url, formData, config)
-  }
 
 
   render() {
