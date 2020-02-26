@@ -187,12 +187,11 @@ export class RacksView extends Component {
 
     let empty = '';
 
-    if(!this.props.rack){
-      empty = 
-      <Grid item justify="flex-start" alignContent='center' xs={2}>
-        No racks.
-      </Grid>;
+    
+    if(this.props.rack == null || this.state.rack.length===0){
+      empty = <h1>no racks</h1>
     }
+
 
 
     return (
