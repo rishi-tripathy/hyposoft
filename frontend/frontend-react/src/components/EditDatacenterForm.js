@@ -68,11 +68,11 @@ export class EditDatacenterForm extends Component {
               <h1>Update Datacenter</h1>
             </Grid>
             <Grid item xs={6}>
-              <TextField shrink label='Updated Name' type="text" fullWidth value={this.state.name}
+              <TextField shrink label='Updated Name' type="text" inputProps = {{ maxLength: 50}} fullWidth value={this.state.name}
                          onChange={e => this.setState({name: e.target.value})}/>
             </Grid>
             <Grid item xs={6}>
-              <TextField shrink label='Updated Abbreviation' type="text" fullWidth value={this.state.abbreviation}
+              <TextField shrink label='Updated Abbreviation' type="text" inputProps = {{ maxLength: 6}} fullWidth value={this.state.abbreviation}
                          onChange={e => this.setState({abbreviation: e.target.value})}/>
             </Grid>
             <Grid item xs={6}>
