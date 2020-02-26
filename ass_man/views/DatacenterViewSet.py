@@ -37,6 +37,8 @@ class DatacenterViewSet(viewsets.ModelViewSet):
 
     queryset = Datacenter.objects.all()
 
+    ordering = ['name']
+
     def get_serializer_class(self):
         serializer_class = DatacenterSerializer
         return serializer_class
