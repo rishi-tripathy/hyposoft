@@ -26,16 +26,16 @@ export class UserTableMUI extends Component {
     if (window.confirm('Are you sure you want to delete?')) {
       let dst = '/api/users/'.concat(id).concat('/');
       console.log(dst)
+      let self = this
       axios.delete(dst)
         .then(function (response) {
           alert('Delete was successful');
-          this.setState({
-            redirect: true,
-          })
+
         })
         .catch(function (error) {
           alert('Delete was not successful.\n' + JSON.stringify(error.response.data, null, 2));
         });
+      this.showRerender()
     }
   }
 
@@ -60,7 +60,9 @@ export class UserTableMUI extends Component {
       </TableCell>
     ))
   }
-
+  showRerender = () => {
+    this.props.sendRerender(true);
+  }
   renderTableData() {
     console.log(this.context.is_admin)
     if (this.props.users.length == 0) return (
@@ -111,9 +113,11 @@ export class UserTableMUI extends Component {
 
 
   render() {
+    if(this.state.redirect){
+        return <Redirect to = {{pathname: "/users"}} />;
+      }
     return (
       <TableContainer>
-        {this.state.redirect && <Redirect to={{path: '/users'}}/>}
         <Table
           aria-labelledby="modelTableTitle"
           aria-label="enhanced table"
