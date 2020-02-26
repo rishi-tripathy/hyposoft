@@ -222,22 +222,38 @@ def import_asset_file(request):
 
             pp1=re.search('([A-Z])([0-9]{1,2})$', row['power_port_connection_1'])
             pp2=re.search('([A-Z])([0-9]{1,2})$', row['power_port_connection_2'])
+            # pp2_pdu = None
             try:
                 if pp1:
-                    pp1_pdu = eval('rack.pdu_{}'.format(pp1.group(1).lower()))
+                    if pp1.group(1).upper() == 'L':
+                        pp1_pdu = rack.pdu_l if rack else None
+                    else:
+                        pp1_pdu = rack.pdu_r if rack else None
+                    # pp1_pdu = eval('rack.pdu_{}'.format(pp1.group(1).lower()))
                     pp_connected = pp1_pdu.power_port_set.get(port_number=pp1.group(2))
-                    blocked_pps[asset.asset_number] = row['datacenter']+'-'+row['rack']+'-'+\
+                    blocked_pps['New Asset'] = row['datacenter']+'-'+row['rack']+'-'+\
                     row['power_port_connection_1']
                     dont_add=True
+            except Power_Port.DoesNotExist:
+                pass
+
+            try:
                 if pp2:
-                    pp2_pdu = eval('rack.pdu_{}'.format(pp1.group(1).lower()))
+                    if pp2.group(1).upper() == 'L':
+                        pp2_pdu = rack.pdu_l if rack else None
+                    else:
+                        pp2_pdu = rack.pdu_r if rack else None
+                    # pp2_pdu = eval('rack.pdu_{}'.format(pp1.group(1).lower()))
                     pp_connected = pp2_pdu.power_port_set.get(port_number=pp2.group(2))
-                    blocked_pps[asset.asset_number] = row['datacenter']+'-'+row['rack']+'-'+\
+                    blocked_pps['New Asset'] = row['datacenter']+'-'+row['rack']+'-'+\
                     row['power_port_connection_2']
                     dont_add=True
             except Power_Port.DoesNotExist:
-                pp1_pdu=None
-                pp2_pdu=None
+                pass
+            if not pp1:
+                pp1_pdu = None
+            if not pp2:
+                pp2_pdu = None
 
             try:
                 owner = User.objects.get(username=row['owner'])
@@ -438,7 +454,7 @@ def import_asset_file(request):
 
         pp1 = asset.power_port_set.first()
         print(pp1)
-        if pp1 and dash1 or (int(pp1_reg.group(2)) != pp1.port_number or (pp1_reg.group(1).upper() != pp1.pdu.name.upper()[-1])):
+        if pp1_reg and (dash1 or (int(pp1_reg.group(2)) != pp1.port_number or (pp1_reg.group(1).upper() != pp1.pdu.name.upper()[-1]))):
             #someting is different about port location
             if should_override:
                 if pp1_reg == '-':
@@ -471,7 +487,7 @@ def import_asset_file(request):
             print(pp2)
         except IndexError:
             pp2=None
-        if pp2 and dash2 or (int(pp2_reg.group(2)) != pp2.port_number or (pp2_reg.group(1).upper() != pp2.pdu.name.upper()[-1])):
+        if pp2_reg and (dash2 or (int(pp2_reg.group(2)) != pp2.port_number or (pp2_reg.group(1).upper() != pp2.pdu.name.upper()[-1]))):
             #someting is different about port location
             if should_override:
                 if pp2_reg == '-':
