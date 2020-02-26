@@ -124,8 +124,7 @@ export class DetailedInstance extends Component {
               {
                 this.state.asset.datacenter
                   && this.state.asset.rack
-                  && this.state.asset.owner
-                  && (this.context.username === this.state.asset.owner || this.context.username === 'admin')
+                  && (this.state.asset.owner && (this.context.username === this.state.asset.owner) || this.context.username === 'admin' || ! this.state.asset.owner)
                   && this.state.asset.datacenter.abbreviation.toLowerCase() === 'rtp1'
                   && regex.test(this.state.asset.rack.rack_number.toLowerCase())
 

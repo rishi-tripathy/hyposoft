@@ -38,13 +38,21 @@ export class InstanceController extends Component {
       rerender: false,
       file: null,
       npFile: null,
-      showingAll: false
+      showingAll: false,
+      datacenterID: null,
     };
 
   }
 
   getInstances = () => {
-    let dst = '/api/assets/' + '?' + this.state.filterQuery + '&' + this.state.sortQuery;
+    let dst;
+    if (this.state.datacenterID === -1 || this.state.datacenterID == null) {
+      dst = '/api/assets/' + '?' + this.state.filterQuery + '&' + this.state.sortQuery;
+    }
+    else {
+      dst = '/api/assets/' + '?' + 'datacenter=' + this.state.datacenterID + '&' + this.state.filterQuery + '&' + this.state.sortQuery;
+    }
+     
     console.log('QUERY')
     console.log(dst)
     axios.get(dst).then(res => {
@@ -105,7 +113,15 @@ export class InstanceController extends Component {
         this.getInstances();
         this.setState({ rerender: false });
       }, delay);
+    }
 
+    if (this.context.datacenter_id !== this.state.datacenterID) {
+      // console.log(this.context.datacenter_id)
+      // console.log(this.state.datacenterID)
+      this.setState({ datacenterID: this.context.datacenter_id })
+      setTimeout(() => {
+        this.getInstances();
+      }, delay);
     }
   }
 
@@ -232,7 +248,7 @@ export class InstanceController extends Component {
 
         if (window.confirm('Import was not successful.\n' + JSON.stringify(error.response.data, null, 2))) {
           fileUploadOverride(f).then((response) => {
-            console.log(response.data);
+            alert("Import was successful.\n" + JSON.stringify(response.data, null, 2));
           })
             .catch(function (error) {
               console.log(error.response)
