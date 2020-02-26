@@ -35,8 +35,11 @@ export class DatacenterController extends Component {
 
       getDatacenters = () => {
         console.log(this.props.location.state)
-        if(this.props.location.state!== undefined){
+        if(this.props.location.state === undefined){
+        }
+        else{
          window.location = '/';
+
         }
         let dst = "/api/datacenters/" + "?" + this.state.filterQuery + "&" + this.state.sortQuery;
         console.log("QUERY")
@@ -126,6 +129,15 @@ export class DatacenterController extends Component {
             // TODO: handle error
             alert("Cannot load. Re-login.\n" + JSON.stringify(error.response.data, null, 2));
           });
+      }
+
+      toggleShowingAll = () => {
+        this.state.showingAll ? (
+          this.getDatacenters()
+        ) : (this.getAllDatacenters())
+        this.setState(prevState => ({
+          showingAll: !prevState.showingAll
+        }));
       }
  
     render() {
