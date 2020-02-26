@@ -434,9 +434,6 @@ export class RackController extends Component {
     }
 
     if (this.state.showRacksView) {
-      if(this.state.racks == null || this.state.racks.length===0){
-      content = <h1>no racks</h1>
-      } else {
       content =
         <RacksView rack={this.state.racks}
                    sendRerender={this.getRerender}
@@ -450,8 +447,7 @@ export class RackController extends Component {
                    sendShowDelete={this.getShowDelete}
                    sendShowAllRacks={this.getShowAllRacks}
                    allCase={this.state.allCase}
-                   dcList={list}/>
-    }
+                   dcList={list}/>;
   }
 
     let filters =
