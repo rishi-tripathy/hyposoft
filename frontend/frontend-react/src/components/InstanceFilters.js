@@ -45,7 +45,7 @@ export class InstanceFilters extends Component {
 
   mountModelNames = () => {
     // MODEL NAMES
-    let dst = '/api/instances/model_names/';
+    let dst = '/api/assets/model_names/';
     axios.get(dst).then(res => {
       let myOptions = [];
       for (let i = 0; i < res.data.length; i++) {
@@ -228,7 +228,7 @@ export class InstanceFilters extends Component {
                   )}
                 />
               </Grid>
-              <Grid item xs={3}>
+              {/* <Grid item xs={3}>
                 <Autocomplete
                   autoComplete
                   autoHighlight
@@ -241,15 +241,7 @@ export class InstanceFilters extends Component {
                     <TextField {...params} label="Datacenter" fullWidth />
                   )}
                 />
-                {/* <TextField label='Datacenter' type="text" fullWidth
-                           onChange={e => {
-                             let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
-                             identifiersCopy.datacenterID = e.target.value
-                             this.setState({
-                               identifiers: identifiersCopy
-                             })
-                           }}/> */}
-              </Grid>
+              </Grid> */}
               <Grid item xs={3}>
                 <TextField label='Model Vendor' type="text" fullWidth
                   onChange={e => {
