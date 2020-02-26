@@ -388,6 +388,7 @@ class AssetViewSet(viewsets.ModelViewSet):
             }, status=status.HTTP_400_BAD_REQUEST)
 
         def on():
+            responses = []
             for pp in self.get_object().power_port_set.all():
                 name = pp.pdu.name
                 num = pp.port_number
@@ -397,13 +398,25 @@ class AssetViewSet(viewsets.ModelViewSet):
                         'port': num,
                         'v': 'on'
                     }, timeout=2)
-                    return Response(resp.text)
+                    responses.append({
+                        "port": "PDU{} port{}".format(name, num),
+                        "status": "success"
+                    })
                 except requests.exceptions.RequestException:
-                    return Response({
+                    responses.append({
                         'status': 'Error. The PDU Networx 98 Pro service is unavailable.'
-                    }, status=status.HTTP_400_BAD_REQUEST)
+                    })
+
+                if any(r.get("status") == 'failure' for r in responses):
+                    return Response({
+                        "responses": responses
+                    }, status=status.HTTP_207_MULTI_STATUS)
+                return Response({
+                    "responses": responses
+                }, status=status.HTTP_200_OK)
 
         def off():
+            responses = []
             for pp in self.get_object().power_port_set.all():
                 name = pp.pdu.name
                 num = pp.port_number
@@ -413,15 +426,27 @@ class AssetViewSet(viewsets.ModelViewSet):
                         'port': num,
                         'v': 'off'
                     }, timeout=2)
-                    return Response(resp.text)
+                    responses.append({
+                        "port": "PDU{} port{}".format(name, num),
+                        "status": "success"
+                    })
+                    continue
                 except requests.exceptions.RequestException:
-                    return Response({
+                    responses.append({
                         'status': 'Error. The PDU Networx 98 Pro service is unavailable.'
-                    }, status=status.HTTP_400_BAD_REQUEST)
+                    })
 
-        if act == 'on':
+                if any(r.get("status") == 'failure' for r in responses):
+                    return Response({
+                        "responses": responses
+                    }, status=status.HTTP_207_MULTI_STATUS)
+                return Response({
+                    "responses": responses
+                }, status=status.HTTP_200_OK)
+
+        if act.lower() == 'on':
             return on()
-        if act == 'off':
+        if act.lower() == 'off':
             return off()
 
         return Response({
@@ -478,8 +503,6 @@ class AssetViewSet(viewsets.ModelViewSet):
                     state = s.group(1)
                     right_statuses[pp.port_number] = state
                     statuses.append(state)
-
-
 
         return Response({
             "statuses": statuses
