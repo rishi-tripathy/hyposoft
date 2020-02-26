@@ -1,6 +1,10 @@
 import React, { Component } from 'react'
 import { Graph } from "react-d3-graph";
 import axios from 'axios'
+import {
+  Typography, Paper,
+  Grid, TextField
+} from "@material-ui/core";
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
@@ -8,6 +12,7 @@ axios.defaults.xsrfHeaderName = "X-CSRFToken";
 const data = {
   nodes: [{ id: "Harry" }, { id: "Sally" }, { id: "Alice" }],
   links: [{ source: "Harry", target: "Sally" }, { source: "Harry", target: "Alice" }],
+  focusedNodeId: "Harry",
 };
 
 // the graph configuration, you only need to pass down properties
@@ -16,7 +21,7 @@ const myConfig = {
   nodeHighlightBehavior: true,
   node: {
     color: "lightgreen",
-    size: 120,
+    size: 500,
     highlightStrokeColor: "blue",
   },
   link: {
@@ -49,21 +54,25 @@ export class AssetNetworkGraph extends Component {
   render() {
     return (
       <div>
-        <Graph
-          id="graph-id" // id is mandatory, if no id is defined rd3g will throw an error
-          data={data}
-          config={myConfig}
-        // onClickNode={onClickNode}
-        // onRightClickNode={onRightClickNode}
-        // onClickGraph={onClickGraph}
-        // onClickLink={onClickLink}
-        // onRightClickLink={onRightClickLink}
-        // onMouseOverNode={onMouseOverNode}
-        // onMouseOutNode={onMouseOutNode}
-        // onMouseOverLink={onMouseOverLink}
-        // onMouseOutLink={onMouseOutLink}
-        // onNodePositionChange={onNodePositionChange}
-        />;
+        <Paper>
+          <Grid container spacing={3}>
+            <Graph
+              id="graph-id" // id is mandatory, if no id is defined rd3g will throw an error
+              data={data}
+              config={myConfig}
+            // onClickNode={onClickNode}
+            // onRightClickNode={onRightClickNode}
+            // onClickGraph={onClickGraph}
+            // onClickLink={onClickLink}
+            // onRightClickLink={onRightClickLink}
+            // onMouseOverNode={onMouseOverNode}
+            // onMouseOutNode={onMouseOutNode}
+            // onMouseOverLink={onMouseOverLink}
+            // onMouseOutLink={onMouseOutLink}
+            // onNodePositionChange={onNodePositionChange}
+            />
+          </Grid>
+        </Paper>
       </div>
     )
   }

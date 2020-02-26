@@ -1,6 +1,6 @@
-import React, {Component} from 'react'
+import React, { Component } from 'react'
 import InstanceTableMUI from './InstanceTableMUI'
-import axios, {post} from 'axios'
+import axios, { post } from 'axios'
 import DetailedInstance from './DetailedInstance';
 import CreateInstanceForm from './CreateInstanceForm';
 import EditInstanceForm from './EditInstanceForm';
@@ -10,7 +10,8 @@ import {
 import CloudUploadIcon from "@material-ui/icons/CloudUpload";
 import SaveAltIcon from "@material-ui/icons/SaveAlt";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
-import {Link} from "react-router-dom";
+import HelpIcon from '@material-ui/icons/Help';
+import { Link } from "react-router-dom";
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
@@ -58,11 +59,11 @@ export class InstanceController extends Component {
   }
 
   getFilterQuery = (q) => {
-    this.setState({filterQuery: q});
+    this.setState({ filterQuery: q });
   }
 
   getSortQuery = (q) => {
-    this.setState({sortQuery: q})
+    this.setState({ sortQuery: q })
     console.log(this.state.sortQuery);
   }
 
@@ -98,7 +99,7 @@ export class InstanceController extends Component {
     if (prevState.rerender === false && this.state.rerender === true) {
       setTimeout(() => {
         this.getInstances();
-        this.setState({rerender: false});
+        this.setState({ rerender: false });
       }, delay);
 
     }
@@ -106,7 +107,7 @@ export class InstanceController extends Component {
 
   getRerender = (re) => {
     if (re) {
-      this.setState({rerender: true})
+      this.setState({ rerender: true })
     }
   }
 
@@ -381,7 +382,7 @@ export class InstanceController extends Component {
       filter_query={this.getFilterQuery}
       sendSortQuery={this.getSortQuery}
       sendRerender={this.getRerender}
-      is_admin={this.props.is_admin}/>;
+      is_admin={this.props.is_admin} />;
 
     let paginateNavigation = <p></p>;
     if (this.state.prevPage == null && this.state.nextPage != null) {
@@ -408,22 +409,22 @@ export class InstanceController extends Component {
 
     // let filters = <InstanceFilters sendFilterQuery={ this.getFilterQuery } />
     // let sorting = <InstanceSort sendSortQuery={ this.getSortQuery } />
-    let exp = <Button variant="outlined" startIcon={<SaveAltIcon/>} onClick={this.exportData}>Export</Button>
+    let exp = <Button variant="outlined" startIcon={<SaveAltIcon />} onClick={this.exportData}>Export</Button>
 
-    let np_exp = <Button variant="outlined" startIcon={<SaveAltIcon/>} onClick={this.exportNPData}>Export NP</Button>
+    let np_exp = <Button variant="outlined" startIcon={<SaveAltIcon />} onClick={this.exportNPData}>Export NP</Button>
 
     let showAll = <FormControlLabel labelPlacement="left"
-                                    control={
-                                      <Switch value={this.state.showingAll} onChange={() => this.toggleShowingAll()}/>
-                                    }
-                                    label={
-                                      <Typography variant="subtitle1"> Show All</Typography>
-                                    }
+      control={
+        <Switch value={this.state.showingAll} onChange={() => this.toggleShowingAll()} />
+      }
+      label={
+        <Typography variant="subtitle1"> Show All</Typography>
+      }
     />
 
     let add = this.props.is_admin ? (
       <Link to={'/assets/create'}>
-        <Button color="primary" variant="contained" endIcon={<AddCircleIcon/>}>
+        <Button color="primary" variant="contained" endIcon={<AddCircleIcon />}>
           Add Asset
         </Button>
       </Link>
@@ -432,7 +433,7 @@ export class InstanceController extends Component {
 
     let imp = this.props.is_admin ? (
       <>
-        <Button variant="outlined" component="span" startIcon={<CloudUploadIcon/>} onClick={this.handleImport}>
+        <Button variant="outlined" component="span" startIcon={<CloudUploadIcon />} onClick={this.handleImport}>
           Import
         </Button>
         <input
@@ -447,8 +448,8 @@ export class InstanceController extends Component {
 
     let importNetworkConnections = this.props.is_admin ? (
       <>
-        <Button variant="outlined" component="span" startIcon={<CloudUploadIcon/>} onClick={this.handleNPImport}>
-          Import NPs
+        <Button variant="outlined" component="span" startIcon={<CloudUploadIcon />} onClick={this.handleNPImport}>
+          Import NP
         </Button>
         <input
           accept="text/csv"
@@ -474,11 +475,16 @@ export class InstanceController extends Component {
       <div>
         <Container maxwidth="xl">
           <Grid container className="themed-container" spacing={2}>
-            <Grid item justify="flex-start" alignContent='center' xs={12}/>
-            <Grid item justify="flex-start" alignContent='center' xs={3}>
+            <Grid item justify="flex-start" alignContent='center' xs={12} />
+            <Grid item xs={12}>
               <Typography variant="h3">
                 Asset Table
               </Typography>
+            </Grid>
+            <Grid item justify="flex-start" alignContent='center' xs={3}>
+              {/* <IconButton size="sm"> */}
+                <HelpIcon />
+              {/* </IconButton> */}
             </Grid>
             <Grid item justify="center" alignContent="center" xs={3}>
               {np_exp}

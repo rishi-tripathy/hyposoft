@@ -125,12 +125,17 @@ export class DetailedInstance extends Component {
               <PowerManagement assetID={this.props.match.params.id} />
             </Grid>
 
-            <Grid item sx={12}>
-            <Typography variant="h4" gutterBottom>
+            <Grid item xs={6}>
+              <Typography variant="h4" gutterBottom>
                 Asset Network Graph
               </Typography>
-              <AssetNetworkGraph assetID={this.props.match.params.id}/>
+              <AssetNetworkGraph assetID={this.props.match.params.id} />
             </Grid>
+
+            <Grid item xs={6}>
+
+            </Grid>
+
 
           </Grid>
         </Container>

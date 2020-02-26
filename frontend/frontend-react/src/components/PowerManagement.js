@@ -59,7 +59,7 @@ export class PowerManagement extends Component {
         this.setState({ isLoading: false })
       })
       .catch(function (error) {
-        alert('Toggle was not successful.\n' + JSON.stringify(error.response, null, 2));
+        alert('Toggle was not successful (on).\n' + JSON.stringify(error.response, null, 2));
         //this.setState({ isLoading: false })
       });
     this.setState({ isLoading: false })
@@ -76,7 +76,7 @@ export class PowerManagement extends Component {
         this.setState({ isLoading: false })
       })
       .catch(function (error) {
-        alert('Toggle was not successful.\n' + JSON.stringify(error.response, null, 2));
+        alert('Toggle was not successful (off).\n' + JSON.stringify(error.response, null, 2));
         //this.setState({ isLoading: false })
       });
     this.setState({ isLoading: false })
@@ -113,52 +113,52 @@ export class PowerManagement extends Component {
   render() {
     return (
       <div>
-        <Grid container spacing={3}>
-          <Grid item xs={6}>
-            <TextField
-              label='PDU Status'
-              type="text"
-              fullWidth
-              disabled={true}
-              InputLabelProps={{ shrink: true }}
-              value={this.state.status}
-              onChange={e => {
-                // let modelCopy = JSON.parse(JSON.stringify(this.state.model))
-                // modelCopy.height = e.target.value
-                // this.setState({
-                //   model: modelCopy
-                // })
-              }} />{' '}
-          </Grid>
+        <Paper>
+          <Grid container spacing={3}>
+            <Grid item xs={6}>
+              <TextField
+                label='PDU Status'
+                type="text"
+                fullWidth
+                disabled={true}
+                InputLabelProps={{ shrink: true }}
+                value={this.state.status}
+                onChange={e => {
+                  // let modelCopy = JSON.parse(JSON.stringify(this.state.model))
+                  // modelCopy.height = e.target.value
+                  // this.setState({
+                  //   model: modelCopy
+                  // })
+                }} />{' '}
+            </Grid>
 
-          <Grid item xs={6}>
-            <Button variant="outlined" color="primary" onClick={this.handleStatusUpdate}>
-              Refresh Status
+            <Grid item xs={6}>
+              <Button variant="outlined" color="primary" onClick={this.handleStatusUpdate}>
+                Refresh Status
             </Button>
-          </Grid>
+            </Grid>
 
-          <Grid item xs={6}>
-            <Button color="primary" onClick={this.handleOnToggle}>
-              ON
+            <Grid item xs={6}>
+              <Button color="primary" onClick={this.handleOnToggle}>
+                ON
             </Button>{'  '}
-            <Button color="primary" onClick={this.handleOffToggle}>
-              OFF
+              <Button color="primary" onClick={this.handleOffToggle}>
+                OFF
             </Button>{'  '}
-            <Button color="primary" onClick={this.handleCycleToggle}>
-              CYCLE
+              <Button color="primary" onClick={this.handleCycleToggle}>
+                CYCLE
             </Button>{'  '}
+            </Grid>
+
+            <Grid item xs={6}>
+              {
+                this.state.isLoading ? (
+                  <CircularProgress />
+                ) : <p></p>
+              }
+            </Grid>
           </Grid>
-
-          <Grid item xs={6}>
-            {
-              this.state.isLoading ? (
-                <CircularProgress />
-              ) : <p></p>
-            }
-          </Grid>
-        </Grid>
-
-
+        </Paper>
       </div>
     )
   }
