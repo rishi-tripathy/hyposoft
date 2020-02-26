@@ -240,11 +240,13 @@ class AssetViewSet(viewsets.ModelViewSet):
         graph_serializer = AssetSeedForGraphSerializer(self.get_object(), context={'request': request})
 
         assets = []
+        nodes = []
         seen_asset_ids = set()
         assets1 = []
         nps1 = []
         assets2 = []
         links = []
+        newlinks = []
 
         master_data = graph_serializer.data
         data = graph_serializer.data
@@ -256,6 +258,9 @@ class AssetViewSet(viewsets.ModelViewSet):
         }
 
         assets.append(root)
+        nodes.append({
+            'id': root.get("hostname")
+        })
         seen_asset_ids.add(data.get("id"))
 
         def process_l2(np, l1_id):
@@ -269,10 +274,21 @@ class AssetViewSet(viewsets.ModelViewSet):
                         "location": "Rack {} U{}".format(data.get("rack").get("rack_number"), data.get("rack_u"))
                     }
                     assets.append(a2)
+                    nodes.append({
+                        'id': a2.get("hostname")
+                    })
                     if int(l1_id) < int(data.get("id")):
                         links.append("{},{}".format(l1_id, data.get("id")))
+                        newlinks.append({
+                            'source': Asset.objects.get(id=l1_id).hostname,
+                            'target': data.get("hostname"),
+                        })
                     else:
                         links.append("{},{}".format(data.get("id"), l1_id, ))
+                        newlinks.append({
+                            'source': data.get("hostname"),
+                            'target': Asset.objects.get(id=l1_id).hostname,
+                        })
 
         root_nps = data.get("network_ports")
         for np in root_nps:
@@ -286,10 +302,21 @@ class AssetViewSet(viewsets.ModelViewSet):
                         "location": "Rack {} U{}".format(data.get("rack").get("rack_number"), data.get("rack_u"))
                     }
                     assets.append(a1)
+                    nodes.append({
+                        'id': a1.get("hostname")
+                    })
                     if int(root.get("id")) < int(data.get("id")):
                         links.append("{},{}".format(root.get("id"), data.get("id")))
+                        newlinks.append({
+                            'source': root.get("hostname"),
+                            'target': data.get("hostname")
+                        })
                     else:
                         links.append("{},{}".format(data.get("id"), root.get("id")))
+                        newlinks.append({
+                            'source': data.get("hostname"),
+                            'target': root.get("hostname")
+                        })
 
                     for np2 in data.get("network_ports"):
                         process_l2(np2, data.get("id"))
@@ -300,8 +327,15 @@ class AssetViewSet(viewsets.ModelViewSet):
                 "connections": list(set(links))
             }
         }
+        newresp = {
+            "data": {
+                "nodes": nodes,
+                "links": newlinks,
+                "focusNodeId": root.get("hostname")
+            }
+        }
 
-        return Response(resp)
+        return Response(newresp)
 
     @action(detail=False, methods=[POST])
     def import_file(self, request, *args, **kwargs):
@@ -346,48 +380,90 @@ class AssetViewSet(viewsets.ModelViewSet):
             }, status=status.HTTP_400_BAD_REQUEST)
         try:
             # assert re.match("hpdu-rtp1-[A-Z0-9]+[LR]]", pdu_name)
-            assert int(port_number) < 25
+            # assert int(port_number) < 25
             assert act in ['on', 'off', 'cycle']
         except AssertionError:
             return Response({
-                'Invalid Data': "You must choose one action of 'on' or 'off', on one port of port 1-24 for a valid Networx PDU."
+                'Invalid Data': "You must choose one action of 'on' or 'off', for an asset connected to a valid Networx PDU."
             }, status=status.HTTP_400_BAD_REQUEST)
 
         def on():
+            responses = []
             for pp in self.get_object().power_port_set.all():
                 name = pp.pdu.name
                 num = pp.port_number
+                try:
+                    assert name is not None
+                    assert num is not None
+                except AssertionError:
+                    responses.append({
+                        "status": "A port is not connected to the PDU."
+                    })
+
+                    continue
                 try:
                     resp = requests.post(NETWORX_POST_URL, {
                         'pdu': name,
                         'port': num,
                         'v': 'on'
                     }, timeout=2)
-                    return Response(resp.text)
+                    responses.append({
+                        "port": "PDU{} port{}".format(name, num),
+                        "status": "success"
+                    })
                 except requests.exceptions.RequestException:
+                    responses.append({
+                        "port": "PDU{} port{}".format(name, num),
+                        "status": "failure"
+                    })
+
+                if any(r.get("status") == 'failure' for r in responses):
                     return Response({
-                        'status': 'Error. The PDU Networx 98 Pro service is unavailable.'
-                    }, status=status.HTTP_400_BAD_REQUEST)
+                        "responses": responses
+                    }, status=status.HTTP_207_MULTI_STATUS)
+
+                return Response({
+                    "responses": responses
+                }, status=status.HTTP_200_OK)
 
         def off():
+            responses = []
             for pp in self.get_object().power_port_set.all():
                 name = pp.pdu.name
                 num = pp.port_number
+                try:
+                    assert name is not None
+                    assert num is not None
+                except AssertionError:
+                    continue
                 try:
                     resp = requests.post(NETWORX_POST_URL, {
                         'pdu': name,
                         'port': num,
                         'v': 'off'
                     }, timeout=2)
-                    return Response(resp.text)
+                    responses.append({
+                        "port": "PDU{} port{}".format(name, num),
+                        "status": "success"
+                    })
                 except requests.exceptions.RequestException:
-                    return Response({
-                        'status': 'Error. The PDU Networx 98 Pro service is unavailable.'
-                    }, status=status.HTTP_400_BAD_REQUEST)
+                    responses.append({
+                        "port": "PDU{} port{}".format(name, num),
+                        "status": "failure"
+                    })
 
-        if act == 'on':
+                if any(r.get("status") == 'failure' for r in responses):
+                    return Response({
+                        "responses": responses
+                    }, status=status.HTTP_207_MULTI_STATUS)
+
+                return Response({
+                    "responses": responses
+                }, status=status.HTTP_200_OK)
+
+        if act.lower() == 'on':
             return on()
-        if act == 'off':
+        if act.lower() == 'off':
             return off()
 
         return Response({
@@ -444,8 +520,6 @@ class AssetViewSet(viewsets.ModelViewSet):
                     state = s.group(1)
                     right_statuses[pp.port_number] = state
                     statuses.append(state)
-
-
 
         return Response({
             "statuses": statuses

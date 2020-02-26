@@ -284,14 +284,17 @@ export class ModelController extends Component {
 
 
     let exp = <Button variant="outlined" startIcon={<SaveAltIcon/>} onClick={this.exportData}>Export</Button>
-    let showAll = <FormControlLabel labelPlacement="left"
-                                    control={
-                                      <Switch value={this.state.showingAll} onChange={() => this.toggleShowingAll()}/>
-                                    }
-                                    label={
-                                      <Typography variant="subtitle1"> Show All</Typography>
-                                    }
-    />
+    let showAll = <p></p>;
+    if (this.state.prevPage != null || this.state.nextPage != null) {
+       showAll = <FormControlLabel labelPlacement="left"
+                                      control={
+                                        <Switch value={this.state.showingAll} onChange={() => this.toggleShowingAll()}/>
+                                      }
+                                      label={
+                                        <Typography variant="subtitle1"> Show All</Typography>
+                                      }
+      />
+    }
 
     let add = this.context.is_admin ? (
       <Link to={'/models/create'}>

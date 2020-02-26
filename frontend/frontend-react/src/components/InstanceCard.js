@@ -49,7 +49,7 @@ export class InstanceCard extends Component {
           <TableCell align="center">{rack ? rack.rack_number : null}</TableCell>
           <TableCell align="center">{rack_u}</TableCell>
           <TableCell align="center">{model ? model.vendor : null}</TableCell>
-          <TableCell align="center">{model ? model.model_number : null}</TableCell>
+          <TableCell align="center"><Link to={'/models/' + (model ? model.id : '') }>{model ? model.model_number : null}</Link></TableCell>
           <TableCell align="center">{hostname}</TableCell>
           <TableCell align="center">{datacenter ? datacenter.abbreviation : null}</TableCell>
           <TableCell align="center">{owner ? owner.username : null}</TableCell>

@@ -1,16 +1,20 @@
-import React, {Component} from 'react'
+import React, { Component } from 'react'
 import InstanceTableMUI from './InstanceTableMUI'
-import axios, {post} from 'axios'
+import axios, { post } from 'axios'
 import DetailedInstance from './DetailedInstance';
 import CreateInstanceForm from './CreateInstanceForm';
 import EditInstanceForm from './EditInstanceForm';
 import {
-  Grid, Button, Container, Paper, ButtonGroup, Switch, FormControlLabel, Typography
+  Grid, Button, Container, Paper,
+  ButtonGroup, Switch, FormControlLabel,
+  Typography, Tooltip, IconButton
 } from "@material-ui/core"
 import CloudUploadIcon from "@material-ui/icons/CloudUpload";
 import SaveAltIcon from "@material-ui/icons/SaveAlt";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
-import {Link} from "react-router-dom";
+import HelpIcon from '@material-ui/icons/Help';
+import SettingsEthernetIcon from '@material-ui/icons/SettingsEthernet';
+import { Link } from "react-router-dom";
 import DatacenterContext from './DatacenterContext'
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
@@ -59,11 +63,11 @@ export class InstanceController extends Component {
   }
 
   getFilterQuery = (q) => {
-    this.setState({filterQuery: q});
+    this.setState({ filterQuery: q });
   }
 
   getSortQuery = (q) => {
-    this.setState({sortQuery: q})
+    this.setState({ sortQuery: q })
     console.log(this.state.sortQuery);
   }
 
@@ -99,7 +103,7 @@ export class InstanceController extends Component {
     if (prevState.rerender === false && this.state.rerender === true) {
       setTimeout(() => {
         this.getInstances();
-        this.setState({rerender: false});
+        this.setState({ rerender: false });
       }, delay);
 
     }
@@ -107,7 +111,7 @@ export class InstanceController extends Component {
 
   getRerender = (re) => {
     if (re) {
-      this.setState({rerender: true})
+      this.setState({ rerender: true })
     }
   }
 
@@ -129,6 +133,32 @@ export class InstanceController extends Component {
     axios.get(dst).then(res => {
       // console.log(res.data.next)
       FileDownload(res.data, 'asset_export.csv');
+      alert("Export was successful.");
+    })
+      .catch(function (error) {
+        // TODO: handle error
+        alert('Export was not successful.\n' + JSON.stringify(error.response.data, null, 2));
+      });
+  }
+
+  exportNPData = () => {
+    let filter = this.state.filterQuery;
+    let sort = this.state.sortQuery;
+
+    if (this.state.filterQuery.length !== 0) {
+      filter = filter + '&';
+    }
+
+    if (this.state.sortQuery.length !== 0) {
+      sort = sort + '&'
+    }
+
+    let dst = '/api/assets/' + '?' + filter + sort + 'export=true&network_ports=true';
+    console.log('exporting to:  ' + dst);
+    const FileDownload = require('js-file-download');
+    axios.get(dst).then(res => {
+      // console.log(res.data.next)
+      FileDownload(res.data, 'np_asset_export.csv');
       alert("Export was successful.");
     })
       .catch(function (error) {
@@ -382,20 +412,25 @@ export class InstanceController extends Component {
 
     // let filters = <InstanceFilters sendFilterQuery={ this.getFilterQuery } />
     // let sorting = <InstanceSort sendSortQuery={ this.getSortQuery } />
-    let exp = <Button variant="outlined" startIcon={<SaveAltIcon/>} onClick={this.exportData}>Export</Button>
+    let exp = <Button variant="outlined" startIcon={<SaveAltIcon />} onClick={this.exportData}>Export</Button>
 
-    let showAll = <FormControlLabel labelPlacement="left"
-                                    control={
-                                      <Switch value={this.state.showingAll} onChange={() => this.toggleShowingAll()}/>
-                                    }
-                                    label={
-                                      <Typography variant="subtitle1"> Show All</Typography>
-                                    }
-    />
+    let np_exp = <Button variant="outlined" startIcon={<SaveAltIcon />} onClick={this.exportNPData}>Export NetPorts</Button>
+
+    let showAll = <p></p>;
+    if (this.state.prevPage != null || this.state.nextPage != null) {
+      showAll = <FormControlLabel labelPlacement="left"
+                                      control={
+                                        <Switch value={this.state.showingAll} onChange={() => this.toggleShowingAll()} />
+                                      }
+                                      label={
+                                        <Typography variant="subtitle1"> Show All</Typography>
+                                      }
+      />
+    }
 
     let add = this.context.is_admin ? (
       <Link to={'/assets/create'}>
-        <Button color="primary" variant="contained" endIcon={<AddCircleIcon/>}>
+        <Button color="primary" variant="contained" endIcon={<AddCircleIcon />}>
           Add Asset
         </Button>
       </Link>
@@ -404,7 +439,7 @@ export class InstanceController extends Component {
 
     let imp = this.context.is_admin ? (
       <>
-        <Button variant="outlined" component="span" startIcon={<CloudUploadIcon/>} onClick={this.handleImport}>
+        <Button variant="outlined" component="span" startIcon={<CloudUploadIcon />} onClick={this.handleImport}>
           Import
         </Button>
         <input
@@ -419,8 +454,8 @@ export class InstanceController extends Component {
 
     let importNetworkConnections = this.context.is_admin ? (
       <>
-        <Button variant="outlined" component="span" startIcon={<CloudUploadIcon/>} onClick={this.handleNPImport}>
-          Import NPs
+        <Button variant="outlined" component="span" startIcon={<SettingsEthernetIcon />} onClick={this.handleNPImport}>
+          Import NetPorts
         </Button>
         <input
           accept="text/csv"
@@ -446,11 +481,24 @@ export class InstanceController extends Component {
       <div>
         <Container maxwidth="xl">
           <Grid container className="themed-container" spacing={2}>
-            <Grid item justify="flex-start" alignContent='center' xs={12}/>
-            <Grid item justify="flex-start" alignContent='center' xs={6}>
+            <Grid item justify="flex-start" alignContent='center' xs={12} />
+            <Grid item xs={12}>
               <Typography variant="h3">
                 Asset Table
               </Typography>
+            </Grid>
+            <Grid item justify="flex-start" alignContent='center' xs={3}>
+              <Tooltip title='View import/export guidelines'>
+                <a target="_blank" href="https://d1b10bmlvqabco.cloudfront.net/attach/k4u27qnccr45oo/i515p00jifO/k6wckku7h5ne/ECE458__Bulk_Format_Proposal__v3.2.pdf">
+                  <IconButton size="sm">
+                    <HelpIcon />
+                  </IconButton>
+                </a>
+              </Tooltip>
+              <p> Import Documentation</p>
+            </Grid>
+            <Grid item justify="center" alignContent="center" xs={3}>
+              {np_exp}
             </Grid>
             <Grid item justify="center" alignContent="center" xs={3}>
               {importNetworkConnections}

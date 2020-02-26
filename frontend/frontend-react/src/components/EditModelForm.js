@@ -319,7 +319,7 @@ export class EditModelForm extends Component {
                 <Grid item xs={2}>
                   <Tooltip title='Submit'>
                     <Button variant="contained" type="submit" color="primary" endIcon={<AddCircleIcon />}
-                      onClick={() => this.handleSubmit}>Create
+                      onClick={() => this.handleSubmit}>Update
                     </Button>
                   </Tooltip>
                 </Grid>
