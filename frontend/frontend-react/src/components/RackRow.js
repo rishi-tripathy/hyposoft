@@ -10,7 +10,7 @@ export class RackRow extends Component {
     name = name.concat(this.props.hostname);
     let vendor = '';
     vendor = vendor.concat(this.props.model);
-    let maxLength = 40;
+    let maxLength = 35;
 
     if (this.props.hostname !== null) {
       if (name.length + vendor.length > maxLength) {
@@ -57,13 +57,13 @@ export class RackRow extends Component {
         //render normally
         content =
           <td style={{
-            fontSize: 7,
+            fontSize: 12,
             backgroundColor: dispColor,
             color: textColor,
             borderBottom: 'solid',
           }}>
             <Link style={{color: textColor }} to={'/assets/' + this.props.id}>
-            {this.props.model} {this.displayName()}
+            {this.props.model} {this.displayName()} 
             </Link>
           </td>;
       } else if ((this.props.row === 42) || (!objectIsNull && this.props.hostname == null)) {
@@ -71,7 +71,7 @@ export class RackRow extends Component {
         content =
         // <Link to={'/assets/' + this.props.id}>
           <td style={{
-            fontSize: 7,
+            fontSize: 12,
             backgroundColor: dispColor
           }}>
             <Link style={{color: textColor }} to={'/assets/' + this.props.id}> { } </Link>
@@ -82,7 +82,7 @@ export class RackRow extends Component {
         if (this.props.row === '1') {
           content =
             <td style={{
-              fontSize: 7,
+              fontSize: 12,
               borderBottom: 'solid',
             }}>
             </td>;
@@ -95,7 +95,7 @@ export class RackRow extends Component {
           row = '';
           content =
             <td style={{
-              fontSize: 7,
+              fontSize: 12,
               color: 'black',
             }}>
               {this.props.model}
@@ -103,7 +103,7 @@ export class RackRow extends Component {
         } else {
           //null with 2 instances sandwiching, render normal
           content =
-            <td></td>;
+            <td style={{fontSize: 12,}}> </td>;
         }
       }
     }
@@ -113,7 +113,7 @@ export class RackRow extends Component {
       if (!objectIsNull && this.props.hostname !== null) {
         content =
           <td style={{
-            fontSize: 7,
+            fontSize: 12,
             backgroundColor: dispColor,
             color: textColor,
             borderBottom: 'solid',
@@ -125,19 +125,20 @@ export class RackRow extends Component {
       } else if (!objectIsNull && this.props.hostname == null) {
         content =
           <td style={{
-            fontSize: 7,
+            fontSize: 12,
             backgroundColor: dispColor,
             cursor: 'pointer',
           }}>
             <Link style={{color: textColor }} to={'/assets/' + this.props.id}>{ }</Link>
           </td>;
       } else {
-        content = <td></td>;
+        content = <td style={{fontSize: 12,}}> </td>;
       }
 
       if (objectIsNull && this.props.index === 1) {
         content =
           <td style={{
+            fontSize: 12,
             borderBottom: 'solid',
           }}>
 

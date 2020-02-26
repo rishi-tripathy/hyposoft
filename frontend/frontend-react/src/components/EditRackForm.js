@@ -56,7 +56,6 @@ export class EditRackForm extends Component {
   render() {
     return (
       <div>
-        <Link to='/racks/'><Button variant="outlined">Back</Button>{' '}</Link>
         <form onSubmit={this.handleSubmit}>
           <Grid container spacing={2}>
             <Grid item xs={12}>
@@ -66,9 +65,12 @@ export class EditRackForm extends Component {
               <TextField shrink label='Updated Rack Number' type="text" fullWidth value={this.state.rack_number}
                          onChange={e => this.setState({rack_number: e.target.value})}/>
             </Grid>
-            <Grid item xs={12}>
+            <Grid item xs={6}>
               <Button variant="contained" type="submit" color="primary"
                       onClick={() => this.handleSubmit}>Update</Button>{' '}
+            </Grid>
+            <Grid item xs={6}>
+               <Link to='/racks/'><Button variant="outlined">Cancel</Button>{' '}</Link>
             </Grid>
           </Grid>
         </form>

@@ -14,6 +14,7 @@ import ModelFilters from './ModelFilters';
 import '../stylesheets/TableView.css'
 import axios, {post} from 'axios'
 import {Link} from 'react-router-dom'
+import DatacenterContext from './DatacenterContext'
 
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
@@ -122,7 +123,7 @@ export class ModelTable extends Component {
       {id: 'model_number', label: 'Model Number'},
       {id: 'height', label: 'Height (U)'},
       {id: 'display_color', label: 'Display Color'},
-      {id: 'ethernet_ports', label: 'Ethernet Ports'},
+      {id: 'network_ports_num', label: 'Network Ports'},
       {id: 'power_ports', label: 'Power Ports'},
       {id: 'cpu', label: 'CPU'},
       {id: 'memory', label: 'Memory (GB)'},
@@ -155,7 +156,7 @@ export class ModelTable extends Component {
     )
     return this.props.models.map((model, index) => {
       const {id, vendor, model_number, height, display_color} = model //destructuring
-      const {ethernet_ports, power_ports, cpu, memory, storage, comment} = model //more destructuring
+      const {network_ports, network_ports_num, power_ports, cpu, memory, storage, comment} = model //more destructuring
       return (
         <TableRow
           hover
@@ -174,7 +175,7 @@ export class ModelTable extends Component {
               top: 2,
             }}></div>
             {display_color}</TableCell>
-          <TableCell align="center">{ethernet_ports}</TableCell>
+          <TableCell align="center">{ network_ports_num ? network_ports_num : null}</TableCell>
           <TableCell align="center">{power_ports}</TableCell>
           <TableCell align="center">{cpu}</TableCell>
           <TableCell align="center">{memory}</TableCell>
@@ -189,7 +190,7 @@ export class ModelTable extends Component {
                 </Tooltip>
               </Link>
             </TableCell>
-            {this.props.is_admin ? (
+            {this.context.is_admin ? (
               <TableCell align="right">
                 <Link to={'/models/' + id + '/edit'}>
                   <Tooltip title='Edit'>
@@ -200,7 +201,7 @@ export class ModelTable extends Component {
                 </Link>
               </TableCell>) : <p></p>
             }
-            {this.props.is_admin ? (
+            {this.context.is_admin ? (
               < TableCell align="right">
                 < Tooltip title='Delete'>
                   <IconButton size="sm" onClick={() => this.showDeleteForm(id)}>
@@ -245,5 +246,7 @@ export class ModelTable extends Component {
 ModelTable.propTypes = {
   models: PropTypes.array.isRequired
 }
+
+ModelTable.contextType = DatacenterContext;
 
 export default ModelTable;

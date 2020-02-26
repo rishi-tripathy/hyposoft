@@ -1,6 +1,7 @@
 import React, {Component} from 'react'
 import axios from 'axios'
 import {Button, Form, FormGroup, Label, Input, FormText} from 'reactstrap';
+import {Redirect} from 'react-router-dom'
 import Select from 'react-select';
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
@@ -25,7 +26,8 @@ export class RackFilters extends Component {
 
   createQuery = () => {
     const {rackStart, rackEnd} = this.state.identifiers;
-    let q = '' +
+    console.log("in rack filters")
+    let q = '?' + 
       'rack_num_start=' + rackStart + '&' +
       'rack_num_end=' + rackEnd;
     this.setState({query: q});
@@ -50,12 +52,13 @@ export class RackFilters extends Component {
   }
 
   resetFilters = () => {
-    window.location.reload();
+   window.location.reload();
   }
 
   render() {
     return (
       <div>
+        {this.state.redirect && <Redirect to={{pathname: '/racks'}}/>}
         <Form onSubmit={this.handleSubmit}>
           <FormGroup>
             <Label for="rack_num_start">Starting Rack Number</Label>

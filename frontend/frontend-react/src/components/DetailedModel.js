@@ -1,4 +1,4 @@
-import React, {Component} from 'react'
+import React, { Component } from 'react'
 import axios from 'axios'
 import ModelCard from './ModelCard'
 import AllInstancesOfModelView from './AllInstancesOfModelView';
@@ -43,17 +43,17 @@ export class DetailedModel extends Component {
 
   getShowDetailedInstance = (show) => {
     show ? this.setState({
-        showIndividualInstanceView: true,
-        // everything else false
-        showTableView: false,
-      })
+      showIndividualInstanceView: true,
+      // everything else false
+      showTableView: false,
+    })
       : this.setState({
         showIndividualInstanceView: false,
       })
   }
 
   getDetailedInstanceID = (id) => {
-    this.setState({detailedInstanceID: id});
+    this.setState({ detailedInstanceID: id });
   }
 
   componentDidMount() {
@@ -62,15 +62,15 @@ export class DetailedModel extends Component {
 
   render() {
     console.log(this.props.match)
-    let content = <AllInstancesOfModelView modelID={this.state.model.id}
-                                           sendInstanceID={this.getDetailedInstanceID}
-                                           sendShowDetailedInstance={this.getShowDetailedInstance}/>;
+    // let content = <AllInstancesOfModelView modelID={this.state.model.id}
+    //   sendInstanceID={this.getDetailedInstanceID}
+    //   sendShowDetailedInstance={this.getShowDetailedInstance} />;
 
     return (
       <div>
         <Container maxwidth="xl">
           <Grid container className="themed-container" spacing={2}>
-            <Grid item justify="flex-start" alignContent='center' xs={12}/>
+            <Grid item justify="flex-start" alignContent='center' xs={12} />
             <Grid item justify="flex-start" alignContent='center' xs={10}>
               <Typography variant="h3">
                 Detailed Model View
@@ -78,18 +78,22 @@ export class DetailedModel extends Component {
             </Grid>
             <Grid item xs={12}>
               <Paper>
-                <ModelCard model={[this.state.model]}/>
+                <ModelCard model={[this.state.model]} />
               </Paper>
             </Grid>
-            <Grid item alignContent='center' xs={12}/>
+            <Grid item alignContent='center' xs={12} />
             <Grid item xs={6}>
               <Typography variant="h4" gutterBottom>
                 Assets
               </Typography>
             </Grid>
-            <Grid item xs={6}/>
+            <Grid item xs={6} />
             <Grid item xs={6}>
-              <Paper>{content}</Paper>
+              <Paper>
+                <AllInstancesOfModelView modelID={this.state.model.id}
+                  sendInstanceID={this.getDetailedInstanceID}
+                  sendShowDetailedInstance={this.getShowDetailedInstance} />
+              </Paper>
             </Grid>
           </Grid>
         </Container>

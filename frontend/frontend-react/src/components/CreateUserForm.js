@@ -15,7 +15,8 @@ export class CreateUserForm extends Component {
       email: '',
       first_name: '',
       last_name: '',
-      password: ''
+      password: '',
+      redirect: false,
     }
   }
 
@@ -53,10 +54,16 @@ export class CreateUserForm extends Component {
     event.preventDefault();
     console.log(this.state);
 
+    var self = this;
+
     axios.post('/api/users/', this.state)
       .then(function (response) {
         alert('Created successfully');
-        window.location = '/users'
+        // window.location = '/users'
+        self.setState({
+          redirect: true,
+        });
+        
       })
       .catch(function (error) {
         alert('Creation was not successful.\n' + JSON.stringify(error.response.data, null, 2));
@@ -66,6 +73,7 @@ export class CreateUserForm extends Component {
   render() {
     return (
       <div>
+        { this.state.redirect && <Redirect to={{pathname: '/users'}} />}
         <Container maxwidth="xl">
           <Grid container className='themed-container' spacing={2}>
             <Grid item alignContent='center' xs={12} />

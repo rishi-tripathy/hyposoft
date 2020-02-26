@@ -1,7 +1,7 @@
-import React, {Component} from 'react'
+import React, { Component } from 'react'
 import axios from 'axios'
-import {Button, TextField, Grid, Input, Container, FormControl} from "@material-ui/core";
-import {Autocomplete} from "@material-ui/lab";
+import { Button, TextField, Grid, Input, Container, FormControl } from "@material-ui/core";
+import { Autocomplete } from "@material-ui/lab";
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
@@ -13,13 +13,17 @@ export class InstanceFilters extends Component {
       modelOptions: [],
       selectedModelOption: null,
 
-      rackOptions: [],
-      selectedRackOption: null,
+      // rackOptions: [],
+      // selectedRackOption: null,
 
       ownerOptions: [],
       selectedOwnerOption: null,
 
+      datacenterOptions: [],
+      selectedDatacenterOption: null,
+
       identifiers: {
+        datacenterID: '',
         modelID: '',
         modelNumber: '',
         modelVendor: '',
@@ -45,10 +49,10 @@ export class InstanceFilters extends Component {
     axios.get(dst).then(res => {
       let myOptions = [];
       for (let i = 0; i < res.data.length; i++) {
-        myOptions.push({value: res.data[i].id, label: res.data[i].vendor + ' ' + res.data[i].model_number});
+        myOptions.push({ value: res.data[i].id, label: res.data[i].vendor + ' ' + res.data[i].model_number });
       }
       //console.log(res.data)
-      this.setState({modelOptions: myOptions});
+      this.setState({ modelOptions: myOptions });
     })
       .catch(function (error) {
         // TODO: handle error
@@ -56,22 +60,39 @@ export class InstanceFilters extends Component {
       });
   }
 
-  mountRacks = () => {
-    // RACK
-    let dst = '/api/racks/?show_all=true';
+  mountDatacenters = () => {
+    // MODEL NAMES
+    let dst = '/api/datacenters/?show_all=true';
     axios.get(dst).then(res => {
       let myOptions = [];
       for (let i = 0; i < res.data.length; i++) {
-        myOptions.push({value: res.data[i].id, label: res.data[i].rack_number});
+        myOptions.push({ value: res.data[i].id, label: res.data[i].abbreviation });
       }
       //console.log(res.data)
-      this.setState({rackOptions: myOptions});
+      this.setState({ datacenterOptions: myOptions });
     })
       .catch(function (error) {
         // TODO: handle error
         alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
       });
   }
+
+  // mountRacks = () => {
+  //   // RACK
+  //   let dst = '/api/racks/?show_all=true';
+  //   axios.get(dst).then(res => {
+  //     let myOptions = [];
+  //     for (let i = 0; i < res.data.length; i++) {
+  //       myOptions.push({value: res.data[i].id, label: res.data[i].rack_number});
+  //     }
+  //     //console.log(res.data)
+  //     this.setState({rackOptions: myOptions});
+  //   })
+  //     .catch(function (error) {
+  //       // TODO: handle error
+  //       alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+  //     });
+  // }
 
   mountOwners = () => {
     // OWNER
@@ -79,10 +100,10 @@ export class InstanceFilters extends Component {
     axios.get(dst).then(res => {
       let myOptions = [];
       for (let i = 0; i < res.data.length; i++) {
-        myOptions.push({value: res.data[i].id, label: res.data[i].username});
+        myOptions.push({ value: res.data[i].id, label: res.data[i].username });
       }
       //console.log(res.data)
-      this.setState({ownerOptions: myOptions});
+      this.setState({ ownerOptions: myOptions });
     })
       .catch(function (error) {
         // TODO: handle error
@@ -92,7 +113,8 @@ export class InstanceFilters extends Component {
 
   componentDidMount() {
     this.mountModelNames();
-    this.mountRacks();
+    //this.mountRacks();
+    this.mountDatacenters();
     this.mountOwners();
   }
 
@@ -105,14 +127,23 @@ export class InstanceFilters extends Component {
     })
   };
 
-  handleChangeRack = (event, selectedRackOption) => {
-    let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
-    identifiersCopy.rackID = (selectedRackOption ? selectedRackOption.value : '')
+  handleChangeDatacenter = (event, selectedDatacenterOption, reason) => {
+    let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers));
+    identifiersCopy.datacenterID = (selectedDatacenterOption ? selectedDatacenterOption.value : '')
     this.setState({
-      selectedRackOption,
+      selectedDatacenterOption,
       identifiers: identifiersCopy,
     })
   };
+
+  // handleChangeRack = (event, selectedRackOption) => {
+  //   let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
+  //   identifiersCopy.rackID = (selectedRackOption ? selectedRackOption.value : '')
+  //   this.setState({
+  //     selectedRackOption,
+  //     identifiers: identifiersCopy,
+  //   })
+  // };
 
   handleChangeOwner = (event, selectedOwnerOption) => {
     let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
@@ -124,8 +155,9 @@ export class InstanceFilters extends Component {
   };
 
   createQuery = () => {
-    const {modelID, modelNumber, modelVendor, hostname, rackID, rack_u, ownerID, rackStart, rackEnd} = this.state.identifiers;
+    const { datacenterID, modelID, modelNumber, modelVendor, hostname, rackID, rack_u, ownerID, rackStart, rackEnd } = this.state.identifiers;
     let q = '' +
+      'datacenter=' + datacenterID + '&' +
       'model=' + modelID + '&' +
       'model_number=' + modelNumber + '&' +
       'vendor=' + modelVendor + '&' +
@@ -135,13 +167,14 @@ export class InstanceFilters extends Component {
       'owner=' + ownerID + '&' +
       'rack_num_start=' + rackStart + '&' +
       'rack_num_end=' + rackEnd;
-    this.setState({query: q});
+    this.setState({ query: q });
     return q;
   }
 
   handleClear = (e) => {
     let identifiersEmpty = {
       identifiers: {
+        datacenterID: '',
         modelID: '',
         modelNumber: '',
         modelVendor: '',
@@ -155,8 +188,9 @@ export class InstanceFilters extends Component {
     }
     this.setState({
       selectedModelOption: null,
-      selectedRackOption: null,
+      //selectedRackOption: null,
       selectedOwnerOption: null,
+      selectedDatacenterOption: null,
       identifiers: identifiersEmpty,
     })
   }
@@ -190,39 +224,61 @@ export class InstanceFilters extends Component {
                   onChange={this.handleChangeModel}
                   value={this.state.selectedModelOption}
                   renderInput={params => (
-                    <TextField {...params} label="Model" fullWidth/>
+                    <TextField {...params} label="Model" fullWidth />
                   )}
                 />
               </Grid>
               <Grid item xs={3}>
-                <TextField label='Model Vendor' type="text" fullWidth
+                <Autocomplete
+                  autoComplete
+                  autoHighlight
+                  id="instance-create-dc-select"
+                  options={this.state.datacenterOptions}
+                  getOptionLabel={option => option.label}
+                  onChange={this.handleChangeDatacenter}
+                  value={this.state.selectedDatacenterOption}
+                  renderInput={params => (
+                    <TextField {...params} label="Datacenter" fullWidth />
+                  )}
+                />
+                {/* <TextField label='Datacenter' type="text" fullWidth
                            onChange={e => {
                              let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
-                             identifiersCopy.modelVendor = e.target.value
+                             identifiersCopy.datacenterID = e.target.value
                              this.setState({
                                identifiers: identifiersCopy
                              })
-                           }}/>
+                           }}/> */}
+              </Grid>
+              <Grid item xs={3}>
+                <TextField label='Model Vendor' type="text" fullWidth
+                  onChange={e => {
+                    let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
+                    identifiersCopy.modelVendor = e.target.value
+                    this.setState({
+                      identifiers: identifiersCopy
+                    })
+                  }} />
               </Grid>
               <Grid item xs={3}>
                 <TextField label='Model Number' type="text" fullWidth
-                           onChange={e => {
-                             let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
-                             identifiersCopy.modelNumber = e.target.value
-                             this.setState({
-                               identifiers: identifiersCopy
-                             })
-                           }}/>
+                  onChange={e => {
+                    let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
+                    identifiersCopy.modelNumber = e.target.value
+                    this.setState({
+                      identifiers: identifiersCopy
+                    })
+                  }} />
               </Grid>
               <Grid item xs={3}>
                 <TextField label='Hostname' type="text" fullWidth
-                           onChange={e => {
-                             let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
-                             identifiersCopy.hostname = e.target.value
-                             this.setState({
-                               identifiers: identifiersCopy
-                             })
-                           }}/>
+                  onChange={e => {
+                    let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
+                    identifiersCopy.hostname = e.target.value
+                    this.setState({
+                      identifiers: identifiersCopy
+                    })
+                  }} />
               </Grid>
               {/*<Grid item xs={3}>*/}
               {/*  <Autocomplete*/}
@@ -240,34 +296,34 @@ export class InstanceFilters extends Component {
               {/*</Grid>*/}
               <Grid item xs={3}>
                 <TextField label='Rack Range Start' type="text" fullWidth
-                           onChange={e => {
-                             let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
-                             identifiersCopy.rackStart = e.target.value
-                             this.setState({
-                               identifiers: identifiersCopy
-                             })
-                           }}/>
+                  onChange={e => {
+                    let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
+                    identifiersCopy.rackStart = e.target.value
+                    this.setState({
+                      identifiers: identifiersCopy
+                    })
+                  }} />
               </Grid>
 
               <Grid item xs={3}>
                 <TextField label='Rack Range End' type="text" fullWidth
-                           onChange={e => {
-                             let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
-                             identifiersCopy.rackEnd = e.target.value
-                             this.setState({
-                               identifiers: identifiersCopy
-                             })
-                           }}/>
+                  onChange={e => {
+                    let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
+                    identifiersCopy.rackEnd = e.target.value
+                    this.setState({
+                      identifiers: identifiersCopy
+                    })
+                  }} />
               </Grid>
               <Grid item xs={3}>
                 <TextField label='Rack U' type="number" fullWidth
-                           onChange={e => {
-                             let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
-                             identifiersCopy.rack_u = e.target.value
-                             this.setState({
-                               identifiers: identifiersCopy
-                             })
-                           }}/>
+                  onChange={e => {
+                    let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
+                    identifiersCopy.rack_u = e.target.value
+                    this.setState({
+                      identifiers: identifiersCopy
+                    })
+                  }} />
               </Grid>
               <Grid item xs={3}>
                 <Autocomplete
@@ -279,9 +335,13 @@ export class InstanceFilters extends Component {
                   onChange={this.handleChangeOwner}
                   value={this.state.selectedOwnerOption}
                   renderInput={params => (
-                    <TextField {...params} label="Owner" fullWidth/>
+                    <TextField {...params} label="Owner" fullWidth />
                   )}
                 />
+              </Grid>
+
+              <Grid item xs={6}>
+                
               </Grid>
 
               <Grid item xs={2}>

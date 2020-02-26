@@ -1,7 +1,12 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.contrib.postgres.fields import ArrayField
+
 
 # Create your models here.
+
+class Asset_Number(models.Model):
+    next_avail = models.PositiveIntegerField()
 
 
 class Model(models.Model):
@@ -9,7 +14,8 @@ class Model(models.Model):
     model_number = models.CharField(max_length=50)
     height = models.PositiveIntegerField()
     display_color = models.CharField(max_length=6, default='777777')
-    ethernet_ports = models.PositiveIntegerField(blank=True, null=True)
+    network_ports_num = models.PositiveIntegerField(blank=True, null=True)
+    network_ports = ArrayField(models.CharField(max_length=10, default='e1'), null=True)
     power_ports = models.PositiveIntegerField(blank=True, null=True)
     cpu = models.CharField(blank=True, max_length=50)
     memory = models.PositiveIntegerField(blank=True, null=True)
@@ -20,62 +26,94 @@ class Model(models.Model):
         return (self.vendor + ' ' + self.model_number) or ''
 
 
-class Instance(models.Model):
+class Asset(models.Model):
     model = models.ForeignKey(Model, on_delete=models.PROTECT)
-    hostname = models.CharField(max_length=64)
+    hostname = models.CharField(max_length=64, blank=True, null=True)
+    datacenter = models.ForeignKey('Datacenter', on_delete=models.PROTECT)
     rack = models.ForeignKey('Rack', on_delete=models.PROTECT)
     rack_u = models.PositiveIntegerField(blank=False)
     owner = models.ForeignKey(User, blank=True, null=True, on_delete=models.PROTECT)
     comment = models.TextField(blank=True)
+    asset_number = models.PositiveIntegerField(blank=True, default=100000)
 
     def __str__(self):
         return self.hostname or ''
 
 
+class Network_Port(models.Model):
+    name = models.CharField(max_length=15, blank=True, default='mgmt')
+    mac = models.CharField(max_length=17, blank=True, null=True)
+    connection = models.ForeignKey('self', on_delete=models.SET_NULL, null=True)
+    asset = models.ForeignKey('Asset', on_delete=models.CASCADE)
+
+
+class Power_Port(models.Model):
+    name = models.CharField(max_length=10)
+    pdu = models.ForeignKey('PDU', on_delete=models.SET_NULL, null=True)
+    port_number = models.PositiveIntegerField(null=True)
+    asset = models.ForeignKey('Asset', on_delete=models.CASCADE)
+
+
+class PDU(models.Model):
+    name = models.CharField(max_length=20, blank=True, null=True)
+    rack = models.ForeignKey('Rack', on_delete=models.CASCADE, null=True)
+
+
+class Datacenter(models.Model):
+    abbreviation = models.CharField(max_length=6)
+    name = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.abbreviation or ''
+
+
 class Rack(models.Model):
     rack_number = models.CharField(max_length=5)
-    u1 = models.ForeignKey(Instance, on_delete=models.SET_NULL, blank=True, null=True, related_name='instance1')
-    u2 = models.ForeignKey(Instance, on_delete=models.SET_NULL, blank=True, null=True, related_name='instance2')
-    u3 = models.ForeignKey(Instance, on_delete=models.SET_NULL, blank=True, null=True, related_name='instance3')
-    u4 = models.ForeignKey(Instance, on_delete=models.SET_NULL, blank=True, null=True, related_name='instance4')
-    u5 = models.ForeignKey(Instance, on_delete=models.SET_NULL, blank=True, null=True, related_name='instance5')
-    u6 = models.ForeignKey(Instance, on_delete=models.SET_NULL, blank=True, null=True, related_name='instance6')
-    u7 = models.ForeignKey(Instance, on_delete=models.SET_NULL, blank=True, null=True, related_name='instance7')
-    u8 = models.ForeignKey(Instance, on_delete=models.SET_NULL, blank=True, null=True, related_name='instance8')
-    u9 = models.ForeignKey(Instance, on_delete=models.SET_NULL, blank=True, null=True, related_name='instance9')
-    u10 = models.ForeignKey(Instance, on_delete=models.SET_NULL, blank=True, null=True, related_name='instance10')
-    u11 = models.ForeignKey(Instance, on_delete=models.SET_NULL, blank=True, null=True, related_name='instance11')
-    u12 = models.ForeignKey(Instance, on_delete=models.SET_NULL, blank=True, null=True, related_name='instance12')
-    u13 = models.ForeignKey(Instance, on_delete=models.SET_NULL, blank=True, null=True, related_name='instance13')
-    u14 = models.ForeignKey(Instance, on_delete=models.SET_NULL, blank=True, null=True, related_name='instance14')
-    u15 = models.ForeignKey(Instance, on_delete=models.SET_NULL, blank=True, null=True, related_name='instance15')
-    u16 = models.ForeignKey(Instance, on_delete=models.SET_NULL, blank=True, null=True, related_name='instance16')
-    u17 = models.ForeignKey(Instance, on_delete=models.SET_NULL, blank=True, null=True, related_name='instance17')
-    u18 = models.ForeignKey(Instance, on_delete=models.SET_NULL, blank=True, null=True, related_name='instance18')
-    u19 = models.ForeignKey(Instance, on_delete=models.SET_NULL, blank=True, null=True, related_name='instance19')
-    u20 = models.ForeignKey(Instance, on_delete=models.SET_NULL, blank=True, null=True, related_name='instance20')
-    u21 = models.ForeignKey(Instance, on_delete=models.SET_NULL, blank=True, null=True, related_name='instance21')
-    u22 = models.ForeignKey(Instance, on_delete=models.SET_NULL, blank=True, null=True, related_name='instance22')
-    u23 = models.ForeignKey(Instance, on_delete=models.SET_NULL, blank=True, null=True, related_name='instance23')
-    u24 = models.ForeignKey(Instance, on_delete=models.SET_NULL, blank=True, null=True, related_name='instance24')
-    u25 = models.ForeignKey(Instance, on_delete=models.SET_NULL, blank=True, null=True, related_name='instance25')
-    u26 = models.ForeignKey(Instance, on_delete=models.SET_NULL, blank=True, null=True, related_name='instance26')
-    u27 = models.ForeignKey(Instance, on_delete=models.SET_NULL, blank=True, null=True, related_name='instance27')
-    u28 = models.ForeignKey(Instance, on_delete=models.SET_NULL, blank=True, null=True, related_name='instance28')
-    u29 = models.ForeignKey(Instance, on_delete=models.SET_NULL, blank=True, null=True, related_name='instance29')
-    u30 = models.ForeignKey(Instance, on_delete=models.SET_NULL, blank=True, null=True, related_name='instance30')
-    u31 = models.ForeignKey(Instance, on_delete=models.SET_NULL, blank=True, null=True, related_name='instance31')
-    u32 = models.ForeignKey(Instance, on_delete=models.SET_NULL, blank=True, null=True, related_name='instance32')
-    u33 = models.ForeignKey(Instance, on_delete=models.SET_NULL, blank=True, null=True, related_name='instance33')
-    u34 = models.ForeignKey(Instance, on_delete=models.SET_NULL, blank=True, null=True, related_name='instance34')
-    u35 = models.ForeignKey(Instance, on_delete=models.SET_NULL, blank=True, null=True, related_name='instance35')
-    u36 = models.ForeignKey(Instance, on_delete=models.SET_NULL, blank=True, null=True, related_name='instance36')
-    u37 = models.ForeignKey(Instance, on_delete=models.SET_NULL, blank=True, null=True, related_name='instance37')
-    u38 = models.ForeignKey(Instance, on_delete=models.SET_NULL, blank=True, null=True, related_name='instance38')
-    u39 = models.ForeignKey(Instance, on_delete=models.SET_NULL, blank=True, null=True, related_name='instance39')
-    u40 = models.ForeignKey(Instance, on_delete=models.SET_NULL, blank=True, null=True, related_name='instance40')
-    u41 = models.ForeignKey(Instance, on_delete=models.SET_NULL, blank=True, null=True, related_name='instance41')
-    u42 = models.ForeignKey(Instance, on_delete=models.SET_NULL, blank=True, null=True, related_name='instance42')
+    pdu_l = models.ForeignKey('PDU', on_delete=models.CASCADE, related_name='pdu_l', null=True)
+    pdu_r = models.ForeignKey('PDU', on_delete=models.CASCADE, related_name='pdu_r', null=True)
+    datacenter = models.ForeignKey('Datacenter', on_delete=models.PROTECT)
+    u1 = models.ForeignKey(Asset, on_delete=models.SET_NULL, blank=True, null=True, related_name='Asset1')
+    u2 = models.ForeignKey(Asset, on_delete=models.SET_NULL, blank=True, null=True, related_name='Asset2')
+    u3 = models.ForeignKey(Asset, on_delete=models.SET_NULL, blank=True, null=True, related_name='Asset3')
+    u4 = models.ForeignKey(Asset, on_delete=models.SET_NULL, blank=True, null=True, related_name='Asset4')
+    u5 = models.ForeignKey(Asset, on_delete=models.SET_NULL, blank=True, null=True, related_name='Asset5')
+    u6 = models.ForeignKey(Asset, on_delete=models.SET_NULL, blank=True, null=True, related_name='Asset6')
+    u7 = models.ForeignKey(Asset, on_delete=models.SET_NULL, blank=True, null=True, related_name='Asset7')
+    u8 = models.ForeignKey(Asset, on_delete=models.SET_NULL, blank=True, null=True, related_name='Asset8')
+    u9 = models.ForeignKey(Asset, on_delete=models.SET_NULL, blank=True, null=True, related_name='Asset9')
+    u10 = models.ForeignKey(Asset, on_delete=models.SET_NULL, blank=True, null=True, related_name='Asset10')
+    u11 = models.ForeignKey(Asset, on_delete=models.SET_NULL, blank=True, null=True, related_name='Asset11')
+    u12 = models.ForeignKey(Asset, on_delete=models.SET_NULL, blank=True, null=True, related_name='Asset12')
+    u13 = models.ForeignKey(Asset, on_delete=models.SET_NULL, blank=True, null=True, related_name='Asset13')
+    u14 = models.ForeignKey(Asset, on_delete=models.SET_NULL, blank=True, null=True, related_name='Asset14')
+    u15 = models.ForeignKey(Asset, on_delete=models.SET_NULL, blank=True, null=True, related_name='Asset15')
+    u16 = models.ForeignKey(Asset, on_delete=models.SET_NULL, blank=True, null=True, related_name='Asset16')
+    u17 = models.ForeignKey(Asset, on_delete=models.SET_NULL, blank=True, null=True, related_name='Asset17')
+    u18 = models.ForeignKey(Asset, on_delete=models.SET_NULL, blank=True, null=True, related_name='Asset18')
+    u19 = models.ForeignKey(Asset, on_delete=models.SET_NULL, blank=True, null=True, related_name='Asset19')
+    u20 = models.ForeignKey(Asset, on_delete=models.SET_NULL, blank=True, null=True, related_name='Asset20')
+    u21 = models.ForeignKey(Asset, on_delete=models.SET_NULL, blank=True, null=True, related_name='Asset21')
+    u22 = models.ForeignKey(Asset, on_delete=models.SET_NULL, blank=True, null=True, related_name='Asset22')
+    u23 = models.ForeignKey(Asset, on_delete=models.SET_NULL, blank=True, null=True, related_name='Asset23')
+    u24 = models.ForeignKey(Asset, on_delete=models.SET_NULL, blank=True, null=True, related_name='Asset24')
+    u25 = models.ForeignKey(Asset, on_delete=models.SET_NULL, blank=True, null=True, related_name='Asset25')
+    u26 = models.ForeignKey(Asset, on_delete=models.SET_NULL, blank=True, null=True, related_name='Asset26')
+    u27 = models.ForeignKey(Asset, on_delete=models.SET_NULL, blank=True, null=True, related_name='Asset27')
+    u28 = models.ForeignKey(Asset, on_delete=models.SET_NULL, blank=True, null=True, related_name='Asset28')
+    u29 = models.ForeignKey(Asset, on_delete=models.SET_NULL, blank=True, null=True, related_name='Asset29')
+    u30 = models.ForeignKey(Asset, on_delete=models.SET_NULL, blank=True, null=True, related_name='Asset30')
+    u31 = models.ForeignKey(Asset, on_delete=models.SET_NULL, blank=True, null=True, related_name='Asset31')
+    u32 = models.ForeignKey(Asset, on_delete=models.SET_NULL, blank=True, null=True, related_name='Asset32')
+    u33 = models.ForeignKey(Asset, on_delete=models.SET_NULL, blank=True, null=True, related_name='Asset33')
+    u34 = models.ForeignKey(Asset, on_delete=models.SET_NULL, blank=True, null=True, related_name='Asset34')
+    u35 = models.ForeignKey(Asset, on_delete=models.SET_NULL, blank=True, null=True, related_name='Asset35')
+    u36 = models.ForeignKey(Asset, on_delete=models.SET_NULL, blank=True, null=True, related_name='Asset36')
+    u37 = models.ForeignKey(Asset, on_delete=models.SET_NULL, blank=True, null=True, related_name='Asset37')
+    u38 = models.ForeignKey(Asset, on_delete=models.SET_NULL, blank=True, null=True, related_name='Asset38')
+    u39 = models.ForeignKey(Asset, on_delete=models.SET_NULL, blank=True, null=True, related_name='Asset39')
+    u40 = models.ForeignKey(Asset, on_delete=models.SET_NULL, blank=True, null=True, related_name='Asset40')
+    u41 = models.ForeignKey(Asset, on_delete=models.SET_NULL, blank=True, null=True, related_name='Asset41')
+    u42 = models.ForeignKey(Asset, on_delete=models.SET_NULL, blank=True, null=True, related_name='Asset42')
 
     def __str__(self):
         return self.rack_number or ''

@@ -33,6 +33,7 @@ def get_env_variable(var_name):
         error_msg = "Set the %s environment variable" % var_name
         raise ImproperlyConfigured(error_msg)
 
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
@@ -49,7 +50,6 @@ SECURE_SSL_REDIRECT = False
 
 ALLOWED_HOSTS = ['.herokuapp.com', 'localhost', '127.0.0.1', '0.0.0.0', 'localhost:5000']
 
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -63,7 +63,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'django_filters',
     'usr_man',
-    'ass_man'
+    'ass_man',
+    'easyaudit'
 ]
 
 MIDDLEWARE = [
@@ -75,6 +76,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'easyaudit.middleware.easyaudit.EasyAuditMiddleware'
 ]
 
 ROOT_URLCONF = 'backend.urls'
@@ -119,7 +121,6 @@ DATABASES = {
     'default': dj_database_url.config(conn_max_age=600)
 }
 
-
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
 
@@ -138,7 +139,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/3.0/topics/i18n/
 
@@ -152,7 +152,6 @@ USE_L10N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
@@ -161,3 +160,9 @@ CSRF_COOKIE_NAME = "XSRF-TOKEN"
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'frontend', 'frontend-react', 'build', 'static')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+DJANGO_EASY_AUDIT_REGISTERED_CLASSES = ["ass_man.Model",
+                                        "ass_man.Asset",
+                                        "ass_man.Rack",
+                                        "ass_man.Datacenter",
+                                        "auth.User"
+                                        ]
