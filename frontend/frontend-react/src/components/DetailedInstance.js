@@ -75,6 +75,7 @@ export class DetailedInstance extends Component {
   }
 
   render() {
+    const regex = /[a-e][0-1]?[0-9]$/
     const { id, model, hostname, rack, rack_u, owner, comment } = this.state.asset;
     return (
       <div>
@@ -95,21 +96,20 @@ export class DetailedInstance extends Component {
             <Grid item alignContent='center' xs={12} />
             <Grid item alignContent='center' xs={12} />
             <Grid item justify="flex-start" alignContent='center' xs={10}>
-              <Typography variant="h6">
+              {/* <Typography variant="h6">
                 Model for this Asset
               </Typography>
               {model ? (
                 <div>
                   <Link to={'/models/' + model.id}>
                     <Tooltip title='View Model Details'>
-                      {/* onClick={() => this.showDetailedModel(id)} */}
                       <IconButton size="sm">
                         <PageviewIcon />
                       </IconButton>
                     </Tooltip>
                   </Link>
                 </div>
-              ) : <p></p>}
+              ) : <p></p>} */}
             </Grid>
 
             <Grid item xs={6}>
@@ -119,10 +119,22 @@ export class DetailedInstance extends Component {
               <AllConnectedAssetsView connectedAssets={this.state.connectedAssets} />
             </Grid>
             <Grid item xs={6}>
-              <Typography variant="h4" gutterBottom>
-                Power Management
-              </Typography>
-              <PowerManagement assetID={this.props.match.params.id} />
+              {
+                this.state.asset.datacenter
+                  && this.state.asset.rack
+                  && this.state.asset.datacenter.abbreviation.toLowerCase() === 'rtp1'
+                  && regex.test(this.state.asset.rack.rack_number.toLowerCase())
+                  ?
+                  (<div>
+                    <Typography variant="h4" gutterBottom>
+                      Power Management
+                  </Typography>
+                    <PowerManagement assetID={this.props.match.params.id} />
+                  </div>)
+                  :
+                  <p></p>
+              }
+
             </Grid>
 
             <Grid item xs={6}>

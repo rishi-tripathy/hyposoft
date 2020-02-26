@@ -12,9 +12,9 @@ export class AllConnectedAssetsView extends Component {
 
   renderTableHeader() {
     let headCells = [
-      { id: 'my_name', label: 'Network Port Name' },
-      { id: 'hostname', label: 'Connected Hostname' },
-      { id: 'name', label: 'Connected Network Port' },
+      { id: 'my_name', label: 'Local Network Port' },
+      { id: 'hostname', label: 'Remote Hostname' },
+      { id: 'name', label: 'Remote Network Port' },
     ];
     return headCells.map(headCell => (
       <TableCell
