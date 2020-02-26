@@ -187,9 +187,14 @@ export class RacksView extends Component {
 
     let empty = '';
 
+
+    console.log(this.props.rack)
     
-    if(this.props.rack == null || this.state.rack.length===0){
-      empty = <h1>no racks</h1>
+    if(this.props.rack == null || this.props.rack.length===0){
+      empty = <h1>no racks</h1>;
+      showAll = <p></p>;
+      condensed = <p></p>;
+      deleteMultiple = <p></p>;
     }
 
 
@@ -215,6 +220,7 @@ export class RacksView extends Component {
             </Grid>
             <Grid item justify="flex-end" alignContent="flex-end" xs={3}>
               <div id="hideOnPrint">
+
               {showAll}
               </div>
             </Grid>

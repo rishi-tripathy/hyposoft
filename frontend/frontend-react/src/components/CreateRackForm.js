@@ -119,7 +119,8 @@ export class CreateRackForm extends Component {
         axios.post('/api/racks/many/', stateToSend)
           .then(function (response) {
             let message = response.data.results;
-            alert(response.data.results);
+            alert('Succesfully created '+response.data.results.successfully_created
+            + '\n Failed to create: ' +response.data.results.failed_to_create);
             self.setState({
               redirect:true,
             });

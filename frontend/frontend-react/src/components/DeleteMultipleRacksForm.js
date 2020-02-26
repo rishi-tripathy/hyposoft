@@ -96,15 +96,16 @@ export class DeleteMultipleRacksForm extends Component {
         data: stateToSend
       })
         .then(function (response) {
-          console.log(response);
-          let message = response.data.results;
-          alert(response.data.results);
+          console.log(response.data.results.successfully_deleted);
+          alert('Successfully Deleted: '+response.data.results.successfully_deleted + '\n'
+          + 'Failed to delete ' +  response.data.results.failed_to_delete_nonexistent + ' because they are nonexistent \n'
+          + 'Failed to delete ' + response.data.results.failed_to_delete_occupied + ' because they contain assets \n');
           self.setState({
             redirect: true,
           });
         })
         .catch(function (error) {
-          alert('Creation was not successful.\n' + JSON.stringify(error.response.data, null, 2));
+          alert('Deletion was not successful.\n' + JSON.stringify(error.response.data, null, 2));
         });
     } else {
         alert("Rack Numbers must be specified by a Single Capital Letter Followed by Multiple Numbers.");
