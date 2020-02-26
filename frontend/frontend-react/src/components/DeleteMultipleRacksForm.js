@@ -42,7 +42,7 @@ export class DeleteMultipleRacksForm extends Component {
       let myOptions = [];
       let myIds = [];
       let myIdMap = [];
-      for(var i = 1; i < res.data.results.length; i++) {
+      for(var i = 0; i <res.data.results.length; i++) {
         myOptions.push(res.data.results[i].abbreviation);
         myIds.push(res.data.results[i].id);
         var obj = {id: res.data.results[i].id, datacenter: res.data.results[i].abbreviation};
