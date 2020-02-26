@@ -12,6 +12,7 @@ import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
 import AddCircleIcon from "@material-ui/icons/AddCircle";
 import {Link} from 'react-router-dom'
+import DatacenterContext from './DatacenterContext'
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 export class RacksView extends Component {
@@ -19,6 +20,7 @@ export class RacksView extends Component {
   constructor() {
     super();
     this.state = {
+      rack: [],
       condensedView: false,
       showAllView: false,
       count: 1,
@@ -109,22 +111,61 @@ export class RacksView extends Component {
     }));
   }
 
+    componentDidMount () {
+      // console.log('mounting')
+      // console.log(this.props.allCase)
+      // if(this.props.allCase){
+      //   // if(this.state.datacenterListForShowAll.length === 0){
+      //     this.getDatacentersForTableHeaders();
+      //   // }
+      // }
+      // else {
+      //   this.setState({
+      //     datacenterIds: [],
+      //   })
+      // }
+    }
+
+    // componentDidUpdate (prevProps, prevState) {
+    //   if(this.state.rack !== prevState.rack){
+    //     if(this.props.allCase){
+    //       // if(this.state.datacenterListForShowAll.length === 0){
+    //         this.getDatacentersForTableHeaders();
+    //       // }
+    //     }
+    //     else {
+    //       this.setState({
+    //         datacenterIds: [],
+    //       })
+    //     }
+    //   }
+    // }
+
   render() {
-    let add = this.props.is_admin ? (
+
+    // console.log(this.props.rack)
+
+    let is_admin = false;
+
+    if(this.context.is_admin){
+      is_admin = true;
+    }
+
+    let add = is_admin? (
       <Link to={'/racks/create'}>
         <Button color="primary" variant="contained" endIcon={<AddCircleIcon/>}>
           Add Rack(s)
         </Button>
       </Link>
-    ) : {};
+    ) : <p></p>;
 
-    let deleteMultiple = this.props.is_admin ? (
+    let deleteMultiple = is_admin? (
       <Link to={'/racks/delete'}>
         <Button color='primary' variant="contained" endIcon={<DeleteIcon/>}>
           Delete Rack Range
         </Button>
       </Link>
-    ) : {};
+    ) : <p></p>;
 
     let showAll = <FormControlLabel labelPlacement="left"
       control={
@@ -154,7 +195,6 @@ export class RacksView extends Component {
     }
 
 
-
     return (
       <Container maxwidth="xl">
           <Grid container className="themed-container" spacing={2}>
@@ -174,17 +214,17 @@ export class RacksView extends Component {
               {condensed}
               </div>
             </Grid>
-            <Grid item justify="center" alignContent="center" xs={3}>
+            <Grid item justify="flex-end" alignContent="flex-end" xs={3}>
               <div id="hideOnPrint">
               {showAll}
               </div>
             </Grid>
             <Grid item xs={12}>
             {empty}
-              {this.props.rack.map((item, key) =>
+              {this.props.rack.map((item, index) =>
               <div id="rackContainer">
                 <div id='hideOnPrint'>
-                  {this.props.is_admin ? (
+                  {is_admin ? (
                       <ButtonGroup alignContent='center'>
                         <Link to={'/racks/' + item.id + '/edit'}>
                           < Tooltip title='Edit'>
@@ -209,7 +249,8 @@ export class RacksView extends Component {
                       sendUrl={this.sendUrlInView}
                       rack={item}
                       condensedState={this.state.condensedView}
-                      is_admin={this.props.is_admin}/>
+                      allCase={this.props.allCase}
+                      dc = {this.props.dcList[index]}/>
                 </Grid>
               </div>
         )}
@@ -219,5 +260,7 @@ export class RacksView extends Component {
     )
   }
 }
+
+RacksView.contextType = DatacenterContext;
 
 export default RacksView

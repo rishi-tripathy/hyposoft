@@ -6,6 +6,7 @@ import 'react-circular-progressbar/dist/styles.css';
 import '../stylesheets/TableView.css'
 import {UncontrolledCollapse, Button, ButtonGroup, Table, Container, Card, Row, Col} from 'reactstrap';
 import DatacenterContext from './DatacenterContext';
+import {Grid, Typography} from "@material-ui/core";
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
@@ -34,10 +35,9 @@ export class StatisticsController extends Component {
       datacenter: this.context.datacenter_ab
     })
     let dst;
-    if(this.state.datacenter == null || this.state.datacenter== 'ALL'){
+    if (this.state.datacenter == null || this.state.datacenter == 'ALL') {
       dst = '/report/?show_all=true';
-    }
-    else {
+    } else {
       dst = '/report/?datacenter=' + this.state.datacenter;
     }
     console.log(dst)
@@ -56,11 +56,11 @@ export class StatisticsController extends Component {
       });
   }
 
-  componentDidUpdate(prevProps, prevState){
-    var delay = 50;
+  componentDidUpdate(prevProps, prevState) {
+    var delay = 70;
     console.log(this.state.datacenter)
     console.log(this.context.datacenter_ab)
-    if (this.context.datacenter_ab !== this.state.datacenter || (this.context.datacenter_ab===null && this.state.datacenter === undefined)) {
+    if (this.context.datacenter_ab !== this.state.datacenter || (this.context.datacenter_ab === null && this.state.datacenter === undefined)) {
       console.log('datacenter selection has changed')
       setTimeout(() => {
         this.refreshDatacenter();
@@ -107,16 +107,21 @@ export class StatisticsController extends Component {
 
   render() {
     let name;
-    if(this.context.datacenter_ab == null){
+    if (this.context.datacenter_ab == null) {
       name = 'All Datacenters'
-    }
-    else {
+    } else {
       name = this.context.datacenter_ab;
     }
 
     return (
       <Container className="themed-container">
-        <h2>Statistics in {name} </h2>
+        <Typography variant="h3">
+          Statistics in {name}
+        </Typography>
+        <br></br>
+        <Typography variant="h7">
+          Use the selector in the navigation bar to change datacenters.
+        </Typography>
         <Row>
           <Col xs="6">
             <div style={{width: "60%"}}>

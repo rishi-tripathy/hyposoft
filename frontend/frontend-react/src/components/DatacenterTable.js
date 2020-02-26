@@ -36,6 +36,7 @@ export class DatacenterTable extends Component {
           axios.delete(dst)
             .then(function (response) {
               alert('Delete was successful');
+              window.location = '/';
             })
             .catch(function (error) {
               alert('Delete was not successful.\n' + JSON.stringify(error.response.data, null, 2));
@@ -98,7 +99,7 @@ export class DatacenterTable extends Component {
               <TableCell align="center">{name}</TableCell>
               <TableCell align="center">{abbreviation}</TableCell>
               <div>
-                {this.props.is_admin ? (
+                {this.context.is_admin ? (
                   <TableCell align="right">
                     <Link to={'/datacenters/' + id + '/edit'}>
                       <Tooltip title='Edit'>
@@ -109,7 +110,7 @@ export class DatacenterTable extends Component {
                     </Link>
                   </TableCell>) : <p></p>
                 }
-                {this.props.is_admin ? (
+                {this.context.is_admin ? (
                   < TableCell align="right">
                     < Tooltip title='Delete'>
                       <IconButton size="sm" onClick={() => this.showDeleteForm(id)}>

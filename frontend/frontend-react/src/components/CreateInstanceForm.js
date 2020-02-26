@@ -60,6 +60,8 @@ export class CreateInstanceForm extends Component {
       leftPPName: null,
       rightPPName: null,
       ppConnections: [],
+
+      redirect: false,
     }
   }
 
@@ -279,10 +281,14 @@ export class CreateInstanceForm extends Component {
     //console.log(JSON.stringify(this.state, null, 2))
 
     //CHOKE THE POST CALL
+    var self = this;
     axios.post('/api/assets/', stateToSend)
       .then(function (response) {
         alert('Created successfully');
-        window.location = '/assets'
+        // window.location = '/assets'
+        self.setState({
+          redirect: true,
+        })
       })
       .catch(function (error) {
         alert('Creation was not successful.\n' + JSON.stringify(error.response.data, null, 2));
@@ -345,6 +351,7 @@ export class CreateInstanceForm extends Component {
   render() {
     return (
       <div>
+        { this.state.redirect && <Redirect to={{pathname: '/assets'}} /> }
         <Container maxwidth="xl">
           <Grid container className='themed-container' spacing={2}>
             <Grid item alignContent='center' xs={12} />

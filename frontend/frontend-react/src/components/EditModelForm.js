@@ -8,7 +8,7 @@ import {
 } from "@material-ui/core";
 import { Autocomplete } from "@material-ui/lab";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
-import { Link } from "react-router-dom";
+import { Link, Redirect } from "react-router-dom";
 import CancelIcon from '@material-ui/icons/Cancel';
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
@@ -35,6 +35,7 @@ export class EditModelForm extends Component {
       selectedVendorOption: null,
 
       //networkPorts: null,
+      redirect: false,
     }
   }
 
@@ -108,11 +109,15 @@ export class EditModelForm extends Component {
     stateCopy.network_ports = this.fillInEmptyDefaultNPNames()
     let stateToSend = this.removeEmpty(stateCopy);
     console.log(stateToSend)
+    var self = this;
 
     axios.put(dst, stateToSend)
       .then(function (response) {
         alert('Edit was successful');
-        window.location = '/models'
+        // window.location = '/models'
+        self.setState({
+          redirect: true,
+        });
       })
       .catch(function (error) {
         alert('Edit was not successful.\n' + JSON.stringify(error.response.data, null, 2));
@@ -171,6 +176,7 @@ export class EditModelForm extends Component {
   render() {
     return (
       <div>
+        {this.state.redirect && <Redirect to={{pathname: '/models'}}/>}
         <Container maxwidth="xl">
           <Grid container className='themed-container' spacing={2}>
             <Grid item justify="flex-start" alignContent='center' xs={12} />

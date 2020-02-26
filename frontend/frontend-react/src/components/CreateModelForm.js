@@ -35,6 +35,8 @@ export class CreateModelForm extends Component {
       selectedVendorOption: null,
 
       networkPorts: null,
+      
+      redirect: false,
     }
   }
 
@@ -97,10 +99,15 @@ export class CreateModelForm extends Component {
 
 
     //THE API CALL TO POST
+    var self = this;
     axios.post('/api/models/', stateToSend)
       .then(function (response) {
         alert('Created successfully');
-        window.location = '/models'
+        // window.location = '/models'
+        self.setState({
+          redirect: true,
+        });
+
       })
       .catch(function (error) {
         alert('Creation was not successful.\n' + JSON.stringify(error.response.data, null, 2));
@@ -158,6 +165,7 @@ export class CreateModelForm extends Component {
   render() {
     return (
       <div>
+        { this.state.redirect && <Redirect to={{pathname: '/models'}} />}
         <Container maxwidth="xl">
           <Grid container className='themed-container' spacing={2}>
             <Grid item alignContent='center' xs={12}/>

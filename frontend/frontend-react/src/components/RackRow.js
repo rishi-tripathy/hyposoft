@@ -63,7 +63,7 @@ export class RackRow extends Component {
             borderBottom: 'solid',
           }}>
             <Link style={{color: textColor }} to={'/assets/' + this.props.id}>
-            {this.props.model} {this.displayName()}
+            {this.props.model} {this.displayName()} 
             </Link>
           </td>;
       } else if ((this.props.row === 42) || (!objectIsNull && this.props.hostname == null)) {

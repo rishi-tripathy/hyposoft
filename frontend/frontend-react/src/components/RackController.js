@@ -1,7 +1,5 @@
 import React, {Component, useState} from 'react'
 import RacksView from './RacksView';
-import CreateRackForm from './CreateRackForm'
-import EditRackForm from './EditRackForm'
 import RackFilters from './RackFilters'
 import PrintIcon from '@material-ui/icons/Print';
 import FilterListIcon from '@material-ui/icons/FilterList';
@@ -10,11 +8,9 @@ import '../stylesheets/Printing.css'
 import '../stylesheets/RackTable.css'
 import '../stylesheets/RacksView.css'
 import {UncontrolledCollapse, CardBody, Card} from 'reactstrap';
-import DetailedInstance from './DetailedInstance'
 import {
   Grid, Button, Container, Paper, ButtonGroup, Switch, FormControlLabel, Typography
 } from "@material-ui/core"
-import {Link} from 'react-router-dom'
 import DatacenterContext from './DatacenterContext';
 
 
@@ -45,6 +41,8 @@ export class RackController extends Component {
       nextPage: null,
       rerender: false,
       datacenterID: null,
+      allCase: false,
+      datacenterListForShowAll: [],
     };
     this.getShowRacks = this.getShowRacks.bind(this);
     this.getFilterQuery = this.getFilterQuery.bind(this);
@@ -278,8 +276,32 @@ export class RackController extends Component {
     this.setState({
       datacenterID: this.context.datacenter_id,
     });
+
+    // console.log(this.context)
+
+    // console.log(this.state.datacenterID)
+    // console.log(this.context.datacenter_id)
     if (!this.state.showAllRacks) {
-      let dst = '/api/racks/' + '?' + 'datacenter=' + this.context.datacenter_id + '&' + this.state.filterQuery;
+
+      //all or one datacenter?
+      // console.log(this.state.datacenterID)
+      let dst; 
+      // if(this.state.datacenterID===-1 || this.state.datacenterID == null){
+      if(this.context.datacenter_id===-1){
+        dst = '/api/racks/' + this.state.filterQuery; //gets from all dc's
+        // console.log('all case true')
+        this.setState({
+          allCase: true,
+        });
+      }
+      else {
+        dst = '/api/racks/' + '?' + 'datacenter=' + this.context.datacenter_id + '&' + this.state.filterQuery;
+        // console.log('all case false')
+        
+        this.setState({
+          allCase: false,
+        });
+      }
 
       axios.get(dst).then(res => {
         this.setState({
@@ -290,12 +312,28 @@ export class RackController extends Component {
       })
         .catch(function (error) {
           // TODO: handle error
-          console.log(error.response);
+          // console.log(error.response);
           alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
         });
     } else {
       //show all racks
-      let dst = '/api/racks/?show_all=true' + '&' + this.state.filterQuery;
+      let dst;
+
+      // if(this.state.datacenterID===-1 || this.state.datacenterID == null){
+      if(this.context.datacenter_id===-1){
+        dst = '/api/racks/' + '?show_all=true' + this.state.filterQuery; //gets from all dc's
+        // console.log('all case true')
+        this.setState({
+          allCase: true,
+        });
+      }
+      else {
+        dst = '/api/racks/' + '?' + 'datacenter=' + this.context.datacenter_id + '&' + 'show_all=true' + '&' + this.state.filterQuery;
+        // console.log('all case false')       
+        this.setState({
+          allCase: false,
+        });
+      }
 
       axios.get(dst).then(res => {
         this.setState({
@@ -307,9 +345,48 @@ export class RackController extends Component {
         .catch(function (error) {
           console.log(error.response);
         });
-    }
-
+      }
   }
+
+  getDatacentersForTableHeaders = () => {
+    let datacenterAbs = [];
+    let dcOptions = [];
+    dcOptions = this.context.datacenterOptions;
+    console.log(dcOptions)
+    
+      let datacenterIds = [];
+      let racksArr = [];
+      // console.log(this.state.racks)
+      // if(this.state.showAllRacks){
+      //   console.log(this.state.racks.results)
+      //   this.state.racks.results.map((r, index) => {
+      //     console.log(r)
+      //     datacenterIds.push(r.datacenter.substring(r.datacenter.length-2, r.datacenter.length-1))
+      //   })
+      // }
+      // else {
+        this.state.racks.map((r, index) => {
+          // console.log(r)
+          datacenterIds.push(r.datacenter.substring(r.datacenter.length-2, r.datacenter.length-1))
+        })
+      // }
+      
+      console.log(datacenterIds)
+
+      datacenterIds.map((r, index) => {
+        // console.log(r)
+        for(var i = 0 ; i < dcOptions.length; i++){
+          // console.log(dcOptions[i].id)
+          // console.log(dcOptions[i].abbreviation)
+          if(r === dcOptions[i].id.toString()){
+            // console.log('match found')
+            datacenterAbs.push(dcOptions[i].abbreviation)
+          }
+        }
+      })
+      // console.log(datacenterAbs)
+      return datacenterAbs;
+    }
 
   paginateNext = () => {
     this.state.racks = null;
@@ -322,7 +399,7 @@ export class RackController extends Component {
     })
       .catch(function (error) {
         // TODO: handle error
-        console.log(error.response);
+        // console.log(error.response);
       });
   }
 
@@ -336,7 +413,7 @@ export class RackController extends Component {
     })
       .catch(function (error) {
         // TODO: handle error
-        console.log(error.response);
+        // console.log(error.response);
       });
   }
 
@@ -347,9 +424,19 @@ export class RackController extends Component {
 
   render() {
     let content;
-    console.log(this.state.racks)
+    let list = [];
+    // console.log(this.state.racks)
+    // console.log(this.context.datacenter_id)
+    if(this.context.datacenter_id === -1){
+      // console.log('in allcase')
+      // console.log(this.getDatacentersForTableHeaders());
+      list = this.getDatacentersForTableHeaders();
+    }
+
     if (this.state.showRacksView) {
-      if(this.state.racks!==null || this.state.racks.length!==0){
+      if(this.state.racks == null || this.state.racks.length===0){
+      content = <h1>no racks</h1>
+      } else {
       content =
         <RacksView rack={this.state.racks}
                    sendRerender={this.getRerender}
@@ -362,10 +449,8 @@ export class RackController extends Component {
                    sendEditID={this.getEditID}
                    sendShowDelete={this.getShowDelete}
                    sendShowAllRacks={this.getShowAllRacks}
-                   is_admin={this.props.is_admin}/>
-    }
-    else {
-      content = <h1>no racks</h1>
+                   allCase={this.state.allCase}
+                   dcList={list}/>
     }
   }
 
@@ -407,6 +492,15 @@ export class RackController extends Component {
       printButton = <p></p>;
     }
 
+    let name;
+
+    if(this.state.datacenterID=== null || this.state.datacenterID === -1 ){
+      name = 'Racks in All Datacenters'
+    }
+    else {
+      name = 'Racks in Datacenter: ' + this.context.datacenter_ab;
+    }
+
 
     return (
       <div>
@@ -416,17 +510,17 @@ export class RackController extends Component {
           <Grid item justify="flex-start" alignContent='center' xs={10}>
                 <Typography variant="h3">
                 <div id="hideOnPrint">
-                  Racks in Datacenter: {this.context.datacenter_ab}
+                  {name}
                 </div>
                 </Typography>
           </Grid>
-          <Grid item justify="flex-start" alignContent='center' xs={12}>
+          <Grid item justify="flex-start" alignContent='center' xs={3}>
             {filters}{' '}
           </Grid>
-          <Grid item justify="flex-start" alignContent='center' xs={12}>
+          <Grid item justify="flex-start" alignContent='center' xs={3}>
             {printButton}{' '}
           </Grid>
-          <Grid item justify="flex-start" alignContent='center' xs={12}>
+          <Grid item justify="flex-end" alignContent='center' xs={3}>
             {paginateNavigation}{' '}
           </Grid>
           <Grid item justify="flex-start" alignContent='center' xs={12}>
