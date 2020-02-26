@@ -396,6 +396,10 @@ class AssetViewSet(viewsets.ModelViewSet):
                     assert name is not None
                     assert num is not None
                 except AssertionError:
+                    responses.append({
+                        "status": "A port is not connected to the PDU."
+                    })
+
                     continue
                 try:
                     resp = requests.post(NETWORX_POST_URL, {
