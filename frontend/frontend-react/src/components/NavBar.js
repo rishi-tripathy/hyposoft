@@ -15,32 +15,15 @@ export class NavBar extends Component{
     super();
 
     this.state = {
-      datacenter: [{}],
+      datacenters: [{}],
     };
   }
 
-  getDatacenters = () => {
-    // let dst = '/api/datacenters/?show_all=true'; //want all
-    let dst = '/api/datacenters/?&';
-    console.log("QUERY")
-    console.log(dst)
-    axios.get(dst).then(res => {
-      this.setState({
-        datacenters: res.data.results,
-      });
-    })
-      .catch(function (error) {
-        // TODO: handle error
-        alert("Cannot load. Re-login.\n" + JSON.stringify(error.response, null, 2));
-      })
-  }
-
   componentDidMount() {
-    // this.getDatacenters();
     console.log( this.context.datacenterOptions)
-    this.setState({
-      datacenters: this.context.datacenterOptions,
-    })
+      this.setState({
+        datacenters: this.context.datacenterOptions,
+      })
     console.log('set DCs')
  }
  

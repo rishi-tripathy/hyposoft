@@ -36,6 +36,7 @@ export class DatacenterTable extends Component {
           axios.delete(dst)
             .then(function (response) {
               alert('Delete was successful');
+              window.location = '/';
             })
             .catch(function (error) {
               alert('Delete was not successful.\n' + JSON.stringify(error.response.data, null, 2));

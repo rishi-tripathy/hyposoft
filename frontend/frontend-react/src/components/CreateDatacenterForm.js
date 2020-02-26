@@ -25,6 +25,12 @@ export class CreateDatacenterForm extends Component {
         redirect: false,
     }
   }
+  componentDidMount() {
+    this.setState({
+      redirect: false,
+    })
+    console.log(this.state.redirect)
+  }
 
   removeEmpty = (obj) => {
     Object.keys(obj).forEach((k) => (!obj[k] && obj[k] !== undefined) && delete obj[k]);
@@ -59,14 +65,13 @@ export class CreateDatacenterForm extends Component {
     return (
       <div>
         {/* {this.state.redirect && <Redirect to = {{pathname: '/datacenters/'}} />} */}
-        {this.state.redirect && 
-          <DatacenterContext.Consumer>
-              {({ datacenter, resetDatacenter }) => (
-                <Redirect to={{pathname: '/datacenters/'}} />
-                // resetDatacenter())}
-              )}
-          </DatacenterContext.Consumer>
-        }
+        {this.state.redirect &&<Redirect to = {{pathname: '/datacenters/', state: this.state.redirect }}/>}
+          {/* // <DatacenterContext.Consumer>
+          //     {/* {({ resetDatacenter }) => 
+          //       setTimeout(() => { 
+          //         resetDatacenter();
+          //       }, 10)}  */}
+             {/* </DatacenterContext.Consumer>  */}
         <Container maxwidth="xl">
           <Grid container className='themed-container' spacing={2}>
             <Grid item alignContent='center' xs={12}/>

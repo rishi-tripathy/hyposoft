@@ -17,6 +17,7 @@ export class DatacenterNavbar extends Component{
     //   options.push(option.abbreviation)
     // })
     console.log(this.context.datacenterOptions[0].name);
+    console.log(this.context.datacenterOptions);
   return (
     <DatacenterContext.Consumer>
     {({ datacenter_ab, datacenter_id, datacenter_name, datacenterOptions, setDatacenter }) => (

@@ -226,7 +226,7 @@ export class RacksView extends Component {
               {condensed}
               </div>
             </Grid>
-            <Grid item justify="center" alignContent="center" xs={3}>
+            <Grid item justify="flex-end" alignContent="flex-end" xs={3}>
               <div id="hideOnPrint">
               {showAll}
               </div>
