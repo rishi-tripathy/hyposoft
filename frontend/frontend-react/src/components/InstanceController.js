@@ -412,7 +412,7 @@ export class InstanceController extends Component {
 
     // let filters = <InstanceFilters sendFilterQuery={ this.getFilterQuery } />
     // let sorting = <InstanceSort sendSortQuery={ this.getSortQuery } />
-    let exp = <Button variant="outlined" startIcon={<SaveAltIcon />} onClick={this.exportData}>Export</Button>
+    let exp = <Button variant="outlined" startIcon={<SaveAltIcon />} onClick={this.exportData}>Export Assets</Button>
 
     let np_exp = <Button variant="outlined" startIcon={<SaveAltIcon />} onClick={this.exportNPData}>Export NetPorts</Button>
 
@@ -440,7 +440,7 @@ export class InstanceController extends Component {
     let imp = this.context.is_admin ? (
       <>
         <Button variant="outlined" component="span" startIcon={<CloudUploadIcon />} onClick={this.handleImport}>
-          Import
+          Import Assets
         </Button>
         <input
           accept="text/csv"
