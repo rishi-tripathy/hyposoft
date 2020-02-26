@@ -153,7 +153,7 @@ export class InstanceController extends Component {
       sort = sort + '&'
     }
 
-    let dst = '/api/assets/' + '?' + filter + sort + 'export=true&network_ports=true';
+    let dst = '/api/assets/' + '?' + filter + sort + 'export=true&np=true';
     console.log('exporting to:  ' + dst);
     const FileDownload = require('js-file-download');
     axios.get(dst).then(res => {
@@ -194,7 +194,7 @@ export class InstanceController extends Component {
 
         if (window.confirm('Import was not successful.\n' + JSON.stringify(error.response.data, null, 2))) {
           fileUploadOverride(f).then((response) => {
-            console.log(response.data);
+            alert("Import was successful.\n" + JSON.stringify(response, null, 2));
           })
             .catch(function (error) {
               console.log(error.response)
