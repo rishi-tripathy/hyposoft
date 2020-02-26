@@ -127,7 +127,7 @@ export class InstanceTableMUI extends Component {
       { id: 'owner', label: 'Owner' },
       // { id: 'np', label: 'Network Ports' },
       // { id: 'pp', label: 'Power Ports' },
-      { id: 'assetNumber', label: 'Asset no.' },
+      { id: 'asset_number', label: 'Asset no.' },
     ];
     return headCells.map(headCell => (
       <TableCell
