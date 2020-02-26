@@ -240,11 +240,13 @@ class AssetViewSet(viewsets.ModelViewSet):
         graph_serializer = AssetSeedForGraphSerializer(self.get_object(), context={'request': request})
 
         assets = []
+        nodes = []
         seen_asset_ids = set()
         assets1 = []
         nps1 = []
         assets2 = []
         links = []
+        newlinks = []
 
         master_data = graph_serializer.data
         data = graph_serializer.data
@@ -256,6 +258,9 @@ class AssetViewSet(viewsets.ModelViewSet):
         }
 
         assets.append(root)
+        nodes.append({
+            'id': root.get("hostname")
+        })
         seen_asset_ids.add(data.get("id"))
 
         def process_l2(np, l1_id):
@@ -269,10 +274,21 @@ class AssetViewSet(viewsets.ModelViewSet):
                         "location": "Rack {} U{}".format(data.get("rack").get("rack_number"), data.get("rack_u"))
                     }
                     assets.append(a2)
+                    nodes.append({
+                        'id': a2.get("hostname")
+                    })
                     if int(l1_id) < int(data.get("id")):
                         links.append("{},{}".format(l1_id, data.get("id")))
+                        newlinks.append({
+                            'source': Asset.objects.get(id=l1_id).hostname,
+                            'destination': data.get("hostname"),
+                        })
                     else:
                         links.append("{},{}".format(data.get("id"), l1_id, ))
+                        newlinks.append({
+                            'source': data.get("hostname"),
+                            'destination': Asset.objects.get(id=l1_id).hostname,
+                        })
 
         root_nps = data.get("network_ports")
         for np in root_nps:
@@ -286,10 +302,21 @@ class AssetViewSet(viewsets.ModelViewSet):
                         "location": "Rack {} U{}".format(data.get("rack").get("rack_number"), data.get("rack_u"))
                     }
                     assets.append(a1)
+                    nodes.append({
+                        'id': a1.get("hostname")
+                    })
                     if int(root.get("id")) < int(data.get("id")):
                         links.append("{},{}".format(root.get("id"), data.get("id")))
+                        newlinks.append({
+                            'source': root.get("hostname"),
+                            'destination': data.get("hostname")
+                        })
                     else:
                         links.append("{},{}".format(data.get("id"), root.get("id")))
+                        newlinks.append({
+                            'source': data.get("hostname"),
+                            'destination': root.get("hostname")
+                        })
 
                     for np2 in data.get("network_ports"):
                         process_l2(np2, data.get("id"))
@@ -300,8 +327,15 @@ class AssetViewSet(viewsets.ModelViewSet):
                 "connections": list(set(links))
             }
         }
+        newresp = {
+            "data": {
+                "nodes": nodes,
+                "links": newlinks,
+                "focusNodeId": root.get("hostname")
+            }
+        }
 
-        return Response(resp)
+        return Response(newresp)
 
     @action(detail=False, methods=[POST])
     def import_file(self, request, *args, **kwargs):
