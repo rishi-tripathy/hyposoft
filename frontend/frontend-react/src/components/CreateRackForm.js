@@ -135,7 +135,15 @@ export class CreateRackForm extends Component {
 
   render() {
     // console.log(this.context.datacenter_ab)
-    let defaultVal = this.context.datacenter_ab;
+
+    let defVal;
+    
+    if(this.context.datacenter_id === -1){
+      defVal = '';
+    }
+    else{
+      defVal = this.context.datacenter_ab;
+    }
 
     console.log(this.state.redirect)
     let content;
@@ -168,7 +176,7 @@ export class CreateRackForm extends Component {
                   noOptionsText={"Create New in DC tab"}
                   options={this.state.datacenterOptions}
                   onInputChange={this.handleChangeDatacenter}
-                  defaultValue={defaultVal}
+                  defaultValue={defVal}
                   renderInput={params => (
                     <TextField {...params} label="Datacenter" fullWidth/>
                   )}

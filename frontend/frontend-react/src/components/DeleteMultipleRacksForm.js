@@ -115,6 +115,14 @@ export class DeleteMultipleRacksForm extends Component {
   render() {
     let start_rack;
     let end_rack;
+    let defVal;
+
+    if(this.context.datacenter_id === -1){
+      defVal = '';
+    }
+    else{
+      defVal = this.context.datacenter_ab;
+    }
     return (
       <div>
       {this.state.redirect && <Redirect to= {{pathname: '/racks/'}}/>}
@@ -134,7 +142,7 @@ export class DeleteMultipleRacksForm extends Component {
                   noOptionsText={"Create New in DC tab"}
                   options={this.state.datacenterOptions}
                   onInputChange={this.handleChangeDatacenter}
-                  defaultValue={this.context.datacenter_ab}
+                  defaultValue={defVal}
                   renderInput={params => (
                     <TextField {...params} label="Datacenter" fullWidth/>
                   )}
