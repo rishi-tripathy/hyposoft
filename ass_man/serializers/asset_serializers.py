@@ -48,7 +48,7 @@ class AssetSerializer(serializers.HyperlinkedModelSerializer):
             '^([0-9a-f]{2})[-:_]?([0-9a-f]{2})[-:_]?([0-9a-f]{2})[-:_]?([0-9a-f]{2})[-:_]?([0-9a-f]{2})[-:_]?([0-9a-f]{2})',
             mac.lower())
 
-    def check_network_ports(self, network_ports, validated_data):
+    def check_network_ports(self, network_ports, validated_data, asset):
         if network_ports:
             np_list = []
             for i in network_ports:
@@ -61,10 +61,6 @@ class AssetSerializer(serializers.HyperlinkedModelSerializer):
                         'Bad MAC address': mac
                     })
                 try:
-                    # connection_asset_num = i['connection']['asset_number']
-                    # connection_port_name = i['connection']['port_name']
-                    # connection_asset = Asset.objects.get(asset_number=connection_asset_num)
-                    # connection_port = connection_asset.network_port_set.get(name=connection_port_name)
                     connection_port_id = i['connection']['network_port_id']
                     connection_port = Network_Port.objects.get(pk=connection_port_id)
                 except (ObjectDoesNotExist, KeyError) as e:
@@ -84,11 +80,14 @@ class AssetSerializer(serializers.HyperlinkedModelSerializer):
                 try:
                     assert connection_port.connection is None
                 except AssertionError:
-                    raise serializers.ValidationError({
-                        'Network Port Error': 'Port {} on host {} is already occupied by a connection to port {} on host {}.'.format(
-                            connection_port.name, connection_port.asset.hostname, connection_port.connection.name,
-                            connection_port.connection.asset.hostname)
-                    })
+                    if asset and connection_port.connection.asset.id == asset.id:
+                        pass
+                    else:
+                        raise serializers.ValidationError({
+                            'Network Port Error': 'Port {} on host {} is already occupied by a connection to port {} on host {}.'.format(
+                                connection_port.name, connection_port.asset.hostname, connection_port.connection.name,
+                                connection_port.connection.asset.hostname)
+                        })
                 if connection_port and connection_port in np_list:
                     raise serializers.ValidationError({
                     'Network Port Error': 'Connection port {} on asset {} is used multiple times by this asset'.format(connection_port.name,connection_port.asset.asset_number)
@@ -96,7 +95,7 @@ class AssetSerializer(serializers.HyperlinkedModelSerializer):
                 else:
                     np_list.append(connection_port)
 
-    def check_power_ports(self, power_ports):
+    def check_power_ports(self, power_ports, asset):
         if power_ports:
             pp_dict = {}
             for i in power_ports:
@@ -115,11 +114,14 @@ class AssetSerializer(serializers.HyperlinkedModelSerializer):
                 try:
                     assert pp is None
                 except AssertionError:
-                    raise serializers.ValidationError({
-                        'PDU Error': 'PDU port {} on PDU {} is already in use by asset {}.'.format(pp.port_number,
-                                                                                                   pdu.name,
-                                                                                                   pp.asset.hostname)
-                    })
+                    if asset and pp.asset.id == asset.id:
+                        pass
+                    else:
+                        raise serializers.ValidationError({
+                            'PDU Error': 'PDU port {} on PDU {} is already in use by asset {}.'.format(pp.port_number,
+                                                                                                       pdu.name,
+                                                                                                       pp.asset.hostname)
+                        })
                 if i['pdu'] in pp_dict.keys():
                     if i['port_number'] in pp_dict[i['pdu']]:
                         raise serializers.ValidationError({
@@ -132,15 +134,15 @@ class AssetSerializer(serializers.HyperlinkedModelSerializer):
 
     def create(self, validated_data):
         self.check_rack_u_validity(validated_data)
-        self.check_power_ports(self.context['power_ports'])
-        self.check_network_ports(self.context['network_ports'], validated_data)
+        self.check_power_ports(self.context['power_ports'], None)
+        self.check_network_ports(self.context['network_ports'], validated_data, None)
         validated_data = self.check_asset_number(validated_data)
         return super().create(validated_data)
 
     def update(self, asset, validated_data):
         self.check_rack_u_validity(validated_data, asset)
-        self.check_power_ports(self.context['power_ports'])
-        self.check_network_ports(self.context['network_ports'], validated_data)
+        self.check_power_ports(self.context['power_ports'], asset)
+        self.check_network_ports(self.context['network_ports'], validated_data, asset)
         try:
             assert asset.model == validated_data['model']
         except AssertionError:
