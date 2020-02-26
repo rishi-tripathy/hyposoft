@@ -22,7 +22,7 @@ export class UserController extends Component {
       users: [],
       prevPage: null,
       nextPage: null,
-      //rerender: false,
+      rerender: false,
     }
   }
 
@@ -44,6 +44,23 @@ export class UserController extends Component {
     this.getUsers();
   }
 
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    const delay = 50
+     // After crud, rerender
+    if (prevState.rerender === false && this.state.rerender === true) {
+      setTimeout(() => {
+        this.getUsers();
+        this.setState({rerender: false});
+      }, delay);
+
+    }
+  }
+
+  getRerender = (re) => {
+    if (re) {
+      this.setState({rerender: true})
+    }
+  }
   paginateNext = () => {
     axios.get(this.state.nextPage).then(res => {
       this.setState({
@@ -74,7 +91,7 @@ export class UserController extends Component {
 
   render() {
     let content = <div>
-      <UserTableMUI users={this.state.users} />
+      <UserTableMUI sendRerender={this.getRerender} users={this.state.users} />
     </div>;
 
     let paginateNavigation = <p></p>;
