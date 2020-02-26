@@ -35,7 +35,7 @@ export class DatacenterController extends Component {
 
       getDatacenters = () => {
         // console.log(this.props.location.state)
-        if(this.props.location.state === undefined){
+         if(this.props.location.state === undefined || this.props.location.state === null){
         }
         else{
          window.location = '/';
