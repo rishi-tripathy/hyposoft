@@ -11,6 +11,7 @@ import CloudUploadIcon from "@material-ui/icons/CloudUpload";
 import SaveAltIcon from "@material-ui/icons/SaveAlt";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
 import HelpIcon from '@material-ui/icons/Help';
+import SettingsEthernetIcon from '@material-ui/icons/SettingsEthernet';
 import { Link } from "react-router-dom";
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
@@ -411,16 +412,19 @@ export class InstanceController extends Component {
     // let sorting = <InstanceSort sendSortQuery={ this.getSortQuery } />
     let exp = <Button variant="outlined" startIcon={<SaveAltIcon />} onClick={this.exportData}>Export</Button>
 
-    let np_exp = <Button variant="outlined" startIcon={<SaveAltIcon />} onClick={this.exportNPData}>Export NP</Button>
+    let np_exp = <Button variant="outlined" startIcon={<SaveAltIcon />} onClick={this.exportNPData}>Export NetPorts</Button>
 
-    let showAll = <FormControlLabel labelPlacement="left"
-      control={
-        <Switch value={this.state.showingAll} onChange={() => this.toggleShowingAll()} />
-      }
-      label={
-        <Typography variant="subtitle1"> Show All</Typography>
-      }
-    />
+    let showAll = <p></p>;
+    if (this.state.prevPage != null || this.state.nextPage != null) {
+      showAll = <FormControlLabel labelPlacement="left"
+                                      control={
+                                        <Switch value={this.state.showingAll} onChange={() => this.toggleShowingAll()} />
+                                      }
+                                      label={
+                                        <Typography variant="subtitle1"> Show All</Typography>
+                                      }
+      />
+    }
 
     let add = this.props.is_admin ? (
       <Link to={'/assets/create'}>
@@ -448,8 +452,8 @@ export class InstanceController extends Component {
 
     let importNetworkConnections = this.props.is_admin ? (
       <>
-        <Button variant="outlined" component="span" startIcon={<CloudUploadIcon />} onClick={this.handleNPImport}>
-          Import NP
+        <Button variant="outlined" component="span" startIcon={<SettingsEthernetIcon />} onClick={this.handleNPImport}>
+          Import NetPorts
         </Button>
         <input
           accept="text/csv"
