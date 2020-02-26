@@ -384,7 +384,7 @@ class AssetViewSet(viewsets.ModelViewSet):
             assert act in ['on', 'off', 'cycle']
         except AssertionError:
             return Response({
-                'Invalid Data': "You must choose one action of 'on' or 'off', on one port of port 1-24 for a valid Networx PDU."
+                'Invalid Data': "You must choose one action of 'on' or 'off', for an asset connected to a valid Networx PDU."
             }, status=status.HTTP_400_BAD_REQUEST)
 
         def on():
@@ -392,6 +392,11 @@ class AssetViewSet(viewsets.ModelViewSet):
             for pp in self.get_object().power_port_set.all():
                 name = pp.pdu.name
                 num = pp.port_number
+                try:
+                    assert name is not None
+                    assert num is not None
+                except AssertionError:
+                    continue
                 try:
                     resp = requests.post(NETWORX_POST_URL, {
                         'pdu': name,
@@ -404,13 +409,15 @@ class AssetViewSet(viewsets.ModelViewSet):
                     })
                 except requests.exceptions.RequestException:
                     responses.append({
-                        'status': 'Error. The PDU Networx 98 Pro service is unavailable.'
+                        "port": "PDU{} port{}".format(name, num),
+                        "status": "failure"
                     })
 
                 if any(r.get("status") == 'failure' for r in responses):
                     return Response({
                         "responses": responses
                     }, status=status.HTTP_207_MULTI_STATUS)
+
                 return Response({
                     "responses": responses
                 }, status=status.HTTP_200_OK)
@@ -421,6 +428,11 @@ class AssetViewSet(viewsets.ModelViewSet):
                 name = pp.pdu.name
                 num = pp.port_number
                 try:
+                    assert name is not None
+                    assert num is not None
+                except AssertionError:
+                    continue
+                try:
                     resp = requests.post(NETWORX_POST_URL, {
                         'pdu': name,
                         'port': num,
@@ -430,16 +442,17 @@ class AssetViewSet(viewsets.ModelViewSet):
                         "port": "PDU{} port{}".format(name, num),
                         "status": "success"
                     })
-                    continue
                 except requests.exceptions.RequestException:
                     responses.append({
-                        'status': 'Error. The PDU Networx 98 Pro service is unavailable.'
+                        "port": "PDU{} port{}".format(name, num),
+                        "status": "failure"
                     })
 
                 if any(r.get("status") == 'failure' for r in responses):
                     return Response({
                         "responses": responses
                     }, status=status.HTTP_207_MULTI_STATUS)
+
                 return Response({
                     "responses": responses
                 }, status=status.HTTP_200_OK)
