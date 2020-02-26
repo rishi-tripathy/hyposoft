@@ -222,22 +222,38 @@ def import_asset_file(request):
 
             pp1=re.search('([A-Z])([0-9]{1,2})$', row['power_port_connection_1'])
             pp2=re.search('([A-Z])([0-9]{1,2})$', row['power_port_connection_2'])
+            # pp2_pdu = None
             try:
                 if pp1:
-                    pp1_pdu = eval('rack.pdu_{}'.format(pp1.group(1).lower()))
+                    if pp1.group(1).upper() == 'L':
+                        pp1_pdu = rack.pdu_l if rack else None
+                    else:
+                        pp1_pdu = rack.pdu_r if rack else None
+                    # pp1_pdu = eval('rack.pdu_{}'.format(pp1.group(1).lower()))
                     pp_connected = pp1_pdu.power_port_set.get(port_number=pp1.group(2))
-                    blocked_pps[asset.asset_number] = row['datacenter']+'-'+row['rack']+'-'+\
+                    blocked_pps['New Asset'] = row['datacenter']+'-'+row['rack']+'-'+\
                     row['power_port_connection_1']
                     dont_add=True
+            except Power_Port.DoesNotExist:
+                pass
+
+            try:
                 if pp2:
-                    pp2_pdu = eval('rack.pdu_{}'.format(pp1.group(1).lower()))
+                    if pp2.group(1).upper() == 'L':
+                        pp2_pdu = rack.pdu_l if rack else None
+                    else:
+                        pp2_pdu = rack.pdu_r if rack else None
+                    # pp2_pdu = eval('rack.pdu_{}'.format(pp1.group(1).lower()))
                     pp_connected = pp2_pdu.power_port_set.get(port_number=pp2.group(2))
-                    blocked_pps[asset.asset_number] = row['datacenter']+'-'+row['rack']+'-'+\
+                    blocked_pps['New Asset'] = row['datacenter']+'-'+row['rack']+'-'+\
                     row['power_port_connection_2']
                     dont_add=True
             except Power_Port.DoesNotExist:
-                pp1_pdu=None
-                pp2_pdu=None
+                pass
+            if not pp1:
+                pp1_pdu = None
+            if not pp2:
+                pp2_pdu = None
 
             try:
                 owner = User.objects.get(username=row['owner'])
@@ -297,7 +313,8 @@ def import_asset_file(request):
                 new = model.vendor + " " + model.model_number
                 fields_overriden[key] = [orig, new]
             override = True
-        if (asset.datacenter != row['datacenter']):
+        rack_handled=False
+        if (asset.datacenter.abbreviation != row['datacenter']):
             try:
                 datacenter = Datacenter.objects.get(abbreviation=row['datacenter'])
             except Datacenter.DoesNotExist:
@@ -422,6 +439,81 @@ def import_asset_file(request):
                 key = str(asset.asset_number)
                 fields_overriden[key] = [asset.comment, row['comment']]
             override = True
+
+
+        pp1_reg=re.search('([A-Z])([0-9]{1,2})$', row['power_port_connection_1'])
+        pp2_reg=re.search('([A-Z])([0-9]{1,2})$', row['power_port_connection_2'])
+        dash1=False
+        dash2=False
+        if row['power_port_connection_1'] == '-':
+            pp1_reg = '-'
+            dash1 = True
+        if row['power_port_connection_2'] == '-':
+            pp2_reg = '-'
+            dash2=True
+
+        pp1 = asset.power_port_set.first()
+        print(pp1)
+        if pp1_reg and (dash1 or (int(pp1_reg.group(2)) != pp1.port_number or (pp1_reg.group(1).upper() != pp1.pdu.name.upper()[-1]))):
+            #someting is different about port location
+            if should_override:
+                if pp1_reg == '-':
+                    pp1.port_number = None
+                    pp1.pdu = None
+                else:
+                    if pp1_reg.group(1).upper() == 'L':
+                        pdu_update = asset.rack.pdu_l
+                    else:
+                        pdu_update = asset.rack.pdu_r
+                    try:
+                        pdu_update.power_port_set.get(port_number=int(pp1_reg.group(2)))
+                        blocked_pps[asset.asset_number] = row['datacenter']+'-'+row['rack']+'-'+\
+                        row['power_port_connection_1']
+                    except Power_Port.DoesNotExist:
+                        pass
+                    pp1.port_number = int(pp1_reg.group(2))
+                    pp1.pdu = pdu_update
+                should_update=True
+                power_ports_to_create.append(pp1)
+            else:
+                key = pp1.pdu.name.upper()[-1]+str(pp1.port_number) if pp1.pdu else ''
+                fields_overriden[str(asset.asset_number)+'_power_port'] = \
+                [key,row['power_port_connection_1']]
+            override=True
+
+
+        try:
+            pp2 = asset.power_port_set.all().order_by('pk')[1]
+            print(pp2)
+        except IndexError:
+            pp2=None
+        if pp2_reg and (dash2 or (int(pp2_reg.group(2)) != pp2.port_number or (pp2_reg.group(1).upper() != pp2.pdu.name.upper()[-1]))):
+            #someting is different about port location
+            if should_override:
+                if pp2_reg == '-':
+                    pp2.port_number = None
+                    pp2.pdu = None
+                else:
+                    if pp2_reg.group(1).upper() == 'L':
+                        pdu_update = asset.rack.pdu_l
+                    else:
+                        pdu_update = asset.rack.pdu_r
+                    try:
+                        pdu_update.power_port_set.get(port_number=int(pp2_reg.group(2)))
+                        blocked_pps[asset.asset_number] = row['datacenter']+'-'+row['rack']+'-'+\
+                        row['power_port_connection_2']
+                    except Power_Port.DoesNotExist:
+                        pass
+                    pp2.port_number = int(pp2_reg.group(2))
+                    pp2.pdu = pdu_update
+                should_update=True
+                power_ports_to_create.append(pp2)
+            else:
+                key = pp2.pdu.name.upper()[-1]+str(pp2.port_number) if pp2.pdu else ''
+                fields_overriden[str(asset.asset_number)+'_power_port'] = \
+                [key,row['power_port_connection_2']]
+            override=True
+
         if should_update:
             assets_to_update.append(asset)
         if override:
@@ -430,13 +522,6 @@ def import_asset_file(request):
             ignored += 1
             assets_to_ignore.append(asset)
 
-        pp1=re.search('([A-Z])([0-9]{1,2})$', row['power_port_connection_1'])
-        pp2=re.search('([A-Z])([0-9]{1,2})$', row['power_port_connection_2'])
-        # if asset.power_port_set.first().port_number != pp1.group(2):
-        #     if should_override:
-        #         asset.power_port_set.first().
-        if pp1.group(2) != asset.power_port_set.first().port_number or (pp1.group(1).upper() != asset.power_port_set.first().pdu.name.upper()[-1]):
-            pass
 
     if len(uncreated_objects['model']) > 0 or len(uncreated_objects['rack']) > 0 or len(uncreated_objects['user']) > 0 or len(uncreated_objects['datacenter']):
         err_message = "The following objects were referenced, but have not been created. "
