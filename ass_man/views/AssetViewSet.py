@@ -409,7 +409,7 @@ class AssetViewSet(viewsets.ModelViewSet):
                         'pdu': name,
                         'port': num,
                         'v': 'on'
-                    }, timeout=0.0002)
+                    }, timeout=2)
                     responses.append({
                         "port": "PDU{} port{}".format(name, num),
                         "status": "successfully turned on"
@@ -450,7 +450,7 @@ class AssetViewSet(viewsets.ModelViewSet):
                         'pdu': name,
                         'port': num,
                         'v': 'off'
-                    }, timeout=0.0002)
+                    }, timeout=2)
                     responses.append({
                         "port": "PDU{} port{}".format(name, num),
                         "status": "successfully turned off"
@@ -494,8 +494,8 @@ class AssetViewSet(viewsets.ModelViewSet):
 
         relevant_ports = [(pp.port_number, pp.pdu) for pp in asset.power_port_set.all()]
         try:
-            left_html = requests.get(NETWORX_GET_ROOT_URL, params={"pdu": pdu_l_name}, timeout=0.0002).text
-            right_html = requests.get(NETWORX_GET_ROOT_URL, params={"pdu": pdu_r_name}, timeout=0.0002).text
+            left_html = requests.get(NETWORX_GET_ROOT_URL, params={"pdu": pdu_l_name}, timeout=2).text
+            right_html = requests.get(NETWORX_GET_ROOT_URL, params={"pdu": pdu_r_name}, timeout=2).text
         except requests.exceptions.RequestException:
             return Response({
                 'status': 'Error. The PDU Networx 98 Pro service is unavailable.'
