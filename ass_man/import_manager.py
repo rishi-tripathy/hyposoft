@@ -39,7 +39,7 @@ def import_model_file(request):
                 new_model.memory = row['memory']
             nps = []
             for i in range(1, int(row['network_ports']) + 1):
-                if i <= 4 and row['network_port_name_{}'.format(i)]:
+                if i <= 3 and row['network_port_name_{}'.format(i)]:
                     nps.append(row['network_port_name_{}'.format(i)])
                 else:
                     nps.append(str(i))
@@ -49,7 +49,7 @@ def import_model_file(request):
             continue
 
         for i in range(int(row['network_ports'])):
-            if row['network_port_name_{}'.format(i + 1)] and row['network_port_name_{}'.format(i + 1)] is not \
+            if i<=3 and row['network_port_name_{}'.format(i + 1)] and row['network_port_name_{}'.format(i + 1)] is not \
                     model.network_ports[i]:
                 if should_override:
                     model.network_ports[i] = row['network_port_name_{}'.format(i + 1)]
@@ -388,7 +388,8 @@ def import_asset_file(request):
                             rack_set = True
                             break
                     if not rack_set:
-                        rack = Rack.objects.get(rack_number=row['rack'])
+                        dat_cen = asset.datacenter
+                        rack = dat_cen.rack_set.get(rack_number=row['rack'])
                 except Rack.DoesNotExist:
                     rack = None
                 blocked = False
@@ -453,7 +454,6 @@ def import_asset_file(request):
             dash2=True
 
         pp1 = asset.power_port_set.first()
-        print(pp1)
         if pp1_reg and (dash1 or (int(pp1_reg.group(2)) != pp1.port_number or (pp1_reg.group(1).upper() != pp1.pdu.name.upper()[-1]))):
             #someting is different about port location
             if should_override:
@@ -484,7 +484,6 @@ def import_asset_file(request):
 
         try:
             pp2 = asset.power_port_set.all().order_by('pk')[1]
-            print(pp2)
         except IndexError:
             pp2=None
         if pp2_reg and (dash2 or (int(pp2_reg.group(2)) != pp2.port_number or (pp2_reg.group(1).upper() != pp2.pdu.name.upper()[-1]))):

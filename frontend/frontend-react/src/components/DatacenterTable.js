@@ -24,9 +24,6 @@ export class DatacenterTable extends Component {
     
         this.state = {
           dense: false,
-          sortBy: 'name',
-          sortType: 'asc',
-          sortingStates: ['asc', 'desc']
         }
     }
 
@@ -69,14 +66,7 @@ export class DatacenterTable extends Component {
             padding={'default'}
     
           >
-            <TableSortLabel
-              active={this.state.sortBy === headCell.id}
-              hideSortIcon={!(this.state.sortBy === headCell.id)}
-              direction={this.state.sortBy === headCell.id ? this.state.sortType : false}
-              onClick={() => this.handleHeaderClickSort(headCell.id)}
-            >
               {headCell.label.toUpperCase()}
-            </TableSortLabel>
           </TableCell>
         ))
     }
@@ -123,17 +113,6 @@ export class DatacenterTable extends Component {
               </div>
             </TableRow>
           )
-        })
-    }
-
-    handleHeaderClickSort = (id) => {
-      let sortByCopy = id
-      this.setState({
-        sortBy: sortByCopy
-      })
-        let sortTypeCopy = this.state.sortingStates[(this.state.sortingStates.indexOf(this.state.sortType) + 1) % 2];
-        this.setState({
-          sortType: sortTypeCopy
         })
     }
     
