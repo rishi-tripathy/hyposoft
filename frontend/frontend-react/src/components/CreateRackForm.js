@@ -99,6 +99,7 @@ export class CreateRackForm extends Component {
       if ((validNumRegex.test(start_rack))) {
         axios.post('/api/racks/', stateToSend)
           .then(function (response) {
+            console.log(response)
             if(response)
             alert('Creation of ' + start_rack + ' was successful.');
             self.setState({
@@ -118,6 +119,7 @@ export class CreateRackForm extends Component {
       if ((validNumRegex.test(start_rack) && validNumRegex.test(end_rack))) {
         axios.post('/api/racks/many/', stateToSend)
           .then(function (response) {
+            console.log(response.data.results.successfully_created)
             let message = response.data.results;
             alert(response.data.results);
             self.setState({
@@ -125,7 +127,7 @@ export class CreateRackForm extends Component {
             });
           })
           .catch(function (error) {
-            alert('Creation was not successful.\n' + JSON.stringify(error.response.data, null, 2));
+            alert('Creation of these racks were not successful: ' + JSON.stringify(error.data.results.failed_racks));
           });
       } else {
         alert("Rack Numbers must be specified by a Single Letter Followed by Multiple Numbers.");

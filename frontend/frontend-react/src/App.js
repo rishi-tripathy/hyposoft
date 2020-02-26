@@ -203,7 +203,7 @@ class App extends React.Component {
       <div>
       { (this.state.delay  ? 
       <p></p> :
-      (content) )}
+      (<center>{content}</center>) )}
       { this.state.datacenterOptions &&
       <Router>
         <NavBar />

@@ -185,9 +185,9 @@ class RackViewSet(viewsets.ModelViewSet):
         if request.method == POST:
             return Response({
                 'results': {
-                    'successfully created': '{} racks'.format(len(create_success)),
-                    'failed to create': '{} racks'.format(len(create_failure)),
-                    'failed racks': ', '.join(create_failure)
+                    'successfully_created': '{} racks'.format(len(create_success)),
+                    'failed_to_create': '{} racks'.format(len(create_failure)),
+                    'failed_racks': ', '.join(create_failure)
 
                 }
             }, status=status.HTTP_207_MULTI_STATUS)
@@ -195,10 +195,10 @@ class RackViewSet(viewsets.ModelViewSet):
         if request.method == DELETE:
             return Response({
                 'results': {
-                    'successfully deleted': '{} racks'.format(len(delete_success)),
-                    'failed to delete (nonexistent)': '{} racks'.format(len(delete_nonexistent)),
-                    'failed to delete (occupied)': '{} racks'.format(len(delete_failure)),
-                    'failed racks': ', '.join(delete_failure)
+                    'successfully_deleted': '{} racks'.format(len(delete_success)),
+                    'failed_to_delete_(nonexistent)': '{} racks'.format(len(delete_nonexistent)),
+                    'failed_to_delete_(occupied)': '{} racks'.format(len(delete_failure)),
+                    'failed_racks': ', '.join(delete_failure)
 
                 }
             }, status=status.HTTP_207_MULTI_STATUS)
