@@ -192,6 +192,8 @@ export class InstanceController extends Component {
     }
     this.fileUpload(this.state.file).then((response) => {
       alert("Import was successful." + JSON.stringify(response.data, null, 2));
+      this.setState({
+        rerender: true}); 
     })
       .catch(function (error) {
         console.log(error.response)
@@ -215,6 +217,8 @@ export class InstanceController extends Component {
             .catch(function (error) {
               console.log(error.response)
               alert('Import was not successful.\n' + JSON.stringify(error.response.data, null, 2));
+              this.setState({
+                rerender: true}); 
             });
         }
       });
@@ -397,6 +401,7 @@ export class InstanceController extends Component {
 
 
   render() {
+    console.log('rerendering')
     let content = <InstanceTableMUI
       assets={this.state.assets}
       filter_query={this.getFilterQuery}

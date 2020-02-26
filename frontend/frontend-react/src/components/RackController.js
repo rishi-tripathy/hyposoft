@@ -281,6 +281,8 @@ export class RackController extends Component {
 
     // console.log(this.state.datacenterID)
     // console.log(this.context.datacenter_id)
+    let allCaseVar;
+
     if (!this.state.showAllRacks) {
 
       //all or one datacenter?
@@ -290,17 +292,15 @@ export class RackController extends Component {
       if(this.context.datacenter_id===-1){
         dst = '/api/racks/' + this.state.filterQuery; //gets from all dc's
         // console.log('all case true')
-        this.setState({
-          allCase: true,
-        });
+        allCaseVar = true;
+
       }
       else {
         dst = '/api/racks/' + '?' + 'datacenter=' + this.context.datacenter_id + '&' + this.state.filterQuery;
         // console.log('all case false')
         
-        this.setState({
-          allCase: false,
-        });
+        allCaseVar = false;
+
       }
 
       axios.get(dst).then(res => {
@@ -308,6 +308,7 @@ export class RackController extends Component {
           racks: res.data.results,
           prevPage: res.data.previous,
           nextPage: res.data.next,
+          allCase: allCaseVar,
         });
       })
         .catch(function (error) {
@@ -323,16 +324,12 @@ export class RackController extends Component {
       if(this.context.datacenter_id===-1){
         dst = '/api/racks/' + '?show_all=true' + this.state.filterQuery; //gets from all dc's
         // console.log('all case true')
-        this.setState({
-          allCase: true,
-        });
+        allCaseVar = true;
       }
       else {
         dst = '/api/racks/' + '?' + 'datacenter=' + this.context.datacenter_id + '&' + 'show_all=true' + '&' + this.state.filterQuery;
         // console.log('all case false')       
-        this.setState({
-          allCase: false,
-        });
+       allCaseVar = false;
       }
 
       axios.get(dst).then(res => {
@@ -340,6 +337,7 @@ export class RackController extends Component {
           racks: res.data,
           prevPage: null,
           nextPage: null,
+          allCase: allCaseVar,
         });
       })
         .catch(function (error) {
@@ -356,7 +354,7 @@ export class RackController extends Component {
     
       let datacenterIds = [];
       let racksArr = [];
-      // console.log(this.state.racks)
+      console.log(this.state.racks)
       // if(this.state.showAllRacks){
       //   console.log(this.state.racks.results)
       //   this.state.racks.results.map((r, index) => {
@@ -366,15 +364,20 @@ export class RackController extends Component {
       // }
       // else {
         this.state.racks.map((r, index) => {
-          // console.log(r)
-          datacenterIds.push(r.datacenter.substring(r.datacenter.length-2, r.datacenter.length-1))
+          console.log(r.datacenter)
+          var match = r.datacenter.match(/datacenters\/(\d+)/)
+          if (match) {
+            console.log(match[1])
+            datacenterIds.push(match[1])
+          }
+          //datacenterIds.push(r.datacenter.substring(r.datacenter.length-2, r.datacenter.length-1))
         })
       // }
       
       console.log(datacenterIds)
 
       datacenterIds.map((r, index) => {
-        // console.log(r)
+        console.log(r)
         for(var i = 0 ; i < dcOptions.length; i++){
           // console.log(dcOptions[i].id)
           // console.log(dcOptions[i].abbreviation)
