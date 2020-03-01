@@ -49,7 +49,7 @@ export class AuditLogFilters extends Component {
       <div>
         <Container maxWidth="xl">
           <form onSubmit={this.handleSubmit}>
-            <h4>Filters</h4>
+            <h4>Filter</h4>
             <Grid container spacing={1}>
               <Grid item xs={3}>
                 <TextField label='Hostname' type="text" fullWidth onChange={e => {

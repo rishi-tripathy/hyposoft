@@ -2,7 +2,8 @@ import React, {Component} from 'react'
 import PropTypes from 'prop-types';
 import axios from 'axios'
 import {Button, Grid, TextField} from "@material-ui/core";
-import {Link} from 'react-router-dom'
+import {Link, Redirect} from 'react-router-dom'
+import DatacenterContext from './DatacenterContext';
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
@@ -12,6 +13,8 @@ export class EditRackForm extends Component {
     super(props);
     this.state = {
       'rack_number': null,
+      'datacenter': null,
+      redirect: false,
     }
     //this.handleSubmit = this.handleSubmit.bind(this);
   }
@@ -23,25 +26,36 @@ export class EditRackForm extends Component {
 
   handleSubmit = (e) => {
     e.preventDefault();
-    let dst = '/api/racks/'.concat(this.props.editID).concat('/');
+    let dst = '/api/racks/'.concat(this.props.match.params.id).concat('/');
 
     let stateCopy = Object.assign({}, this.state);
     let stateToSend = this.removeEmpty(stateCopy);
-
+var self = this;
     axios.put(dst, stateToSend)
       .then(function (response) {
         alert('Edit was successful');
+        self.setState({
+          redirect: true,
+        });
       })
       .catch(function (error) {
         alert('Edit was not successful.\n' + JSON.stringify(error.response.data, null, 2));
       });
-    this.props.sendShowTable(true);
   }
 
   componentDidMount() {
+    console.log(this.props.match.params.id)
     let dst = '/api/racks/'.concat(this.props.match.params.id).concat('/');
+    let dc;
+    if(this.context.datacenter_id===-1){
+      //ALL case
+
     axios.get(dst).then(res => {
-      this.setState({rack_number: res.data.rack_number});
+      var dc_id = res.data.datacenter.toString()
+      console.log(res.data.datacenter)
+      this.setState({
+        rack_number: res.data.rack_number,
+        datacenter: res.data.datacenter});
       //would not change instances
     })
       .then(function (response) {
@@ -51,15 +65,34 @@ export class EditRackForm extends Component {
         console.log(error.response);
         alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
       });
+    }
+    else{
+      //not in ALL case
+      axios.get(dst).then(res => {
+        this.setState({
+          rack_number: res.data.rack_number,
+          datacenter: res.data.datacenter});
+        //would not change instances
+      })
+        .then(function (response) {
+        })
+        .catch(function (error) {
+          // TODO: handle error
+          console.log(error.response);
+          alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+        });
+      }
   }
+
 
   render() {
     return (
       <div>
+        {this.state.redirect && <Redirect to={{pathname: '/racks'}}/>}
         <form onSubmit={this.handleSubmit}>
           <Grid container spacing={2}>
             <Grid item xs={12}>
-              <h1>Update Rack</h1>
+    <h1>Update Rack</h1>
             </Grid>
             <Grid item xs={6}>
               <TextField shrink label='Updated Rack Number' type="text" fullWidth value={this.state.rack_number}
@@ -82,5 +115,7 @@ export class EditRackForm extends Component {
 EditRackForm.propTypes = {
   editID: PropTypes.object.isRequired
 }
+
+EditRackForm.contextType = DatacenterContext;
 
 export default EditRackForm

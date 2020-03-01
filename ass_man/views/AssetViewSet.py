@@ -28,7 +28,7 @@ from ass_man.import_manager import import_asset_file, import_network_port_file
 from ass_man.export_manager import export_assets, export_network_ports
 
 # CHANGE THIS FOR PRODUCTION
-NETWORX_PORT = ":8000"
+NETWORX_PORT = ":8004"
 NETWORX_GET_ROOT_URL = "http://hyposoft-mgt.colab.duke.edu{}/pdu.php".format(NETWORX_PORT)
 NETWORX_POST_URL = "http://hyposoft-mgt.colab.duke.edu{}/power.php".format(NETWORX_PORT)
 
@@ -417,7 +417,7 @@ class AssetViewSet(viewsets.ModelViewSet):
                 except requests.exceptions.RequestException:
                     responses.append({
                         "port": "PDU{} port{}".format(name, num),
-                        "status": "failure"
+                        "status": "failure- the PDU Networx 98 service is down."
                     })
 
             if any(r.get("status") == 'failure' for r in responses):
@@ -458,7 +458,7 @@ class AssetViewSet(viewsets.ModelViewSet):
                 except requests.exceptions.RequestException:
                     responses.append({
                         "port": "PDU{} port{}".format(name, num),
-                        "status": "failure"
+                        "status": "failure- the PDU Networx 98 service is down."
                     })
 
             if any(r.get("status") == 'failure' for r in responses):
@@ -494,8 +494,8 @@ class AssetViewSet(viewsets.ModelViewSet):
 
         relevant_ports = [(pp.port_number, pp.pdu) for pp in asset.power_port_set.all()]
         try:
-            left_html = requests.get(NETWORX_GET_ROOT_URL, params={"pdu": pdu_l_name}, timeout=3).text
-            right_html = requests.get(NETWORX_GET_ROOT_URL, params={"pdu": pdu_r_name}, timeout=3).text
+            left_html = requests.get(NETWORX_GET_ROOT_URL, params={"pdu": pdu_l_name}, timeout=2).text
+            right_html = requests.get(NETWORX_GET_ROOT_URL, params={"pdu": pdu_r_name}, timeout=2).text
         except requests.exceptions.RequestException:
             return Response({
                 'status': 'Error. The PDU Networx 98 Pro service is unavailable.'

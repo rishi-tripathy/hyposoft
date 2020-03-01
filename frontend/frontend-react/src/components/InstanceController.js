@@ -38,13 +38,21 @@ export class InstanceController extends Component {
       rerender: false,
       file: null,
       npFile: null,
-      showingAll: false
+      showingAll: false,
+      datacenterID: null,
     };
 
   }
 
   getInstances = () => {
-    let dst = '/api/assets/' + '?' + this.state.filterQuery + '&' + this.state.sortQuery;
+    let dst;
+    if (this.state.datacenterID === -1 || this.state.datacenterID == null) {
+      dst = '/api/assets/' + '?' + this.state.filterQuery + '&' + this.state.sortQuery;
+    }
+    else {
+      dst = '/api/assets/' + '?' + 'datacenter=' + this.state.datacenterID + '&' + this.state.filterQuery + '&' + this.state.sortQuery;
+    }
+     
     console.log('QUERY')
     console.log(dst)
     axios.get(dst).then(res => {
@@ -105,7 +113,15 @@ export class InstanceController extends Component {
         this.getInstances();
         this.setState({ rerender: false });
       }, delay);
+    }
 
+    if (this.context.datacenter_id !== this.state.datacenterID) {
+      // console.log(this.context.datacenter_id)
+      // console.log(this.state.datacenterID)
+      this.setState({ datacenterID: this.context.datacenter_id })
+      setTimeout(() => {
+        this.getInstances();
+      }, delay);
     }
   }
 
@@ -176,6 +192,8 @@ export class InstanceController extends Component {
     }
     this.fileUpload(this.state.file).then((response) => {
       alert("Import was successful." + JSON.stringify(response.data, null, 2));
+      this.setState({
+        rerender: true}); 
     })
       .catch(function (error) {
         console.log(error.response)
@@ -199,6 +217,8 @@ export class InstanceController extends Component {
             .catch(function (error) {
               console.log(error.response)
               alert('Import was not successful.\n' + JSON.stringify(error.response.data, null, 2));
+              this.setState({
+                rerender: true}); 
             });
         }
       });
@@ -232,7 +252,7 @@ export class InstanceController extends Component {
 
         if (window.confirm('Import was not successful.\n' + JSON.stringify(error.response.data, null, 2))) {
           fileUploadOverride(f).then((response) => {
-            console.log(response.data);
+            alert("Import was successful.\n" + JSON.stringify(response.data, null, 2));
           })
             .catch(function (error) {
               console.log(error.response)
@@ -366,21 +386,10 @@ export class InstanceController extends Component {
     return post(url, formData, config)
   }
 
-  fileUpload = (file) => {
-    const url = '/api/assets/import_file/';
-    const formData = new FormData();
-    formData.append('file', file)
-    //formData.append('name', 'sup')
-    const config = {
-      headers: {
-        'content-type': 'multipart/form-data'
-      }
-    }
-    return post(url, formData, config)
-  }
 
 
   render() {
+    console.log('rerendering')
     let content = <InstanceTableMUI
       assets={this.state.assets}
       filter_query={this.getFilterQuery}
@@ -414,7 +423,7 @@ export class InstanceController extends Component {
     // let sorting = <InstanceSort sendSortQuery={ this.getSortQuery } />
     let exp = <Button variant="outlined" startIcon={<SaveAltIcon />} onClick={this.exportData}>Export Assets</Button>
 
-    let np_exp = <Button variant="outlined" startIcon={<SaveAltIcon />} onClick={this.exportNPData}>Export NetPorts</Button>
+    let np_exp = <Button variant="outlined" startIcon={<SaveAltIcon />} onClick={this.exportNPData}>Export Network Connections</Button>
 
     let showAll = <p></p>;
     if (this.state.prevPage != null || this.state.nextPage != null) {
@@ -455,7 +464,7 @@ export class InstanceController extends Component {
     let importNetworkConnections = this.context.is_admin ? (
       <>
         <Button variant="outlined" component="span" startIcon={<SettingsEthernetIcon />} onClick={this.handleNPImport}>
-          Import NetPorts
+          Import Network Connections
         </Button>
         <input
           accept="text/csv"
