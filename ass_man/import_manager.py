@@ -272,7 +272,6 @@ def import_asset_file(request):
                               owner=owner, comment=row['comment'], asset_number=my_asset_number)
                 num_nps = model.network_ports_num if model else 0
                 for i in range(num_nps):
-                    print('{} out of {} network ports on {} name: {}'.format(i, num_nps, model.model_number, model.network_ports[i]))
                     np = Network_Port(name=model.network_ports[i], connection=None, asset=asset)
                     nps_to_create.append(np)
                 if pp1:
@@ -631,7 +630,6 @@ def import_network_port_file(request):
         try:
             src_port=src_asset.network_port_set.get(name=row['src_port']) if src_asset else None
         except Network_Port.DoesNotExist:
-            print('src port: {} not found. asset: {}.'.format(row['src_port'], src_asset))
             uncreated_objects['network_port'].append(row['src_port'])
             src_port=None
         try:
@@ -642,7 +640,6 @@ def import_network_port_file(request):
         try:
             dest_port=dest_asset.network_port_set.get(name=row['dest_port']) if dest_asset else None
         except Network_Port.DoesNotExist:
-            print('dest port: {} not found. asset: {}.'.format(row['dest_port'], dest_asset))
             uncreated_objects['network_port'].append(row['dest_port'])
             dest_port=None
 
