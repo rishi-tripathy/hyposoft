@@ -599,7 +599,7 @@ def assign_ass_num(curr):
             num = Asset_Number.objects.get(pk=1)
         except Asset_Number.DoesNotExist:
             num = Asset_Number.objects.create(next_avail=100000)
-    curr = num.next_avail
+        curr = num.next_avail
     try:
         while True:
             Asset.objects.get(asset_number=curr)
