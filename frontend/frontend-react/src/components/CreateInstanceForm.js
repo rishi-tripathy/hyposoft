@@ -469,6 +469,7 @@ export class CreateInstanceForm extends Component {
                       leftFree={this.state.leftFreePDUSlots}
                       rightFree={this.state.rightFreePDUSlots}
                       isDisabled={this.state.selectedRackOption === null || this.state.selectedModelOption === null}
+                      currentPowerPortConfiguration={null}
                     />
                   </Paper>
                 </Grid>
