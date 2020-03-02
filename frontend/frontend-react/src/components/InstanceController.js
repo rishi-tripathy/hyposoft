@@ -371,7 +371,7 @@ export class InstanceController extends Component {
         console.log(error.response.data)
         alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
       });
-<<<<<<< HEAD
+
   }
 
   fileUpload = (file) => {
@@ -386,43 +386,9 @@ export class InstanceController extends Component {
     }
     return post(url, formData, config)
   }
-
-  fileUpload = (file) => {
-    const url = '/api/assets/import_file/';
-    const formData = new FormData();
-    formData.append('file', file)
-    //formData.append('name', 'sup')
-    const config = {
-      headers: {
-        'content-type': 'multipart/form-data'
-      }
-    }
-    return post(url, formData, config)
-  }
-
-
-  render() {
-=======
-  }
-
-  fileUpload = (file) => {
-    const url = '/api/assets/import_file/';
-    const formData = new FormData();
-    formData.append('file', file)
-    //formData.append('name', 'sup')
-    const config = {
-      headers: {
-        'content-type': 'multipart/form-data'
-      }
-    }
-    return post(url, formData, config)
-  }
-
-
 
   render() {
     console.log('rerendering')
->>>>>>> 8de1b6cc3193d5562c7b1426f45ae5da82c37870
     let content = <InstanceTableMUI
       assets={this.state.assets}
       filter_query={this.getFilterQuery}
