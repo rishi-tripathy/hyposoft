@@ -28,7 +28,7 @@ from ass_man.import_manager import import_asset_file, import_network_port_file
 from ass_man.export_manager import export_assets, export_network_ports
 
 # CHANGE THIS FOR PRODUCTION
-NETWORX_PORT = ":8000"
+NETWORX_PORT = ":8004"
 NETWORX_GET_ROOT_URL = "http://hyposoft-mgt.colab.duke.edu{}/pdu.php".format(NETWORX_PORT)
 NETWORX_POST_URL = "http://hyposoft-mgt.colab.duke.edu{}/power.php".format(NETWORX_PORT)
 
@@ -167,7 +167,7 @@ class AssetViewSet(viewsets.ModelViewSet):
                     pp.save()
             except(Power_Port.DoesNotExist, KeyError):
                 pp = Power_Port.objects.create(pdu=pdu, port_number=port_num, asset=asset)
-        if not power_ports_json:
+        if not power_ports_json and request.method == 'POST':
             for i in range(asset.model.power_ports):
                 Power_Port.objects.create(pdu=None, asset=asset)
         return
@@ -388,18 +388,21 @@ class AssetViewSet(viewsets.ModelViewSet):
             }, status=status.HTTP_400_BAD_REQUEST)
 
         def on():
+            someDisconnected = False
             responses = []
             for pp in self.get_object().power_port_set.all():
-                name = pp.pdu.name
-                num = pp.port_number
+                try:
+                    name = pp.pdu.name
+                    num = pp.port_number
+                except AttributeError:
+                    someDisconnected = True
+                    continue
+
                 try:
                     assert name is not None
                     assert num is not None
                 except AssertionError:
-                    responses.append({
-                        "status": "A port is not connected to the PDU."
-                    })
-
+                    someDisconnected = True
                     continue
                 try:
                     resp = requests.post(NETWORX_POST_URL, {
@@ -409,32 +412,38 @@ class AssetViewSet(viewsets.ModelViewSet):
                     }, timeout=2)
                     responses.append({
                         "port": "PDU{} port{}".format(name, num),
-                        "status": "success"
+                        "status": "successfully turned on"
                     })
                 except requests.exceptions.RequestException:
                     responses.append({
                         "port": "PDU{} port{}".format(name, num),
-                        "status": "failure"
+                        "status": "failure- the PDU Networx 98 service is down."
                     })
 
-                if any(r.get("status") == 'failure' for r in responses):
-                    return Response({
-                        "responses": responses
-                    }, status=status.HTTP_207_MULTI_STATUS)
-
+            if any(r.get("status") == 'failure' for r in responses):
                 return Response({
                     "responses": responses
-                }, status=status.HTTP_200_OK)
+                }, status=status.HTTP_207_MULTI_STATUS)
+
+            return Response({
+                "responses": responses
+            }, status=status.HTTP_200_OK)
 
         def off():
+            someDisconnected = False
             responses = []
             for pp in self.get_object().power_port_set.all():
-                name = pp.pdu.name
-                num = pp.port_number
+                try:
+                    name = pp.pdu.name
+                    num = pp.port_number
+                except AttributeError:
+                    someDisconnected = True
+                    continue
                 try:
                     assert name is not None
                     assert num is not None
                 except AssertionError:
+                    someDisconnected = True
                     continue
                 try:
                     resp = requests.post(NETWORX_POST_URL, {
@@ -444,22 +453,22 @@ class AssetViewSet(viewsets.ModelViewSet):
                     }, timeout=2)
                     responses.append({
                         "port": "PDU{} port{}".format(name, num),
-                        "status": "success"
+                        "status": "successfully turned off"
                     })
                 except requests.exceptions.RequestException:
                     responses.append({
                         "port": "PDU{} port{}".format(name, num),
-                        "status": "failure"
+                        "status": "failure- the PDU Networx 98 service is down."
                     })
 
-                if any(r.get("status") == 'failure' for r in responses):
-                    return Response({
-                        "responses": responses
-                    }, status=status.HTTP_207_MULTI_STATUS)
-
+            if any(r.get("status") == 'failure' for r in responses):
                 return Response({
-                    "responses": responses
-                }, status=status.HTTP_200_OK)
+                    "responses": responses,
+                }, status=status.HTTP_207_MULTI_STATUS)
+
+            return Response({
+                "responses": responses
+            }, status=status.HTTP_200_OK)
 
         if act.lower() == 'on':
             return on()
@@ -485,8 +494,8 @@ class AssetViewSet(viewsets.ModelViewSet):
 
         relevant_ports = [(pp.port_number, pp.pdu) for pp in asset.power_port_set.all()]
         try:
-            left_html = requests.get(NETWORX_GET_ROOT_URL, params={"pdu": pdu_l_name}, timeout=3).text
-            right_html = requests.get(NETWORX_GET_ROOT_URL, params={"pdu": pdu_r_name}, timeout=3).text
+            left_html = requests.get(NETWORX_GET_ROOT_URL, params={"pdu": pdu_l_name}, timeout=2).text
+            right_html = requests.get(NETWORX_GET_ROOT_URL, params={"pdu": pdu_r_name}, timeout=2).text
         except requests.exceptions.RequestException:
             return Response({
                 'status': 'Error. The PDU Networx 98 Pro service is unavailable.'
@@ -503,6 +512,12 @@ class AssetViewSet(viewsets.ModelViewSet):
 
         for pp in asset.power_port_set.all():
             regex = rf">{pp.port_number}<td><span style='background-color:\#[0-9a-f]*'>([A-Z]+)"
+            try:
+                name = pp.pdu.name
+                num = pp.port_number
+            except AttributeError:
+                statuses.append("DISCONNECTED")
+                continue
             if pp.pdu.name == pdu_l_name:
                 s = re.search(regex, left_html)
                 if s:

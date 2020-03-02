@@ -21,12 +21,9 @@ axios.defaults.xsrfHeaderName = "X-CSRFToken";
 export class DatacenterTable extends Component {
     constructor() {
         super();
-    
+
         this.state = {
           dense: false,
-          sortBy: 'name',
-          sortType: 'asc',
-          sortingStates: ['asc', 'desc']
         }
     }
 
@@ -51,7 +48,7 @@ export class DatacenterTable extends Component {
               <Typography style={{flex: '1 1 20%'}} variant="h6" id="modelTableTitle">
                 Datacenters
               </Typography>
-            }    
+            }
           </Toolbar>
         );
       };
@@ -67,16 +64,9 @@ export class DatacenterTable extends Component {
             key={headCell.id}
             align={'center'}
             padding={'default'}
-    
+
           >
-            <TableSortLabel
-              active={this.state.sortBy === headCell.id}
-              hideSortIcon={!(this.state.sortBy === headCell.id)}
-              direction={this.state.sortBy === headCell.id ? this.state.sortType : false}
-              onClick={() => this.handleHeaderClickSort(headCell.id)}
-            >
               {headCell.label.toUpperCase()}
-            </TableSortLabel>
           </TableCell>
         ))
     }
@@ -126,17 +116,6 @@ export class DatacenterTable extends Component {
         })
     }
 
-    handleHeaderClickSort = (id) => {
-      let sortByCopy = id
-      this.setState({
-        sortBy: sortByCopy
-      })
-        let sortTypeCopy = this.state.sortingStates[(this.state.sortingStates.indexOf(this.state.sortType) + 1) % 2];
-        this.setState({
-          sortType: sortTypeCopy
-        })
-    }
-    
     render() {
     return (
         <div>

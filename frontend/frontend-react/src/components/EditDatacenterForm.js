@@ -2,7 +2,7 @@ import React, {Component} from 'react'
 import PropTypes from 'prop-types';
 import axios from 'axios'
 import {Button, Grid, TextField} from "@material-ui/core";
-import {Link} from 'react-router-dom'
+import {Link, Redirect} from 'react-router-dom'
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
@@ -13,7 +13,9 @@ export class EditDatacenterForm extends Component {
     this.state = {
       'id': null,
       'name': null,
+      'url': null,
       'abbreviation': null,
+      redirect: false,
     }
     //this.handleSubmit = this.handleSubmit.bind(this);
   }
@@ -25,14 +27,18 @@ export class EditDatacenterForm extends Component {
 
   handleSubmit = (e) => {
     e.preventDefault();
-    let dst = '/api/datacenters/'.concat(this.props.editID).concat('/');
+    let dst = '/api/datacenters/'.concat(this.props.match.params.id).concat('/');
 
     let stateCopy = Object.assign({}, this.state);
     let stateToSend = this.removeEmpty(stateCopy);
-
+    var self = this;
     axios.put(dst, stateToSend)
       .then(function (response) {
         alert('Edit was successful');
+        window.location = '/datacenters'
+        // self.setState({
+        //   redirect: true,
+        // })
       })
       .catch(function (error) {
         alert('Edit was not successful.\n' + JSON.stringify(error.response.data, null, 2));
@@ -40,6 +46,7 @@ export class EditDatacenterForm extends Component {
   }
 
   componentDidMount() {
+    console.log(this.props.match.params.id )
     let dst = '/api/datacenters/'.concat(this.props.match.params.id).concat('/');
     axios.get(dst).then(res => {
     console.log(res);
@@ -47,6 +54,7 @@ export class EditDatacenterForm extends Component {
           id: res.data.id,
           name: res.data.name,
           abbreviation: res.data.abbreviation,
+          url: '/api/dataceters/' + this.props.match.params.id +'/'
     });
       //would not change instances
     })
@@ -62,17 +70,18 @@ export class EditDatacenterForm extends Component {
   render() {
     return (
       <div>
+        {this.state.redirect && <Redirect to={{pathname:'/datacenters'}}/>}
         <form onSubmit={this.handleSubmit}>
           <Grid container spacing={2}>
             <Grid item xs={12}>
               <h1>Update Datacenter</h1>
             </Grid>
             <Grid item xs={6}>
-              <TextField shrink label='Updated Name' type="text" fullWidth value={this.state.name}
+              <TextField shrink label='Updated Name' type="text" inputProps = {{ maxLength: 50}} fullWidth value={this.state.name}
                          onChange={e => this.setState({name: e.target.value})}/>
             </Grid>
             <Grid item xs={6}>
-              <TextField shrink label='Updated Abbreviation' type="text" fullWidth value={this.state.abbreviation}
+              <TextField shrink label='Updated Abbreviation' type="text" inputProps = {{ maxLength: 6}} fullWidth value={this.state.abbreviation}
                          onChange={e => this.setState({abbreviation: e.target.value})}/>
             </Grid>
             <Grid item xs={6}>

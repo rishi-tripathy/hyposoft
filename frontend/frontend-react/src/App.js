@@ -56,7 +56,7 @@ class App extends React.Component {
 
   setDatacenter  = (value, name, ab) =>  {
     // console.log("changing id to "+ value + " name: "+name);
-    this.setState({ 
+    this.setState({
       datacenter_id: value,
       datacenter_name: name,
       datacenter_ab: ab,
@@ -149,7 +149,7 @@ class App extends React.Component {
     axios.get('api/users/who_am_i/').then(res => {
       // console.log(res.data)
       if (res.data.current_user != '') {
-        this.setState({ 
+        this.setState({
           logged_in: true,
           user_first: res.data.first_name,
           user_last: res.data.last_name,
@@ -184,9 +184,9 @@ class App extends React.Component {
     let no_render = !this.state.logged_in || this.setDatacenter.datacenterOptions===undefined;
 
     // console.log(no_render)
-    
+
     if (!this.state.logged_in) {
-     content =         
+     content =
      <div id="contentContainer">
       <LandingPage />
       <div id='login'>
@@ -201,14 +201,14 @@ class App extends React.Component {
     return (
       <DatacenterContext.Provider value={{...this.state, setDatacenter: this.setDatacenter, resetDatacenter: this.resetDatacenter}}>
       <div>
-      { (this.state.delay  ? 
+      { (this.state.delay  ?
       <p></p> :
-      (content) )}
+      (<center>{content}</center>))}
       { this.state.datacenterOptions &&
       <Router>
         <NavBar />
         <Switch>
-          <Route path='/' 
+          <Route path='/'
           exact
           render={(props) =>
           <DatacenterController {...props}/>}/>
@@ -216,13 +216,13 @@ class App extends React.Component {
           <Route
             path='/racks'
             exact
-            render={(props) => 
+            render={(props) =>
             <RackController {...props}/>}/>
 
           <Route
             path='/datacenters'
             exact
-            render={(props) => 
+            render={(props) =>
             <DatacenterController {...props}/>}
             />
 
