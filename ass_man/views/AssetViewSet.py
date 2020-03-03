@@ -161,6 +161,9 @@ class AssetViewSet(viewsets.ModelViewSet):
 
             try:
                 pp = asset.power_port_set.get(id=i['id'])
+                if not pdu:
+                    pp.pdu = None
+                    pp.port_number = None
                 if (pp.pdu != pdu or pp.port_number != port_num):
                     pp.pdu = pdu
                     pp.port_number = port_num
