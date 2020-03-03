@@ -164,6 +164,7 @@ class AssetViewSet(viewsets.ModelViewSet):
                 if not pdu:
                     pp.pdu = None
                     pp.port_number = None
+                    pp.save()
                 if (pp.pdu != pdu or pp.port_number != port_num):
                     pp.pdu = pdu
                     pp.port_number = port_num
