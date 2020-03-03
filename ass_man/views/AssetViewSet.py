@@ -396,7 +396,7 @@ class AssetViewSet(viewsets.ModelViewSet):
             responses = []
             for pp in self.get_object().power_port_set.all():
                 try:
-                    name = pp.pdu.name
+                    name = pp.pdu.name.lower()
                     num = pp.port_number
                 except AttributeError:
                     someDisconnected = True
@@ -438,7 +438,7 @@ class AssetViewSet(viewsets.ModelViewSet):
             responses = []
             for pp in self.get_object().power_port_set.all():
                 try:
-                    name = pp.pdu.name
+                    name = pp.pdu.name.lower()
                     num = pp.port_number
                 except AttributeError:
                     someDisconnected = True
