@@ -165,7 +165,7 @@ class AssetSerializer(serializers.HyperlinkedModelSerializer):
             try:
                 Asset.objects.all().get(hostname=value)
                 raise serializers.ValidationError(
-                    '{} is not a unique hostname. Please ensure this value unique across all assets.'.format(
+                    '{} is not a unique hostname. Please ensure this value is unique across all assets.'.format(
                         value.__str__())
                 )
             except Asset.DoesNotExist:
