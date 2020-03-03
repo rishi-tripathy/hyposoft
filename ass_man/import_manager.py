@@ -38,7 +38,8 @@ def import_model_file(request):
             if row['memory']:
                 new_model.memory = row['memory']
             nps = []
-            for i in range(1, int(row['network_ports']) + 1):
+            csv_num_netports = int(row['network_ports']) if row['network_ports'] else 0
+            for i in range(1, csv_num_netports + 1):
                 if i <= 4 and row['network_port_name_{}'.format(i)]:
                     nps.append(row['network_port_name_{}'.format(i)])
                 else:
@@ -48,7 +49,8 @@ def import_model_file(request):
             models_to_create.append(new_model)
             continue
 
-        for i in range(int(row['network_ports'])):
+        csv_num_netports = int(row['network_ports']) if row['network_ports'] else 0
+        for i in range(csv_num_netports):
             if i<=3 and row['network_port_name_{}'.format(i + 1)] and row['network_port_name_{}'.format(i + 1)] is not \
                     model.network_ports[i]:
                 if should_override:

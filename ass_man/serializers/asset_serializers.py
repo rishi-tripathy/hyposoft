@@ -15,7 +15,7 @@ from ass_man.serializers.datacenter_serializers import DatacenterSerializer
 
 
 class AssetSerializer(serializers.HyperlinkedModelSerializer):
-    hostname = serializers.CharField(validators=[UniqueValidator(queryset=Asset.objects.all())])
+    # hostname = serializers.CharField(validators=[UniqueValidator(queryset=Asset.objects.all())])
     rack_u = serializers.IntegerField(validators=[MinValueValidator(1)])
 
     # network_ports = NetworkPortSerializer()
@@ -161,6 +161,16 @@ class AssetSerializer(serializers.HyperlinkedModelSerializer):
                 '{} is not an valid hostname. Please ensure this value is a valid hostname as per RFC 1034.'.format(
                     value.__str__())
             )
+        if value:
+            try:
+                Asset.objects.all().get(hostname=value)
+                raise serializers.ValidationError(
+                    '{} is not a unique hostname. Please ensure this value unique across all assets.'.format(
+                        value.__str__())
+                )
+            except Asset.DoesNotExist:
+                pass
+
         return value
 
     def check_asset_number(self, validated_data):

@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField
+from django.core.validators import RegexValidator
 
 
 # Create your models here.
@@ -34,7 +35,8 @@ class Asset(models.Model):
     rack_u = models.PositiveIntegerField(blank=False)
     owner = models.ForeignKey(User, blank=True, null=True, on_delete=models.PROTECT)
     comment = models.TextField(blank=True)
-    asset_number = models.PositiveIntegerField(blank=True, default=100000)
+    asset_number = models.PositiveIntegerField(blank=True, default=100000, \
+    validators=[RegexValidator(r'\^[0-9]{1,6}$','Number must be 6 digits','Invalid number')])
 
     def __str__(self):
         return self.hostname or ''
