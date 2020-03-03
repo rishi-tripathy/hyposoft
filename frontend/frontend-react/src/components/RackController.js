@@ -282,26 +282,26 @@ export class RackController extends Component {
 
     // console.log(this.state.datacenterID)
     // console.log(this.context.datacenter_id)
+    let allCaseVar;
+
     if (!this.state.showAllRacks) {
 
       //all or one datacenter?
       // console.log(this.state.datacenterID)
-      let dst; 
+      let dst;
       // if(this.state.datacenterID===-1 || this.state.datacenterID == null){
       if(this.context.datacenter_id===-1){
         dst = '/api/racks/' + this.state.filterQuery; //gets from all dc's
         // console.log('all case true')
-        this.setState({
-          allCase: true,
-        });
+        allCaseVar = true;
+
       }
       else {
         dst = '/api/racks/' + '?' + 'datacenter=' + this.context.datacenter_id + '&' + this.state.filterQuery;
         // console.log('all case false')
-        
-        this.setState({
-          allCase: false,
-        });
+
+        allCaseVar = false;
+
       }
 
       axios.get(dst).then(res => {
@@ -310,6 +310,7 @@ export class RackController extends Component {
           prevPage: res.data.previous,
           nextPage: res.data.next,
           loading: false,
+          allCase: allCaseVar,
         });
       })
         .catch(function (error) {
@@ -318,6 +319,9 @@ export class RackController extends Component {
           alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
         });
     } else {
+      this.setState({
+        loading: true,
+      })
       //show all racks
       let dst;
 
@@ -325,16 +329,12 @@ export class RackController extends Component {
       if(this.context.datacenter_id===-1){
         dst = '/api/racks/' + '?show_all=true' + this.state.filterQuery; //gets from all dc's
         // console.log('all case true')
-        this.setState({
-          allCase: true,
-        });
+        allCaseVar = true;
       }
       else {
         dst = '/api/racks/' + '?' + 'datacenter=' + this.context.datacenter_id + '&' + 'show_all=true' + '&' + this.state.filterQuery;
-        // console.log('all case false')       
-        this.setState({
-          allCase: false,
-        });
+        // console.log('all case false')
+       allCaseVar = false;
       }
 
       axios.get(dst).then(res => {
@@ -343,6 +343,7 @@ export class RackController extends Component {
           prevPage: null,
           nextPage: null,
           loading: false,
+          allCase: allCaseVar,
         });
       })
         .catch(function (error) {
@@ -356,10 +357,10 @@ export class RackController extends Component {
     let dcOptions = [];
     dcOptions = this.context.datacenterOptions;
     console.log(dcOptions)
-    
+
       let datacenterIds = [];
       let racksArr = [];
-      // console.log(this.state.racks)
+      console.log(this.state.racks)
       // if(this.state.showAllRacks){
       //   console.log(this.state.racks.results)
       //   this.state.racks.results.map((r, index) => {
@@ -369,15 +370,20 @@ export class RackController extends Component {
       // }
       // else {
         this.state.racks.map((r, index) => {
-          // console.log(r)
-          datacenterIds.push(r.datacenter.substring(r.datacenter.length-2, r.datacenter.length-1))
+          console.log(r.datacenter)
+          var match = r.datacenter.match(/datacenters\/(\d+)/)
+          if (match) {
+            console.log(match[1])
+            datacenterIds.push(match[1])
+          }
+          //datacenterIds.push(r.datacenter.substring(r.datacenter.length-2, r.datacenter.length-1))
         })
       // }
-      
+
       console.log(datacenterIds)
 
       datacenterIds.map((r, index) => {
-        // console.log(r)
+        console.log(r)
         for(var i = 0 ; i < dcOptions.length; i++){
           // console.log(dcOptions[i].id)
           // console.log(dcOptions[i].abbreviation)
@@ -437,9 +443,6 @@ export class RackController extends Component {
     }
 
     if (this.state.showRacksView) {
-      if(this.state.racks == null || this.state.racks.length===0){
-      content = <h1>no racks</h1>
-      } else {
       content =
         <RacksView rack={this.state.racks}
                    sendRerender={this.getRerender}
@@ -453,8 +456,7 @@ export class RackController extends Component {
                    sendShowDelete={this.getShowDelete}
                    sendShowAllRacks={this.getShowAllRacks}
                    allCase={this.state.allCase}
-                   dcList={list}/>
-    }
+                   dcList={list}/>;
   }
 
     let filters =
@@ -464,7 +466,7 @@ export class RackController extends Component {
           <RackFilters sendFilterQuery={this.getFilterQuery}/>
         </UncontrolledCollapse>
       </div>;
-    let printButton = 
+    let printButton =
       <div id="hideOnPrint">
         <Button variant="outlined" onClick={this.print} endIcon={<PrintIcon />}>Print Racks</Button>
       </div>
@@ -526,7 +528,7 @@ export class RackController extends Component {
             {paginateNavigation}{' '}
           </Grid>
           <Grid item justify="flex-start" alignContent='center' xs={12}>
-          {this.state.loading ? <CircularProgress /> : content };
+          {this.state.loading ? <center><CircularProgress size={100} /></center> : content };
           </Grid>
         </Grid>
         </Container>

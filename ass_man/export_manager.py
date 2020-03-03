@@ -89,7 +89,7 @@ def export_network_ports(queryset):
     for asset in queryset:
         nps = asset.network_port_set.all()
         for np in nps:
-            dest_hostname = np.connection.hostname if np.connection else ''
+            dest_hostname = np.connection.asset.hostname if np.connection else ''
             dest_port = np.connection.name if np.connection else ''
             writer.writerow([asset.hostname, np.name, np.mac, dest_hostname, dest_port])
     return response

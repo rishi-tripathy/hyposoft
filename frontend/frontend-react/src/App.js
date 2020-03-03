@@ -57,7 +57,7 @@ class App extends React.Component {
 
   setDatacenter  = (value, name, ab) =>  {
     // console.log("changing id to "+ value + " name: "+name);
-    this.setState({ 
+    this.setState({
       datacenter_id: value,
       datacenter_name: name,
       datacenter_ab: ab,
@@ -145,7 +145,7 @@ class App extends React.Component {
     axios.get('api/users/who_am_i/').then(res => {
       // console.log(res.data)
       if (res.data.current_user != '') {
-        this.setState({ 
+        this.setState({
           logged_in: true,
           user_first: res.data.first_name,
           user_last: res.data.last_name,

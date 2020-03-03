@@ -35,7 +35,7 @@ export class CreateModelForm extends Component {
       selectedVendorOption: null,
 
       networkPorts: null,
-      
+
       redirect: false,
     }
   }
@@ -278,7 +278,7 @@ export class CreateModelForm extends Component {
                                let instanceCopy = JSON.parse(JSON.stringify(this.state.instance))
                                instanceCopy.comment = e.target.value
                                this.setState({
-                                 instance: instanceCopy
+                                 model: instanceCopy
                                })
                              }}/>{' '}
                 </Grid>

@@ -159,7 +159,7 @@ export class ModelController extends Component {
 
         if (window.confirm("Import was not successful.\n" + JSON.stringify(error.response.data, null, 2))) {
           fileUploadOverride(f).then((response) => {
-            alert("Import was successful.\n" + JSON.stringify(response, null, 2));
+            alert("Import was successful.\n" + JSON.stringify(response.data, null, 2));
           })
             .catch(function (error) {
               console.log(error.response)
@@ -167,7 +167,9 @@ export class ModelController extends Component {
             });
         }
       });
-    this.showRerender();
+    this.setState({
+      rerender: true
+    });
   }
 
   handleFileUpload = (e) => {
@@ -355,7 +357,7 @@ export class ModelController extends Component {
               {paginateNavigation}
             </Grid>
             <Grid item xs={12}>
-              {this.state.loading ? <CircularProgress /> : content}
+              {this.state.loading ? <center><CircularProgress size={100}/> </center>: content}
             </Grid>
           </Grid>
         </Container>
