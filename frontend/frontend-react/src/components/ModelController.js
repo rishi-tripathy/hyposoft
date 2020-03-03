@@ -5,7 +5,7 @@ import EditModelForm from "./EditModelForm";
 import ModelTableMUI from "./ModelTableMUI"
 import DetailedModel from "./DetailedModel";
 import {
-  Grid, Button, Container, Paper, ButtonGroup, Switch, FormControlLabel, Typography
+  Grid, Button, Container, Paper, ButtonGroup, Switch, FormControlLabel, Typography, CircularProgress
 } from "@material-ui/core"
 import CloudUploadIcon from "@material-ui/icons/CloudUpload";
 import SaveAltIcon from "@material-ui/icons/SaveAlt";
@@ -29,7 +29,8 @@ export class ModelController extends Component {
       filterQuery: "",
       sortQuery: "",
       rerender: false,
-      file: null
+      file: null,
+      loading: true,
     };
 
   }
@@ -43,6 +44,7 @@ export class ModelController extends Component {
         models: res.data.results,
         prevPage: res.data.previous,
         nextPage: res.data.next,
+        loading: false,
       });
     })
       .catch(function (error) {
@@ -225,6 +227,10 @@ export class ModelController extends Component {
   }
 
   getAllModels = () => {
+
+    this.setState({
+      loading: true,
+    })
     let filter = this.state.filterQuery;
     let sort = this.state.sortQuery;
 
@@ -245,6 +251,7 @@ export class ModelController extends Component {
         models: res.data,
         prevPage: null,
         nextPage: null,
+        loading: false,
       });
     })
       .catch(function (error) {
@@ -348,7 +355,7 @@ export class ModelController extends Component {
               {paginateNavigation}
             </Grid>
             <Grid item xs={12}>
-              {content}
+              {this.state.loading ? <CircularProgress /> : content}
             </Grid>
           </Grid>
         </Container>

@@ -9,7 +9,7 @@ import '../stylesheets/RackTable.css'
 import '../stylesheets/RacksView.css'
 import {UncontrolledCollapse, CardBody, Card} from 'reactstrap';
 import {
-  Grid, Button, Container, Paper, ButtonGroup, Switch, FormControlLabel, Typography
+  Grid, Button, Container, Paper, ButtonGroup, Switch, FormControlLabel, Typography, CircularProgress
 } from "@material-ui/core"
 import DatacenterContext from './DatacenterContext';
 
@@ -43,6 +43,7 @@ export class RackController extends Component {
       datacenterID: null,
       allCase: false,
       datacenterListForShowAll: [],
+      loading: true,
     };
     this.getShowRacks = this.getShowRacks.bind(this);
     this.getFilterQuery = this.getFilterQuery.bind(this);
@@ -308,6 +309,7 @@ export class RackController extends Component {
           racks: res.data.results,
           prevPage: res.data.previous,
           nextPage: res.data.next,
+          loading: false,
         });
       })
         .catch(function (error) {
@@ -340,6 +342,7 @@ export class RackController extends Component {
           racks: res.data,
           prevPage: null,
           nextPage: null,
+          loading: false,
         });
       })
         .catch(function (error) {
@@ -501,7 +504,6 @@ export class RackController extends Component {
       name = 'Racks in Datacenter: ' + this.context.datacenter_ab;
     }
 
-
     return (
       <div>
         <Container maxwidth="xl">
@@ -524,7 +526,7 @@ export class RackController extends Component {
             {paginateNavigation}{' '}
           </Grid>
           <Grid item justify="flex-start" alignContent='center' xs={12}>
-          {content}
+          {this.state.loading ? <CircularProgress /> : content };
           </Grid>
         </Grid>
         </Container>
