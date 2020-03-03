@@ -4,32 +4,14 @@
     <html>
     
     <head>
-      <link rel="stylesheet" href="css/style.css">
+      <link rel="stylesheet" type="text/css" href="{% static 'login.css' %}">
       <link href="https://fonts.googleapis.com/css?family=Ubuntu" rel="stylesheet">
       <meta name="viewport" content="width=device-width, initial-scale=1" />
-      <link rel="stylesheet" href="path/to/font-awesome/css/font-awesome.min.css">
       <title>Sign in</title>
     </head>
-    
     <body>
-      <div class="main">
-        <p class="sign" align="center">Sign in</p>
-        <form class="form1">
-          <input class="un " type="text" align="center" placeholder="Username">
-          <input class="pass" type="password" align="center" placeholder="Password">
-          <a class="submit" align="center">Sign in</a>
-          <p class="forgot" align="center"><a href="#">Forgot Password?</p>
-                
-                    
-        </div>
-         
-    </body>
-    
-    </html>
-
-<!-- 
-
 {% block content %}
+<div class="main">
 
   {% if form.errors %}
   <center>
@@ -46,11 +28,11 @@
     {% endif %}
   {% endif %}
   <center>
-  <form method="post" action="{% url 'login' %}">
+  <form class="form1" method="post" action="{% url 'login' %}">
     {% csrf_token %}
     <table>
       <tr>
-        <td>{{ form.username.label_tag }}</td>
+        <td>{{ form.username.label_tag }}</tzd>
         <td>{{ form.username }}</td>
       </tr>
       <tr>
@@ -58,17 +40,36 @@
         <td>{{ form.password }}</td>
       </tr>
     </table>
-      <!-- <Input type="submit" value="login" />
-      <Input type="hidden" name="next" value="{{ next }}" /> -->
-      <button> Submit</button>
+    <!-- <a class="submit"> -->
+      <center>
+      <Input class="input1" type="submit" value="Submit" />
+    </center>
+    <!-- </a> -->
+      <Input type="hidden" name="next" value="{{ next }}" /> 
   
   </form>
-  <Button onclick="window.location.href = 'https://oauth.oit.duke.edu/oauth/authorize.php?client_id=hyposoft-ev2&client_secret=X8ctUJYCH33Z31wAbz6*v4Ezz%MqWPrdMsSxIdB2eLA2+B@=d@&redirect_uri=http%3A%2F%2F0.0.0.0%3A5000%2F&response_type=token&state=1129&scope=basic'">
-    Click here to sign in with Duke NetID.
-  </Button>
+<br><br>
+<center>
+  <a class="submit" onclick="window.location.href = 'https://oauth.oit.duke.edu/oauth/authorize.php?client_id=hyposoft-ev2&client_secret=X8ctUJYCH33Z31wAbz6*v4Ezz%MqWPrdMsSxIdB2eLA2+B@=d@&redirect_uri=http%3A%2F%2F0.0.0.0%3A5000%2F&response_type=token&state=1129&scope=basic'">
+    Duke NetID Login
+  </a>
 </center>
   {# Assumes you setup the password_reset view in your URLconf #}
  {#  <p><a href="{% url 'password_reset' %}">Lost password?</a></p> #}
   
 {% endblock %}
-</html> -->
+    
+    <!-- <body>
+     
+        <!-- <p class="sign" align="center">Sign in</p> -->
+        <!-- <form class="form1">
+          <input class="un " type="text" align="center" placeholder="Username">
+          <input class="pass" type="password" align="center" placeholder="Password">
+          <a class="submit" align="center">Sign in</a>
+          <p class="forgot" align="center"><a href="#">Forgot Password?</p>
+                    
+      </div>
+    </body> -->
+    </div>
+
+</html> 
