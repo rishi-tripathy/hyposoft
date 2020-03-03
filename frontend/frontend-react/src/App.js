@@ -88,6 +88,9 @@ class App extends React.Component {
     })
       .catch(function (error) {
         // TODO: handle error
+        this.setState({
+          loading: false,
+        })
         alert("Cannot load. Re-login.\n" + JSON.stringify(error.response, null, 2));
       })
   }

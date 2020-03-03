@@ -55,6 +55,9 @@ export class AuditController extends Component {
     })
       .catch(function (error) {
         // TODO: handle error
+        this.setState({
+          loading: false,
+        })
         alert("Cannot load. Re-login.\n" + JSON.stringify(error.response, null, 2));
       });
   }
@@ -123,6 +126,9 @@ export class AuditController extends Component {
     })
       .catch(function (error) {
         // TODO: handle error
+        this.setState({
+          loading: false,
+        })
         console.log(error.response.data)
         alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
       });
