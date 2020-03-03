@@ -70,7 +70,7 @@ export class PowerPortConnectionDialog extends Component {
 
     let isConfigured = false;
     for (let i = 0; i < this.props.currentPowerPortConfiguration.length; i++) {
-      if (this.props.currentPowerPortConfiguration[i].pdu 
+      if (this.props.currentPowerPortConfiguration[i].pdu
         && this.props.currentPowerPortConfiguration[i].port_number) {
         isConfigured = true;
       }
@@ -87,7 +87,7 @@ export class PowerPortConnectionDialog extends Component {
       || prevProps.rightFree != this.props.rightFree
       || prevProps.leftPPName != this.props.leftPPName
       || prevProps.rightPPName != this.props.rightPPName
-      || prevProps.rackID != this.props.rackID )
+      || prevProps.rackID != this.props.rackID)
       && this.props.currentPowerPortConfiguration == null) {
       this.setDefaultPowerPortConfiguration();
       if (this.props.rackID) {
@@ -120,7 +120,7 @@ export class PowerPortConnectionDialog extends Component {
             myOptions.push(res.data.pdu_slots.left[j].toString());
           }
         }
-        else if (this.state.powerPortConfiguration[i].pdu == this.props.rightPPName){
+        else if (this.state.powerPortConfiguration[i].pdu == this.props.rightPPName) {
           for (let j = 0; j < res.data.pdu_slots.right.length; j++) {
             myOptions.push(res.data.pdu_slots.right[j].toString());
           }
@@ -193,11 +193,11 @@ export class PowerPortConnectionDialog extends Component {
     }
 
     this.props.sendPowerPortConnectionInfo(outArray);
-    this.setState({ 
-      open: false, 
+    this.setState({
+      open: false,
       configured: false,
       pduOptionsPerEachPDU: [],
-      selectedPDUOptionPerEachPDU: [], 
+      selectedPDUOptionPerEachPDU: [],
     })
   };
 
@@ -229,6 +229,13 @@ export class PowerPortConnectionDialog extends Component {
     this.setState({ powerPortConfiguration: tmpConfig });
   }
 
+  handleClearPPSelection = (indexOfChange, e) => {
+    let tmpConfig = Object.assign([], this.state.powerPortConfiguration);
+    tmpConfig[indexOfChange].pdu = null;
+    tmpConfig[indexOfChange].port_number = null;
+    this.setState({ powerPortConfiguration: tmpConfig });
+  }
+
   showPPFields = () => {
     let fieldList = [];
     for (let i = 0; i < this.props.numberOfPowerPorts; i++) {
@@ -236,7 +243,7 @@ export class PowerPortConnectionDialog extends Component {
       fieldList.push(
         <div>
           <ListItem>
-            <Grid item xs={6}>
+            <Grid item xs={4}>
               <FormGroup row>
                 <RadioGroup
                   value={this.state.powerPortConfiguration[i] ? this.state.powerPortConfiguration[i].pdu : null}
@@ -253,7 +260,7 @@ export class PowerPortConnectionDialog extends Component {
                 </RadioGroup>
               </FormGroup>
             </Grid>
-            <Grid item xs={6}>
+            <Grid item xs={4}>
               <p>Power Port #{i + 1}</p>
               <Autocomplete
                 autoComplete
@@ -269,11 +276,11 @@ export class PowerPortConnectionDialog extends Component {
                   <TextField {...params} label="PDU Port Number" fullWidth />
                 )}
               />
-              {/* <TextField label='PDU Port Number' type="number" value={this.state.powerPortConfiguration[i].port_number} fullWidth onChange={e => {
-                let cpy = Object.assign({}, this.state.powerPortConfiguration);
-                cpy[i].port_number = e.target.value;
-                this.setState({ powerPortConfiguration: cpy });
-              }} /> */}
+            </Grid>
+            <Grid item xs={4}>
+              <Button onClick={(e) => this.handleClearPPSelection(i, e)} color="primary">
+                Clear
+              </Button>
             </Grid>
           </ListItem>
         </div>
@@ -288,13 +295,13 @@ export class PowerPortConnectionDialog extends Component {
       configList.push(
         <div>
           <ListItem>
-            <p>Power Port #{k+1}  </p><br></br>
+            <p>Power Port #{k + 1}  </p><br></br>
             <p>Connected PDU: {this.state.powerPortConfiguration[k].pdu}</p><br></br>
             <p>Connected Port Number: {this.state.powerPortConfiguration[k].port_number}</p>
           </ListItem>
         </div>
       )
-    } 
+    }
     return configList;
   }
 
