@@ -397,7 +397,7 @@ class AssetViewSet(viewsets.ModelViewSet):
             responses = []
             for pp in self.get_object().power_port_set.all():
                 try:
-                    name = pp.pdu.name.lower()
+                    name = pp.pdu.name
                     num = pp.port_number
                 except AttributeError:
                     someDisconnected = True
@@ -439,7 +439,7 @@ class AssetViewSet(viewsets.ModelViewSet):
             responses = []
             for pp in self.get_object().power_port_set.all():
                 try:
-                    name = pp.pdu.name.lower()
+                    name = pp.pdu.name
                     num = pp.port_number
                 except AttributeError:
                     someDisconnected = True
@@ -487,11 +487,11 @@ class AssetViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=[GET])
     def get_pp_status(self, request, *args, **kwargs):
         asset = self.get_object()
-        pdu_l_name = asset.rack.pdu_l.name.lower()
-        pdu_r_name = asset.rack.pdu_r.name.lower()
+        pdu_l_name = asset.rack.pdu_l.name
+        pdu_r_name = asset.rack.pdu_r.name
         try:
-            assert re.match("hpdu-rtp1-[a-e][0-1][0-9]l", pdu_l_name)
-            assert re.match("hpdu-rtp1-[a-e][0-1][0-9]r", pdu_r_name)
+            assert re.match("hpdu-rtp1-[A-E][0-1][0-9]L", pdu_l_name)
+            assert re.match("hpdu-rtp1-[A-E][0-1][0-9]R", pdu_r_name)
         except AssertionError:
             return Response({
                 "status": "Failed to get PDU port data because this asset is not connected to a networked PDU."
@@ -516,13 +516,13 @@ class AssetViewSet(viewsets.ModelViewSet):
         statuses = []
 
         for pp in asset.power_port_set.all():
-            regex = rf">{pp.port_number}<td><span style='background-color:\#[0-9a-f]*'>([A-Z]+)"
             try:
                 name = pp.pdu.name
                 num = pp.port_number
             except AttributeError:
                 statuses.append("DISCONNECTED")
                 continue
+            regex = rf">{pp.port_number}\s*<td><span style='background-color:\#[0-9a-f]*'>([A-Z]+)"
             if pp.pdu.name == pdu_l_name:
                 s = re.search(regex, left_html)
                 if s:
