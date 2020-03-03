@@ -131,11 +131,11 @@ export class PowerManagement extends Component {
         <Paper>
           <Grid container spacing={3}>
             <Grid item xs={6}>
-              Status: 
+              Status:
               {
-                this.state.status === 'ON' 
+                this.state.status === 'ON'
                 ?
-                <PowerIcon style={{ color: green[500] }} /> 
+                <PowerIcon style={{ color: green[500] }} />
                 :
                 <PowerOffIcon color="secondary" />
               }

@@ -87,7 +87,7 @@ export class CreateRackForm extends Component {
 
     let start_rack = this.state.rack_num_start;
     let end_rack = this.state.rack_num_end;
-  
+
     let stateCopy = Object.assign({}, this.state);
     console.log(stateCopy);
 
@@ -138,7 +138,7 @@ export class CreateRackForm extends Component {
     // console.log(this.context.datacenter_ab)
 
     let defVal;
-    
+
     if(this.context.datacenter_id === -1){
       defVal = '';
     }

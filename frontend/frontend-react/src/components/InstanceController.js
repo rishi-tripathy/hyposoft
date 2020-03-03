@@ -52,7 +52,7 @@ export class InstanceController extends Component {
     else {
       dst = '/api/assets/' + '?' + 'datacenter=' + this.state.datacenterID + '&' + this.state.filterQuery + '&' + this.state.sortQuery;
     }
-     
+
     console.log('QUERY')
     console.log(dst)
     axios.get(dst).then(res => {
@@ -193,7 +193,7 @@ export class InstanceController extends Component {
     this.fileUpload(this.state.file).then((response) => {
       alert("Import was successful." + JSON.stringify(response.data, null, 2));
       this.setState({
-        rerender: true}); 
+        rerender: true});
     })
       .catch(function (error) {
         console.log(error.response)
@@ -218,7 +218,7 @@ export class InstanceController extends Component {
               console.log(error.response)
               alert('Import was not successful.\n' + JSON.stringify(error.response.data, null, 2));
               this.setState({
-                rerender: true}); 
+                rerender: true});
             });
         }
       });
@@ -371,6 +371,7 @@ export class InstanceController extends Component {
         console.log(error.response.data)
         alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
       });
+
   }
 
   fileUpload = (file) => {
@@ -385,8 +386,6 @@ export class InstanceController extends Component {
     }
     return post(url, formData, config)
   }
-
-
 
   render() {
     console.log('rerendering')

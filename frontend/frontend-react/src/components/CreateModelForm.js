@@ -35,7 +35,7 @@ export class CreateModelForm extends Component {
       selectedVendorOption: null,
 
       networkPorts: null,
-      
+
       redirect: false,
     }
   }

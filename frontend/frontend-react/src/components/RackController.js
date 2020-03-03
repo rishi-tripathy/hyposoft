@@ -287,7 +287,7 @@ export class RackController extends Component {
 
       //all or one datacenter?
       // console.log(this.state.datacenterID)
-      let dst; 
+      let dst;
       // if(this.state.datacenterID===-1 || this.state.datacenterID == null){
       if(this.context.datacenter_id===-1){
         dst = '/api/racks/' + this.state.filterQuery; //gets from all dc's
@@ -298,7 +298,7 @@ export class RackController extends Component {
       else {
         dst = '/api/racks/' + '?' + 'datacenter=' + this.context.datacenter_id + '&' + this.state.filterQuery;
         // console.log('all case false')
-        
+
         allCaseVar = false;
 
       }
@@ -328,7 +328,7 @@ export class RackController extends Component {
       }
       else {
         dst = '/api/racks/' + '?' + 'datacenter=' + this.context.datacenter_id + '&' + 'show_all=true' + '&' + this.state.filterQuery;
-        // console.log('all case false')       
+        // console.log('all case false')
        allCaseVar = false;
       }
 
@@ -351,7 +351,7 @@ export class RackController extends Component {
     let dcOptions = [];
     dcOptions = this.context.datacenterOptions;
     console.log(dcOptions)
-    
+
       let datacenterIds = [];
       let racksArr = [];
       console.log(this.state.racks)
@@ -373,7 +373,7 @@ export class RackController extends Component {
           //datacenterIds.push(r.datacenter.substring(r.datacenter.length-2, r.datacenter.length-1))
         })
       // }
-      
+
       console.log(datacenterIds)
 
       datacenterIds.map((r, index) => {
@@ -460,7 +460,7 @@ export class RackController extends Component {
           <RackFilters sendFilterQuery={this.getFilterQuery}/>
         </UncontrolledCollapse>
       </div>;
-    let printButton = 
+    let printButton =
       <div id="hideOnPrint">
         <Button variant="outlined" onClick={this.print} endIcon={<PrintIcon />}>Print Racks</Button>
       </div>

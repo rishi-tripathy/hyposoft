@@ -67,8 +67,8 @@ export class CreateDatacenterForm extends Component {
         {/* {this.state.redirect && <Redirect to = {{pathname: '/datacenters/'}} />} */}
         {this.state.redirect &&<Redirect to = {{pathname: '/datacenters/', state: this.state.redirect }}/>}
           {/* // <DatacenterContext.Consumer>
-          //     {/* {({ resetDatacenter }) => 
-          //       setTimeout(() => { 
+          //     {/* {({ resetDatacenter }) =>
+          //       setTimeout(() => {
           //         resetDatacenter();
           //       }, 10)}  */}
              {/* </DatacenterContext.Consumer>  */}
@@ -94,7 +94,7 @@ export class CreateDatacenterForm extends Component {
                   <TextField label='Datacenter Abbreviation' type="text"  inputProps = {{ maxLength: 6}} fullWidth onChange={e => {
                     let abbreviationField = e.target.value;
                     this.setState({
-                      abbreviation: abbreviationField, 
+                      abbreviation: abbreviationField,
                     })
                   }}/>{' '}
                 </Grid>

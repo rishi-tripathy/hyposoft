@@ -29,7 +29,7 @@ export class DatacenterController extends Component {
           rerender: false,
         //   file: null
         };
-    
+
       }
 
       getDatacenters = () => {
@@ -60,11 +60,11 @@ export class DatacenterController extends Component {
         this.setState({filterQuery: q});
         // console.log(this.state.filterQuery);
       }
-    
+
       componentDidMount() {
         this.getDatacenters();
       }
-    
+
       //component did update
 
       paginateNext = () => {
@@ -80,7 +80,7 @@ export class DatacenterController extends Component {
             alert("Cannot load. Re-login.\n" + JSON.stringify(error.response.data, null, 2));
           });
       }
-    
+
       paginatePrev = () => {
         axios.get(this.state.prevPage).then(res => {
           this.setState({
@@ -96,17 +96,17 @@ export class DatacenterController extends Component {
       }
 
       //showing all
-      
+
 
       getAllDatacenters = () => {
         let filter = this.state.filterQuery;
-    
+
         if (this.state.filterQuery.length !== 0) {
           filter = filter + "&";
         }
-    
+
         let dst = "/api/datacenters/" + "?" + filter + "show_all=true";
-    
+
         axios.get(dst).then(res => {
           this.setState({
             datacenters: res.data,
@@ -128,7 +128,7 @@ export class DatacenterController extends Component {
           showingAll: !prevState.showingAll
         }));
       }
- 
+
     render() {
 
       // console.log(this.context)
@@ -169,10 +169,10 @@ export class DatacenterController extends Component {
                 Add Datacenter
               </Button>
             </Link>
-      
+
           ) : <p></p>;
 
-        let content = <div>< DatacenterTable 
+        let content = <div>< DatacenterTable
                         datacenters={this.state.datacenters}
                         filterQuery={this.getFilterQuery}
                         sendSortQuery={this.getSortQuery}/>

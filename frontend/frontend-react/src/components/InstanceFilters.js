@@ -333,7 +333,7 @@ export class InstanceFilters extends Component {
               </Grid>
 
               <Grid item xs={6}>
-                
+
               </Grid>
 
               <Grid item xs={2}>
