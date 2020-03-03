@@ -65,6 +65,18 @@ export class CreateInstanceForm extends Component {
     }
   }
 
+  loadAssetNumber = () => {
+    const dst = '/api/assets/asset_number/';
+    axios.get(dst).then(res => {
+      let assetCopy = Object.assign({}, this.state.asset);
+      assetCopy.asset_number = res.data.asset_number
+      this.setState({ asset: assetCopy });
+    })
+      .catch(function (error) {
+        alert('Could not load model names. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+      });
+  }
+
   loadNetworkPortInfoForCurrentlySelectedModel = () => {
     let modelURL = this.state.selectedModelOption.value
     axios.get(modelURL).then(res => {
@@ -194,6 +206,7 @@ export class CreateInstanceForm extends Component {
   }
 
   componentDidMount() {
+    this.loadAssetNumber();
     this.loadModels();
     this.loadDatacenters();
     this.loadOwners();
@@ -351,7 +364,7 @@ export class CreateInstanceForm extends Component {
   render() {
     return (
       <div>
-        { this.state.redirect && <Redirect to={{pathname: '/assets'}} /> }
+        {this.state.redirect && <Redirect to={{ pathname: '/assets' }} />}
         <Container maxwidth="xl">
           <Grid container className='themed-container' spacing={2}>
             <Grid item alignContent='center' xs={12} />
@@ -403,7 +416,11 @@ export class CreateInstanceForm extends Component {
                   />
                 </Grid>
                 <Grid item xs={6}>
-                  <TextField label='Asset Number' type="text" fullWidth onChange={e => {
+                  <TextField label='Asset Number' 
+                    type="text" 
+                    fullWidth 
+                    InputLabelProps={{ shrink: true }}
+                    value={this.state.asset.asset_number} onChange={e => {
                     let instanceCopy = JSON.parse(JSON.stringify(this.state.asset))
                     instanceCopy.asset_number = e.target.value
                     this.setState({
