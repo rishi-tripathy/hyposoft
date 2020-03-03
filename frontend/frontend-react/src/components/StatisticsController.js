@@ -6,7 +6,7 @@ import 'react-circular-progressbar/dist/styles.css';
 import '../stylesheets/TableView.css'
 import {UncontrolledCollapse, Button, ButtonGroup, Table, Container, Card, Row, Col} from 'reactstrap';
 import DatacenterContext from './DatacenterContext';
-import {Grid, Typography} from "@material-ui/core";
+import {Grid, Typography, CircularProgress} from "@material-ui/core";
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
@@ -21,6 +21,7 @@ export class StatisticsController extends Component {
       models_allocated: [],
       vendors_allocated: [],
       owners_allocated: [],
+      loading: true,
     }
   }
 
@@ -49,6 +50,7 @@ export class StatisticsController extends Component {
         models_allocated: res.data.models_allocated,
         vendors_allocated: res.data.vendors_allocated,
         owners_allocated: res.data.owners_allocated,
+        loading: false,
       });
     })
       .catch(function (error) {
@@ -115,10 +117,16 @@ export class StatisticsController extends Component {
 
     return (
       <Container className="themed-container">
+       {this.state.loading 
+       ? <center>
+          <CircularProgress size={100}/>
+        </center>
+       :
+       <div>
         <Typography variant="h3">
-          Statistics in {name}
+        Statistics in {name}
         </Typography>
-        <br></br>
+       <br></br>
         <Typography variant="h7">
           Use the selector in the navigation bar to change datacenters.
         </Typography>
@@ -204,6 +212,8 @@ export class StatisticsController extends Component {
             </div>
           </Col>
         </Row>
+     </div>
+      }
       </Container>
     )
   }
