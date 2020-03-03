@@ -93,7 +93,6 @@ export class EditInstanceForm extends Component {
         else {
           a[i].id = this.state.asset.power_ports[i].id
         }
-        
       }
       console.log(a[i])
     }

@@ -184,7 +184,15 @@ export class PowerPortConnectionDialog extends Component {
   };
 
   handleClose = () => {
-    this.props.sendPowerPortConnectionInfo([]);
+    let outArray = []
+    for (let i = 0; i < this.props.numberOfPowerPorts; i++) {
+      let obj = {}
+      obj.pdu = null
+      obj.port_number = null
+      outArray.push(obj)
+    }
+
+    this.props.sendPowerPortConnectionInfo(outArray);
     this.setState({ 
       open: false, 
       configured: false,
@@ -195,7 +203,7 @@ export class PowerPortConnectionDialog extends Component {
 
   handleSubmit = () => {
 
-    let configCopy = Object.assign({}, this.state.powerPortConfiguration);
+    let configCopy = Object.assign([], this.state.powerPortConfiguration);
     let outArray = []
     for (let i = 0; i < this.props.numberOfPowerPorts; i++) {
       let str = configCopy[i].port_number
@@ -322,10 +330,10 @@ export class PowerPortConnectionDialog extends Component {
 
           <DialogActions>
             <Button onClick={this.handleClose} color="primary">
-              Cancel
+              Remove Connections
             </Button>
             <Button onClick={this.handleSubmit} color="primary">
-              Confirm
+              Confirm Connections
             </Button>
           </DialogActions>
         </Dialog>
