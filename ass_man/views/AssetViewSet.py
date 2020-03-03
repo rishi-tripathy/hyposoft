@@ -161,9 +161,11 @@ class AssetViewSet(viewsets.ModelViewSet):
 
             try:
                 pp = asset.power_port_set.get(id=i['id'])
-                if not pdu:
+                if not pdu or not port_num_a:
                     pp.pdu = None
                     pp.port_number = None
+                    pp.save()
+                    continue
                 if (pp.pdu != pdu or pp.port_number != port_num):
                     pp.pdu = pdu
                     pp.port_number = port_num
@@ -395,7 +397,7 @@ class AssetViewSet(viewsets.ModelViewSet):
             responses = []
             for pp in self.get_object().power_port_set.all():
                 try:
-                    name = pp.pdu.name
+                    name = pp.pdu.name.lower()
                     num = pp.port_number
                 except AttributeError:
                     someDisconnected = True
@@ -437,7 +439,7 @@ class AssetViewSet(viewsets.ModelViewSet):
             responses = []
             for pp in self.get_object().power_port_set.all():
                 try:
-                    name = pp.pdu.name
+                    name = pp.pdu.name.lower()
                     num = pp.port_number
                 except AttributeError:
                     someDisconnected = True
@@ -497,8 +499,8 @@ class AssetViewSet(viewsets.ModelViewSet):
 
         relevant_ports = [(pp.port_number, pp.pdu) for pp in asset.power_port_set.all()]
         try:
-            left_html = requests.get(NETWORX_GET_ROOT_URL, params={"pdu": pdu_l_name}, timeout=2).text
-            right_html = requests.get(NETWORX_GET_ROOT_URL, params={"pdu": pdu_r_name}, timeout=2).text
+            left_html = requests.get(NETWORX_GET_ROOT_URL, params={"pdu": pdu_l_name.lower()}, timeout=2).text
+            right_html = requests.get(NETWORX_GET_ROOT_URL, params={"pdu": pdu_r_name.lower()}, timeout=2).text
         except requests.exceptions.RequestException:
             return Response({
                 'status': 'Error. The PDU Networx 98 Pro service is unavailable.'
@@ -514,7 +516,7 @@ class AssetViewSet(viewsets.ModelViewSet):
         statuses = []
 
         for pp in asset.power_port_set.all():
-            regex = rf">{pp.port_number}<td><span style='background-color:\#[0-9a-f]*'>([A-Z]+)"
+            regex = rf">{pp.port_number}\s<td><span style='background-color:\#[0-9a-f]*'>([A-Z]+)"
             try:
                 name = pp.pdu.name
                 num = pp.port_number
