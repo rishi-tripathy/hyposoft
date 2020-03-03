@@ -488,7 +488,7 @@ class AssetViewSet(viewsets.ModelViewSet):
     def get_pp_status(self, request, *args, **kwargs):
         asset = self.get_object()
         pdu_l_name = asset.rack.pdu_l.name.lower()
-        pdu_r_name = asset.rack.pdu_r.name
+        pdu_r_name = asset.rack.pdu_r.name.lower()
         try:
             assert re.match("hpdu-rtp1-[a-e][0-1][0-9]l", pdu_l_name)
             assert re.match("hpdu-rtp1-[a-e][0-1][0-9]r", pdu_r_name)
