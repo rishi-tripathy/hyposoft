@@ -20,8 +20,10 @@ axios.defaults.xsrfHeaderName = "X-CSRFToken";
 const myConfig = {
   nodeHighlightBehavior: true,
   node: {
-    "maxZoom": 8,
+    "maxZoom": 4,
     "minZoom": 0.1,
+    "focusAnimationDuration": 0.75,
+    "focusZoom": 1,
     color: "lightgreen",
     size: 500,
     highlightStrokeColor: "blue",
