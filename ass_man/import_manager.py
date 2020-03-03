@@ -34,7 +34,7 @@ def import_model_file(request):
             if row['network_ports']:
                 new_model.network_ports_num = row['network_ports']
             if row['power_ports']:
-                new_model.power_ports = row['power_ports']
+                new_model.power_ports = int(row['power_ports'])
             if row['memory']:
                 new_model.memory = row['memory']
             nps = []
@@ -83,7 +83,8 @@ def import_model_file(request):
             override = True
         if str(model.power_ports) != row['power_ports'] and (model.power_ports or row['power_ports']):
             if should_override:
-                model.power_ports = row['power_ports']
+                pp_num = int(row['power_ports']) if row['power_ports'] else None
+                model.power_ports = pp_num
                 should_update = True
             else:
                 key = model.vendor + model.model_number + "_power_ports"
