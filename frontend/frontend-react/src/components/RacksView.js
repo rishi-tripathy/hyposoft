@@ -174,7 +174,7 @@ export class RacksView extends Component {
       label={
         <Typography variant="subtitle1"> Show All</Typography>
       }
-    />    
+    />
 
     let condensed  = <FormControlLabel labelPlacement="left"
       control={
@@ -189,7 +189,7 @@ export class RacksView extends Component {
 
 
     console.log(this.props.rack)
-    
+
     if(this.props.rack == null || this.props.rack.length===0){
       empty = <h1>no racks</h1>;
       showAll = <p></p>;
@@ -214,7 +214,7 @@ export class RacksView extends Component {
               </div>
             </Grid>
             <Grid item justify="center" alignContent="center" xs={3}>
-            <div id="hideOnPrint">              
+            <div id="hideOnPrint">
               {condensed}
               </div>
             </Grid>
@@ -247,7 +247,7 @@ export class RacksView extends Component {
                     )
                     :
                     (<p></p>)}
-                </div> 
+                </div>
                 <Grid item justify="flex-start" alignContent='center' xs={12} p={2}>
                     <RackTable
                       sending={this.sendFromRow}

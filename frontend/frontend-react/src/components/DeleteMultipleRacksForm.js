@@ -22,7 +22,6 @@ export class DeleteMultipleRacksForm extends Component {
       datacenterOption: [],
       datacenterToIdMap: [],
       selectedDataCenterOption: null,
-      redirect: false,
     }
   }
 
@@ -37,15 +36,15 @@ export class DeleteMultipleRacksForm extends Component {
 
   loadDatacenters = () => {
     // DCs
-    let dst = '/api/datacenters/';
+    let dst = '/api/datacenters/?show_all=true';
     axios.get(dst).then(res => {
       let myOptions = [];
       let myIds = [];
       let myIdMap = [];
-      for(var i = 1; i < res.data.results.length; i++) {
-        myOptions.push(res.data.results[i].abbreviation);
-        myIds.push(res.data.results[i].id);
-        var obj = {id: res.data.results[i].id, datacenter: res.data.results[i].abbreviation};
+      for(var i = 0; i < res.data.length; i++) {
+        myOptions.push(res.data[i].abbreviation);
+        myIds.push(res.data[i].id);
+        var obj = {id: res.data[i].id, datacenter: res.data[i].abbreviation};
 
         myIdMap.push(obj);
       }

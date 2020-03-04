@@ -27,6 +27,7 @@ import AuditController from './components/AuditController.js'
 import LandingPage from './components/LandingPage'
 import EditUserForm from './components/EditUserForm'
 import { Button } from "@material-ui/core"
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 import DatacenterContext from './components/DatacenterContext';
 
@@ -45,28 +46,22 @@ class App extends React.Component {
       datacenter_name: 'ALL',
       datacenter_ab: 'ALL',
       setDatacenter: this.setDatacenter,
-      resetDatacenter: this.resetDatacenter,
       datacenterOptions: null,
       user_first: null,
       user_last: null,
       username: null,
       delay: false,
+      loading: true,
     }
   }
 
   setDatacenter  = (value, name, ab) =>  {
     // console.log("changing id to "+ value + " name: "+name);
-    this.setState({ 
+    this.setState({
       datacenter_id: value,
       datacenter_name: name,
       datacenter_ab: ab,
     });
-  }
-
-  resetDatacenter = () => {
-    // console.log('resetting dcs')
-    this.getDatacenters();
-    // console.log(this.state.datacenterOptions)
   }
 
   getDatacenters = () => {
@@ -88,10 +83,14 @@ class App extends React.Component {
 
       this.setState({
         datacenterOptions: d,
+        loading: false,
       });
     })
       .catch(function (error) {
         // TODO: handle error
+        this.setState({
+          loading: false,
+        })
         alert("Cannot load. Re-login.\n" + JSON.stringify(error.response, null, 2));
       })
   }
@@ -149,7 +148,7 @@ class App extends React.Component {
     axios.get('api/users/who_am_i/').then(res => {
       // console.log(res.data)
       if (res.data.current_user != '') {
-        this.setState({ 
+        this.setState({
           logged_in: true,
           user_first: res.data.first_name,
           user_last: res.data.last_name,
@@ -157,11 +156,14 @@ class App extends React.Component {
           is_admin: res.data.is_admin,
          });
         //  console.log('going to fill DCs')
-         this.resetDatacenter();
+         this.getDatacenters();
         }
     })
       .catch(error => {
         // console.log(error.response)
+        this.setState({
+          loading: false,
+        })
       });
   }
 
@@ -176,156 +178,170 @@ class App extends React.Component {
   render() {
 
     let content;
-
-    // console.log(!this.state.logged_in)
-    // console.log(this.setDatacenter.datacenterOptions===undefined)
-    // console.log(this.setDatacenter.datacenterOptions.length===0)
-
-    let no_render = !this.state.logged_in || this.setDatacenter.datacenterOptions===undefined;
-
-    // console.log(no_render)
     
-    if (!this.state.logged_in) {
-     content =         
-     <div id="contentContainer">
+  //   if (!this.state.logged_in) {
+  //    content =         
+  //    <div id="contentContainer">
+  //     <LandingPage />
+  //     <div id='login'>
+  //       <Button color='primary' onClick={this.handleOnClick}>
+  //         Log In!
+  //     </Button>
+  //     </div>
+  //   </div>;
+  // }
+  // console.log(this.state.delay)
+  if(!this.state.logged_in && !this.state.loading){
+    return(
+      <div id="contentContainer">
       <LandingPage />
       <div id='login'>
         <Button color='primary' onClick={this.handleOnClick}>
           Log In!
       </Button>
       </div>
-    </div>;
-  }
-  // console.log(this.state.delay)
-
-    return (
-      <DatacenterContext.Provider value={{...this.state, setDatacenter: this.setDatacenter, resetDatacenter: this.resetDatacenter}}>
-      <div>
-      { (this.state.delay  ? 
-      <p></p> :
-      (<center>{content}</center>))}
-      { this.state.datacenterOptions &&
-      <Router>
-        <NavBar />
-        <Switch>
-          <Route path='/' 
-          exact
-          render={(props) =>
-          <DatacenterController {...props}/>}/>
-
-          <Route
-            path='/racks'
-            exact
-            render={(props) => 
-            <RackController {...props}/>}/>
-
-          <Route
-            path='/datacenters'
-            exact
-            render={(props) => 
-            <DatacenterController {...props}/>}
-            />
-
-          <Route
-            path='/datacenters/create'
-            exact
-            render={(props) => <CreateDatacenterForm {...props} />}/>
-
-          <Route
-            path='/datacenters/:id/edit'
-            exact
-            render={(props) => <EditDatacenterForm {...props}/>}/>
-
-          <Route
-            path='/racks/create'
-            exact
-            render={(props) => <CreateRackForm {...props} />} />
-
-          <Route
-            path='/racks/:id/edit'
-            exact
-            render={(props) => <EditRackForm {...props}/>} />
-
-          <Route
-            path='/racks/delete'
-            exact
-            render={(props) => <DeleteMultipleRacksForm {...props} />} />
-
-
-          <Route
-            path='/models'
-            exact
-            render={(props) => <ModelController {...props} />} />
-
-          <Route
-            path='/models/create'
-            exact
-            render={(props) => <CreateModelForm {...props} />} />
-
-          <Route
-            path='/models/:id'
-            exact
-            render={(props) => <DetailedModel {...props} />} />
-
-          <Route
-            path='/models/:id/edit'
-            exact
-            render={(props) => <EditModelForm {...props} />} />
-
-          <Route
-            path='/assets'
-            exact
-            render={(props) => <InstanceController {...props} />} />
-
-          <Route
-            path='/assets/create'
-            exact
-            render={(props) => <CreateInstanceForm {...props} />} />
-
-          <Route
-            path='/assets/:id'
-            exact
-            render={(props) => <DetailedInstance {...props} />} />
-
-          <Route
-            path='/assets/:id/edit'
-            exact
-            render={(props) => <EditInstanceForm {...props} />} />
-
-          <Route
-            path='/users'
-            exact
-            render={(props) => <UserController {...props} />} />
-
-          <Route
-            path='/users/:id/edit'
-            exact
-            render={(props) => <EditUserForm {...props}/>} />
-
-          <Route
-            path='/users/create'
-            exact
-            render={(props) => <CreateUserForm {...props} />} />
-
-          <Route
-            path='/statistics'
-            render={(props) => <StatisticsController {...props} />} />
-
-          <Route
-            path='/log'
-            render={(props) => <AuditController {...props} />} />
-
-          <Route
-            path='/'
-            render={() => <div>404</div>} />
-
-        </Switch>
-
-      </Router>}
     </div>
-    </DatacenterContext.Provider>
-    )
+    );
   }
+  else {
+    if(this.state.loading){
+      return(
+        <center>
+          <CircularProgress size={100}/>
+        </center>
+      )
+    }
+    else {
+      return (
+        <DatacenterContext.Provider value={{...this.state, setDatacenter: this.setDatacenter }}>
+        <div>
+        {/* { (this.state.delay  ? 
+        <p></p> :
+        (content) )} */}
+        { this.state.datacenterOptions &&
+        <Router>
+          <NavBar />
+          <Switch>
+            <Route path='/' 
+            exact
+            render={(props) =>
+            <DatacenterController {...props}/>}/>
+
+            <Route
+              path='/racks'
+              exact
+              render={(props) => 
+              <RackController {...props}/>}/>
+
+            <Route
+              path='/datacenters'
+              exact
+              render={(props) => 
+              <DatacenterController {...props}/>}
+              />
+
+            <Route
+              path='/datacenters/create'
+              exact
+              render={(props) => <CreateDatacenterForm {...props} />}/>
+
+            <Route
+              path='/datacenters/:id/edit'
+              exact
+              render={(props) => <EditDatacenterForm {...props}/>}/>
+
+            <Route
+              path='/racks/create'
+              exact
+              render={(props) => <CreateRackForm {...props} />} />
+
+            <Route
+              path='/racks/:id/edit'
+              exact
+              render={(props) => <EditRackForm {...props}/>} />
+
+            <Route
+              path='/racks/delete'
+              exact
+              render={(props) => <DeleteMultipleRacksForm {...props} />} />
+
+
+            <Route
+              path='/models'
+              exact
+              render={(props) => <ModelController {...props} />} />
+
+            <Route
+              path='/models/create'
+              exact
+              render={(props) => <CreateModelForm {...props} />} />
+
+            <Route
+              path='/models/:id'
+              exact
+              render={(props) => <DetailedModel {...props} />} />
+
+            <Route
+              path='/models/:id/edit'
+              exact
+              render={(props) => <EditModelForm {...props} />} />
+
+            <Route
+              path='/assets'
+              exact
+              render={(props) => <InstanceController {...props} />} />
+
+            <Route
+              path='/assets/create'
+              exact
+              render={(props) => <CreateInstanceForm {...props} />} />
+
+            <Route
+              path='/assets/:id'
+              exact
+              render={(props) => <DetailedInstance {...props} />} />
+
+            <Route
+              path='/assets/:id/edit'
+              exact
+              render={(props) => <EditInstanceForm {...props} />} />
+
+            <Route
+              path='/users'
+              exact
+              render={(props) => <UserController {...props} />} />
+
+            <Route
+              path='/users/:id/edit'
+              exact
+              render={(props) => <EditUserForm {...props}/>} />
+
+            <Route
+              path='/users/create'
+              exact
+              render={(props) => <CreateUserForm {...props} />} />
+
+            <Route
+              path='/statistics'
+              render={(props) => <StatisticsController {...props} />} />
+
+            <Route
+              path='/log'
+              render={(props) => <AuditController {...props} />} />
+
+            <Route
+              path='/'
+              render={() => <div>404</div>} />
+
+          </Switch>
+
+        </Router>}
+      </div>
+      </DatacenterContext.Provider>
+      )
+    }
+  }
+}
 }
 
 export default App;

@@ -7,7 +7,7 @@ import EditInstanceForm from './EditInstanceForm';
 import {
   Grid, Button, Container, Paper,
   ButtonGroup, Switch, FormControlLabel,
-  Typography, Tooltip, IconButton
+  Typography, Tooltip, IconButton, CircularProgress
 } from "@material-ui/core"
 import CloudUploadIcon from "@material-ui/icons/CloudUpload";
 import SaveAltIcon from "@material-ui/icons/SaveAlt";
@@ -40,6 +40,7 @@ export class InstanceController extends Component {
       npFile: null,
       showingAll: false,
       datacenterID: null,
+      loading: true,
     };
 
   }
@@ -52,7 +53,7 @@ export class InstanceController extends Component {
     else {
       dst = '/api/assets/' + '?' + 'datacenter=' + this.state.datacenterID + '&' + this.state.filterQuery + '&' + this.state.sortQuery;
     }
-     
+
     console.log('QUERY')
     console.log(dst)
     axios.get(dst).then(res => {
@@ -61,10 +62,14 @@ export class InstanceController extends Component {
         assets: res.data.results,
         prevPage: res.data.previous,
         nextPage: res.data.next,
+        loading: false,
       });
     })
       .catch(function (error) {
         // TODO: handle error
+        this.setState({
+          loading: false,
+        })
         console.log(error.response)
         alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
       });
@@ -192,6 +197,8 @@ export class InstanceController extends Component {
     }
     this.fileUpload(this.state.file).then((response) => {
       alert("Import was successful." + JSON.stringify(response.data, null, 2));
+      this.setState({
+        rerender: true});
     })
       .catch(function (error) {
         console.log(error.response)
@@ -215,6 +222,8 @@ export class InstanceController extends Component {
             .catch(function (error) {
               console.log(error.response)
               alert('Import was not successful.\n' + JSON.stringify(error.response.data, null, 2));
+              this.setState({
+                rerender: true});
             });
         }
       });
@@ -339,6 +348,11 @@ export class InstanceController extends Component {
   }
 
   getAllInstances = () => {
+
+    this.setState({
+      loading: true,
+    })
+
     let filter = this.state.filterQuery;
     let sort = this.state.sortQuery;
 
@@ -360,13 +374,18 @@ export class InstanceController extends Component {
         assets: res.data,
         prevPage: null,
         nextPage: null,
+        loading: false,
       });
     })
       .catch(function (error) {
         // TODO: handle error
+        this.setState({
+          loading: false,
+        })
         console.log(error.response.data)
         alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
       });
+
   }
 
   fileUpload = (file) => {
@@ -381,22 +400,9 @@ export class InstanceController extends Component {
     }
     return post(url, formData, config)
   }
-
-  fileUpload = (file) => {
-    const url = '/api/assets/import_file/';
-    const formData = new FormData();
-    formData.append('file', file)
-    //formData.append('name', 'sup')
-    const config = {
-      headers: {
-        'content-type': 'multipart/form-data'
-      }
-    }
-    return post(url, formData, config)
-  }
-
 
   render() {
+    console.log('rerendering')
     let content = <InstanceTableMUI
       assets={this.state.assets}
       filter_query={this.getFilterQuery}
@@ -430,7 +436,7 @@ export class InstanceController extends Component {
     // let sorting = <InstanceSort sendSortQuery={ this.getSortQuery } />
     let exp = <Button variant="outlined" startIcon={<SaveAltIcon />} onClick={this.exportData}>Export Assets</Button>
 
-    let np_exp = <Button variant="outlined" startIcon={<SaveAltIcon />} onClick={this.exportNPData}>Export NetPorts</Button>
+    let np_exp = <Button variant="outlined" startIcon={<SaveAltIcon />} onClick={this.exportNPData}>Export Network Connections</Button>
 
     let showAll = <p></p>;
     if (this.state.prevPage != null || this.state.nextPage != null) {
@@ -471,7 +477,7 @@ export class InstanceController extends Component {
     let importNetworkConnections = this.context.is_admin ? (
       <>
         <Button variant="outlined" component="span" startIcon={<SettingsEthernetIcon />} onClick={this.handleNPImport}>
-          Import NetPorts
+          Import Network Connections
         </Button>
         <input
           accept="text/csv"
@@ -535,7 +541,7 @@ export class InstanceController extends Component {
               {paginateNavigation}
             </Grid>
             <Grid item xs={12}>
-              {content}
+            {this.state.loading ? <center><CircularProgress size={100} /></center> : content };
             </Grid>
           </Grid>
         </Container>

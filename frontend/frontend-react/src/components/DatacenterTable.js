@@ -21,7 +21,7 @@ axios.defaults.xsrfHeaderName = "X-CSRFToken";
 export class DatacenterTable extends Component {
     constructor() {
         super();
-    
+
         this.state = {
           dense: false,
         }
@@ -48,7 +48,7 @@ export class DatacenterTable extends Component {
               <Typography style={{flex: '1 1 20%'}} variant="h6" id="modelTableTitle">
                 Datacenters
               </Typography>
-            }    
+            }
           </Toolbar>
         );
       };
@@ -64,7 +64,7 @@ export class DatacenterTable extends Component {
             key={headCell.id}
             align={'center'}
             padding={'default'}
-    
+
           >
               {headCell.label.toUpperCase()}
           </TableCell>
@@ -115,7 +115,7 @@ export class DatacenterTable extends Component {
           )
         })
     }
-    
+
     render() {
     return (
         <div>

@@ -39,7 +39,7 @@ def import_model_file(request):
                 new_model.memory = row['memory']
             nps = []
             for i in range(1, int(row['network_ports']) + 1):
-                if i <= 3 and row['network_port_name_{}'.format(i)]:
+                if i <= 4 and row['network_port_name_{}'.format(i)]:
                     nps.append(row['network_port_name_{}'.format(i)])
                 else:
                     nps.append(str(i))
@@ -582,7 +582,7 @@ def import_asset_file(request):
     try:
         num = Asset_Number.objects.get(pk=1)
         num.next_avail = current_ass_num
-    except Assset_Nmber.DoesNotExist:
+    except Asset_Number.DoesNotExist:
         pass
     return Response({
         'Number of assets created': (len(assets_to_create)),
@@ -599,7 +599,7 @@ def assign_ass_num(curr):
             num = Asset_Number.objects.get(pk=1)
         except Asset_Number.DoesNotExist:
             num = Asset_Number.objects.create(next_avail=100000)
-    curr = num.next_avail
+        curr = num.next_avail
     try:
         while True:
             Asset.objects.get(asset_number=curr)

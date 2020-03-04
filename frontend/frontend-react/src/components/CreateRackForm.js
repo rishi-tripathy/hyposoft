@@ -37,15 +37,15 @@ export class CreateRackForm extends Component {
 
   loadDatacenters = () => {
     // DCs
-    let dst = '/api/datacenters/';
+    let dst = '/api/datacenters/?show_all=true';
     axios.get(dst).then(res => {
       let myOptions = [];
       let myIds = [];
       let myIdMap = [];
-      for(var i = 1; i < res.data.results.length; i++) {
-        myOptions.push(res.data.results[i].abbreviation);
-        myIds.push(res.data.results[i].id);
-        var obj = {id: res.data.results[i].id, datacenter: res.data.results[i].abbreviation};
+      for(var i = 0; i < res.data.length; i++) {
+        myOptions.push(res.data[i].abbreviation);
+        myIds.push(res.data[i].id);
+        var obj = {id: res.data[i].id, datacenter: res.data[i].abbreviation};
 
         myIdMap.push(obj);
       }
@@ -87,7 +87,7 @@ export class CreateRackForm extends Component {
 
     let start_rack = this.state.rack_num_start;
     let end_rack = this.state.rack_num_end;
-  
+
     let stateCopy = Object.assign({}, this.state);
     console.log(stateCopy);
 
@@ -138,7 +138,7 @@ export class CreateRackForm extends Component {
     // console.log(this.context.datacenter_ab)
 
     let defVal;
-    
+
     if(this.context.datacenter_id === -1){
       defVal = '';
     }
