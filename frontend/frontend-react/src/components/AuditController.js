@@ -16,6 +16,7 @@ import {Autocomplete} from "@material-ui/lab"
 import DatacenterNavbar from './DatacenterNavbar'
 import axios, {post} from 'axios'
 import AuditLog from './AuditLog'
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
@@ -28,7 +29,8 @@ export class AuditController extends Component {
       prevPage: null,
       nextPage: null,
       showingAll: null,
-      filterQuery: ""
+      filterQuery: "",
+      loading: true,
     };
   }
 
@@ -48,10 +50,14 @@ export class AuditController extends Component {
         logs: res.data.results,
         prevPage: res.data.previous,
         nextPage: res.data.next,
+        loading: false,
       });
     })
       .catch(function (error) {
         // TODO: handle error
+        this.setState({
+          loading: false,
+        })
         alert("Cannot load. Re-login.\n" + JSON.stringify(error.response, null, 2));
       });
   }
@@ -96,6 +102,9 @@ export class AuditController extends Component {
   }
 
   getAllLogs = () => {
+    this.setState({
+      loading: true,
+    })
     let filter = this.state.filterQuery;
 
     if (this.state.filterQuery.length !== 0) {
@@ -112,10 +121,14 @@ export class AuditController extends Component {
         logs: res.data,
         prevPage: null,
         nextPage: null,
+        loading: false,
       });
     })
       .catch(function (error) {
         // TODO: handle error
+        this.setState({
+          loading: false,
+        })
         console.log(error.response.data)
         alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
       });
@@ -130,7 +143,7 @@ export class AuditController extends Component {
 
   componentDidUpdate(prevProps, prevState) {
     var delay = 50;
-    console.log('in update')
+    // console.log('in update')
      // Once filter changes, rerender
     if (prevState.filterQuery !== this.state.filterQuery) {
       setTimeout(() => {
@@ -189,7 +202,15 @@ export class AuditController extends Component {
             {paginateNavigation}
           </Grid>
           <Grid item xs={12}>
-            {this.state.logs ? <AuditLog sendToTopLevel={this.getFilterQuery} log={this.state.logs}/> : <p></p>}
+            
+            {this.state.loading ?
+              <center>
+                <CircularProgress size={100}/>
+              </center> 
+            : 
+              <AuditLog sendToTopLevel={this.getFilterQuery} log={this.state.logs}/>
+            }
+            
           </Grid>
         </Grid>
       </Container>

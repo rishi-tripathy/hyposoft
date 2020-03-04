@@ -7,7 +7,7 @@ import EditInstanceForm from './EditInstanceForm';
 import {
   Grid, Button, Container, Paper,
   ButtonGroup, Switch, FormControlLabel,
-  Typography, Tooltip, IconButton
+  Typography, Tooltip, IconButton, CircularProgress
 } from "@material-ui/core"
 import CloudUploadIcon from "@material-ui/icons/CloudUpload";
 import SaveAltIcon from "@material-ui/icons/SaveAlt";
@@ -40,6 +40,7 @@ export class InstanceController extends Component {
       npFile: null,
       showingAll: false,
       datacenterID: null,
+      loading: true,
     };
 
   }
@@ -61,10 +62,14 @@ export class InstanceController extends Component {
         assets: res.data.results,
         prevPage: res.data.previous,
         nextPage: res.data.next,
+        loading: false,
       });
     })
       .catch(function (error) {
         // TODO: handle error
+        this.setState({
+          loading: false,
+        })
         console.log(error.response)
         alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
       });
@@ -343,6 +348,11 @@ export class InstanceController extends Component {
   }
 
   getAllInstances = () => {
+
+    this.setState({
+      loading: true,
+    })
+
     let filter = this.state.filterQuery;
     let sort = this.state.sortQuery;
 
@@ -364,10 +374,14 @@ export class InstanceController extends Component {
         assets: res.data,
         prevPage: null,
         nextPage: null,
+        loading: false,
       });
     })
       .catch(function (error) {
         // TODO: handle error
+        this.setState({
+          loading: false,
+        })
         console.log(error.response.data)
         alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
       });
@@ -527,7 +541,7 @@ export class InstanceController extends Component {
               {paginateNavigation}
             </Grid>
             <Grid item xs={12}>
-              {content}
+            {this.state.loading ? <center><CircularProgress size={100} /></center> : content };
             </Grid>
           </Grid>
         </Container>
