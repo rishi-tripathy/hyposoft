@@ -4,9 +4,9 @@ import RackFilters from './RackFilters'
 import PrintIcon from '@material-ui/icons/Print';
 import FilterListIcon from '@material-ui/icons/FilterList';
 import axios from 'axios'
-import '../stylesheets/Printing.css'
+// import '../stylesheets/Printing.css'
 import '../stylesheets/RackTable.css'
-import '../stylesheets/RacksView.css'
+// import '../stylesheets/RacksView.css'
 import {UncontrolledCollapse, CardBody, Card} from 'reactstrap';
 import {
   Grid, Button, Container, Paper, ButtonGroup, Switch, FormControlLabel, Typography

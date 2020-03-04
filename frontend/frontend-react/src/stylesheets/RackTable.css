@@ -1,9 +1,22 @@
 @media print{
+
+  #hideOnPrint {
+    display: none;
+  }
+  body {
+    margin: 0;
+    -webkit-print-color-adjust: exact !important;
+    overflow: visible !important;
+  }
+  #header{
+    display: none;
+  }
+
   #entries1 td, #entries1 th {
     max-height: 3px;
     width:auto;
     padding: 2px; 
-
+    overflow: visible !important;
   }
 
   #title {
@@ -14,7 +27,7 @@
 
   #entries1 {
     text-align: center;
-    font-size: 12;
+    font-size: 7px !important;
     font-family: "Open Sans", Arial, Helvetica, sans-serif;
     border-collapse: collapse;
     float: left;
@@ -22,24 +35,19 @@
   }
  
 #entries1 td:nth-child(odd){
-  font-size: 12;
   background-color: black;
   color: white;
-  font-size: 5px;
+  font-size: 7px !important;
   border: 1px solid black;
-}
-
-#modelText {
-  float: left;
-}
-
-#nameText {
-  float: right;
 }
 
 #entries1 td { 
   background: whitesmoke;
-  font-size: 12;
+  font-size: 7px !important;
+}
+
+#entries1 td {
+  font-size: 7px !important;
 }
 
 #entries1 tr:hover {background-color: #ddd;}
@@ -48,7 +56,7 @@
   text-align: center !important;
   background-color: black;
   color: white;
-  font-size: small;
+  font-size: 7px !important;
   border: 1px solid black;
 }
 
@@ -57,6 +65,10 @@
   color: black;
 }
 }
+
+
+/* not print here */
+
 #entries1 td, #entries1 th {
   max-height: 1px !important; 
   width:auto;
@@ -107,7 +119,7 @@ border: 1px solid black;
 #entries1 td:nth-child(even){
 width:200px;
 color: black;
-font-size: 5px;
+font-size: 7px;
 }
 
 #whitelink {
@@ -119,3 +131,7 @@ font-size: 5px;
 #link {
   color: black;
 }
+@page { 
+  margin: 0;
+  size: landscape;
+ }

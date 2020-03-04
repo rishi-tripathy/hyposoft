@@ -1,6 +1,6 @@
 import React, {Component} from 'react'
 import '../stylesheets/RackTable.css'
-import '../stylesheets/Printing.css'
+// import '../stylesheets/Printing.css'
 import {Link} from 'react-router-dom'
 
 export class RackRow extends Component {

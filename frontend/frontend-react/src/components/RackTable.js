@@ -1,7 +1,7 @@
 import React, {Component} from 'react'
 import '../stylesheets/RackTable.css'
-import '../stylesheets/RacksView.css'
-import '../stylesheets/Printing.css'
+// import '../stylesheets/RacksView.css'
+// import '../stylesheets/Printing.css'
 import RackRow from './RackRow'
 import axios from 'axios'
 
