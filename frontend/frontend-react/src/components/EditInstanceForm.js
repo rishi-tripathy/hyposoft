@@ -469,6 +469,7 @@ export class EditInstanceForm extends Component {
           <Grid item alignContent='center' xs={4}>
             <NetworkPortConnectionDialog
               indexOfThisNPConfig={i}
+              dcID={this.state.selectedDatacenterOption ? this.state.selectedDatacenterOption.id : null}
               connectedPortID={this.state.connectedNPs[i] ? this.state.connectedNPs[i].connectedPortID : null}
               connectedPortName={this.state.connectedNPs[i] ? this.state.connectedNPs[i].connectedPortName : null}
               connectedAssetHostname={this.state.connectedNPs[i] ? this.state.connectedNPs[i].connectedAssetHostname : null}

@@ -349,6 +349,7 @@ export class CreateInstanceForm extends Component {
           <Grid item alignContent='center' xs={4}>
             <NetworkPortConnectionDialog
               indexOfThisNPConfig={i}
+              dcID={this.state.selectedDatacenterOption ? this.state.selectedDatacenterOption.id : null}
               sendNetworkPortConnectionID={this.getNetworkPortConnectionID} />
           </Grid>
         </ListItem>
