@@ -2,7 +2,10 @@ import React, { Component } from 'react'
 import axios from 'axios'
 import InstanceCard from './InstanceCard';
 import {
-  Typography, Paper, IconButton, Tooltip, Container, Grid
+  Typography, Paper, IconButton, 
+  Tooltip, Container, Grid,
+  Table, TableRow, TableCell, TableContainer,
+  TableBody,
 } from "@material-ui/core";
 import PageviewIcon from '@material-ui/icons/Pageview';
 import { Link } from 'react-router-dom'
@@ -76,6 +79,45 @@ export class DetailedInstance extends Component {
 
   }
 
+  renderPPConnectionTableData = () => {
+    if (this.state.asset && this.state.asset.power_ports) {
+      return this.state.asset.power_ports.map((pp) => {
+        return (
+          <TableRow
+          hover
+          tabIndex={-1}
+          key={pp.id}
+        >
+          <TableCell align="center">{pp ? (pp.pdu ? pp.pdu.name : null) : null }</TableCell>
+          <TableCell align="center">{pp ? pp.port_number : null} </TableCell>
+          
+        </TableRow>
+        )
+      })
+    }
+    else {
+      return <div><p></p></div>
+    }
+  }
+
+  renderPPConnectionTableHeader() {
+    let headCells = [
+      { id: 'pdu_name', label: 'PDU Name' },
+      { id: 'port_number', label: 'Port Number' }
+    ];
+    return headCells.map(headCell => (
+      <TableCell
+        key={headCell.id}
+        align={'center'}
+        padding={'default'}
+
+      >
+        {headCell.label.toUpperCase()}
+      </TableCell>
+    ))
+
+  }
+
   render() {
     console.log(this.context)
     const regex = /[a-e][0-1]?[0-9]$/
@@ -97,22 +139,33 @@ export class DetailedInstance extends Component {
             </Grid>
             <Grid item alignContent='center' xs={12} />
             <Grid item alignContent='center' xs={12} />
-            <Grid item justify="flex-start" alignContent='center' xs={10}>
-              {/* <Typography variant="h6">
-                Model for this Asset
+
+
+
+            <Grid item xs={6}>
+              <Typography variant="h4" gutterBottom>
+                Connected Power Ports
               </Typography>
-              {model ? (
-                <div>
-                  <Link to={'/models/' + model.id}>
-                    <Tooltip title='View Model Details'>
-                      <IconButton size="sm">
-                        <PageviewIcon />
-                      </IconButton>
-                    </Tooltip>
-                  </Link>
-                </div>
-              ) : <p></p>} */}
+
+              <TableContainer>
+                <Table
+                  size="small"
+                  aria-labelledby="instanceTableTitle"
+                  aria-label="instanceTable"
+                >
+                  <TableRow>{this.renderPPConnectionTableHeader()}</TableRow>
+
+                  <TableBody>
+                    {this.renderPPConnectionTableData()}
+                  </TableBody>
+                </Table>
+              </TableContainer>
             </Grid>
+
+            <Grid item xs={6}>
+
+            </Grid>
+
 
             <Grid item xs={6}>
               <Typography variant="h4" gutterBottom>
@@ -124,7 +177,7 @@ export class DetailedInstance extends Component {
               {
                 this.state.asset.datacenter
                   && this.state.asset.rack
-                  && (this.state.asset.owner && (this.context.username === this.state.asset.owner) || this.context.username === 'admin' || ! this.state.asset.owner)
+                  && (this.state.asset.owner && (this.context.username === this.state.asset.owner) || this.context.username === 'admin' || !this.state.asset.owner)
                   && this.state.asset.datacenter.abbreviation.toLowerCase() === 'rtp1'
                   && regex.test(this.state.asset.rack.rack_number.toLowerCase())
 

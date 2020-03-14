@@ -161,6 +161,11 @@ class AssetViewSet(viewsets.ModelViewSet):
 
             try:
                 pp = asset.power_port_set.get(id=i['id'])
+                if not pdu or not port_num_a:
+                    pp.pdu = None
+                    pp.port_number = None
+                    pp.save()
+                    continue
                 if (pp.pdu != pdu or pp.port_number != port_num):
                     pp.pdu = pdu
                     pp.port_number = port_num
@@ -485,8 +490,8 @@ class AssetViewSet(viewsets.ModelViewSet):
         pdu_l_name = asset.rack.pdu_l.name
         pdu_r_name = asset.rack.pdu_r.name
         try:
-            assert re.match("hpdu-rtp1-[a-e][0-1][0-9]l", pdu_l_name.lower())
-            assert re.match("hpdu-rtp1-[a-e][0-1][0-9]r", pdu_r_name.lower())
+            assert re.match("hpdu-rtp1-[A-E][0-1][0-9]L", pdu_l_name)
+            assert re.match("hpdu-rtp1-[A-E][0-1][0-9]R", pdu_r_name)
         except AssertionError:
             return Response({
                 "status": "Failed to get PDU port data because this asset is not connected to a networked PDU."
@@ -511,13 +516,13 @@ class AssetViewSet(viewsets.ModelViewSet):
         statuses = []
 
         for pp in asset.power_port_set.all():
-            regex = rf">{pp.port_number}<td><span style='background-color:\#[0-9a-f]*'>([A-Z]+)"
             try:
                 name = pp.pdu.name
                 num = pp.port_number
             except AttributeError:
                 statuses.append("DISCONNECTED")
                 continue
+            regex = rf">{pp.port_number}\s*<td><span style='background-color:\#[0-9a-f]*'>([A-Z]+)"
             if pp.pdu.name == pdu_l_name:
                 s = re.search(regex, left_html)
                 if s:
