@@ -4,7 +4,7 @@ import clsx from 'clsx';
 import { lighten, makeStyles } from '@material-ui/core/styles';
 import {
   Collapse, Table, TableBody, Button, TableCell, TableContainer, TableRow, Toolbar,
-  Typography, Paper, IconButton, Tooltip, TableSortLabel
+  Typography, Paper, IconButton, Tooltip, TableSortLabel, Checkbox
 } from "@material-ui/core";
 import PageviewIcon from '@material-ui/icons/Pageview';
 import EditIcon from '@material-ui/icons/Edit';
@@ -40,7 +40,13 @@ export class InstanceTableMUI extends Component {
       //   'memory': 'none',
       //   'storage': 'none'
       // },
-      sortingStates: ['asc', 'desc']
+      sortingStates: ['asc', 'desc'],
+
+      // for checkboxes
+      selected: [], // list of IDs
+
+
+
     }
   }
 
@@ -165,6 +171,13 @@ export class InstanceTableMUI extends Component {
           tabIndex={-1}
           key={id}
         >
+          <TableCell padding="checkbox">
+            <Checkbox
+              checked={this.state.selected.includes(id)}
+              onChange={(e) => this.onSelectCheckboxClick(id, e) }
+              inputProps={{ 'aria-labelledby': id }}
+            />
+          </TableCell>
           <TableCell align="center">{rack ? rack.rack_number : null}</TableCell>
           <TableCell align="center">{rack_u}</TableCell>
           <TableCell align="center">{model ? model.vendor : null}</TableCell>
@@ -212,6 +225,41 @@ export class InstanceTableMUI extends Component {
     })
   }
 
+  onSelectAllCheckboxClick = () => {
+    console.log('select all')
+
+    if (this.state.selected.length === this.props.assets.length) {
+      this.setState({ selected: [] })
+      return
+    }
+
+    let arrayOfIDs = []
+    this.props.assets.map((asset) => {
+      const { id } = asset //destructuring
+      arrayOfIDs.push(id)
+    })
+    this.setState({ selected: arrayOfIDs })
+    console.log(this.state.selected)
+  }
+
+  onSelectCheckboxClick = (id) => {
+    console.log(this.state.selected)
+    console.log('clicked on ' + id)
+
+    let selectedArrayCopy = Object.assign([], this.state.selected)
+    const idx = selectedArrayCopy.indexOf(id)
+    if (idx > -1) {
+      selectedArrayCopy.splice(idx, 1) //remove one element at index 
+    }
+    else {
+      selectedArrayCopy.push(id)
+    }
+
+    this.setState({
+      selected: selectedArrayCopy
+    })
+  }
+
 
   render() {
     return (
@@ -224,7 +272,17 @@ export class InstanceTableMUI extends Component {
               aria-labelledby="instanceTableTitle"
               aria-label="instanceTable"
             >
-              <TableRow>{this.renderTableHeader()}</TableRow>
+              <TableRow>
+                <TableCell padding="checkbox">
+                  <Checkbox
+                    //indeterminate={numSelected > 0 && numSelected < rowCount}
+                    checked={this.state.selected.length === this.props.assets.length}
+                    onChange={this.onSelectAllCheckboxClick}
+                    inputProps={{ 'aria-label': 'select all desserts' }}
+                  />
+                </TableCell>
+                {this.renderTableHeader()}
+              </TableRow>
 
               <TableBody>
                 {this.renderTableData()}
