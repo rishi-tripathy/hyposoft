@@ -5,6 +5,7 @@ import {
   Typography, Tooltip, IconButton, CircularProgress
 } from "@material-ui/core"
 import axios from 'axios'
+import DecommissionedTable from './DecommissionedTable'
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
@@ -59,8 +60,8 @@ export class DecommissionedController extends Component {
   }
 
   render() {
-    //console.log(JSON.stringify(this.state.decommissionedAssets, null, 2))
-    let content = <InstanceTableMUI
+    console.log(JSON.stringify(this.state.decommissionedAssets, null, 2))
+    let content = <DecommissionedTable
       assets={this.state.assets}
       // filter_query={this.getFilterQuery}
       // sendSortQuery={this.getSortQuery}
