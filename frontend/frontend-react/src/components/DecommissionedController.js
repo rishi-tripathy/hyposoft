@@ -59,14 +59,44 @@ export class DecommissionedController extends Component {
       });
   }
 
+  paginateNext = () => {
+    axios.get(this.state.nextPage).then(res => {
+      this.setState({
+        assets: res.data.results,
+        prevPage: res.data.previous,
+        nextPage: res.data.next,
+      });
+    })
+      .catch(function (error) {
+        // TODO: handle error
+        console.log(error.response)
+        alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+      });
+  }
+
+  paginatePrev = () => {
+    axios.get(this.state.prevPage).then(res => {
+      this.setState({
+        assets: res.data.results,
+        prevPage: res.data.previous,
+        nextPage: res.data.next,
+      });
+    })
+      .catch(function (error) {
+        // TODO: handle error
+        console.log(error.response)
+        alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+      });
+  }
+
   render() {
     console.log(JSON.stringify(this.state.decommissionedAssets, null, 2))
     let content = <DecommissionedTable
-      assets={this.state.assets}
-      // filter_query={this.getFilterQuery}
-      // sendSortQuery={this.getSortQuery}
-      // sendRerender={this.getRerender}
-      />;
+      assets={this.state.decommissionedAssets}
+    // filter_query={this.getFilterQuery}
+    // sendSortQuery={this.getSortQuery}
+    // sendRerender={this.getRerender}
+    />;
 
 
     let showAll = <p></p>;
@@ -80,9 +110,33 @@ export class DecommissionedController extends Component {
         }
       />
     }
+
+    let paginateNavigation = <p></p>;
+    if (this.state.prevPage == null && this.state.nextPage != null) {
+      paginateNavigation =
+
+        <ButtonGroup>
+          <Button color="primary" disabled onClick={this.paginatePrev}>prev page
+          </Button>{"  "}<Button color="primary" onClick={this.paginateNext}>next page</Button>
+        </ButtonGroup>
+    } else if (this.state.prevPage != null && this.state.nextPage == null) {
+      paginateNavigation =
+        <ButtonGroup>
+          <Button color="primary" onClick={this.paginatePrev}>prev page
+          </Button>{"  "}<Button color="primary" disabled onClick={this.paginateNext}>next page</Button>
+        </ButtonGroup>
+    } else if (this.state.prevPage != null && this.state.nextPage != null) {
+      paginateNavigation =
+        <ButtonGroup>
+          <Button color="primary" onClick={this.paginatePrev}>prev page
+          </Button>{"  "}<Button color="primary" onClick={this.paginateNext}>next page</Button>
+        </ButtonGroup>
+    }
+
+
     return (
       <div>
-        {/* <Container maxwidth="xl">
+        <Container maxwidth="xl">
           <Grid container className="themed-container" spacing={2}>
             <Grid item justify="flex-start" alignContent='center' xs={12} />
             <Grid item xs={12}>
@@ -97,10 +151,10 @@ export class DecommissionedController extends Component {
               {paginateNavigation}
             </Grid>
             <Grid item xs={12}>
-              {this.state.loading ? <center><CircularProgress size={100} /></center> : content};
+              {this.state.loading ? <center><CircularProgress size={100} /></center> : content}
             </Grid>
           </Grid>
-        </Container> */}
+        </Container>
       </div>
     )
   }

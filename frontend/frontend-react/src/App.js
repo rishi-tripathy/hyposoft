@@ -31,6 +31,7 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 
 import DatacenterContext from './components/DatacenterContext';
 import DecommissionedController from './components/DecommissionedController';
+import DetailedDecommissionedAsset from './DetailedDecommissionedAsset';
 
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
@@ -333,6 +334,11 @@ class App extends React.Component {
                     <Route
                       path='/decommissioned'
                       render={(props) => <DecommissionedController {...props} />} />
+                    
+                    <Route
+                      path='/decommissioned/:id'
+                      exact
+                      render={(props) => <DetailedDecommissionedAsset {...props} />} />
 
                     <Route
                       path='/'
