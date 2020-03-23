@@ -51,7 +51,7 @@ export class CreateModelForm extends Component {
     })
       .catch(function (error) {
         // TODO: handle error
-        alert('Could not load model vendors. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+        alert(JSON.stringify(error.response.data, null, 2));
       });
   }
 
@@ -110,13 +110,24 @@ export class CreateModelForm extends Component {
 
       })
       .catch(function (error) {
-        alert('Creation was not successful.\n' + JSON.stringify(error.response.data, null, 2));
+        let errorMessage = 'Creation was not successful. See details below.\n';
+        let errors = Object.values(error.response.data);
+        let errorKeys = Object.keys(error.response.data);
+        console.log(errors)
+        for(var i = 0; i < errors.length; i ++){
+          console.log(errorKeys[i])
+          console.log(errors[i])
+          errorMessage = errorMessage + " " + errorKeys[i] + ": " + errors[i] + '\n';
+        }
+        alert(errorMessage);
+        //alert('Creation was not successful.\n' + JSON.stringify(error.response.data, null, 2));
       });
   };
 
   handleChangeVendor = (event, selectedVendorOption) => {
     this.setState({selectedVendorOption});
   };
+
 
   handleChangeNP = (e) => {
     this.setState({
