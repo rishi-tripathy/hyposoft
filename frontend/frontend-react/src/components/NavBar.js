@@ -82,6 +82,10 @@ export class NavBar extends Component{
               <Tab label='Audit Log'/>
             </NavLink>
 
+            <NavLink style={{color: 'white'}} activeStyle={{color: '#dc004e'}} to='/changeplans'>
+              <Tab label='Change Plans'/>
+            </NavLink>
+
           </Tabs>
         </AppBar>
       </div>

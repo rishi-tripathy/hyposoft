@@ -26,6 +26,8 @@ import EditDatacenterForm from './components/EditDatacenterForm'
 import AuditController from './components/AuditController.js'
 import LandingPage from './components/LandingPage'
 import EditUserForm from './components/EditUserForm'
+import ChangePlanController from './components/ChangePlanController'
+import CreateChangePlan from './components/CreateChangePlan'
 import { Button } from "@material-ui/core"
 import CircularProgress from '@material-ui/core/CircularProgress';
 
@@ -328,6 +330,14 @@ class App extends React.Component {
             <Route
               path='/log'
               render={(props) => <AuditController {...props} />} />
+
+            <Route
+              path='/changeplans'
+              render={(props) => <ChangePlanController {...props} />} />
+ 
+            <Route
+              path='/changeplans/create'
+              render={(props) => <CreateChangePlan {...props} />} />
 
             <Route
               path='/'
