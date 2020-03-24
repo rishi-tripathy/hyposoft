@@ -45,10 +45,27 @@ export class InstanceTableMUI extends Component {
 
       // for checkboxes
       selected: [], // list of IDs
-
+      allAssetIDs: [],
 
 
     }
+  }
+
+  loadAllAssetIDs = () => {
+    let dst = '/api/assets/all_ids/';
+    axios.get(dst).then(res => {
+      this.setState({
+        allAssetIDs: res.data.ids
+      });
+    })
+      .catch(function (error) {
+        // TODO: handle error
+        alert('Cannot load assets. Re-login.\n' + JSON.stringify(error.response, null, 2));
+      });
+  }
+
+  componentDidMount() {
+    this.loadAllAssetIDs();
   }
 
   showDeleteForm = (id) => {
@@ -253,17 +270,14 @@ export class InstanceTableMUI extends Component {
   onSelectAllCheckboxClick = () => {
     console.log('select all')
 
-    if (this.state.selected.length === this.props.assets.length) {
+    if (this.state.selected.length === this.state.allAssetIDs.length) {
       this.setState({ selected: [] })
-      return
     }
-
-    let arrayOfIDs = []
-    this.props.assets.map((asset) => {
-      const { id } = asset //destructuring
-      arrayOfIDs.push(id)
-    })
-    this.setState({ selected: arrayOfIDs })
+    else {
+      console.log(this.state.allAssetIDs)
+      let allIDs = Object.assign([], this.state.allAssetIDs)
+      this.setState({ selected: allIDs })
+    }
     console.log(this.state.selected)
   }
 
@@ -301,7 +315,7 @@ export class InstanceTableMUI extends Component {
                 <TableCell padding="checkbox">
                   <Checkbox
                     //indeterminate={numSelected > 0 && numSelected < rowCount}
-                    checked={this.state.selected.length === this.props.assets.length}
+                    checked={this.state.selected.length === this.state.allAssetIDs.length}
                     onChange={this.onSelectAllCheckboxClick}
                     inputProps={{ 'aria-label': 'select all desserts' }}
                   />
