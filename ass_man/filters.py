@@ -1,6 +1,6 @@
 from rest_framework import generics
 from django_filters import rest_framework as filters
-from ass_man.models import Model, Asset, Rack
+from ass_man.models import Model, Asset, Rack, Decommissioned
 from rest_framework import filters as rest_filters
 from django.db.models.fields import IntegerField
 from django.db.models.functions import Substr, Cast, Length
@@ -9,6 +9,14 @@ import django.db.models as models
 from rest_framework.validators import ValidationError
 from rest_framework.response import Response
 
+
+class DecommissionedFilter(filters.FilterSet):
+    username = filters.CharFilter(field_name='username', lookup_expr='icontains')
+    timestamp = filters.DateTimeFromToRangeFilter(field_name='timestamp', lookup_expr='range')
+
+    class Meta:
+        model = Decommissioned
+        fields = ['username', 'timestamp']
 
 class ModelFilter(filters.FilterSet):
     vendor = filters.CharFilter(field_name='vendor', lookup_expr='icontains')
