@@ -4,4 +4,4 @@ from rest_framework import serializers
 class DecommissionedSerializer(serializers.ModelSerializer):
     class Meta:
         model = Decommissioned
-        fields = ['username', 'timestamp', 'asset_state', 'network_graph']
+        fields = ['id', 'username', 'timestamp', 'asset_state', 'network_graph']
