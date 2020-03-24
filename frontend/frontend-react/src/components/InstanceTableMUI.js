@@ -3,13 +3,14 @@ import PropTypes from 'prop-types';
 import clsx from 'clsx';
 import { lighten, makeStyles } from '@material-ui/core/styles';
 import {
-  Collapse, Table, TableBody, Button, TableCell, TableContainer, TableRow, Toolbar,
+  Collapse, Table, TableBody, Button, TableCell, TableContainer, TableRow, Toolbar, Grid,
   Typography, Paper, IconButton, Tooltip, TableSortLabel, Checkbox
 } from "@material-ui/core";
 import PageviewIcon from '@material-ui/icons/Pageview';
 import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
 import FilterListIcon from '@material-ui/icons/FilterList';
+import LocalOfferIcon from '@material-ui/icons/LocalOffer';
 import InstanceFilters from './InstanceFilters';
 import '../stylesheets/TableView.css'
 import axios, { post } from 'axios'
@@ -99,9 +100,35 @@ export class InstanceTableMUI extends Component {
     return (
       <Toolbar>
         {
-          <Typography style={{ flex: '1 1 20%' }} variant="h6" id="instanceTableTitle">
-            Assets
-          </Typography>
+          this.state.selected.length === 0 ? (
+            <Typography variant="h6" id="instanceTableTitle">
+              Assets
+            </Typography>
+          ) : (
+              <div>
+                <Grid container spacing={2}>
+                  <Grid item xs={2}>
+                    <Typography variant="subtitle1" >
+                      {this.state.selected.length}
+                    </Typography>
+                  </Grid>
+
+                  <Grid item xs={8}>
+                    <Typography variant="subtitle1" >
+                      selected
+                  </Typography>
+                  </Grid>
+
+                  <Grid item xs={2}>
+                    <Tooltip title='Make Asset Tags'>
+                      <IconButton size="sm">
+                        <LocalOfferIcon />
+                      </IconButton>
+                    </Tooltip>
+                  </Grid>
+                </Grid>
+              </div>
+            )
         }
         <Collapse in={this.state.filtersOpen}>
           <Paper>
@@ -115,8 +142,6 @@ export class InstanceTableMUI extends Component {
             Filter
           </Button>
         </Tooltip>
-
-
       </Toolbar>
     );
   };
@@ -174,7 +199,7 @@ export class InstanceTableMUI extends Component {
           <TableCell padding="checkbox">
             <Checkbox
               checked={this.state.selected.includes(id)}
-              onChange={(e) => this.onSelectCheckboxClick(id, e) }
+              onChange={(e) => this.onSelectCheckboxClick(id, e)}
               inputProps={{ 'aria-labelledby': id }}
             />
           </TableCell>
