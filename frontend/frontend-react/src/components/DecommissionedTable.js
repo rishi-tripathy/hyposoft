@@ -3,6 +3,8 @@ import {
   Collapse, Table, TableBody, Button, TableCell, TableContainer, TableRow, Toolbar,
   Typography, Paper, IconButton, Tooltip, TableSortLabel
 } from "@material-ui/core";
+import PageviewIcon from '@material-ui/icons/Pageview';
+import { Link } from 'react-router-dom'
 
 export class DecommissionedTable extends Component {
 
@@ -77,6 +79,8 @@ export class DecommissionedTable extends Component {
   renderTableHeader() {
     //These now come from sorting fields
     let headCells = [
+      { id: 'timestamp', label: 'Timestamp' },
+      { id: 'user', label: 'Decommissioned by' },
       { id: 'rack__rack_number', label: 'Rack' },
       { id: 'rack_u', label: 'Rack U' },
       { id: 'model__vendor', label: 'Vendor' },
@@ -115,15 +119,17 @@ export class DecommissionedTable extends Component {
     )
     return this.props.assets.map((asset) => {
       //console.log(asset)
-      const { id, asset_state } = asset //destructuring
+      const { asset_state, username, timestamp } = asset //destructuring
       //console.log(network_ports)
 
       return (
         <TableRow
           hover
           tabIndex={-1}
-          key={id}
+          key={asset_state.id}
         >
+          <TableCell align="center">{timestamp}</TableCell>
+          <TableCell align="center">{username}</TableCell>
           <TableCell align="center">{asset_state.rack.rack_number}</TableCell>
           <TableCell align="center">{asset_state.rack_u}</TableCell>
           <TableCell align="center">{asset_state.model.vendor}</TableCell>
@@ -136,13 +142,13 @@ export class DecommissionedTable extends Component {
           <TableCell align="center">{asset_state.asset_number}</TableCell>
           <div>
             <TableCell align="right">
-              {/* <Link to={'/assets/' + id}>
+              <Link to={'/decommissioned/' + asset_state.id}>
                 <Tooltip title='View Details'>
                   <IconButton size="sm">
                     <PageviewIcon />
                   </IconButton>
                 </Tooltip>
-              </Link> */}
+              </Link>
             </TableCell>
           </div>
         </TableRow>
