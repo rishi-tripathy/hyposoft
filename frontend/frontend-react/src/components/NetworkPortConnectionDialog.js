@@ -6,6 +6,7 @@ import {
 } from "@material-ui/core";
 import { Autocomplete } from "@material-ui/lab"
 import axios from 'axios'
+import { configure } from '@testing-library/react';
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
@@ -14,41 +15,35 @@ export class NetworkPortConnectionDialog extends Component {
   constructor() {
     super();
     this.state = {
-      datacenters: [],
-      racks: [],
+
       assets: [],
       networkPorts: [],
-      selectedDatacenterOption: null,
-      selectedRackOption: null,
+
       selectedAssetOption: null,
       selectedNetworkPortOption: null,
 
-      open: false
+      datacenterID: null,
+
+      open: false,
+      configured: false,
     }
   }
 
   componentDidMount() {
-    this.loadDatacenters();
+    this.setState({ datacenterID: this.props.dcID })
+    //this.loadAssets();
   }
 
   componentDidUpdate(prevProps, prevState) {
 
-    if (this.state.selectedDatacenterOption != prevState.selectedDatacenterOption) {
-      if (this.state.selectedDatacenterOption) {
-        this.loadRacks();
-      }
-      else {
-        this.setState({ racks: [], selectedRackOption: null });
-      }
+    if (this.props.dcID !== prevProps.dcID) {
+      this.setState({ datacenterID: this.props.dcID })
     }
-    if (this.state.selectedRackOption != prevState.selectedRackOption) {
-      if (this.state.selectedRackOption) {
-        this.loadAssets();
-      }
-      else {
-        this.setState({ assets: [], selectedAssetOption: null });
-      }
+
+    if (this.state.datacenterID !== prevState.datacenterID && this.state.datacenterID) {
+      this.loadAssets();
     }
+
     if (this.state.selectedAssetOption != prevState.selectedAssetOption) {
       if (this.state.selectedAssetOption) {
         this.loadNetworkPorts();
@@ -58,40 +53,17 @@ export class NetworkPortConnectionDialog extends Component {
       }
     }
 
-    if (prevProps.connectedPortID !== this.props.connectedPortID) {
+    if (prevProps.connectedPortID !== this.props.connectedPortID && this.props.connectedPortID) {
+      this.setState({ configured: true })
       this.props.sendNetworkPortConnectionID(this.props.indexOfThisNPConfig, this.props.connectedPortID)
     }
   }
 
-  loadDatacenters = () => {
-    let dst = '/api/datacenters/?show_all=true';
-    axios.get(dst).then(res => {
-      this.setState({
-        datacenters: res.data,
-      });
-    })
-      .catch(function (error) {
-        console.log(error.response)
-        alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
-      });
-  }
-
-  loadRacks = () => {
-    let dst = '/api/datacenters/' + this.state.selectedDatacenterOption.id + '/racks/?show_all=true';
-    axios.get(dst).then(res => {
-      this.setState({
-        racks: res.data,
-      });
-    })
-      .catch(function (error) {
-        console.log(error.response)
-        alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
-      });
-  }
-
   loadAssets = () => {
-    let dst = '/api/racks/' + this.state.selectedRackOption.id + '/assets/?show_all=true';
+    let dst = '/api/assets/?datacenter=' + this.state.datacenterID + '&show_all=true';
+    console.log(dst)
     axios.get(dst).then(res => {
+      console.log(res)
       this.setState({
         assets: res.data,
       });
@@ -103,7 +75,6 @@ export class NetworkPortConnectionDialog extends Component {
   }
 
   loadNetworkPorts = () => {
-
     let dst = '/api/assets/' + this.state.selectedAssetOption.id + '/';
     axios.get(dst).then(res => {
       this.setState({
@@ -114,15 +85,6 @@ export class NetworkPortConnectionDialog extends Component {
         console.log(error.response)
         alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
       });
-
-    // axios.get('/api/assets/' + this.state.selectedAssetOption.id + '/')
-    //   .then((response) => {
-    //     return axios.get(response.data.model.url); // using response.data
-    //   })
-    //   .then((response) => {
-    //     console.log('Response', response.data);
-    //     this.setState({ networkPorts: response.data.network_ports })
-    //   });
   }
 
   handleClickOpen = () => {
@@ -131,14 +93,13 @@ export class NetworkPortConnectionDialog extends Component {
 
   handleClose = () => {
     this.props.sendNetworkPortConnectionID(this.props.indexOfThisNPConfig, null);
-
     // reset all selections and close
     this.setState({
-      selectedDatacenterOption: null,
-      selectedRackOption: null,
+      datacenterID: null,
       selectedAssetOption: null,
       selectedNetworkPortOption: null,
-      open: false
+      open: false,
+      configured: false,
     })
   };
 
@@ -146,18 +107,6 @@ export class NetworkPortConnectionDialog extends Component {
     this.props.sendNetworkPortConnectionID(this.props.indexOfThisNPConfig, this.state.selectedNetworkPortOption.id);
     this.setState({ open: false })
   }
-
-  handleChangeDatacenter = (event, dc) => {
-    this.setState({
-      selectedDatacenterOption: dc,
-    })
-  };
-
-  handleChangeRack = (event, r) => {
-    this.setState({
-      selectedRackOption: r,
-    })
-  };
 
   handleChangeAsset = (event, ass) => {
     this.setState({
@@ -173,58 +122,23 @@ export class NetworkPortConnectionDialog extends Component {
 
   createSelectionBoxes = () => {
     let selections = [];
-    selections.push(<Autocomplete
-      autoComplete
-      autoHighlight
-      autoSelect
-      id="dc-select"
-      options={this.state.datacenters}
-      getOptionLabel={option => option.abbreviation}
-      onChange={this.handleChangeDatacenter}
-      value={this.state.selectedDatacenterOption}
-      renderInput={params => (
-        <TextField {...params} label="Datacenter" fullWidth />
-      )}
-    />);
+    selections.push(
+      <Autocomplete
+        autoComplete
+        autoHighlight
+        autoSelect
+        id="asset-select"
+        options={this.state.assets}
+        getOptionLabel={option => option.hostname}
+        onChange={this.handleChangeAsset}
+        value={this.state.selectedAssetOption}
+        renderInput={params => (
+          <TextField {...params} label="Asset" fullWidth />
+        )}
+      />
+    );
 
-
-    if (this.state.selectedDatacenterOption) {
-      selections.push(
-        <Autocomplete
-          autoComplete
-          autoHighlight
-          autoSelect
-          id="rack-select"
-          options={this.state.racks}
-          getOptionLabel={option => option.rack_number}
-          onChange={this.handleChangeRack}
-          value={this.state.selectedRackOption}
-          renderInput={params => (
-            <TextField {...params} label="Rack" fullWidth />
-          )}
-        />
-      );
-    }
-
-    if (this.state.selectedDatacenterOption && this.state.selectedRackOption) {
-      selections.push(
-        <Autocomplete
-          autoComplete
-          autoHighlight
-          autoSelect
-          id="asset-select"
-          options={this.state.assets}
-          getOptionLabel={option => option.hostname}
-          onChange={this.handleChangeAsset}
-          value={this.state.selectedAssetOption}
-          renderInput={params => (
-            <TextField {...params} label="Asset" fullWidth />
-          )}
-        />
-      )
-    }
-
-    if (this.state.selectedDatacenterOption && this.state.selectedRackOption && this.state.selectedAssetOption) {
+    if (this.state.datacenterID && this.state.selectedAssetOption) {
       selections.push(
         <Autocomplete
           autoComplete
@@ -241,24 +155,86 @@ export class NetworkPortConnectionDialog extends Component {
         />
       )
     }
+
+
+    // if (this.state.selectedDatacenterOption) {
+    //   selections.push(
+    //     <Autocomplete
+    //       autoComplete
+    //       autoHighlight
+    //       autoSelect
+    //       id="rack-select"
+    //       options={this.state.racks}
+    //       getOptionLabel={option => option.rack_number}
+    //       onChange={this.handleChangeRack}
+    //       value={this.state.selectedRackOption}
+    //       renderInput={params => (
+    //         <TextField {...params} label="Rack" fullWidth />
+    //       )}
+    //     />
+    //   );
+    // }
+
+    // if (this.state.selectedDatacenterOption && this.state.selectedRackOption) {
+    //   selections.push(
+    //     <Autocomplete
+    //       autoComplete
+    //       autoHighlight
+    //       autoSelect
+    //       id="asset-select"
+    //       options={this.state.assets}
+    //       getOptionLabel={option => option.hostname}
+    //       onChange={this.handleChangeAsset}
+    //       value={this.state.selectedAssetOption}
+    //       renderInput={params => (
+    //         <TextField {...params} label="Asset" fullWidth />
+    //       )}
+    //     />
+    //   )
+    // }
+
+    // if (this.state.selectedDatacenterOption && this.state.selectedRackOption && this.state.selectedAssetOption) {
+    //   selections.push(
+    //     <Autocomplete
+    //       autoComplete
+    //       autoHighlight
+    //       autoSelect
+    //       id="np-select"
+    //       options={this.state.networkPorts}
+    //       getOptionLabel={option => option.name}
+    //       onChange={this.handleChangeNetworkPort}
+    //       value={this.state.selectedNetworkPortOption}
+    //       renderInput={params => (
+    //         <TextField {...params} label="Network Port" fullWidth />
+    //       )}
+    //     />
+    //   )
+    // }
     return selections;
   }
 
   render() {
-    //console.log(this.props)
-    //console.log(this.state)
+    console.log(this.props)
+    console.log(this.state)
     // console.log(this.state.selectedAssetOption)
     // console.log(this.state.selectedNetworkPortOption)
 
     let configuredMessage;
 
-    if (this.props.connectedPortID) {
+    if (this.state.selectedNetworkPortOption && this.state.selectedAssetOption) {
+      configuredMessage = <p>Configured. Asset: {this.state.selectedAssetOption.hostname} Port: {this.state.selectedNetworkPortOption.name}</p>
+    }
+    else if (this.props.connectedPortID && this.state.configured) {
       configuredMessage = <p>Configured. Asset: {this.props.connectedAssetHostname} Port: {this.props.connectedPortName}</p>
     }
+    // if (this.state.selectedNetworkPortOption && this.state.selectedAssetOption) {
+    //   configuredMessage = <p>Configured. Asset: {this.state.selectedAssetOption.hostname} Port: {this.state.selectedNetworkPortOption.name}</p>
+    // }
     else {
-      configuredMessage = ((this.state.selectedDatacenterOption && this.state.selectedRackOption && this.state.selectedNetworkPortOption && this.state.selectedAssetOption))
-        ? <p>Configured. Asset: {this.state.selectedAssetOption.hostname} Port: {this.state.selectedNetworkPortOption.name}</p>
-        : <p>Not configured.</p>
+      // configuredMessage = ((this.state.selectedNetworkPortOption && this.state.selectedAssetOption))
+      //   ? <p>Configured. Asset: {this.state.selectedAssetOption.hostname} Port: {this.state.selectedNetworkPortOption.name}</p>
+      //   : <p>Not configured.</p>
+      configuredMessage = <p>Not configured.</p>
     }
 
     let selections = this.createSelectionBoxes();
