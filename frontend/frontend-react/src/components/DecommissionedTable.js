@@ -119,14 +119,14 @@ export class DecommissionedTable extends Component {
     )
     return this.props.assets.map((asset) => {
       //console.log(asset)
-      const { asset_state, username, timestamp } = asset //destructuring
+      const { id, asset_state, username, timestamp } = asset //destructuring
       //console.log(network_ports)
 
       return (
         <TableRow
           hover
           tabIndex={-1}
-          key={asset_state.id}
+          key={id}
         >
           <TableCell align="center">{timestamp}</TableCell>
           <TableCell align="center">{username}</TableCell>
@@ -142,7 +142,7 @@ export class DecommissionedTable extends Component {
           <TableCell align="center">{asset_state.asset_number}</TableCell>
           <div>
             <TableCell align="right">
-              <Link to={'/decommissioned/' + asset_state.id}>
+              <Link to={'/decommissioned/' + id}>
                 <Tooltip title='View Details'>
                   <IconButton size="sm">
                     <PageviewIcon />
