@@ -7,6 +7,9 @@ import {
 } from "@material-ui/core";
 import axios from 'axios'
 import DecommissionedAssetCard from './DecommissionedAssetCard';
+import AllConnectedAssetsView from './AllConnectedAssetsView'
+import AssetNetworkGraph from './AssetNetworkGraph'
+import DecommissionedAssetNetworkGraph from './DecommissionedAssetNetworkGraph';
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
@@ -16,7 +19,27 @@ export class DetailedDecommissionedAsset extends Component {
     super();
     this.state = {
       decommissionedAsset: null,
+      connectedAssets: [],
     }
+  }
+
+  getConnectedAssets = () => {
+    if (! this.state.decommissionedAsset) {
+      return;
+    }
+    let tmpConnections = []
+    let npArray = this.state.decommissionedAsset.asset_state.network_ports;
+    console.log(npArray)
+    for (let i = 0; i < npArray.length; i++) {
+      if (npArray[i].connection) {
+        let obj = npArray[i].connection.asset;
+        obj.my_name = npArray[i].name;
+        obj.name = npArray[i].connection.name;
+        tmpConnections.push(obj)
+      }
+    }
+    this.setState({ connectedAssets: tmpConnections })
+    // return tmpConnections;
   }
 
   loadDecommissionedAsset = () => {
@@ -36,6 +59,12 @@ export class DetailedDecommissionedAsset extends Component {
 
   componentDidMount() {
     this.loadDecommissionedAsset();
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState.decommissionedAsset !== this.state.decommissionedAsset) {
+      this.getConnectedAssets();
+    }
   }
 
   renderPPConnectionTableData = () => {
@@ -129,48 +158,21 @@ export class DetailedDecommissionedAsset extends Component {
 
             </Grid>
 
-
             <Grid item xs={6}>
               <Typography variant="h4" gutterBottom>
                 Connected Assets
               </Typography>
-              {/* <AllConnectedAssetsView connectedAssets={this.state.connectedAssets} /> */}
+              <AllConnectedAssetsView connectedAssets={this.state.connectedAssets} />
             </Grid>
-            <Grid item xs={6}>
-              {
-                // this.state.asset.datacenter
-                //   && this.state.asset.rack
-                //   && (this.state.asset.owner && (this.context.username === this.state.asset.owner) || this.context.username === 'admin' || !this.state.asset.owner)
-                //   && this.state.asset.datacenter.abbreviation.toLowerCase() === 'rtp1'
-                //   && regex.test(this.state.asset.rack.rack_number.toLowerCase())
-
-                //   ?
-                //(
-                <div>
-                  <Typography variant="h4" gutterBottom>
-                    Power Management
-                  </Typography>
-                  {/* <PowerManagement assetID={this.props.match.params.id} /> */}
-                </div>
-                //)
-                // :
-                // <p></p>
-              }
-
-            </Grid>
-
+            
             <Grid item xs={6}>
               <Typography variant="h4" gutterBottom>
                 Asset Network Graph
               </Typography>
+              {/* <AssetNetworkGraph assetID={this.state.decommissionedAsset ? this.state.decommissionedAsset.asset_state.id : null} /> */}
               {/* <AssetNetworkGraph assetID={this.props.match.params.id} /> */}
+              <DecommissionedAssetNetworkGraph asset={this.state.decommissionedAsset ? this.state.decommissionedAsset : null} />
             </Grid>
-
-            <Grid item xs={6}>
-
-            </Grid>
-
-
           </Grid>
         </Container>
       </div>
