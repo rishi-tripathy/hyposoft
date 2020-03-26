@@ -19,6 +19,8 @@ export class DecommissionedController extends Component {
       nextPage: null,
       showingAll: false,
       loading: true,
+      filterQuery: '',
+      rerender: false,
     }
   }
 
@@ -26,18 +28,25 @@ export class DecommissionedController extends Component {
     this.getDecommissionedAssets();
   }
 
+  componentDidUpdate(prevProps, prevState) {
+    const delay = 50;
+    // // When showing table again, rerender
+    // if (prevState.showTableView === false && this.state.showTableView === true) {
+    //   setTimeout(() => {
+    //     this.getInstances();
+    //   }, delay);
+    // }
+
+    // Once filter changes, rerender
+    if (prevState.filterQuery !== this.state.filterQuery) {
+      setTimeout(() => {
+        this.getDecommissionedAssets();
+      }, delay);
+    }
+  }
+
   getDecommissionedAssets = () => {
-    let dst;
-    // datacenter stuff commented
-    // if (this.state.datacenterID === -1 || this.state.datacenterID == null) {
-    //   dst = '/api/assets/' + '?' + this.state.filterQuery + '&' + this.state.sortQuery;
-    // }
-    // else {
-    //   dst = '/api/assets/' + '?' + 'datacenter=' + this.state.datacenterID + '&' + this.state.filterQuery + '&' + this.state.sortQuery;
-    // }
-
-    dst = '/api/decommissioned/'
-
+    let dst = '/api/decommissioned/?' + this.state.filterQuery
     console.log('QUERY')
     console.log(dst)
     axios.get(dst).then(res => {
@@ -59,10 +68,33 @@ export class DecommissionedController extends Component {
       });
   }
 
+  getAllDecommissionedAssets = () => {
+    // let dst = '/api/decommissioned/show_all=true/'
+    // console.log('QUERY')
+    // console.log(dst)
+    // axios.get(dst).then(res => {
+    //   // console.log(res.data.next)
+    //   this.setState({
+    //     decommissionedAssets: res.data.results,
+    //     prevPage: res.data.previous,
+    //     nextPage: res.data.next,
+    //     loading: false,
+    //   });
+    // })
+    //   .catch(function (error) {
+    //     // TODO: handle error
+    //     this.setState({
+    //       loading: false,
+    //     })
+    //     console.log(error.response)
+    //     alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+    //   });
+  }
+
   paginateNext = () => {
     axios.get(this.state.nextPage).then(res => {
       this.setState({
-        assets: res.data.results,
+        decommissionedAssets: res.data.results,
         prevPage: res.data.previous,
         nextPage: res.data.next,
       });
@@ -77,7 +109,7 @@ export class DecommissionedController extends Component {
   paginatePrev = () => {
     axios.get(this.state.prevPage).then(res => {
       this.setState({
-        assets: res.data.results,
+        decommissionedAssets: res.data.results,
         prevPage: res.data.previous,
         nextPage: res.data.next,
       });
@@ -89,11 +121,24 @@ export class DecommissionedController extends Component {
       });
   }
 
+  toggleShowingAll = () => {
+    this.state.showingAll ? (
+      this.getDecommissionedAssets()
+    ) : (this.getAllDecommissionedAssets())
+    this.setState(prevState => ({
+      showingAll: !prevState.showingAll
+    }));
+  }
+
+  getFilterQuery = (q) => {
+    this.setState({ filterQuery: q });
+  }
+
   render() {
     console.log(JSON.stringify(this.state.decommissionedAssets, null, 2))
     let content = <DecommissionedTable
       assets={this.state.decommissionedAssets}
-    // filter_query={this.getFilterQuery}
+      filter_query={this.getFilterQuery}
     // sendSortQuery={this.getSortQuery}
     // sendRerender={this.getRerender}
     />;

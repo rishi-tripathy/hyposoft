@@ -5,6 +5,9 @@ import {
 } from "@material-ui/core";
 import PageviewIcon from '@material-ui/icons/Pageview';
 import { Link } from 'react-router-dom'
+import FilterListIcon from '@material-ui/icons/FilterList';
+import DecommissionedAssetFilters from './DecommissionedAssetFilters'
+
 
 export class DecommissionedTable extends Component {
 
@@ -51,29 +54,29 @@ export class DecommissionedTable extends Component {
   }
 
   renderTableToolbar = () => {
-    // return (
-    //   <Toolbar>
-    //     {
-    //       <Typography style={{ flex: '1 1 20%' }} variant="h6" id="instanceTableTitle">
-    //         Assets
-    //       </Typography>
-    //     }
-    //     <Collapse in={this.state.filtersOpen}>
-    //       <Paper>
-    //         {
-    //           <InstanceFilters sendFilterQuery={this.props.filter_query} />
-    //         }
-    //       </Paper>
-    //     </Collapse>
-    //     <Tooltip title="Filter list">
-    //       <Button endIcon={<FilterListIcon />} onClick={() => this.handleOpenFilters()} aria-label="filter instance list">
-    //         Filter
-    //       </Button>
-    //     </Tooltip>
+    return (
+      <Toolbar>
+        {
+          <Typography style={{ flex: '1 1 20%' }} variant="h6" id="instanceTableTitle">
+            Decommissioned Assets
+          </Typography>
+        }
+        <Collapse in={this.state.filtersOpen}>
+          <Paper>
+            {
+              <DecommissionedAssetFilters sendFilterQuery={this.props.filter_query} />
+            }
+          </Paper>
+        </Collapse>
+        <Tooltip title="Filter list">
+          <Button endIcon={<FilterListIcon />} onClick={() => this.handleOpenFilters()} aria-label="filter instance list">
+            Filter
+          </Button>
+        </Tooltip>
 
 
-    //   </Toolbar>
-    // );
+      </Toolbar>
+    );
   }
 
   renderTableHeader() {
@@ -119,14 +122,14 @@ export class DecommissionedTable extends Component {
     )
     return this.props.assets.map((asset) => {
       //console.log(asset)
-      const { asset_state, username, timestamp } = asset //destructuring
+      const { id, asset_state, username, timestamp } = asset //destructuring
       //console.log(network_ports)
 
       return (
         <TableRow
           hover
           tabIndex={-1}
-          key={asset_state.id}
+          key={id}
         >
           <TableCell align="center">{timestamp}</TableCell>
           <TableCell align="center">{username}</TableCell>
@@ -142,7 +145,7 @@ export class DecommissionedTable extends Component {
           <TableCell align="center">{asset_state.asset_number}</TableCell>
           <div>
             <TableCell align="right">
-              <Link to={'/decommissioned/' + asset_state.id}>
+              <Link to={'/decommissioned/' + id}>
                 <Tooltip title='View Details'>
                   <IconButton size="sm">
                     <PageviewIcon />
@@ -162,7 +165,7 @@ export class DecommissionedTable extends Component {
     return (
       <div>
         <Paper>
-          {/* {this.renderTableToolbar()} */}
+          {this.renderTableToolbar()}
           <TableContainer>
             <Table
               size="small"
