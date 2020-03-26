@@ -19,6 +19,8 @@ export class DecommissionedController extends Component {
       nextPage: null,
       showingAll: false,
       loading: true,
+      filterQuery: '',
+      rerender: false,
     }
   }
 
@@ -26,8 +28,25 @@ export class DecommissionedController extends Component {
     this.getDecommissionedAssets();
   }
 
+  componentDidUpdate(prevProps, prevState) {
+    const delay = 50;
+    // // When showing table again, rerender
+    // if (prevState.showTableView === false && this.state.showTableView === true) {
+    //   setTimeout(() => {
+    //     this.getInstances();
+    //   }, delay);
+    // }
+
+    // Once filter changes, rerender
+    if (prevState.filterQuery !== this.state.filterQuery) {
+      setTimeout(() => {
+        this.getDecommissionedAssets();
+      }, delay);
+    }
+  }
+
   getDecommissionedAssets = () => {
-    let dst = '/api/decommissioned/'
+    let dst = '/api/decommissioned/?' + this.state.filterQuery
     console.log('QUERY')
     console.log(dst)
     axios.get(dst).then(res => {
@@ -109,6 +128,10 @@ export class DecommissionedController extends Component {
     this.setState(prevState => ({
       showingAll: !prevState.showingAll
     }));
+  }
+
+  getFilterQuery = (q) => {
+    this.setState({ filterQuery: q });
   }
 
   render() {

@@ -26,8 +26,32 @@ export class DecommissionedAssetFilters extends Component {
     return obj;
   };
 
-  handleSubmit = () => {
+  handleSubmit = (e) => {
+    e.preventDefault();
+    let stateCopy = Object.assign({}, this.state.identifiers);
+    let stateToSend = this.removeEmpty(stateCopy);
 
+    console.log(stateToSend)
+    console.log(this.createQuery())
+
+    this.props.sendFilterQuery(this.createQuery());
+
+  }
+
+  createQuery = () => {
+    const { dateStart, dateEnd, username } = this.state.identifiers;
+    let startFormat = new Date(dateStart);
+    let endFormat = new Date(dateEnd);
+
+    let q = '' +
+      'username=' + username + '&' +
+      'timestamp_after=' + startFormat.toISOString() + '&' +
+      'timestamp_before=' + endFormat.toISOString()
+
+    //q.replace(':', '%')
+      
+    this.setState({ query: q });
+    return q;
   }
 
   handleStartDateChange = (date) => {
@@ -78,7 +102,7 @@ export class DecommissionedAssetFilters extends Component {
                     id="date-picker-inline"
                     label="Start date"
                     value={this.state.identifiers.dateStart}
-                    onChange={this.handleStartDateChange}
+                    onChange={(date) => this.handleStartDateChange(date)}
                     KeyboardButtonProps={{
                       'aria-label': 'change date',
                     }}
@@ -101,6 +125,19 @@ export class DecommissionedAssetFilters extends Component {
                 </Grid>
               </MuiPickersUtilsProvider>
 
+              <Grid item xs={4}>
+
+              </Grid>
+
+              <Grid item xs={4}>
+
+              </Grid>
+
+              <Grid item xs={4}>
+                <Button variant="contained" type="submit" color="primary" onClick={() => this.handleSubmit}>
+                  Apply Filters
+                </Button>
+              </Grid>
 
             </Grid>
           </form>
