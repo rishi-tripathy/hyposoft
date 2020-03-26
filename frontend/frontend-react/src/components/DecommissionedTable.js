@@ -5,6 +5,9 @@ import {
 } from "@material-ui/core";
 import PageviewIcon from '@material-ui/icons/Pageview';
 import { Link } from 'react-router-dom'
+import FilterListIcon from '@material-ui/icons/FilterList';
+import DecommissionedAssetFilters from './DecommissionedAssetFilters'
+
 
 export class DecommissionedTable extends Component {
 
@@ -51,29 +54,29 @@ export class DecommissionedTable extends Component {
   }
 
   renderTableToolbar = () => {
-    // return (
-    //   <Toolbar>
-    //     {
-    //       <Typography style={{ flex: '1 1 20%' }} variant="h6" id="instanceTableTitle">
-    //         Assets
-    //       </Typography>
-    //     }
-    //     <Collapse in={this.state.filtersOpen}>
-    //       <Paper>
-    //         {
-    //           <InstanceFilters sendFilterQuery={this.props.filter_query} />
-    //         }
-    //       </Paper>
-    //     </Collapse>
-    //     <Tooltip title="Filter list">
-    //       <Button endIcon={<FilterListIcon />} onClick={() => this.handleOpenFilters()} aria-label="filter instance list">
-    //         Filter
-    //       </Button>
-    //     </Tooltip>
+    return (
+      <Toolbar>
+        {
+          <Typography style={{ flex: '1 1 20%' }} variant="h6" id="instanceTableTitle">
+            Decommissioned Assets
+          </Typography>
+        }
+        <Collapse in={this.state.filtersOpen}>
+          <Paper>
+            {
+              <DecommissionedAssetFilters sendFilterQuery={this.props.filter_query} />
+            }
+          </Paper>
+        </Collapse>
+        <Tooltip title="Filter list">
+          <Button endIcon={<FilterListIcon />} onClick={() => this.handleOpenFilters()} aria-label="filter instance list">
+            Filter
+          </Button>
+        </Tooltip>
 
 
-    //   </Toolbar>
-    // );
+      </Toolbar>
+    );
   }
 
   renderTableHeader() {
@@ -162,7 +165,7 @@ export class DecommissionedTable extends Component {
     return (
       <div>
         <Paper>
-          {/* {this.renderTableToolbar()} */}
+          {this.renderTableToolbar()}
           <TableContainer>
             <Table
               size="small"
