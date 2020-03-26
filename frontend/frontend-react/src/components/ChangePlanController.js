@@ -6,6 +6,7 @@ import {
 import AddCircleIcon from "@material-ui/icons/AddCircle";
 import {Link} from 'react-router-dom'
 import DatacenterContext from "./DatacenterContext";
+import ChangePlanTable from "./ChangePlanTable";
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
@@ -14,6 +15,7 @@ export class ChangePlanController extends Component {
     constructor() {
         super();
         this.state = {
+            changePlans: [],
             prevPage: null,
             nextPage: null,
         }
@@ -21,11 +23,11 @@ export class ChangePlanController extends Component {
 
     render() {
 
-        let content = null;
-        // content = <div><ModelTableMUI models={this.state.models}
-        //                               filter_query={this.getFilterQuery}
-        //                               sendSortQuery={this.getSortQuery}
-        //                               sendRerender={this.getRerender}/></div>;
+        let content = <div><ChangePlanTable changePlans={this.state.changePlans}
+                                    //   filterQuery={this.getFilterQuery}
+                                    //   sendSortQuery={this.getSortQuery}
+                                    //   sendRerender={this.getRerender}/>
+                                   /> </div>;
 
         let add = this.context.is_admin ? (
             <Link to={'/changeplans/create'}>

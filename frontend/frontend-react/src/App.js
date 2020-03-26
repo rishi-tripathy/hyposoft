@@ -27,7 +27,7 @@ import AuditController from './components/AuditController.js'
 import LandingPage from './components/LandingPage'
 import EditUserForm from './components/EditUserForm'
 import ChangePlanController from './components/ChangePlanController'
-import CreateChangePlan from './components/CreateChangePlan'
+import CreateChangePlanForm from './components/CreateChangePlanForm'
 import { Button } from "@material-ui/core"
 import CircularProgress from '@material-ui/core/CircularProgress';
 
@@ -116,10 +116,6 @@ class App extends React.Component {
     const querystring = require('querystring');
 
     if(window.location.href.indexOf("token") > -1){ //exists
-      // console.log('back from oit')
-      // console.log(window.location.hash)
-      // console.log(window.location.hash.substring(1));
-      // console.log(querystring.parse(window.location.hash.substring(1)));
 
       let client_id = 'hyposoft-ev2';
 
@@ -332,12 +328,14 @@ class App extends React.Component {
               render={(props) => <AuditController {...props} />} />
 
             <Route
-              path='/changeplans'
+              path='/changeplans/'
+              exact
               render={(props) => <ChangePlanController {...props} />} />
  
             <Route
               path='/changeplans/create'
-              render={(props) => <CreateChangePlan {...props} />} />
+              exact
+              render={(props) => <CreateChangePlanForm {...props} />} />
 
             <Route
               path='/'

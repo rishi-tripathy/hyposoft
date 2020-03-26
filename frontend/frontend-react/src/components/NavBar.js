@@ -20,15 +20,15 @@ export class NavBar extends Component{
   }
 
   componentDidMount() {
-    console.log( this.context.datacenterOptions)
+    // console.log( this.context.datacenterOptions)
       this.setState({
         datacenters: this.context.datacenterOptions,
       })
-    console.log('set DCs')
+    // console.log('set DCs')
  }
  
   render() {
-    console.log(this.state.datacenters)
+    // console.log(this.state.datacenters)
     return (
       <div id='hideOnPrint'>
         <AppBar title="Django Unchained"  position='sticky'>
