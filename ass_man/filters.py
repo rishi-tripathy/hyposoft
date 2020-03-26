@@ -12,7 +12,8 @@ from rest_framework.response import Response
 
 class DecommissionedFilter(filters.FilterSet):
     username = filters.CharFilter(field_name='username', lookup_expr='icontains')
-    timestamp = filters.DateTimeFromToRangeFilter(field_name='timestamp', lookup_expr='range')
+    timestamp = filters.IsoDateTimeFromToRangeFilter(field_name='timestamp', lookup_expr='range')
+    # timestamp = filters.DateTimeFromToRangeFilter(field_name='timestamp', lookup_expr='range')
 
     class Meta:
         model = Decommissioned
