@@ -6,7 +6,7 @@ import {
 import AddCircleIcon from "@material-ui/icons/AddCircle";
 import {Link} from 'react-router-dom'
 import DatacenterContext from "./DatacenterContext";
-import ChangePlanTable from "./ChangePlanTable";
+import ChangePlanTable from "./ChangePlanTable"; 
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
@@ -21,7 +21,40 @@ export class ChangePlanController extends Component {
         }
     }
 
+    componentDidMount() {
+        this.initializeFakeData();
+    }
+
+    initializeFakeData = () => {
+        this.state.changePlans = null;
+
+        var arr = [];
+
+        var cp1 = {
+            name : 'cp1',
+            status: 'some time ago',
+            objects: []};
+        var cp2 = {
+            name : 'cp2',
+            status: 'some longer time ago',
+            objects: []};
+        var cp3 = {
+            name : 'cp3',
+            status: 'some longest time ago',
+            objects: []};
+        arr.push(cp1);
+        arr.push(cp2);
+        arr.push(cp3);
+
+        console.log(arr)
+
+        this.setState({
+            changePlans: arr,
+        })
+    }
+
     render() {
+        console.log(this.state.changePlans)
 
         let content = <div><ChangePlanTable changePlans={this.state.changePlans}
                                     //   filterQuery={this.getFilterQuery}

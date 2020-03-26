@@ -132,6 +132,8 @@ export class ChangePlanTable extends Component {
   }
 
   renderTableData() {
+    console.log(this.props.changePlans)
+    console.log(this.props.changePlans[0])
     if (this.props.changePlans.length == 0) return (
       <TableRow hover tabIndex={-1}>
         <TableCell align="center" colSpan={12}>No entries</TableCell>
@@ -150,7 +152,7 @@ export class ChangePlanTable extends Component {
           <TableCell align="center">{actions}</TableCell>
           <div>
             <TableCell align="right">
-              <Link to={'/models/' + id}>
+              <Link to={'/changeplans/' + id}>
                 <Tooltip title='View Details'>
                   <IconButton size="sm">
                     <PageviewIcon/>
@@ -160,7 +162,7 @@ export class ChangePlanTable extends Component {
             </TableCell>
             {this.context.is_admin ? (
               <TableCell align="right">
-                <Link to={'/models/' + id + '/edit'}>
+                <Link to={'/changeplans/' + id + '/edit'}>
                   <Tooltip title='Edit'>
                     <IconButton size="sm">
                       <EditIcon/>
