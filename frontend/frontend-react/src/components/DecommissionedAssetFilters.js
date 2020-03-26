@@ -16,7 +16,7 @@ export class DecommissionedAssetFilters extends Component {
       identifiers: {
         dateStart: null,
         dateEnd: null,
-        username: null,
+        username: '',
       }
     }
   }
@@ -41,7 +41,7 @@ export class DecommissionedAssetFilters extends Component {
   createQuery = () => {
     const { dateStart, dateEnd, username } = this.state.identifiers;
     let startFormat = new Date(dateStart);
-    let endFormat = new Date(dateEnd);
+    let endFormat = dateEnd ? new Date(dateEnd) : new Date(2100, 11, 17);
 
     let q = '' +
       'username=' + username + '&' +
