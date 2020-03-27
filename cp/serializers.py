@@ -30,7 +30,6 @@ class RemoteNPCPSerializer(serializers.ModelSerializer):
 
 
 class NPCPSerializer(serializers.ModelSerializer):
-    connection = ConnectionNPSerializer()
 
     class Meta:
         model = NPCP

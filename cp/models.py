@@ -25,7 +25,7 @@ class PPCP(Power_Port):
 
 class NPCP(Network_Port):
     id_ref = models.PositiveIntegerField(blank=True)
-    conn_cp_id = models.ForeignKey(Network_Port, blank=True, null=True, on_delete=models.SET_NULL)
+    conn_cp_id = models.PositiveIntegerField(blank=True)
     asset_cp_id = models.ForeignKey(Asset, blank=True, null=True, on_delete=models.SET_NULL)
     cp = models.ForeignKey(ChangePlan, blank=True, null=True, on_delete=models.CASCADE)
 
