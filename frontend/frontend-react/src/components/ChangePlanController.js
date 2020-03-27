@@ -31,14 +31,17 @@ export class ChangePlanController extends Component {
         var arr = [];
 
         var cp1 = {
+            id: 0,
             name : 'cp1',
             status: 'some time ago',
             objects: []};
         var cp2 = {
+            id: 1,
             name : 'cp2',
             status: 'some longer time ago',
             objects: []};
         var cp3 = {
+            id: 2,
             name : 'cp3',
             status: 'some longest time ago',
             objects: []};

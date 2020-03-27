@@ -28,6 +28,7 @@ import LandingPage from './components/LandingPage'
 import EditUserForm from './components/EditUserForm'
 import ChangePlanController from './components/ChangePlanController'
 import CreateChangePlanForm from './components/CreateChangePlanForm'
+import DetailedChangePlan from './components/DetailedChangePlan'
 import { Button } from "@material-ui/core"
 import CircularProgress from '@material-ui/core/CircularProgress';
 
@@ -336,6 +337,12 @@ class App extends React.Component {
               path='/changeplans/create'
               exact
               render={(props) => <CreateChangePlanForm {...props} />} />
+
+            <Route
+              path='/changeplans/1/'
+              //TODO: change above to :id after
+              exact
+              render={(props) => <ChangePlanDetailView {...props} />} />
 
             <Route
               path='/'

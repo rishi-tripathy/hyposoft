@@ -7,9 +7,8 @@ import {
   Typography, Paper, IconButton, Tooltip, TableSortLabel
 } from "@material-ui/core";
 import PageviewIcon from '@material-ui/icons/Pageview';
-import EditIcon from '@material-ui/icons/Edit';
+import SearchIcon from '@material-ui/icons/Search';
 import DeleteIcon from '@material-ui/icons/Delete';
-import FilterListIcon from '@material-ui/icons/FilterList';
 import ModelFilters from './ModelFilters';
 import '../stylesheets/TableView.css'
 import axios, {post} from 'axios'
@@ -25,7 +24,6 @@ export class ChangePlanTable extends Component {
     super();
 
     this.state = {
-      filtersOpen: false,
       dense: false,
       sortBy: 'vendor',
       sortType: 'asc',
@@ -47,12 +45,6 @@ export class ChangePlanTable extends Component {
         });
     }
     this.showRerender();
-  }
-
-  handleOpenFilters = () => {
-    this.setState(prevState => ({
-      filtersOpen: !prevState.filtersOpen
-    }));
   }
 
 //   handleHeaderClickSort = (id) => {
@@ -95,12 +87,6 @@ export class ChangePlanTable extends Component {
             }
           </Paper>
         </Collapse>
-        <Tooltip title="Filter list">
-          <Button endIcon={<FilterListIcon/>} onClick={() => this.handleOpenFilters()} aria-label="filter instance list">
-            Filter
-          </Button>
-        </Tooltip>
-
 
       </Toolbar>
     );
@@ -110,7 +96,7 @@ export class ChangePlanTable extends Component {
     let headCells = [
       {id: 'name', label: 'CP Name'},
       {id: 'status', label: 'Status'},
-      {id: 'actions', label: 'Actions'},
+      {id: 'actions', label: 'Actions', disablePadding: false,},
     ];
     return headCells.map(headCell => (
       <TableCell
@@ -133,7 +119,6 @@ export class ChangePlanTable extends Component {
 
   renderTableData() {
     console.log(this.props.changePlans)
-    console.log(this.props.changePlans[0])
     if (this.props.changePlans.length == 0) return (
       <TableRow hover tabIndex={-1}>
         <TableCell align="center" colSpan={12}>No entries</TableCell>
@@ -149,30 +134,22 @@ export class ChangePlanTable extends Component {
         >
           <TableCell align="center">{name}</TableCell>
           <TableCell align="center">{status}</TableCell>
-          <TableCell align="center">{actions}</TableCell>
           <div>
-            <TableCell align="right">
-              <Link to={'/changeplans/' + id}>
-                <Tooltip title='View Details'>
-                  <IconButton size="sm">
-                    <PageviewIcon/>
-                  </IconButton>
-                </Tooltip>
-              </Link>
-            </TableCell>
             {this.context.is_admin ? (
-              <TableCell align="right">
-                <Link to={'/changeplans/' + id + '/edit'}>
-                  <Tooltip title='Edit'>
+              <TableCell align="center">
+                <Link to={'/changeplans/1/'}>
+                {/* UNCOMMENT BELOW POST FAKE DATA */}
+                {/* <Link to={'/changeplans/' + id + '/'}> */}
+                  <Tooltip title='View Details/Edit'>
                     <IconButton size="sm">
-                      <EditIcon/>
+                      <SearchIcon/>
                     </IconButton>
                   </Tooltip>
                 </Link>
               </TableCell>) : <p></p>
             }
             {this.context.is_admin ? (
-              < TableCell align="right">
+              < TableCell align="center">
                 < Tooltip title='Delete'>
                   <IconButton size="sm" onClick={() => this.showDeleteForm(id)}>
                     <DeleteIcon/>
