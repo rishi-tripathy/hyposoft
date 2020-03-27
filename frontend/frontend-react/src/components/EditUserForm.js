@@ -1,7 +1,7 @@
-import React, {Component} from 'react'
+import React, { Component } from 'react'
 import PropTypes from 'prop-types';
 import axios from 'axios'
-import {Redirect, Link} from 'react-router-dom'
+import { Redirect, Link } from 'react-router-dom'
 import {
   Button, Container, FormLabel, RadioGroup, Radio,
   Grid, Input, FormControl, FormControlLabel, Typography, Tooltip,
@@ -65,13 +65,13 @@ export class EditUserForm extends Component {
   }
 
 
-  handleChange = (event) => {
-    this.setState({is_admin: event.target.value});
+  handleAdminChange = (event) => {
+    this.setState({ is_admin: event.target.value });
   };
 
   render() {
     if (this.state.redirect) {
-      return <Redirect to={{pathname: '/users'}}/>
+      return <Redirect to={{ pathname: '/users' }} />
 
     }
     let header = <Typography variant="h3" gutterBottom>
@@ -81,7 +81,7 @@ export class EditUserForm extends Component {
       <div>
         <Container maxwidth="xl">
           <Grid container className='themed-container' spacing={2}>
-            <Grid item justify="flex-start" alignContent='center' xs={12}/>
+            <Grid item justify="flex-start" alignContent='center' xs={12} />
             <form onSubmit={this.handleSubmit}>
               <Grid container spacing={1}>
                 <Grid item xs={12}>
@@ -91,23 +91,33 @@ export class EditUserForm extends Component {
                   <FormControl component="fieldset">
                     <FormLabel component="legend">Permissions</FormLabel>
                     <RadioGroup aria-label="permissions" name="permissions" value={this.state.is_admin.toString()}
-                                onChange={this.handleChange}>
-                      <FormControlLabel value='true' control={<Radio/>} label="Administrator"/>
-                      <FormControlLabel value='false' control={<Radio/>} label="User"/>
+                      onChange={this.handleAdminChange}>
+                      <FormControlLabel value='true' control={<Radio />} label="Administrator" />
+                      <FormControlLabel value='false' control={<Radio />} label="User" />
                     </RadioGroup>
                   </FormControl>
+                </Grid>
+                <Grid item xs={12}>
+                  {
+                    !this.state.is_admin ? (
+                      <div>
+                        <p>Is a user</p>
+                      </div>
+                    )
+                      : <div></div>
+                  }
                 </Grid>
                 <Grid item xs={2}>
                   <Tooltip title='Submit'>
                     <Button variant="contained" type="submit" color="primary"
-                            onClick={() => this.handleSubmit}>Update
+                      onClick={() => this.handleSubmit}>Update
                     </Button>
                   </Tooltip>
                 </Grid>
                 <Grid item xs={2}>
                   <Link to={'/users'}>
                     <Tooltip title='Cancel'>
-                      <Button variant="outlined" type="submit" color="primary" endIcon={<CancelIcon/>}>Cancel</Button>
+                      <Button variant="outlined" type="submit" color="primary" endIcon={<CancelIcon />}>Cancel</Button>
                     </Tooltip>
                   </Link>
                 </Grid>

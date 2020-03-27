@@ -48,6 +48,10 @@ export class UserTableMUI extends Component {
       {id: 'firstname', numeric: false, disablePadding: false, label: 'First Name'},
       {id: 'lastname', numeric: false, disablePadding: false, label: 'Last Name'},
       {id: 'privilege', numeric: false, disablePadding: false, label: 'Admin Status'},
+      {id: 'model_permission', numeric: false, disablePadding: false, label: 'Model Permission'},
+      {id: 'asset_permission', numeric: false, disablePadding: false, label: 'Asset Permission'},
+      {id: 'power_permission', numeric: false, disablePadding: false, label: 'Power Permission'},
+      {id: 'audit_permission', numeric: false, disablePadding: false, label: 'Audit Permission'},
     ];
     return headCells.map(headCell => (
       <TableCell
@@ -85,6 +89,10 @@ export class UserTableMUI extends Component {
           <TableCell align="center">{first_name}</TableCell>
           <TableCell align="center">{last_name}</TableCell>
           <TableCell align="center">{admin_icon}</TableCell>
+          <TableCell align="center">TODO</TableCell>
+          <TableCell align="center">TODO</TableCell>
+          <TableCell align="center">TODO</TableCell>
+          <TableCell align="center">TODO</TableCell>
           {(this.context.is_admin && username !== 'admin') ? (
             <TableCell align="right">
               <Link to={'/users/' + id + '/edit'}>
