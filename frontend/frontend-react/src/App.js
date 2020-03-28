@@ -135,18 +135,18 @@ class App extends React.Component {
             delay: true,
           });
           // console.log('netid state has been set')
-          this.getUserPermissions();
+          this.getUserInfo();
         })
         .catch(function (error) {
           alert('NetID login was not successful.\n' + JSON.stringify(error.response.data, null, 2));
         });
     }
     else {
-      this.getUserPermissions();
+      this.getUserInfo();
     }
   }
 
-  getUserPermissions() {
+  getUserInfo() {
     axios.get('api/users/who_am_i/').then(res => {
       // console.log(res.data)
       if (res.data.current_user != '') {

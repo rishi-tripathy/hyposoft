@@ -19,7 +19,7 @@ def user_permissions(request):
         curr_user.permission_set.get(name='model')
         permissions['model_permission'] = 'true'
     except Permission.DoesNotExist:
-        user_permissions['model_permission'] = 'false'
+        permissions['model_permission'] = 'false'
 
     permissions['asset_permission'] = []
     for p in curr_user.permission_set.filter(name='asset'):
