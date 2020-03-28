@@ -182,17 +182,21 @@ class App extends React.Component {
     axios.get('/user-permissions/').then(res => {
       // console.log(res.data)
       if (res.data.current_user != '') {
+
+        
+          //this.setState({ model_permission: res.data.model_permission === 'true'})
+        
+
         this.setState({
           // logged_in: true,
           // user_first: res.data.first_name,
           // user_last: res.data.last_name,
           // username: res.data.current_user,
           // is_admin: res.data.is_admin,
-
-          model_permission: res.data.model_permission,
+          model_permission: res.data.model_permission === 'true',
           asset_permission: res.data.asset_permission,
-          power_permission: res.data.power_permission,
-          audit_permission: res.data.log_permission,
+          power_permission: res.data.power_permission === 'true',
+          audit_permission: res.data.log_permission === 'true',
         });
         //  console.log('going to fill DCs')
         this.getDatacenters();

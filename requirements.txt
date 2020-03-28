@@ -15,11 +15,14 @@ idna==2.9
 isort==4.3.21
 lazy-object-proxy==1.4.3
 mccabe==0.6.1
+Pillow==7.0.0
 psycopg2-binary==2.8.4
 PyJWT==1.7.1
 pylint==2.4.4
+python-barcode==0.11.0
 python-dotenv==0.11.0
 pytz==2019.3
+reportlab==3.5.42
 requests==2.23.0
 six==1.14.0
 soupsieve==2.0

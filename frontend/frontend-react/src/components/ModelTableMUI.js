@@ -190,7 +190,7 @@ export class ModelTable extends Component {
                 </Tooltip>
               </Link>
             </TableCell>
-            {this.context.is_admin ? (
+            {(this.context.is_admin || this.context.username === 'admin' || this.context.model_permission) ? (
               <TableCell align="right">
                 <Link to={'/models/' + id + '/edit'}>
                   <Tooltip title='Edit'>
@@ -201,7 +201,7 @@ export class ModelTable extends Component {
                 </Link>
               </TableCell>) : <div></div>
             }
-            {this.context.is_admin ? (
+            {(this.context.is_admin || this.context.username === 'admin' || this.context.model_permission) ? (
               < TableCell align="right">
                 < Tooltip title='Delete'>
                   <IconButton size="sm" onClick={() => this.showDeleteForm(id)}>

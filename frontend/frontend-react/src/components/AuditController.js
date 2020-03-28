@@ -1,4 +1,4 @@
-import React, {Component} from 'react'
+import React, { Component } from 'react'
 import '../stylesheets/Printing.css'
 import {
   AppBar,
@@ -11,12 +11,13 @@ import {
   ButtonGroup,
   FormControlLabel, Switch
 } from "@material-ui/core";
-import {NavLink} from 'react-router-dom'
-import {Autocomplete} from "@material-ui/lab"
+import { NavLink } from 'react-router-dom'
+import { Autocomplete } from "@material-ui/lab"
 import DatacenterNavbar from './DatacenterNavbar'
-import axios, {post} from 'axios'
+import axios, { post } from 'axios'
 import AuditLog from './AuditLog'
 import CircularProgress from '@material-ui/core/CircularProgress';
+import DatacenterContext from './DatacenterContext';
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
@@ -41,7 +42,7 @@ export class AuditController extends Component {
 
   getLogs = () => {
     // let dst = '/api/datacenters/?show_all=true'; //want all
-    let dst = '/api/log/log/?' + this.state.filterQuery ;
+    let dst = '/api/log/log/?' + this.state.filterQuery;
     console.log("QUERY")
     console.log(dst)
     axios.get(dst).then(res => {
@@ -144,7 +145,7 @@ export class AuditController extends Component {
   componentDidUpdate(prevProps, prevState) {
     var delay = 50;
     // console.log('in update')
-     // Once filter changes, rerender
+    // Once filter changes, rerender
     if (prevState.filterQuery !== this.state.filterQuery) {
       setTimeout(() => {
         this.getLogs();
@@ -177,45 +178,53 @@ export class AuditController extends Component {
     }
 
     let showAll = <FormControlLabel labelPlacement="left"
-                                    control={
-                                      <Switch value={this.state.showingAll} onChange={() => this.toggleShowingAll()}/>
-                                    }
-                                    label={
-                                      <Typography variant="subtitle1"> Show All</Typography>
-                                    }
+      control={
+        <Switch value={this.state.showingAll} onChange={() => this.toggleShowingAll()} />
+      }
+      label={
+        <Typography variant="subtitle1"> Show All</Typography>
+      }
     />
 
     console.log(this.state.logs)
     return (
       <Container maxwidth="xl">
-        <Grid container className="themed-container" spacing={2}>
-          <Grid item="flex-start" alignContent='center' xs={10}/>
-          <Grid item="flex-start" alignContent='flex-end' xs={2}>
-            {showAll}
-          </Grid>
-          <Grid item justify="flex-start" alignContent='center' xs={9}>
-            <Typography variant="h3">
-              Audit Log
+        {
+          this.context.is_admin || this.context.username === 'admin' || this.context.audit_permission ?
+            (
+              <Grid container className="themed-container" spacing={2}>
+                <Grid item="flex-start" alignContent='center' xs={10} />
+                <Grid item="flex-start" alignContent='flex-end' xs={2}>
+                  {showAll}
+                </Grid>
+                <Grid item justify="flex-start" alignContent='center' xs={9}>
+                  <Typography variant="h3">
+                    Audit Log
             </Typography>
-          </Grid>
-          <Grid item="flex-start" alignContent='flex-end' xs={3}>
-            {paginateNavigation}
-          </Grid>
-          <Grid item xs={12}>
-            
-            {this.state.loading ?
-              <center>
-                <CircularProgress size={100}/>
-              </center> 
-            : 
-              <AuditLog sendToTopLevel={this.getFilterQuery} log={this.state.logs}/>
-            }
-            
-          </Grid>
-        </Grid>
+                </Grid>
+                <Grid item="flex-start" alignContent='flex-end' xs={3}>
+                  {paginateNavigation}
+                </Grid>
+                <Grid item xs={12}>
+
+                  {this.state.loading ?
+                    <center>
+                      <CircularProgress size={100} />
+                    </center>
+                    :
+                    <AuditLog sendToTopLevel={this.getFilterQuery} log={this.state.logs} />
+                  }
+
+                </Grid>
+              </Grid>
+            ) :
+            <Typography variant="h5">You do not have permission to view audit logs</Typography>
+        }
       </Container>
     );
   }
 }
+
+AuditController.contextType = DatacenterContext;
 
 export default AuditController

@@ -132,7 +132,7 @@ export class UserTableMUI extends Component {
               )
           }
 
-          {(this.context.is_admin && username !== 'admin') ? (
+          {(this.context.is_admin || this.context.username === 'admin') ? (
             <TableCell align="right">
               <Link to={'/users/' + id + '/edit'}>
                 <Tooltip title='Edit'>
@@ -141,9 +141,9 @@ export class UserTableMUI extends Component {
                   </IconButton>
                 </Tooltip>
               </Link>
-            </TableCell>) : <p></p>
+            </TableCell>) : <div></div>
           }
-          {(this.context.is_admin && username !== 'admin') ? (
+          {(this.context.is_admin || this.context.username === 'admin') ? (
             < TableCell align="right">
               < Tooltip title='Delete'>
                 <IconButton size="sm" onClick={() => this.showDeleteForm(id)}>
@@ -151,7 +151,7 @@ export class UserTableMUI extends Component {
                 </IconButton>
               </Tooltip>
             </TableCell>
-          ) : <p></p>
+          ) : <div></div>
           }
         </TableRow>
       )
