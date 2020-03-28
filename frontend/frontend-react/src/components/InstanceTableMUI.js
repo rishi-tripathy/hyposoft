@@ -11,6 +11,7 @@ import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
 import FilterListIcon from '@material-ui/icons/FilterList';
 import LocalOfferIcon from '@material-ui/icons/LocalOffer';
+import BlockIcon from '@material-ui/icons/Block';
 import InstanceFilters from './InstanceFilters';
 import '../stylesheets/TableView.css'
 import axios, { post } from 'axios'
@@ -66,6 +67,20 @@ export class InstanceTableMUI extends Component {
 
   componentDidMount() {
     this.loadAllAssetIDs();
+  }
+  
+  showDecommissionedForm = (id) => {
+    if (window.confirm('Are you sure you want to decommission?')) {
+      let dst = '/api/assets/'.concat(id).concat('/?decommissioned=true');
+      axios.delete(dst)
+        .then(function (response) {
+          alert('Decommission was successful');
+        })
+        .catch(function (error) {
+          alert('Decommission was not successful.\n' + JSON.stringify(error.response.data, null, 2));
+        });
+    }
+    this.showRerender();
   }
 
   showDeleteForm = (id) => {
@@ -265,6 +280,16 @@ export class InstanceTableMUI extends Component {
             }
             {this.context.is_admin ? (
               < TableCell align="right">
+                < Tooltip title='Decommission'>
+                  <IconButton size="sm" onClick={() => this.showDecommissionedForm(id)}>
+                    <BlockIcon />
+                  </IconButton>
+                </Tooltip>
+              </TableCell>
+            ) : <p></p>
+            }
+            {this.context.is_admin ? (
+              < TableCell align="right">
                 < Tooltip title='Delete'>
                   <IconButton size="sm" onClick={() => this.showDeleteForm(id)}>
                     <DeleteIcon />
@@ -273,6 +298,7 @@ export class InstanceTableMUI extends Component {
               </TableCell>
             ) : <p></p>
             }
+
           </div>
         </TableRow>
       )
