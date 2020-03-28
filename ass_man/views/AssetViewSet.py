@@ -6,6 +6,7 @@ from django.db.models.functions import Concat, Substr, Cast
 from django.db.models.deletion import ProtectedError
 from django.db.models import CharField
 from django.core.exceptions import ObjectDoesNotExist
+from django.contrib.auth.models import User
 import re, requests
 # API
 from rest_framework import viewsets
@@ -49,7 +50,18 @@ class AssetViewSet(viewsets.ModelViewSet):
     # View Housekeeping (permissions, serializers, filter fields, etc
     def get_permissions(self):
         if self.action in ADMIN_ACTIONS:
-            permission_classes = [IsAdminUser]
+            if IsAdminUser:
+                try:
+                    user = User.objects.get(username=self.request.user.username)
+                    if self.action is not 'create':
+                        datacenter = self.get_object().datacenter
+                    else:
+                        datacenter = self.request.POST.get('datacenter')
+
+                    if user.is_superuser or user.permission_set.get(name='asset', datacenter=datacenter):
+                        permission_classes = [IsAuthenticated]
+                except:
+                    permission_classes = [IsAdminUser]
         else:
             permission_classes = [IsAuthenticated]
         return [permission() for permission in permission_classes]
@@ -298,6 +310,15 @@ class AssetViewSet(viewsets.ModelViewSet):
             return Response({
                 'Status': "Not all fields specified. You must provide a name, a port number, and an action."
             }, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            p = Permission.objects().all.get(name='power', user=request.user)
+        except:
+            if not request.user.is_superuser and request.user is not self.get_object().owner:
+                return Response({
+                    'Invalid Permissions': "You do not have permission! Get outta here!"
+                }, status=status.HTTP_400_BAD_REQUEST)
+
         try:
             # assert re.match("hpdu-rtp1-[A-Z0-9]+[LR]]", pdu_name)
             # assert int(port_number) < 25
@@ -324,6 +345,7 @@ class AssetViewSet(viewsets.ModelViewSet):
                 except AssertionError:
                     someDisconnected = True
                     continue
+
                 try:
                     resp = requests.post(NETWORX_POST_URL, {
                         'pdu': name,

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Model, Asset, Rack, Network_Port, Power_Port, PDU, Datacenter, Asset_Number  # add this
+from .models import Model, Asset, Rack, Network_Port, Power_Port, PDU, Datacenter, Asset_Number, Permission  # add this
 
 
 # Register your models here.
@@ -18,3 +18,4 @@ admin.site.register(Power_Port, AssAdmin)
 admin.site.register(PDU, AssAdmin)
 admin.site.register(Datacenter, AssAdmin)
 admin.site.register(Asset_Number, AssAdmin)
+admin.site.register(Permission, AssAdmin)

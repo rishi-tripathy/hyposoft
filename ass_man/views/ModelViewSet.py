@@ -37,7 +37,13 @@ class ModelViewSet(viewsets.ModelViewSet):
     # View Housekeeping (permissions, serializers, filter fields, etc
     def get_permissions(self):
         if self.action in ADMIN_ACTIONS:
-            permission_classes = [IsAdminUser]
+            if IsAdminUser:
+                try:
+                    user = User.objects.get(username=self.request.user)
+                    if user.is_superuser or user.permission_set.get(name='model'):
+                        permission_classes = [IsAuthenticated]
+                except:
+                    permission_classes = [IsAdminUser]
         else:
             permission_classes = [IsAuthenticated]
         return [permission() for permission in permission_classes]
