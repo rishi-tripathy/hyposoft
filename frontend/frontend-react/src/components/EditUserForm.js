@@ -11,6 +11,11 @@ import DualListBox from 'react-dual-listbox';
 import AddCircleIcon from "@material-ui/icons/AddCircle";
 import CancelIcon from "@material-ui/icons/Cancel";
 import DatacenterContext from './DatacenterContext';
+import 'react-dual-listbox/lib/react-dual-listbox.css';
+import ChevronRightIcon from '@material-ui/icons/ChevronRight';
+import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
+import FirstPageIcon from '@material-ui/icons/FirstPage';
+import LastPageIcon from '@material-ui/icons/LastPage';
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
@@ -34,9 +39,9 @@ export class EditUserForm extends Component {
 
 
       datacenterOptions: [],
-      selectedDatacenterOption: null,
+      selectedDatacenterOption: [],
 
-      selectedDatacenterDualListOption: [],
+      //selectedDatacenterDualListOption: [],
     }
   }
 
@@ -62,10 +67,10 @@ export class EditUserForm extends Component {
       let myOptions = [];
       for (let i = 0; i < res.data.length; i++) {
         //TODO: change value to URL
-        myOptions.push({ value: res.data[i].url, label: res.data[i].abbreviation, id: res.data[i].id });
+        myOptions.push({ value: res.data[i].id, label: res.data[i].abbreviation });
       }
-      let allDCs = { value: null, label: 'ALL', id: -1 };
-      myOptions.push(allDCs)
+      // let allDCs = { value: null, label: 'ALL', id: -1 };
+      // myOptions.push(allDCs)
       this.setState({
         datacenterOptions: myOptions,
         // selectedDatacenterOption: {
@@ -157,13 +162,13 @@ export class EditUserForm extends Component {
     }
   };
 
-  handleDatacenterChange = (event, selectedDatacenterOption) => {
+  handleDatacenterChange = (selectedDatacenterOption) => {
     this.setState({ selectedDatacenterOption });
   }
 
-  handleDatacenterDualListChange = (selectedDatacenterDualListOption) => {
-    this.setState({ selectedDatacenterDualListOption });
-  };
+  // handleDatacenterDualListChange = (selectedDatacenterDualListOption) => {
+  //   this.setState({ selectedDatacenterDualListOption });
+  // };
 
   handlePowerChange = (event) => {
     if (event.target.value === 'true') {
@@ -251,9 +256,21 @@ export class EditUserForm extends Component {
                             </Grid>
                             <Grid item xs={8}>
                               <DualListBox
-                                options={options}
-                                selected={this.state.selectedDatacenterDualListOption}
-                                onChange={this.handleDatacenterDualListChange}
+                                options={this.state.datacenterOptions}
+                                selected={this.state.selectedDatacenterOption}
+                                onChange={this.handleDatacenterChange}
+                                icons={{
+                                  moveLeft: <ChevronLeftIcon/>,
+                                  moveAllLeft: [
+                                    <FirstPageIcon />
+                                  ],
+                                  moveRight: <ChevronRightIcon/>,
+                                  moveAllRight: [
+                                    <LastPageIcon />
+                                  ],
+                                  moveDown: <span className="fa fa-chevron-down" />,
+                                  moveUp: <span className="fa fa-chevron-up" />,
+                                }}
                               />
                               {/* <Autocomplete
                                 autoComplete
