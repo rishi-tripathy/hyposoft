@@ -6,7 +6,13 @@ from django.db.models.functions import Concat, Substr, Cast
 from django.db.models.deletion import ProtectedError
 from django.db.models import CharField
 from django.core.exceptions import ObjectDoesNotExist
-import re, requests
+from reportlab.pdfgen import canvas
+from django.contrib.auth.models import User
+import re, requests, io
+from django.http import FileResponse
+import barcode
+from barcode import generate
+from barcode.writer import ImageWriter
 # API
 from rest_framework import viewsets
 
@@ -49,7 +55,18 @@ class AssetViewSet(viewsets.ModelViewSet):
     # View Housekeeping (permissions, serializers, filter fields, etc
     def get_permissions(self):
         if self.action in ADMIN_ACTIONS:
-            permission_classes = [IsAdminUser]
+            if IsAdminUser:
+                try:
+                    user = User.objects.get(username=self.request.user.username)
+                    if self.action is not 'create':
+                        datacenter = self.get_object().datacenter
+                    else:
+                        datacenter = self.request.POST.get('datacenter')
+
+                    if user.is_superuser or user.permission_set.get(name='asset', datacenter=datacenter):
+                        permission_classes = [IsAuthenticated]
+                except:
+                    permission_classes = [IsAdminUser]
         else:
             permission_classes = [IsAuthenticated]
         return [permission() for permission in permission_classes]
@@ -298,6 +315,15 @@ class AssetViewSet(viewsets.ModelViewSet):
             return Response({
                 'Status': "Not all fields specified. You must provide a name, a port number, and an action."
             }, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            p = Permission.objects().all.get(name='power', user=request.user)
+        except:
+            if not request.user.is_superuser and request.user is not self.get_object().owner:
+                return Response({
+                    'Invalid Permissions': "You do not have permission! Get outta here!"
+                }, status=status.HTTP_400_BAD_REQUEST)
+
         try:
             # assert re.match("hpdu-rtp1-[A-Z0-9]+[LR]]", pdu_name)
             # assert int(port_number) < 25
@@ -324,6 +350,7 @@ class AssetViewSet(viewsets.ModelViewSet):
                 except AssertionError:
                     someDisconnected = True
                     continue
+
                 try:
                     resp = requests.post(NETWORX_POST_URL, {
                         'pdu': name,
@@ -398,6 +425,24 @@ class AssetViewSet(viewsets.ModelViewSet):
         return Response({
             'status': 'Error. The PDU Networx 98 Pro service is unavailable.'
         }, status=status.HTTP_400_BAD_REQUEST)
+
+      
+    @action(detail=False, methods=[POST])
+    def generate_barcodes(self, request, *args, **kwargs):
+        asset_ids = request.data.get('assets')
+        c128 = barcode.get_barcode_class('code128')
+        buffer = io.BytesIO()
+        p = canvas.Canvas(buffer)
+        if asset_ids:
+            for id in asset_ids:
+                print('asset id')
+                print(id)
+                asset = Asset.objects.all().get(pk=id)
+                generate('code128', str(asset.asset_number), output=buffer)
+        buffer.seek(0)
+        print('returing')
+        print(buffer.getvalue())
+        return FileResponse(buffer, as_attachment=True, filename='asset_barcodes.pdf')
 
     @action(detail=False, methods=[GET])
     def all_ids(self, request, *args, **kwargs):
