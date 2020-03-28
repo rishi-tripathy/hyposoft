@@ -2,14 +2,15 @@ import React, { Component } from 'react'
 import axios from 'axios'
 import InstanceCard from './InstanceCard';
 import {
-  Typography, Paper, IconButton, 
-  Dialog, DialogTitle, DialogContent, Container, Grid, Button, makeStyles
+  Typography, Dialog, DialogTitle, DialogContent, Container, Grid, Button, TextField
 } from "@material-ui/core";
 import PageviewIcon from '@material-ui/icons/Pageview';
 import { Link } from 'react-router-dom'
 import ChangePlanAssetTable from './ChangePlanAssetTable'
 import DatacenterContext from './DatacenterContext';
 import AddCircleIcon from "@material-ui/icons/AddCircle";
+import { Autocomplete } from "@material-ui/lab"
+
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
@@ -27,31 +28,29 @@ export class DetailedChangePlan extends Component {
     this.close = this.close.bind(this);
   }
 
-  initializeFakeData = () => {
-    this.state.assets = null;
+  // initializeFakeData = () => {
+  //   this.state.assets = null;
 
-    var arr = [];
+  //   var arr = [];
 
-    var ass1 = {
-      id:0,
-      name: 'asset1',
-    }
+  //   var ass1 = {
+  //     id:0,
+  //     name: 'asset1',
+  //   }
 
-    arr.push(ass1);
+  //   arr.push(ass1);
 
-    this.setState({
-      assets: arr,
-    })
-  }
-
-  componentDidMount() {
-    this.initializeFakeData();
-  }
+  //   this.setState({
+  //     assets: arr,
+  //   })
+  // }
 
   open = () => {
     this.setState({
       showDialog: true,
     });
+    //need to get existing assets bc modal open
+    this.loadExistingAssetsInDatacenter();
   }
 
   close = () => {
@@ -62,18 +61,34 @@ export class DetailedChangePlan extends Component {
 
   loadExistingAssetsInDatacenter= () => {
     //get assets from dc
-    let dst = '/api/assets/?datacenter=' + this.context.datacenterID + '&show_all=true';
+    console.log(this.context)
+    let dst = '/api/assets/?datacenter=' + this.context.datacenter_id + '&show_all=true';
     console.log(dst)
+
     axios.get(dst).then(res => {
-      console.log(res)
+        var raw_assets = res.data;
+      //put in digestible form 
+      var ass_arr = [];
+      raw_assets.map((asset, index) =>{
+        var temp = asset['id'];
+        ass_arr.push(temp);
+      });
+
       this.setState({
-        assets: res.data,
+        assets: ass_arr,
       });
+      
+      console.log(this.state.assets)
+
     })
-      .catch(function (error) {
-        console.log(error.response)
-        alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
-      });
+    .catch(function (error) {
+      console.log(error.response)
+      alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+    });
+  }
+
+  handleChangeAsset = () => {
+    //do later when string stuff is fixed 
   }
 
   render() {
@@ -98,10 +113,29 @@ export class DetailedChangePlan extends Component {
       <Button onClick={this.open.bind(this)}> Add Change Plan Action to Existing Asset</Button>
         <Dialog
           open={this.state.showDialog}
-          onEnter={console.log("Hey.")}
+          onClose={this.close}
         >
-          <DialogTitle>Select an Asset within Datacenter: {this.context.datacenter_ab} </DialogTitle>
-          <DialogContent>Start editing to see some magic happen!</DialogContent>
+          <DialogTitle>
+            Select an Asset within Datacenter: {this.context.datacenter_ab} 
+          </DialogTitle>
+          
+          <DialogContent>
+            {console.log(this.state.assets)}
+          <Autocomplete
+                    freeSolo
+                    autoComplete
+                    autoHighlight
+                    autoSelect
+                    id="rack-datacenter-select"
+                    noOptionsText={"Create New in DC tab"}
+                    options={this.state.assets}
+                    onInputChange={this.handleChangeAsset}
+                    defaultValue={this.state.assets[0]}
+                    renderInput={params => (
+                      <TextField {...params} label="Asset" fullWidth/>
+                    )}
+                  />
+          </DialogContent>
         </Dialog>
     </div>
 

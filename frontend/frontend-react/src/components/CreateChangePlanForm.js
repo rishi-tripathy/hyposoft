@@ -21,6 +21,7 @@ export class CreateChangePlanForm extends Component {
         'id': null,
         'name': null,
         'datacenter': null,
+        'datacenterOptions': [],
     }
   }
 
