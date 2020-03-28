@@ -6,8 +6,14 @@ from django.db.models.functions import Concat, Substr, Cast
 from django.db.models.deletion import ProtectedError
 from django.db.models import CharField
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.files.base import ContentFile
 from django.contrib.auth.models import User
-import re, requests
+import re, requests, io
+from django.http import FileResponse, HttpResponse
+import barcode
+from reportlab.pdfgen import canvas
+from reportlab.graphics import renderPDF
+from svglib.svglib import svg2rlg
 # API
 from rest_framework import viewsets
 
@@ -420,6 +426,151 @@ class AssetViewSet(viewsets.ModelViewSet):
         return Response({
             'status': 'Error. The PDU Networx 98 Pro service is unavailable.'
         }, status=status.HTTP_400_BAD_REQUEST)
+
+
+    @action(detail=False, methods=[POST])
+    def generate_barcodes(self, request, *args, **kwargs):
+        asset_ids = request.data
+        c128 = barcode.get_barcode_class('code128')
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename="barcodes.pdf"'
+        p = canvas.Canvas(response)
+        svgs = []
+        if asset_ids:
+            for id in asset_ids:
+                asset = Asset.objects.all().get(pk=id)
+                c128_barcode = c128(str(asset.asset_number))
+                raw = c128_barcode.render(
+                writer_options = {
+                    'module_width':.5,
+                    'module_height':6,
+                    'font_size':6,
+                    'text_distance':3,
+                },
+                text=str(asset.asset_number)
+                )
+                c128_barcode.save('test.svg')
+                svg = ContentFile(raw)
+                svgs.append(svg)
+                print(c128_barcode)
+        x = 8
+        y = 35
+        for svg in svgs:
+            print(svg.name)
+            print(svg)
+            rlg = svg2rlg('test.svg')
+            renderPDF.draw(rlg, canvas, x, y)
+            if x < 400:
+                x += 155
+            else:
+                x = 8
+                y += 39
+            barcodes_on_page += 1
+            if barcodes_on_page == 80:
+                canvas.showPage()
+                x = 8
+                y = 35
+                barcodes_on_page = 0
+        canvas.save()
+        return response
+
+
+        # asset_ids = request.data
+        # response = HttpResponse(content_type='application/pdf')
+        # response['Content-Disposition'] = 'attachment; filename="barcodes.pdf"'
+        # c = canvas.Canvas(response, pagesize=letter)
+        # codes = []
+        # for id in asset_ids:
+        #     asset = Asset.objects.all().get(pk=id)
+        #     barcode128 = code128.Code128(asset.asset_number)
+        #     codes.append(barcode128)
+        # print(codes)
+        # x = 50 * mm
+        # y = 285 * mm
+        # x1 = 6.4 * mm
+        # for code in codes:
+        #     print(code)
+        #     code.drawOn(c, x, y)
+        #     y = y - 100 * mm
+        # c.save()
+        # return response
+
+
+
+
+
+    # barcode128 = code128.Code128(barcode_value)
+    # # the multiwidth barcode appears to be broken
+    # #barcode128Multi = code128.MultiWidthBarcode(barcode_value)
+    #
+    # barcode_usps = usps.POSTNET("50158-9999")
+    #
+    # codes = [barcode39, barcode39Std, barcode93, barcode128, barcode_usps]
+    #
+    # x = 1 * mm
+    # y = 285 * mm
+    # x1 = 6.4 * mm
+    #
+    # for code in codes:
+    #     code.drawOn(c, x, y)
+    #     y = y - 15 * mm
+    #
+    # # draw the eanbc8 code
+    # barcode_eanbc8 = eanbc.Ean8BarcodeWidget(barcode_value)
+    # bounds = barcode_eanbc8.getBounds()
+    # width = bounds[2] - bounds[0]
+    # height = bounds[3] - bounds[1]
+    # d = Drawing(50, 10)
+    # d.add(barcode_eanbc8)
+    # renderPDF.draw(d, c, 15, 555)
+    #
+    # # draw the eanbc13 code
+    # barcode_eanbc13 = eanbc.Ean13BarcodeWidget(barcode_value)
+    # bounds = barcode_eanbc13.getBounds()
+    # width = bounds[2] - bounds[0]
+    # height = bounds[3] - bounds[1]
+    # d = Drawing(50, 10)
+    # d.add(barcode_eanbc13)
+    # renderPDF.draw(d, c, 15, 465)
+    #
+    # # draw a QR code
+    # qr_code = qr.QrCodeWidget('www.mousevspython.com')
+    # bounds = qr_code.getBounds()
+    # width = bounds[2] - bounds[0]
+    # height = bounds[3] - bounds[1]
+    # d = Drawing(45, 45, transform=[45./width,0,0,45./height,0,0])
+    # d.add(qr_code)
+    # renderPDF.draw(d, c, 15, 405)
+    #
+    # c.save()
+
+
+
+        # asset_ids = request.data
+        # c128 = barcode.get_barcode_class('code128')
+        # buffer = io.BytesIO()
+        # p = canvas.Canvas(buffer)
+        # if asset_ids:
+        #     for id in asset_ids:
+        #         print('asset id')
+        #         print(id)
+        #         asset = Asset.objects.all().get(pk=id)
+        #         generate('code128', str(asset.asset_number), output=buffer)
+        # buffer.seek(0)
+        # print('returing')
+        # print(buffer.getvalue())
+        # return FileResponse(buffer, as_attachment=True, filename='asset_barcodes.pdf')
+
+
+
+    @action(detail=False, methods=[GET])
+    def all_ids(self, request, *args, **kwargs):
+        ids = []
+        for asset in Asset.objects.all():
+            ids.append(asset.id)
+        return Response({
+            'ids': ids
+            })
 
     @action(detail=True, methods=[GET])
     def get_pp_status(self, request, *args, **kwargs):
