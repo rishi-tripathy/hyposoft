@@ -199,7 +199,7 @@ export class ModelTable extends Component {
                     </IconButton>
                   </Tooltip>
                 </Link>
-              </TableCell>) : <p></p>
+              </TableCell>) : <div></div>
             }
             {this.context.is_admin ? (
               < TableCell align="right">
@@ -209,7 +209,7 @@ export class ModelTable extends Component {
                   </IconButton>
                 </Tooltip>
               </TableCell>
-            ) : <p></p>
+            ) : <div></div>
             }
           </div>
         </TableRow>

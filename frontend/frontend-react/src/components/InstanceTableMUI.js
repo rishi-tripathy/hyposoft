@@ -209,7 +209,7 @@ export class InstanceTableMUI extends Component {
                     </IconButton>
                   </Tooltip>
                 </Link>
-              </TableCell>) : <p></p>
+              </TableCell>) : <div></div>
             }
             {this.context.is_admin ? (
               < TableCell align="right">
@@ -219,7 +219,7 @@ export class InstanceTableMUI extends Component {
                   </IconButton>
                 </Tooltip>
               </TableCell>
-            ) : <p></p>
+            ) : <div></div>
             }
             {this.context.is_admin ? (
               < TableCell align="right">
@@ -229,7 +229,7 @@ export class InstanceTableMUI extends Component {
                   </IconButton>
                 </Tooltip>
               </TableCell>
-            ) : <p></p>
+            ) : <div></div>
             }
             
           </div>

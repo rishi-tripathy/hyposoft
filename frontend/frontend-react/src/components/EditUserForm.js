@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import axios from 'axios'
 import { Redirect, Link } from 'react-router-dom'
 import {
-  Button, Container, FormLabel, RadioGroup, Radio, TextField,
+  Button, Container, FormLabel, RadioGroup, Radio, TextField, Paper,
   Grid, Input, FormControl, FormControlLabel, Typography, Tooltip,
 } from "@material-ui/core";
 import { Autocomplete } from "@material-ui/lab";
@@ -55,7 +55,7 @@ export class EditUserForm extends Component {
         //TODO: change value to URL
         myOptions.push({ value: res.data[i].url, label: res.data[i].abbreviation, id: res.data[i].id });
       }
-      let allDCs = { value: null, label: 'ALL', id: -1  };
+      let allDCs = { value: null, label: 'ALL', id: -1 };
       myOptions.push(allDCs)
       this.setState({
         datacenterOptions: myOptions,
@@ -168,7 +168,11 @@ export class EditUserForm extends Component {
                 </Grid>
                 <Grid item xs={12}>
                   <FormControl component="fieldset">
-                    <FormLabel component="legend">Permissions</FormLabel>
+                    <FormLabel component="legend">
+                      <Typography variant="h6" gutterBottom>
+                        Administrator Permissions
+                      </Typography>
+                    </FormLabel>
                     <RadioGroup aria-label="permissions" name="permissions" value={this.state.is_admin.toString()}
                       onChange={this.handleAdminChange}>
                       <FormControlLabel value='true' control={<Radio />} label="Administrator" />
@@ -180,60 +184,88 @@ export class EditUserForm extends Component {
                   {
                     !this.state.is_admin ? (
                       <div>
-                        <Grid item xs={4}>
-                          <FormLabel component="legend">Model Permissions</FormLabel>
-                        </Grid>
-                        <Grid item xs={8}>
-                          <FormControl component="fieldset">
-                            <RadioGroup aria-label="modelPermissions" name="modelPermissions" value={this.state.hasModelPermission.toString()}
-                              onChange={this.handleModelChange}>
-                              <FormControlLabel value='true' control={<Radio />} label="On" />
-                              <FormControlLabel value='false' control={<Radio />} label="Off" />
-                            </RadioGroup>
-                          </FormControl>
-                        </Grid>
-                        <Grid item xs={4}>
-                          <FormLabel component="legend">Asset Permissions</FormLabel>
-                        </Grid>
-                        <Grid item xs={8}>
-                          <Autocomplete
-                            autoComplete
-                            autoHighlight
-                            autoSelect
-                            id="datacenter-select"
-                            options={this.state.datacenterOptions}
-                            getOptionLabel={option => option.label}
-                            onChange={this.handleDatacenterChange}
-                            value={this.state.selectedDatacenterOption}
-                            renderInput={params => (
-                              <TextField {...params} label="Datacenter" fullWidth />
-                            )}
-                          />
-                        </Grid>
-                        <Grid item xs={4}>
-                          <FormLabel component="legend">Power Permissions</FormLabel>
-                        </Grid>
-                        <Grid item xs={8}>
-                          <FormControl component="fieldset">
-                            <RadioGroup aria-label="powerPermissions" name="powerPermissions" value={this.state.hasPowerPermission.toString()}
-                              onChange={this.handlePowerChange}>
-                              <FormControlLabel value='true' control={<Radio />} label="On" />
-                              <FormControlLabel value='false' control={<Radio />} label="Off" />
-                            </RadioGroup>
-                          </FormControl>
-                        </Grid>
-                        <Grid item xs={4}>
-                          <FormLabel component="legend">Audit Permissions</FormLabel>
-                        </Grid>
-                        <Grid item xs={8}>
-                          <FormControl component="fieldset">
-                            <RadioGroup aria-label="auditPermissions" name="auditPermissions" value={this.state.hasAuditPermission.toString()}
-                              onChange={this.handleAuditChange}>
-                              <FormControlLabel value='true' control={<Radio />} label="On" />
-                              <FormControlLabel value='false' control={<Radio />} label="Off" />
-                            </RadioGroup>
-                          </FormControl>
-                        </Grid>
+                        <Paper>
+                          <Grid container spacing={3}>
+                            <Grid item alignContent='center' xs={4}>
+                              <FormLabel component="legend">
+                                <Typography variant="h6" gutterBottom>
+                                  Model Permission
+                            </Typography>
+                              </FormLabel>
+                            </Grid>
+                            <Grid item xs={4}>
+                              <FormControl component="fieldset">
+                                <RadioGroup aria-label="modelPermissions" name="modelPermissions" value={this.state.hasModelPermission.toString()}
+                                  onChange={this.handleModelChange}>
+                                  <FormControlLabel value='true' control={<Radio />} label="On" />
+                                  <FormControlLabel value='false' control={<Radio />} label="Off" />
+                                </RadioGroup>
+                              </FormControl>
+                            </Grid>
+                            <Grid item xs={4}>
+                            </Grid>
+                            <Grid item alignContent='center' xs={4}>
+                              <FormLabel component="legend">
+                                <Typography variant="h6" gutterBottom>
+                                  Asset Permission
+                            </Typography>
+                              </FormLabel>
+                            </Grid>
+                            <Grid item xs={4}>
+                              <Autocomplete
+                                autoComplete
+                                autoHighlight
+                                autoSelect
+                                id="datacenter-select"
+                                options={this.state.datacenterOptions}
+                                getOptionLabel={option => option.label}
+                                onChange={this.handleDatacenterChange}
+                                value={this.state.selectedDatacenterOption}
+                                renderInput={params => (
+                                  <TextField {...params} label="Datacenter" fullWidth />
+                                )}
+                              />
+                            </Grid>
+                            <Grid item xs={4}>
+                            </Grid>
+                            <Grid item alignContent='center' xs={4}>
+                              <FormLabel component="legend">
+                                <Typography variant="h6" gutterBottom>
+                                  Power Permission
+                            </Typography>
+                              </FormLabel>
+                            </Grid>
+                            <Grid item xs={4}>
+                              <FormControl component="fieldset">
+                                <RadioGroup aria-label="powerPermissions" name="powerPermissions" value={this.state.hasPowerPermission.toString()}
+                                  onChange={this.handlePowerChange}>
+                                  <FormControlLabel value='true' control={<Radio />} label="On" />
+                                  <FormControlLabel value='false' control={<Radio />} label="Off" />
+                                </RadioGroup>
+                              </FormControl>
+                            </Grid>
+                            <Grid item xs={4}>
+                            </Grid>
+                            <Grid item alignContent='center' xs={4}>
+                              <FormLabel component="legend">
+                                <Typography variant="h6" gutterBottom>
+                                  Audit Permission
+                            </Typography>
+                              </FormLabel>
+                            </Grid>
+                            <Grid item xs={4}>
+                              <FormControl component="fieldset">
+                                <RadioGroup aria-label="auditPermissions" name="auditPermissions" value={this.state.hasAuditPermission.toString()}
+                                  onChange={this.handleAuditChange}>
+                                  <FormControlLabel value='true' control={<Radio />} label="On" />
+                                  <FormControlLabel value='false' control={<Radio />} label="Off" />
+                                </RadioGroup>
+                              </FormControl>
+                            </Grid>
+                            <Grid item xs={4}>
+                            </Grid>
+                          </Grid>
+                        </Paper>
                       </div>
                     )
                       : <div></div>
