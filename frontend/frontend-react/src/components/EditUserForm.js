@@ -7,12 +7,18 @@ import {
   Grid, Input, FormControl, FormControlLabel, Typography, Tooltip,
 } from "@material-ui/core";
 import { Autocomplete } from "@material-ui/lab";
-
+import DualListBox from 'react-dual-listbox';
 import AddCircleIcon from "@material-ui/icons/AddCircle";
 import CancelIcon from "@material-ui/icons/Cancel";
 import DatacenterContext from './DatacenterContext';
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
+
+const options = [
+  { value: 'one', label: 'Option One' },
+  { value: 'two', label: 'Option Two' },
+];
+
 
 export class EditUserForm extends Component {
 
@@ -29,6 +35,8 @@ export class EditUserForm extends Component {
 
       datacenterOptions: [],
       selectedDatacenterOption: null,
+
+      selectedDatacenterDualListOption: [],
     }
   }
 
@@ -153,6 +161,10 @@ export class EditUserForm extends Component {
     this.setState({ selectedDatacenterOption });
   }
 
+  handleDatacenterDualListChange = (selectedDatacenterDualListOption) => {
+    this.setState({ selectedDatacenterDualListOption });
+  };
+
   handlePowerChange = (event) => {
     if (event.target.value === 'true') {
       this.setState({ hasPowerPermission: true });
@@ -237,8 +249,13 @@ export class EditUserForm extends Component {
                             </Typography>
                               </FormLabel>
                             </Grid>
-                            <Grid item xs={4}>
-                              <Autocomplete
+                            <Grid item xs={8}>
+                              <DualListBox
+                                options={options}
+                                selected={this.state.selectedDatacenterDualListOption}
+                                onChange={this.handleDatacenterDualListChange}
+                              />
+                              {/* <Autocomplete
                                 autoComplete
                                 autoHighlight
                                 autoSelect
@@ -250,10 +267,10 @@ export class EditUserForm extends Component {
                                 renderInput={params => (
                                   <TextField {...params} label="Datacenter" fullWidth />
                                 )}
-                              />
+                              /> */}
                             </Grid>
-                            <Grid item xs={4}>
-                            </Grid>
+                            {/* <Grid item xs={4}>
+                            </Grid> */}
                             <Grid item alignContent='center' xs={4}>
                               <FormLabel component="legend">
                                 <Typography variant="h6" gutterBottom>
