@@ -426,10 +426,10 @@ class AssetViewSet(viewsets.ModelViewSet):
             'status': 'Error. The PDU Networx 98 Pro service is unavailable.'
         }, status=status.HTTP_400_BAD_REQUEST)
 
-      
+
     @action(detail=False, methods=[POST])
     def generate_barcodes(self, request, *args, **kwargs):
-        asset_ids = request.data.get('assets')
+        asset_ids = request.data
         c128 = barcode.get_barcode_class('code128')
         buffer = io.BytesIO()
         p = canvas.Canvas(buffer)
