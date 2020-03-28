@@ -134,6 +134,8 @@ export class InstanceTableMUI extends Component {
     let dst = '/api/assets/generate_barcodes/';
     axios.post(dst, arrayToSend).then(res => {
       //alert('Created tags successfully');
+      const FileDownload = require('js-file-download');
+      FileDownload(res.data, 'asset-tags.pdf');
     })
       .catch(function (error) {
         alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
