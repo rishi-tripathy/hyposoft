@@ -113,6 +113,18 @@ export class InstanceTableMUI extends Component {
     this.props.sendSortQuery(q);
   };
 
+  handleMakeAssetTags = () => {
+    let arrayToSend = Object.assign([], this.state.selected)
+    console.log(arrayToSend)
+    let dst = '/api/assets/generate_barcodes/';
+    axios.post(dst, arrayToSend).then(res => {
+      //alert('Created tags successfully');
+    })
+      .catch(function (error) {
+        alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+      });
+  }
+
   renderTableToolbar = () => {
     return (
       <Toolbar>
@@ -138,7 +150,7 @@ export class InstanceTableMUI extends Component {
 
                   <Grid item xs={2}>
                     <Tooltip title='Make Asset Tags'>
-                      <IconButton size="sm">
+                      <IconButton size="sm" onClick={() => this.handleMakeAssetTags()}>
                         <LocalOfferIcon />
                       </IconButton>
                     </Tooltip>
