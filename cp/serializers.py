@@ -10,18 +10,6 @@ from usr_man.serializers import UserOfAssetSerializer
 from rest_framework import serializers
 
 
-class AssetCPSerializer(serializers.ModelSerializer):
-
-    model = ModelAssetSerializer()
-    datacenter = DatacenterSerializer()
-    rack = RackOfAssetSerializer()
-    owner = UserOfAssetSerializer()
-
-    class Meta:
-        model = AssetCP
-        fields = ['id', 'id_ref', 'cp', 'model', 'datacenter', 'rack', 'rack_u', 'owner', 'comment', 'asset_number']
-
-
 class RemoteNPCPSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -37,27 +25,49 @@ class NPCPSerializer(serializers.ModelSerializer):
 
 
 class PPCPSerializer(serializers.ModelSerializer):
-    pdu = PDUSerializer()
+    #pdu = PDUSerializer()
 
     class Meta:
-        Model = PPCP
+        model = PPCP
         fields = ['id', 'id_ref', 'name', 'pdu', 'port_number', 'asset', 'asset_cp_id']
+
+
+class AssetCPSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = AssetCP
+        fields = ['id', 'id_ref', 'hostname', 'cp', 'model', 'datacenter', 'rack', 'rack_u', 'owner', 'asset_number']
+
+
+class AssetCPFetchSerializer(serializers.ModelSerializer):
+
+    model = ModelAssetSerializer()
+    datacenter = DatacenterSerializer()
+    rack = RackOfAssetSerializer()
+    owner = UserOfAssetSerializer()
+    nps_cp = NPCPSerializer(source='npcp_set', many=True, read_only=True)
+    pps_cp = PPCPSerializer(source='ppcp_set', many=True, read_only=True)
+
+    class Meta:
+        model = AssetCP
+        fields = ['id', 'id_ref', 'hostname', 'cp', 'model', 'datacenter', 'rack', 'rack_u', 'nps_cp', 'pps_cp', 'owner', 'comment', 'asset_number']
+
+
+
 
 
 class ChangePlanListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ChangePlan
-        fields = ['id', 'name', 'owner']
+        fields = ['id', 'name', 'datacenter', 'owner']
 
 
+class ChangePlanFetchSerializer(serializers.ModelSerializer):
 
-class ChangePlanSerializer(serializers.ModelSerializer):
+    assets_cp = AssetCPFetchSerializer(source='assetcp_set', many=True, read_only=True)
 
-    assets_cp = AssetCPSerializer(source='assetcp_set', many=True)
-    nps_cp = NPCPSerializer(source='npcp_set', many=True)
-    pps_cp = PPCPSerializer(source='ppcp_set', many=True)
 
     class Meta:
         model = ChangePlan
-        fields = ['id', 'name', 'owner', 'assets_cp', 'nps_cp', 'pps_cp']
+        fields = ['id', 'name', 'owner', 'datacenter', 'assets_cp']

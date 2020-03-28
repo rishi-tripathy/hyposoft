@@ -7,10 +7,15 @@ from django.contrib.auth.models import User
 class ChangePlan(models.Model):
     name = models.CharField(max_length=64, blank=False, null=False)
     owner = models.ForeignKey(User, blank=True, null=True, on_delete=models.CASCADE)
+    datacenter = models.ForeignKey(Datacenter, blank=True, null=True, on_delete=models.CASCADE)
+    # ADD DATACENTER
+
+    def __str__(self):
+        return self.name or ''
 
 
 class AssetCP(Asset):
-    id_ref = models.PositiveIntegerField(blank=True)
+    id_ref = models.PositiveIntegerField(blank=True, null=True)
     cp = models.ForeignKey(ChangePlan, blank=True, null=True, on_delete=models.CASCADE)
 
     def __str__(self):
@@ -18,16 +23,19 @@ class AssetCP(Asset):
 
 
 class PPCP(Power_Port):
-    id_ref = models.PositiveIntegerField(blank=True)
+    id_ref = models.PositiveIntegerField(blank=True, null=True)
     asset_cp_id = models.ForeignKey(Asset, blank=True, null=True, on_delete=models.SET_NULL)
-    cp = models.ForeignKey(ChangePlan, blank=True, null=True, on_delete=models.CASCADE)
+    # cp = models.ForeignKey(ChangePlan, blank=True, null=True, on_delete=models.CASCADE)
 
 
 class NPCP(Network_Port):
-    id_ref = models.PositiveIntegerField(blank=True)
-    conn_cp_id = models.PositiveIntegerField(blank=True)
+    id_ref = models.PositiveIntegerField(blank=True, null=True)
+    conn_cp_id = models.PositiveIntegerField(blank=True, null=True)
     asset_cp_id = models.ForeignKey(Asset, blank=True, null=True, on_delete=models.SET_NULL)
-    cp = models.ForeignKey(ChangePlan, blank=True, null=True, on_delete=models.CASCADE)
+    # cp = models.ForeignKey(ChangePlan, blank=True, null=True, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.name or ''
 
 
 

@@ -44,14 +44,14 @@ class Network_Port(models.Model):
     name = models.CharField(max_length=15, blank=True, default='mgmt')
     mac = models.CharField(max_length=17, blank=True, null=True)
     connection = models.ForeignKey('self', on_delete=models.SET_NULL, null=True)
-    asset = models.ForeignKey('Asset', on_delete=models.CASCADE)
+    asset = models.ForeignKey('Asset', on_delete=models.CASCADE, null=True)
 
 
 class Power_Port(models.Model):
-    name = models.CharField(max_length=10)
+    name = models.CharField(max_length=10, blank=True, null=True)
     pdu = models.ForeignKey('PDU', on_delete=models.SET_NULL, null=True)
     port_number = models.PositiveIntegerField(null=True)
-    asset = models.ForeignKey('Asset', on_delete=models.CASCADE)
+    asset = models.ForeignKey('Asset', on_delete=models.CASCADE, null=True)
 
 
 class PDU(models.Model):

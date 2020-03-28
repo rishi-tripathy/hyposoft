@@ -19,7 +19,7 @@ from django.views.generic import TemplateView
 from usr_man import views as user_views
 from ass_man.views import ReportView, ModelViewSet, AssetViewSet, RackViewSet, DatacenterViewSet
 from log import views as log_views
-from cp.views import ChangePlanViewSet, AssetCPViewSet
+from cp.views import ChangePlanViewSet, AssetCPViewSet, NPCPViewSet, PPCPViewSet
 
 router = routers.DefaultRouter()  # add this
 router.register(r'users', user_views.UserViewSet)
@@ -30,6 +30,8 @@ router.register(r'datacenters', DatacenterViewSet.DatacenterViewSet)
 router.register(r'log', log_views.LogViewSet)
 router.register(r'cp', ChangePlanViewSet)
 router.register(r'cpAsset', AssetCPViewSet)
+router.register(r'cpnp', NPCPViewSet)
+router.register(r'cppp', PPCPViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
