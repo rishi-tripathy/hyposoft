@@ -11,6 +11,10 @@ import axios from 'axios'
 import { Link, Redirect } from 'react-router-dom'
 import DatacenterContext from './DatacenterContext';
 
+const bgColors = {
+  LightGrey: '#b3b5b4',
+}
+
 export class UserTableMUI extends Component {
 
   constructor() {
@@ -104,10 +108,30 @@ export class UserTableMUI extends Component {
           <TableCell align="center">{first_name}</TableCell>
           <TableCell align="center">{last_name}</TableCell>
           <TableCell align="center">{admin_icon}</TableCell>
-          <TableCell align="center">{currentUserModelPermission ? currentUserModelPermission.toString() : null}</TableCell>
-          <TableCell align="center">{currentUserAssetPermission ? currentUserAssetPermission.length : 0} datacenters</TableCell>
-          <TableCell align="center">{currentUserPowerPermission ? currentUserPowerPermission.toString() : null}</TableCell>
-          <TableCell align="center">{currentUserAuditPermission ? currentUserAuditPermission.toString() : null}</TableCell>
+          {
+            !is_superuser ? (
+              //<React.Fragment>
+              //<div>
+              <React.Fragment>
+                <TableCell align="center">{currentUserModelPermission ? currentUserModelPermission.toString() : null}</TableCell>
+                <TableCell align="center">{currentUserAssetPermission ? currentUserAssetPermission.length : 0} datacenters</TableCell>
+                <TableCell align="center">{currentUserPowerPermission ? currentUserPowerPermission.toString() : null}</TableCell>
+                <TableCell align="center">{currentUserAuditPermission ? currentUserAuditPermission.toString() : null}</TableCell>
+              </React.Fragment>
+              //</div>
+            ) : (
+                //<div>
+                <React.Fragment>
+                  <TableCell align="center" style={{backgroundColor: "#d1d1d1"}} ></TableCell>
+                  <TableCell align="center" style={{backgroundColor: "#d1d1d1"}} ></TableCell>
+                  <TableCell align="center" style={{backgroundColor: "#d1d1d1"}}></TableCell>
+                  <TableCell align="center" style={{backgroundColor: "#d1d1d1"}}></TableCell>
+                </React.Fragment>
+
+                //</div>
+              )
+          }
+
           {(this.context.is_admin && username !== 'admin') ? (
             <TableCell align="right">
               <Link to={'/users/' + id + '/edit'}>
