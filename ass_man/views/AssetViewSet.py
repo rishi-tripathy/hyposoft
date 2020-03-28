@@ -17,7 +17,7 @@ from ass_man.serializers.model_serializers import UniqueModelsSerializer
 # Auth
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 # Project
-from ass_man.models import Model, Asset, Rack, Datacenter, Network_Port, Power_Port, PDU, Asset_Number
+from ass_man.models import Model, Asset, Rack, Datacenter, Network_Port, Power_Port, PDU, Asset_Number, Decommissioned
 from rest_framework.filters import OrderingFilter
 from django_filters import rest_framework as djfiltBackend
 from ass_man.filters import AssetFilter, AssetFilterByRack
@@ -26,6 +26,7 @@ from rest_framework.request import Request, HttpRequest
 import json
 from ass_man.import_manager import import_asset_file, import_network_port_file
 from ass_man.export_manager import export_assets, export_network_ports
+from ass_man.network_port_jsonify import restructure_net_port_data
 
 # CHANGE THIS FOR PRODUCTION
 NETWORX_PORT = ":8004"
@@ -227,6 +228,16 @@ class AssetViewSet(viewsets.ModelViewSet):
 
         return super().list(self, request, *args, **kwargs)
 
+    def destroy(self, request, *args, **kwargs):
+        if self.request.query_params.get('decommissioned')=='true':
+            graph_serializer = AssetSeedForGraphSerializer(self.get_object(), context={'request': request})
+            newresp = restructure_net_port_data(graph_serializer)
+            serialized_asset = AssetFetchSerializer(self.get_object(), context={'request': request})
+            decom_asset = Decommissioned(username=request.user.username, \
+            asset_state=serialized_asset.data, network_graph=newresp)
+            decom_asset.save()
+        return super().destroy(self, request, *args, **kwargs)
+
     # Custom actions below
     @action(detail=False, methods=[GET])
     def asset_number(self, request, *args, **kwargs):
@@ -243,103 +254,7 @@ class AssetViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=[GET])
     def network_graph(self, request, *args, **kwargs):
         graph_serializer = AssetSeedForGraphSerializer(self.get_object(), context={'request': request})
-
-        assets = []
-        nodes = []
-        seen_asset_ids = set()
-        assets1 = []
-        nps1 = []
-        assets2 = []
-        links = []
-        newlinks = []
-
-        master_data = graph_serializer.data
-        data = graph_serializer.data
-
-        root = {
-            "id": data.get("id"),
-            "hostname": data.get("hostname"),
-            "location": "Rack {} U{}".format(data.get("rack").get("rack_number"), data.get("rack_u"))
-        }
-
-        assets.append(root)
-        nodes.append({
-            'id': root.get("hostname")
-        })
-        seen_asset_ids.add(data.get("id"))
-
-        def process_l2(np, l1_id):
-            c = np.get("connection")
-            if c:
-                data = c.get("asset")
-                if data and (data.get("id") not in seen_asset_ids):
-                    a2 = {
-                        "id": data.get("id"),
-                        "hostname": data.get("hostname"),
-                        "location": "Rack {} U{}".format(data.get("rack").get("rack_number"), data.get("rack_u"))
-                    }
-                    assets.append(a2)
-                    nodes.append({
-                        'id': a2.get("hostname")
-                    })
-                    if int(l1_id) < int(data.get("id")):
-                        links.append("{},{}".format(l1_id, data.get("id")))
-                        newlinks.append({
-                            'source': Asset.objects.get(id=l1_id).hostname,
-                            'target': data.get("hostname"),
-                        })
-                    else:
-                        links.append("{},{}".format(data.get("id"), l1_id, ))
-                        newlinks.append({
-                            'source': data.get("hostname"),
-                            'target': Asset.objects.get(id=l1_id).hostname,
-                        })
-
-        root_nps = data.get("network_ports")
-        for np in root_nps:
-            c = np.get("connection")
-            if c:
-                data = c.get("asset")
-                if data and (data.get("id") not in seen_asset_ids):
-                    a1 = {
-                        "id": data.get("id"),
-                        "hostname": data.get("hostname"),
-                        "location": "Rack {} U{}".format(data.get("rack").get("rack_number"), data.get("rack_u"))
-                    }
-                    assets.append(a1)
-                    nodes.append({
-                        'id': a1.get("hostname")
-                    })
-                    if int(root.get("id")) < int(data.get("id")):
-                        links.append("{},{}".format(root.get("id"), data.get("id")))
-                        newlinks.append({
-                            'source': root.get("hostname"),
-                            'target': data.get("hostname")
-                        })
-                    else:
-                        links.append("{},{}".format(data.get("id"), root.get("id")))
-                        newlinks.append({
-                            'source': data.get("hostname"),
-                            'target': root.get("hostname")
-                        })
-
-                    for np2 in data.get("network_ports"):
-                        process_l2(np2, data.get("id"))
-
-        resp = {
-            "data": {
-                "assets": [dict(t) for t in {tuple(d.items()) for d in assets}],
-                "connections": list(set(links))
-            }
-        }
-        newresp = {
-            "data": {
-                "nodes": nodes,
-                "links": newlinks,
-                "focusNodeId": root.get("hostname")
-            }
-        }
-
+        newresp = restructure_net_port_data(graph_serializer)
         return Response(newresp)
 
     @action(detail=False, methods=[POST])
