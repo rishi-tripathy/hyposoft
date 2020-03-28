@@ -74,7 +74,7 @@ class ChangePlanViewSet(viewsets.ModelViewSet):
 
         asset.datacenter = new_dc
         asset.rack = new_rack
-        asset.rack_u = new_rack
+        asset.rack_u = new_rack_u
         asset.save()
 
         for i in range(prev_rack_u, prev_rack_u + asset.model.height + 1):
@@ -92,9 +92,9 @@ class ChangePlanViewSet(viewsets.ModelViewSet):
         # Get the change plan we're working with
         target = self.get_object()
         # Validate here
-        assets_cp = target.assetcp_set.first()
+        assets_cp = AssetCP.objects.all().filter(cp=target)
         for a in assets_cp:
-            a = AssetCP() # REMOVE THIS LINE AFTER CODING
+            # a = AssetCP() # REMOVE THIS LINE AFTER CODING
 
             if a.id_ref: # if referencing a preexisting asset
 
@@ -123,49 +123,51 @@ class ChangePlanViewSet(viewsets.ModelViewSet):
                 a.id_ref=a_new.pk #when doing network ports, now have a way to access to the real object
         # Make all assets before doing NP or CP
 
+        for a in assets_cp:
 
-        # Handle Network Ports for this CP Asset
-        for n in target.npcp_set.filter(asset_cp_id=a):
-            if n.id_ref: # if referencing existing np
-                n_ref = Network_Port.objects.get(id=n.id_ref)
+            # Handle Network Ports for this CP Asset
+            for n in NPCP.objects.all().filter(asset_cp_id=a): # target.npcp_set.filter(asset_cp_id=a):
+                if n.id_ref: # if referencing existing np
+                    n_ref = Network_Port.objects.get(id=n.id_ref)
 
-                # name may change
-                n_ref.name = n.name
-                # mac may change
-                n_ref.mac = n.mac
-                # connection may change
-                n_ref.connection = n.connection # This assumes that the CPNP n is planned to be connected to a preexisting NP
-                n.connection = n_ref
+                    # name may change
+                    n_ref.name = n.name
+                    # mac may change
+                    n_ref.mac = n.mac
+                    # connection may change
+                    n_ref.connection = n.connection # This assumes that the CPNP n is planned to be connected to a preexisting NP
+                    n.connection = n_ref
 
-                n_ref.save()
-                n.connection.save()
+                    n_ref.save()
+                    n.connection.save()
 
-                # not sure how to process connected to another new NP (created in CP)
+                    # not sure how to process connected to another new NP (created in CP)
 
-                # asset cannot change
+                    # asset cannot change
 
-            else: # creating new NPs
+                else: # creating new NPs
 
-                n_new = Network_Port(name=n.name, mac=n.mac, connection=n.connection,
-                                     asset=Asset.objects.get(AssetCP.objects.get(id=n.asset_cp_id).id_ref)) # This assumes that the CPNP n is planned to be connected to a preexisting NP
+                    n_new = Network_Port(name=n.name, mac=n.mac, connection=n.connection,
+                                         asset=Asset.objects.get(AssetCP.objects.get(id=n.asset_cp_id).id_ref)) # This assumes that the CPNP n is planned to be connected to a preexisting NP
 
-                n_new.save()
-
-
-        # Handle Power Ports for this CP Asset
-        for p in target.ppcp_set.filter(assets_cp_id=a):
-            if p.id_ref: # if referencing existing pp
-
-            else: #creating new PP
-                p_new = Power_Port(name="", pdu=p.pdu, port_number=p.port_number,
-                                   asset=Asset.objects.get(AssetCP.objects.get(id=n.asset_cp_id).id_ref))
-
-                p_new.save()
+                    n_new.save()
 
 
-        return Response({
-            'hostname': assets_cp.hostname
-        })
+            # Handle Power Ports for this CP Asset
+            for p in PPCP.objects.all().filter(asset_cp_id=a):
+                if p.id_ref: # if referencing existing pp
+                    pass
+
+                else: #creating new PP
+                    p_new = Power_Port(name="", pdu=p.pdu, port_number=p.port_number,
+                                       asset=Asset.objects.get(AssetCP.objects.get(id=n.asset_cp_id).id_ref))
+
+                    p_new.save()
+
+
+            return Response({
+                'hostname': assets_cp.hostname
+            })
 
 
 class AssetCPViewSet(viewsets.ModelViewSet):
