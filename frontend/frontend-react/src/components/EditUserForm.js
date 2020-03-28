@@ -10,6 +10,7 @@ import { Autocomplete } from "@material-ui/lab";
 
 import AddCircleIcon from "@material-ui/icons/AddCircle";
 import CancelIcon from "@material-ui/icons/Cancel";
+import DatacenterContext from './DatacenterContext';
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
@@ -82,6 +83,30 @@ export class EditUserForm extends Component {
     return obj;
   };
 
+  postPermissions = () => {
+    let obj = {}
+    obj.model = this.state.hasModelPermission.toString();
+    obj.asset = []; //FIXME
+    obj.power = this.state.hasPowerPermission.toString();
+    obj.log = this.state.hasAuditPermission.toString();
+    //obj.user = this.context.
+
+    console.log(JSON.stringify(obj, null, 2))
+
+    axios.post('/update-permissions/', obj)
+      .then(function (response) {
+        alert('Created successfully');
+        // window.location = '/assets'
+        this.setState({
+          redirect: true,
+        })
+      })
+      .catch(function (error) {
+        alert('Creation was not successful.\n' + JSON.stringify(error.response.data, null, 2));
+      });
+
+  }
+
   handleSubmit = (e) => {
     e.preventDefault();
     let dst = '/api/users/'.concat(this.props.match.params.id).concat('/');
@@ -89,7 +114,8 @@ export class EditUserForm extends Component {
     let stateCopy = Object.assign({}, this.state);
 
     //stateCopy.is_admin = this.state.is_admin
-    console.log(JSON.stringify(stateCopy, null, 2))
+    this.postPermissions();
+    //console.log(JSON.stringify(stateCopy, null, 2))
     // choke
     // var self = this;
     // axios.patch(dst, stateCopy)
@@ -294,5 +320,6 @@ export class EditUserForm extends Component {
   }
 }
 
+EditUserForm.contextType = DatacenterContext;
 
 export default EditUserForm
