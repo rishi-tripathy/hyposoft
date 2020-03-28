@@ -105,17 +105,17 @@ export class EditUserForm extends Component {
     obj.username = this.context.username
 
     console.log(JSON.stringify(obj, null, 2))
-
+    let self = this
     axios.post('/update-permissions/', obj)
       .then(function (response) {
-        alert('Created successfully');
+        alert('Permissions successfully updated');
         // window.location = '/assets'
-        this.setState({
-          redirect: true,
-        })
+        // self.setState({
+        //   redirect: true,
+        // })
       })
       .catch(function (error) {
-        alert('Creation was not successful.\n' + JSON.stringify(error.response.data, null, 2));
+        alert('Permissions were not updated.\n' + JSON.stringify(error.response.data, null, 2));
       });
 
   }
@@ -126,21 +126,21 @@ export class EditUserForm extends Component {
 
     let stateCopy = Object.assign({}, this.state);
 
-    //stateCopy.is_admin = this.state.is_admin
+    stateCopy.is_admin = this.state.is_admin
     this.postPermissions();
     //console.log(JSON.stringify(stateCopy, null, 2))
     // choke
-    // var self = this;
-    // axios.patch(dst, stateCopy)
-    //   .then(function (response) {
-    //     alert('Edit was successful');
-    //     self.setState({
-    //       redirect: true
-    //     })
-    //   })
-    //   .catch(function (error) {
-    //     alert('Edit was not successful.\n' + JSON.stringify(error.response.data, null, 2));
-    //   });
+    var self = this;
+    axios.patch(dst, stateCopy)
+      .then(function (response) {
+        alert('Edit was successful');
+        self.setState({
+          redirect: true
+        })
+      })
+      .catch(function (error) {
+        alert('Edit was not successful.\n' + JSON.stringify(error.response.data, null, 2));
+      });
   }
 
 
