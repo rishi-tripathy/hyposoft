@@ -18,7 +18,7 @@ import DatacenterContext from './DatacenterContext'
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
-export class ChangePlanTable extends Component {
+export class ChangePlanAssetTable extends Component {
 
   constructor() {
     super();
@@ -95,8 +95,6 @@ export class ChangePlanTable extends Component {
   renderTableHeader() {
     let headCells = [
       {id: 'name', label: 'Name'},
-      {id: 'status', label: 'Status'},
-      {id: 'actions', label: 'Actions', disablePadding: false,},
     ];
     return headCells.map(headCell => (
       <TableCell
@@ -118,14 +116,14 @@ export class ChangePlanTable extends Component {
   }
 
   renderTableData() {
-    console.log(this.props.changePlans)
-    if (this.props.changePlans.length == 0) return (
+    console.log(this.props.assets)
+    if (this.props.assets.length == 0) return (
       <TableRow hover tabIndex={-1}>
         <TableCell align="center" colSpan={12}>No entries</TableCell>
       </TableRow>
     )
-    return this.props.changePlans.map((cp, index) => {
-      const {id, name, status, actions} = cp //destructuring
+    return this.props.assets.map((asset, index) => {
+      const {id, name} = asset //destructuring
       return (
         <TableRow
           hover
@@ -133,32 +131,6 @@ export class ChangePlanTable extends Component {
           key={id}
         >
           <TableCell align="center">{name}</TableCell>
-          <TableCell align="center">{status}</TableCell>
-          <div>
-            {this.context.is_admin ? (
-              <TableCell align="center">
-                <Link to={'/changeplans/1/'}>
-                {/* UNCOMMENT BELOW POST FAKE DATA */}
-                {/* <Link to={'/changeplans/' + id + '/'}> */}
-                  <Tooltip title='View Details/Edit'>
-                    <IconButton size="sm">
-                      <SearchIcon/>
-                    </IconButton>
-                  </Tooltip>
-                </Link>
-              </TableCell>) : <p></p>
-            }
-            {this.context.is_admin ? (
-              < TableCell align="center">
-                < Tooltip title='Delete'>
-                  <IconButton size="sm" onClick={() => this.showDeleteForm(id)}>
-                    <DeleteIcon/>
-                  </IconButton>
-                </Tooltip>
-              </TableCell>
-            ) : <p></p>
-            }
-          </div>
         </TableRow>
       )
     })
@@ -190,6 +162,6 @@ export class ChangePlanTable extends Component {
 }
 
 
-ChangePlanTable.contextType = DatacenterContext;
+ChangePlanAssetTable.contextType = DatacenterContext;
 
-export default ChangePlanTable;
+export default ChangePlanAssetTable;

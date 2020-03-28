@@ -116,6 +116,9 @@ export class ChangePlanController extends Component {
                       Change Plans
                     </Typography>
                   </Grid>
+                  <Grid item justify="flex-start" alignContent='center' xs={10}>
+                    To create a change plan, use the "Add change plan" button, and select view/edit in the table below.
+                 </Grid>
                   <Grid item justify="flex-end" alignContent="flex-end" xs={2}>
                     {showAll}
                   </Grid>
