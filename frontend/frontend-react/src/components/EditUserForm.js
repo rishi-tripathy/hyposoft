@@ -99,7 +99,7 @@ export class EditUserForm extends Component {
   postPermissions = () => {
     let obj = {}
     obj.model = this.state.hasModelPermission.toString();
-    obj.asset = []; //FIXME
+    obj.asset = this.state.selectedDatacenterOption;
     obj.power = this.state.hasPowerPermission.toString();
     obj.log = this.state.hasAuditPermission.toString();
     obj.username = this.context.username
