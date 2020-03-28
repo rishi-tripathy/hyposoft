@@ -110,6 +110,7 @@ export class UserController extends Component {
   }
 
   render() {
+    console.log(this.context)
     let content = <div>
       <UserTableMUI sendRerender={this.getRerender} users={this.state.users} usersPermissions={this.state.usersPermissions}/>
     </div>;

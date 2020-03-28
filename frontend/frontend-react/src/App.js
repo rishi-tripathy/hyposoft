@@ -54,6 +54,13 @@ class App extends React.Component {
       username: null,
       delay: false,
       loading: true,
+
+
+      // permissions stuff
+      model_permission: false,
+      asset_permission: [],
+      power_permission: false,
+      audit_permission: false,
     }
   }
 
@@ -136,6 +143,7 @@ class App extends React.Component {
           });
           // console.log('netid state has been set')
           this.getUserInfo();
+          this.getUserPermissions();
         })
         .catch(function (error) {
           alert('NetID login was not successful.\n' + JSON.stringify(error.response.data, null, 2));
@@ -143,6 +151,7 @@ class App extends React.Component {
     }
     else {
       this.getUserInfo();
+      this.getUserPermissions();
     }
   }
 
@@ -156,6 +165,34 @@ class App extends React.Component {
           user_last: res.data.last_name,
           username: res.data.current_user,
           is_admin: res.data.is_admin,
+        });
+        //  console.log('going to fill DCs')
+        this.getDatacenters();
+      }
+    })
+      .catch(error => {
+        // console.log(error.response)
+        this.setState({
+          loading: false,
+        })
+      });
+  }
+
+  getUserPermissions = () => {
+    axios.get('/user-permissions/').then(res => {
+      // console.log(res.data)
+      if (res.data.current_user != '') {
+        this.setState({
+          // logged_in: true,
+          // user_first: res.data.first_name,
+          // user_last: res.data.last_name,
+          // username: res.data.current_user,
+          // is_admin: res.data.is_admin,
+
+          model_permission: res.data.model_permission,
+          asset_permission: res.data.asset_permission,
+          power_permission: res.data.power_permission,
+          audit_permission: res.data.log_permission,
         });
         //  console.log('going to fill DCs')
         this.getDatacenters();
@@ -335,7 +372,7 @@ class App extends React.Component {
                       path='/decommissioned'
                       exact
                       render={(props) => <DecommissionedController {...props} />} />
-                    
+
                     <Route
                       path='/decommissioned/:id'
                       exact
