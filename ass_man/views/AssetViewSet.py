@@ -6,8 +6,13 @@ from django.db.models.functions import Concat, Substr, Cast
 from django.db.models.deletion import ProtectedError
 from django.db.models import CharField
 from django.core.exceptions import ObjectDoesNotExist
+from reportlab.pdfgen import canvas
 from django.contrib.auth.models import User
-import re, requests
+import re, requests, io
+from django.http import FileResponse
+import barcode
+from barcode import generate
+from barcode.writer import ImageWriter
 # API
 from rest_framework import viewsets
 
@@ -420,6 +425,25 @@ class AssetViewSet(viewsets.ModelViewSet):
         return Response({
             'status': 'Error. The PDU Networx 98 Pro service is unavailable.'
         }, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=False, methods=[POST])
+    def generate_barcodes(self, request, *args, **kwargs):
+        asset_ids = request.data.get('assets')
+        c128 = barcode.get_barcode_class('code128')
+        buffer = io.BytesIO()
+        p = canvas.Canvas(buffer)
+        if asset_ids:
+            for id in asset_ids:
+                print('asset id')
+                print(id)
+                asset = Asset.objects.all().get(pk=id)
+                generate('code128', str(asset.asset_number), output=buffer)
+        buffer.seek(0)
+        print('returing')
+        print(buffer.getvalue())
+        return FileResponse(buffer, as_attachment=True, filename='asset_barcodes.pdf')
+
+
 
     @action(detail=True, methods=[GET])
     def get_pp_status(self, request, *args, **kwargs):
