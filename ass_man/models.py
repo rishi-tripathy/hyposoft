@@ -122,3 +122,9 @@ class Rack(models.Model):
 
     def __str__(self):
         return self.rack_number or ''
+
+class Permission(models.Model):
+    name = models.CharField(max_length=50)
+    datacenter = models.ForeignKey(Datacenter, on_delete=models.CASCADE, blank=True, null=True)
+    asset = models.ForeignKey(Asset, on_delete=models.CASCADE, blank=True, null=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)

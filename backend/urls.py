@@ -17,7 +17,7 @@ from django.urls import path, include, re_path
 from rest_framework import routers
 from django.views.generic import TemplateView
 from usr_man import views as user_views
-from ass_man.views import ReportView, ModelViewSet, AssetViewSet, RackViewSet, DatacenterViewSet, DecommissionedViewSet
+from ass_man.views import ReportView, ModelViewSet, AssetViewSet, RackViewSet, DatacenterViewSet, DecommissionedViewSet, PermissionViewSet
 from log import views as log_views
 
 router = routers.DefaultRouter()  # add this
@@ -34,6 +34,7 @@ urlpatterns = [
     path('accounts/', include('django.contrib.auth.urls')),
     path('api/', include(router.urls)),  # add this
     path('report/', ReportView.report),
+    path('update-permissions/', PermissionViewSet.update_permissions),
     # path('log/', log_views.LogViewSet.log),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     re_path('.*', TemplateView.as_view(template_name='index.html')),
