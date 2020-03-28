@@ -89,7 +89,7 @@ export class EditUserForm extends Component {
     obj.asset = []; //FIXME
     obj.power = this.state.hasPowerPermission.toString();
     obj.log = this.state.hasAuditPermission.toString();
-    //obj.user = this.context.
+    obj.username = this.context.username
 
     console.log(JSON.stringify(obj, null, 2))
 
