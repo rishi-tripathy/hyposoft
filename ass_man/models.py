@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.contrib.postgres.fields import ArrayField
-
+from django.contrib.postgres.fields import ArrayField, JSONField
+from django.db.models.fields import DateTimeField
 
 # Create your models here.
 
@@ -25,6 +25,11 @@ class Model(models.Model):
     def __str__(self):
         return (self.vendor + ' ' + self.model_number) or ''
 
+class Decommissioned(models.Model):
+    username = models.CharField(max_length=20)
+    timestamp = models.DateTimeField(auto_now=True)
+    asset_state = JSONField(default=dict)
+    network_graph = JSONField(default=dict)
 
 class Asset(models.Model):
     model = models.ForeignKey(Model, on_delete=models.PROTECT)

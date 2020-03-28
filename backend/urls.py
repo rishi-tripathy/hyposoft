@@ -17,7 +17,7 @@ from django.urls import path, include, re_path
 from rest_framework import routers
 from django.views.generic import TemplateView
 from usr_man import views as user_views
-from ass_man.views import ReportView, ModelViewSet, AssetViewSet, RackViewSet, DatacenterViewSet
+from ass_man.views import ReportView, ModelViewSet, AssetViewSet, RackViewSet, DatacenterViewSet, DecommissionedViewSet
 from log import views as log_views
 from cp.views import ChangePlanViewSet, AssetCPViewSet, NPCPViewSet, PPCPViewSet
 
@@ -32,6 +32,7 @@ router.register(r'cp', ChangePlanViewSet)
 router.register(r'cpAsset', AssetCPViewSet)
 router.register(r'cpnp', NPCPViewSet)
 router.register(r'cppp', PPCPViewSet)
+router.register(r'decommissioned', DecommissionedViewSet.DecommissionedViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
