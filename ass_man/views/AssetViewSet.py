@@ -426,6 +426,7 @@ class AssetViewSet(viewsets.ModelViewSet):
             'status': 'Error. The PDU Networx 98 Pro service is unavailable.'
         }, status=status.HTTP_400_BAD_REQUEST)
 
+      
     @action(detail=False, methods=[POST])
     def generate_barcodes(self, request, *args, **kwargs):
         asset_ids = request.data.get('assets')
@@ -443,7 +444,14 @@ class AssetViewSet(viewsets.ModelViewSet):
         print(buffer.getvalue())
         return FileResponse(buffer, as_attachment=True, filename='asset_barcodes.pdf')
 
-
+    @action(detail=False, methods=[GET])
+    def all_ids(self, request, *args, **kwargs):
+        ids = []
+        for asset in Asset.objects.all():
+            ids.append(asset.id)
+        return Response({
+            'ids': ids
+            })
 
     @action(detail=True, methods=[GET])
     def get_pp_status(self, request, *args, **kwargs):

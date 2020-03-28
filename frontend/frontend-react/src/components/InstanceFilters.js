@@ -209,7 +209,7 @@ export class InstanceFilters extends Component {
 
   render() {
     return (
-      <div>
+      <div style={{ padding: 10 }}>
         <Container maxWidth="xl">
           <form onSubmit={this.handleSubmit}>
             <h4>Filters</h4>
