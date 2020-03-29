@@ -42,8 +42,14 @@ def user_permissions(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def all_permissions(request):
+    user_set = []
+    if request.query_params.get('id'):
+        id = request.query_params.get('id')
+        user_set.append(User.objects.all().get(pk=id))
+    else:
+        user_set = User.objects.all()
     users = []
-    for u in User.objects.all():
+    for u in user_set:
         user_permissions = {}
         user_permissions['user_id'] = u.id
         user_permissions['username'] = u.username
