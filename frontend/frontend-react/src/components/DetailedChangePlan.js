@@ -21,6 +21,7 @@ export class DetailedChangePlan extends Component {
     // keep this default here so InstanceCard doesn't freak out
     this.state = {
       id: null,
+      owner: 4, //CHANGE LATER WHEN WHO_AM_I UPDATEs
       name: null,
       changedName: null,
       datacenter: null,
@@ -52,6 +53,7 @@ export class DetailedChangePlan extends Component {
         this.setState({
           id: res.data.id,
           name: res.data.name,
+          changedName: res.data.name,
           datacenter: res.data.datacenter,
           executed: res.data.executed,
           assets_cp: assets_arr,
