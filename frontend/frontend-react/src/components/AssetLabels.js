@@ -32,6 +32,16 @@ export class AssetLabels extends Component {
     super();
   }
 
+  // componentDidUpdate(prevProps, prevState) {
+  //   if (this.prevProps.location.state.labelTable !== this.props.location.state.labelTable) {
+  //     globalData = this.props.location.state.labelTable
+  //   }
+  // }
+
+  // componentDidMount() {
+  //   globalData = this.
+  // }
+
   render() {
     //var React = require('react');
     var ReactDOM = require('react-dom');
@@ -45,7 +55,7 @@ export class AssetLabels extends Component {
             trigger={() => <Button variant="contained" color="primary">Print Asset Labels</Button>}
             content={() => this.componentRef}
           />
-          <ComponentToPrint ref={el => (this.componentRef = el)} />
+          <ComponentToPrint ref={el => (this.componentRef = el)} myData={this.props.location.state.labelTable}/>
         </Container>
       </div>
     )
@@ -72,135 +82,138 @@ class ComponentToPrint extends Component {
 
   loadLabelTable = () => {
     this.setState({
-      labelTable: [
-        {
-          one: 100000,
-          two: 100001,
-          three: 100002,
-          four: 100003,
-        },
-        {
-          one: 100004,
-          two: 100005,
-          three: 100006,
-          four: 100007,
-        },
-        {
-          one: 100004,
-          two: 100005,
-          three: 100006,
-          four: 100007,
-        },
-        {
-          one: 100000,
-          two: 100001,
-          three: 100002,
-          four: 100003,
-        },
-        {
-          one: 100004,
-          two: 100005,
-          three: 100006,
-          four: 100007,
-        },
-        {
-          one: 100004,
-          two: 100005,
-          three: 100006,
-          four: 100007,
-        },
-        {
-          one: 100000,
-          two: 100001,
-          three: 100002,
-          four: 100003,
-        },
-        {
-          one: 100004,
-          two: 100005,
-          three: 100006,
-          four: 100007,
-        },
-        {
-          one: 100004,
-          two: 100005,
-          three: 100006,
-          four: 100007,
-        },
-        {
-          one: 100000,
-          two: 100001,
-          three: 100002,
-          four: 100003,
-        },
-        {
-          one: 100004,
-          two: 100005,
-          three: 100006,
-          four: 100007,
-        },
-        {
-          one: 100004,
-          two: 100005,
-          three: 100006,
-          four: 100007,
-        },
-        {
-          one: 100000,
-          two: 100001,
-          three: 100002,
-          four: 100003,
-        },
-        {
-          one: 100004,
-          two: 100005,
-          three: 100006,
-          four: 100007,
-        },
-        {
-          one: 100004,
-          two: 100005,
-          three: 100006,
-          four: 100007,
-        },
-        {
-          one: 100000,
-          two: 100001,
-          three: 100002,
-          four: 100003,
-        },
-        {
-          one: 100004,
-          two: 100005,
-          three: 100006,
-          four: 100007,
-        },
-        {
-          one: 100004,
-          two: 100005,
-          three: 100006,
-          four: 100007,
-        },
-        {
-          one: 100000,
-          two: 100001,
-          three: 100002,
-          four: 100003,
-        },
-        {
-          one: 100004,
-          two: 100005,
-          three: 100006,
-          four: 100007,
-        },
-        {
-          one: 100004,
-          two: 100005,
-          three: 100006,
-          four: 100007,
-        },
-      ]
+      labelTable: this.props.myData
     })
+    // this.setState({
+    //   labelTable: [
+    //     {
+    //       one: 100000,
+    //       two: 100001,
+    //       three: 100002,
+    //       four: 100003,
+    //     },
+    //     {
+    //       one: 100004,
+    //       two: 100005,
+    //       three: 100006,
+    //       four: 100007,
+    //     },
+    //     {
+    //       one: 100004,
+    //       two: 100005,
+    //       three: 100006,
+    //       four: 100007,
+    //     },
+    //     {
+    //       one: 100000,
+    //       two: 100001,
+    //       three: 100002,
+    //       four: 100003,
+    //     },
+    //     {
+    //       one: 100004,
+    //       two: 100005,
+    //       three: 100006,
+    //       four: 100007,
+    //     },
+    //     {
+    //       one: 100004,
+    //       two: 100005,
+    //       three: 100006,
+    //       four: 100007,
+    //     },
+    //     {
+    //       one: 100000,
+    //       two: 100001,
+    //       three: 100002,
+    //       four: 100003,
+    //     },
+    //     {
+    //       one: 100004,
+    //       two: 100005,
+    //       three: 100006,
+    //       four: 100007,
+    //     },
+    //     {
+    //       one: 100004,
+    //       two: 100005,
+    //       three: 100006,
+    //       four: 100007,
+    //     },
+    //     {
+    //       one: 100000,
+    //       two: 100001,
+    //       three: 100002,
+    //       four: 100003,
+    //     },
+    //     {
+    //       one: 100004,
+    //       two: 100005,
+    //       three: 100006,
+    //       four: 100007,
+    //     },
+    //     {
+    //       one: 100004,
+    //       two: 100005,
+    //       three: 100006,
+    //       four: 100007,
+    //     },
+    //     {
+    //       one: 100000,
+    //       two: 100001,
+    //       three: 100002,
+    //       four: 100003,
+    //     },
+    //     {
+    //       one: 100004,
+    //       two: 100005,
+    //       three: 100006,
+    //       four: 100007,
+    //     },
+    //     {
+    //       one: 100004,
+    //       two: 100005,
+    //       three: 100006,
+    //       four: 100007,
+    //     },
+    //     {
+    //       one: 100000,
+    //       two: 100001,
+    //       three: 100002,
+    //       four: 100003,
+    //     },
+    //     {
+    //       one: 100004,
+    //       two: 100005,
+    //       three: 100006,
+    //       four: 100007,
+    //     },
+    //     {
+    //       one: 100004,
+    //       two: 100005,
+    //       three: 100006,
+    //       four: 100007,
+    //     },
+    //     {
+    //       one: 100000,
+    //       two: 100001,
+    //       three: 100002,
+    //       four: 100003,
+    //     },
+    //     {
+    //       one: 100004,
+    //       two: 100005,
+    //       three: 100006,
+    //       four: 100007,
+    //     },
+    //     {
+    //       one: 100004,
+    //       two: 100005,
+    //       three: 100006,
+    //       four: 100007,
+    //     },
+    //   ]
+    // })
   }
 
   renderTableData() {
@@ -272,7 +285,7 @@ class ComponentToPrint extends Component {
   }
 
   render() {
-
+    console.log(this.props)
     return (
       <table style={myTableStyle} >
         <thead>
