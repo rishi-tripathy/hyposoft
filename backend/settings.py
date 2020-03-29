@@ -64,6 +64,7 @@ INSTALLED_APPS = [
     'django_filters',
     'usr_man',
     'ass_man',
+    'cp',
     'easyaudit'
 ]
 
