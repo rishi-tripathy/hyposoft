@@ -110,9 +110,7 @@ export class ChangePlanTable extends Component {
           <div>
             {this.context.is_admin ? (
               <TableCell align="right">
-                <Link to={'/changeplans/1/'}>
-                {/* UNCOMMENT BELOW POST FAKE DATA */}
-                {/* <Link to={'/changeplans/' + id + '/'}> */}
+                <Link to={'/changeplans/' + id + '/'}>
                   <Tooltip title='View Details/Edit'>
                     <IconButton size="sm">
                       <SearchIcon/>

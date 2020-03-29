@@ -1,10 +1,8 @@
 import React, { Component } from 'react'
 import axios from 'axios'
-import InstanceCard from './InstanceCard';
 import {
-  Typography, Dialog, DialogTitle, DialogContent, Container, Grid, Button, TextField, IconButton
+  Typography, Tooltip, Dialog, DialogTitle, DialogContent, Container, Grid, Button, TextField, IconButton
 } from "@material-ui/core";
-import PageviewIcon from '@material-ui/icons/Pageview';
 import EditIcon from '@material-ui/icons/Edit';
 import { Link, Redirect } from 'react-router-dom'
 import ChangePlanAssetTable from './ChangePlanAssetTable'
@@ -29,7 +27,7 @@ export class DetailedChangePlan extends Component {
       executed: null,
       showDialog: false,
       assetOptions: [],
-      assetsAffectedByChangePlan: [],
+      assets_cp: [],
       existingAssetSelected: null,
       showEditModal: false,
       redirect: false,
@@ -56,7 +54,7 @@ export class DetailedChangePlan extends Component {
           name: res.data.name,
           datacenter: res.data.datacenter,
           executed: res.data.executed,
-          assetsAffectedByChangePlan: assets_arr,
+          assets_cp: assets_arr,
         });
 
       })
@@ -166,14 +164,14 @@ export class DetailedChangePlan extends Component {
   render() {
     console.log(this.state)
 
-    let content = <div><ChangePlanAssetTable assets={this.state.assetsAffectedByChangePlan}
+    let content = <div><ChangePlanAssetTable assets={this.state.assets_cp}
                                     //   filterQuery={this.getFilterQuery}
                                     //   sendSortQuery={this.getSortQuery}
                                     //   sendRerender={this.getRerender}/>
                                    /> </div>;
 
     let addNewAsset = 
-      <Link to={'/changeplans/1/changeNewAsset'}>
+      <Link to={'/changeplans/'.concat(this.state.id).concat('/changeNewAsset')}>
         {/* change above to :id later */}
         <Button color="primary" variant="contained" endIcon={<AddCircleIcon/>}>
           Add New Asset
