@@ -22,7 +22,9 @@ export class DetailedChangePlan extends Component {
     // keep this default here so InstanceCard doesn't freak out
     this.state = {
       showDialog: false,
-      assets: [],
+      assetOptions: [],
+      assetsAffectedByChangePlan: [],
+      existingAssetSelected: null,
     };
     this.open = this.open.bind(this);
     this.close = this.close.bind(this);
@@ -66,19 +68,23 @@ export class DetailedChangePlan extends Component {
     console.log(dst)
 
     axios.get(dst).then(res => {
-        var raw_assets = res.data;
+        // var raw_assets = res.data;
       //put in digestible form 
-      var ass_arr = [];
-      raw_assets.map((asset, index) =>{
-        var temp = asset['id'];
-        ass_arr.push(temp);
-      });
+      // var ass_arr = [];
+      // raw_assets.map((asset, index) =>{
+      //   var temp = asset['id'];
+      //   ass_arr.push(temp);
+      // });
 
-      this.setState({
-        assets: ass_arr,
-      });
+      // this.setState({
+      //   assets: ass_arr,
+      // });
       
-      console.log(this.state.assets)
+      this.setState({
+        assetOptions: res.data,
+      })
+
+      console.log(this.state.assetOptions)
 
     })
     .catch(function (error) {
@@ -87,14 +93,19 @@ export class DetailedChangePlan extends Component {
     });
   }
 
-  handleChangeAsset = () => {
+  handleChangeAsset = (event, selectedAsset) => {
     //do later when string stuff is fixed 
+    console.log('changing asset')
+    this.setState({
+      existingAssetSelected: selectedAsset,
+    });
+    console.log(this.state)
   }
 
   render() {
     console.log(this.state)
 
-    let content = <div><ChangePlanAssetTable assets={this.state.assets}
+    let content = <div><ChangePlanAssetTable assets={this.state.assetsAffectedByChangePlan}
                                     //   filterQuery={this.getFilterQuery}
                                     //   sendSortQuery={this.getSortQuery}
                                     //   sendRerender={this.getRerender}/>
@@ -107,37 +118,6 @@ export class DetailedChangePlan extends Component {
           Add Change Plan Action to New Asset
         </Button>
       </Link>;
-
-    let editExistingAsset =
-    <div>
-      <Button onClick={this.open.bind(this)}> Add Change Plan Action to Existing Asset</Button>
-        <Dialog
-          open={this.state.showDialog}
-          onClose={this.close}
-        >
-          <DialogTitle>
-            Select an Asset within Datacenter: {this.context.datacenter_ab} 
-          </DialogTitle>
-          
-          <DialogContent>
-            {console.log(this.state.assets)}
-          <Autocomplete
-                    freeSolo
-                    autoComplete
-                    autoHighlight
-                    autoSelect
-                    id="rack-datacenter-select"
-                    noOptionsText={"Create New in DC tab"}
-                    options={this.state.assets}
-                    onInputChange={this.handleChangeAsset}
-                    defaultValue={this.state.assets[0]}
-                    renderInput={params => (
-                      <TextField {...params} label="Asset" fullWidth/>
-                    )}
-                  />
-          </DialogContent>
-        </Dialog>
-    </div>
 
 
     return (
@@ -156,7 +136,60 @@ export class DetailedChangePlan extends Component {
             </Grid>
 
             <Grid item justify="flex-start" alignContent='center' xs={6}>
-              {editExistingAsset}
+            <div>
+
+              <Button 
+                color="primary" 
+                variant="contained" 
+                endIcon={<AddCircleIcon/>}
+                onClick={this.open.bind(this)}> 
+                Add Change Plan Action to Existing Asset
+              </Button>
+
+              <Dialog
+                open={this.state.showDialog}
+              >
+                <DialogTitle>
+                  Select an Asset within Datacenter: {this.context.datacenter_ab} 
+                </DialogTitle>
+                
+                <DialogContent>
+                  {console.log(this.state.assetOptions)}
+                  {console.log(this.state.assetOptions[1])}
+                
+                <Container maxwidth="xl">
+                  <Grid container className="themed-container" spacing={2}>
+                    <Grid item justify="flex-start" alignContent='center' xs={12}>
+                      <Autocomplete
+                        id="cp-existing-asset-select"
+                        //noOptionsText="No existing assets in Datacenter"
+                        options={this.state.assetOptions}
+                        getOptionLabel={(option) => option.id}
+                        onInputChange={this.handleChangeAsset}
+                        // defaultValue={this.state.assetOptions[0]}
+                        renderInput={(params) =>
+                          <TextField {...params} label="Asset" fullWidth/>}
+                      />
+                    </Grid>
+                    <Grid item justify="flex-start" alignContent='center' xs={3}>
+                      {/* change 1 to :id to edit existing asset page below */}
+                      {/* TWO ids below, first is CP, second is asset */}
+                      <Link to={'/changeplans/1/changeExistingAsset/1/'}>
+                        <Button color="primary" variant="contained" onClick={this.submitAsset}>
+                          Submit
+                        </Button>
+                      </Link>
+                    </Grid>
+                    <Grid item justify="flex-start" alignContent='center' xs={3}>
+                      <Button variant="contained" onClick={this.close}>
+                        Close
+                      </Button>
+                    </Grid>
+                  </Grid>
+                </Container>
+                </DialogContent>
+              </Dialog>
+            </div>
             </Grid>
              
             <Grid item alignContent='center' xs={12} />
