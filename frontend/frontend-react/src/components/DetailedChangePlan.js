@@ -171,7 +171,7 @@ export class DetailedChangePlan extends Component {
                           <TextField {...params} label="Asset" fullWidth/>}
                       />
                     </Grid>
-                    <Grid item justify="flex-start" alignContent='center' xs={3}>
+                    <Grid item justify="flex-start" alignContent='center' xs={2}>
                       {/* change 1 to :id to edit existing asset page below */}
                       {/* TWO ids below, first is CP, second is asset */}
                       <Link to={'/changeplans/1/changeExistingAsset/1/'}>
@@ -180,7 +180,7 @@ export class DetailedChangePlan extends Component {
                         </Button>
                       </Link>
                     </Grid>
-                    <Grid item justify="flex-start" alignContent='center' xs={3}>
+                    <Grid item justify="flex-start" alignContent='center' xs={2}>
                       <Button variant="contained" onClick={this.close}>
                         Close
                       </Button>

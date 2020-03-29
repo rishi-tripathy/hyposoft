@@ -13,6 +13,8 @@ import CancelIcon from '@material-ui/icons/Cancel';
 import NetworkPortConnectionDialog from './NetworkPortConnectionDialog'
 import AllConnectedAssetsView from './AllConnectedAssetsView'
 import ChangePlanAssetCard from './ChangePlanAssetCard'
+import PowerPortConnectionDialog from './PowerPortConnectionDialog'
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
@@ -24,13 +26,14 @@ export class ChangeExistingAssetForm extends Component {
 
             //changeplan metadata
             changePlanId: 1,
+            loading: true,
 
             //stuff for view
             assetLV: {},
             connectedAssetsLV: [],
 
             //stuff for editing
-            asset: {
+            assetChanged: {
                     model: null,
                     hostname: null,
                     datacenter: null,
@@ -42,7 +45,10 @@ export class ChangeExistingAssetForm extends Component {
                     network_ports: [],
                     power_ports: [],
                 },
+            rackOptions: [],
             numberOfNetworkPortsForCurrentAsset: null,
+            macAddresses: [],
+            networkPortConnectionIDs: [],
             networkPortNamesForCurrentAsset: null,
             connectedNPs: null,
             numberOfPowerPorts: null,
@@ -53,21 +59,34 @@ export class ChangeExistingAssetForm extends Component {
             selectedRackOption: null,
             selectedModelOption: null,
             selectedDatacenterOption: null,
+            datacenterOptions: [],
         }
     }
 
     componentDidMount() {
-        const delay = 50;
-        this.loadLVInstance();
+        const delay = 70;
+        this.loadLVInstance(); //has to be first
+        this.loadInstanceChanged();
+
         setTimeout(() => {
+            this.initializeDCState();
          // this.loadModels();
           this.loadDatacenters();
-          //this.loadRacks();
          // this.loadOwners();
-          this.loadLVInstance();
           this.getConnectedAssetsLV();
+          this.loadRacks();
+          this.loadMACAddresses();
+          this.loadConnectedNPs();
         }, delay);
-      }
+
+        setTimeout(() => {
+          this.loadNetworkPortInfoForCurrentlySelectedModel();
+          this.loadNumberOfPowerPortsForModel();
+          this.loadLeftAndRightPDUNames();
+          this.loadFreePDUsAndSetDefaultConfigurations();
+        }, 320);
+
+    }
 
       loadLVInstance = () => {
         // if (this.props.match.params.id) {
@@ -75,15 +94,51 @@ export class ChangeExistingAssetForm extends Component {
         let dst = '/api/assets/13/' //change later
           axios.get(dst).then(res => {
             this.setState({
-              assetLV: res.data
+              assetLV: res.data,
+              selectedModelOption: res.data.model,
             });
             console.log('got live view data')
+            console.log(res.data.model)
           })
             .catch(function (error) {
               // TODO: handle error
               alert('Cannot load assets. Re-login.\n' + JSON.stringify(error.response, null, 2));
             });
         // }
+      }
+
+      loadMACAddresses = () => {
+        let tmpMAC = []
+        let NPs = this.state.assetChanged.network_ports
+        for (let i = 0; i < this.state.numberOfNetworkPortsForCurrentAsset; i++) {
+          tmpMAC.push(NPs[i].mac)
+        }
+        this.setState({
+          macAddresses: tmpMAC,
+        })
+      }
+    
+      loadConnectedNPs = () => {
+        let NPs = this.state.assetChanged.network_ports
+        let tmpNPConnects = []
+        for (let i = 0; i < this.state.numberOfNetworkPortsForCurrentAsset; i++) {
+          if (NPs[i].connection) {
+            tmpNPConnects[i] = {}
+            tmpNPConnects[i].connectedPortID = NPs[i].connection.id;
+            tmpNPConnects[i].connectedPortName = NPs[i].connection.name;
+            tmpNPConnects[i].connectedAssetHostname = NPs[i].connection.assetChanged.hostname;
+          }
+          else {
+            tmpNPConnects[i] = {}
+            tmpNPConnects[i].connectedPortID = null
+            tmpNPConnects[i].connectedPortName = null
+            tmpNPConnects[i].connectedAssetHostname = null
+          }
+        }
+        console.log(tmpNPConnects)
+        this.setState({
+          connectedNPs: tmpNPConnects
+        })
       }
 
       getConnectedAssetsLV = () => {
@@ -143,31 +198,60 @@ export class ChangeExistingAssetForm extends Component {
       }
     
 
-    //   loadInstance = () => {
-    //     //let dst = '/api/assets/'.concat(this.props.match.params.id).concat('/');
-    //     let dst = '/api/assets/13/' //change later
-    //     axios.get(dst).then(res => {
-    //       let instanceCopy = JSON.parse(JSON.stringify(this.state.asset));
-    //       instanceCopy.model = res.data.model;
-    //       instanceCopy.hostname = res.data.hostname;
-    //       instanceCopy.datacenter = res.data.datacenter;
-    //       instanceCopy.rack = res.data.rack;
-    //       instanceCopy.rack_u = res.data.rack_u;
-    //       instanceCopy.owner = res.data.owner;
-    //       instanceCopy.comment = res.data.comment;
-    //       instanceCopy.asset_number = res.data.asset_number;
-    //       instanceCopy.network_ports = res.data.network_ports;
-    //       instanceCopy.power_ports = res.data.power_ports;
-    //       this.setState({
-    //         asset: instanceCopy,
-    //       });
-    //       console.log(this.state)
-    //     })
-    //       .catch(function (error) {
-    //         // TODO: handle error
-    //         alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
-    //       });
-    //   }
+      loadInstanceChanged = () => {
+        //let dst = '/api/assets/'.concat(this.props.match.params.id).concat('/');
+        let dst = '/api/assets/13/' //change later
+        axios.get(dst).then(res => {
+          let instanceCopy = JSON.parse(JSON.stringify(this.state.assetChanged));
+          instanceCopy.model = res.data.model;
+          instanceCopy.hostname = res.data.hostname;
+          instanceCopy.datacenter = res.data.datacenter;
+          instanceCopy.rack = res.data.rack;
+          instanceCopy.rack_u = res.data.rack_u;
+          instanceCopy.owner = res.data.owner;
+          instanceCopy.comment = res.data.comment;
+          instanceCopy.asset_number = res.data.asset_number;
+          instanceCopy.network_ports = res.data.network_ports;
+          instanceCopy.power_ports = res.data.power_ports;
+          this.setState({
+            assetChanged: instanceCopy,
+          });
+          console.log(this.state.assetChanged)
+        })
+          .catch(function (error) {
+            // TODO: handle error
+            alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+          });
+      }
+
+      initializeDCState = () => {
+          this.setState({
+              selectedDatacenterOption: this.state.assetChanged.datacenter,
+          })
+          console.log(this.selectedDatacenterOption)
+      }
+
+      loadRacks = () => {
+        // RACK
+        console.log(this.state.selectedDatacenterOption) 
+        const dst = '/api/datacenters/' + this.state.selectedDatacenterOption.id + '/racks/?show_all=true';
+        console.log(dst)
+        axios.get(dst).then(res => {
+        console.log(res.data)
+          let myOptions = [];
+          for (let i = 0; i < res.data.length; i++) {
+            myOptions.push({ value: res.data[i].url, label: res.data[i].rack_number, id: res.data[i].id });
+          }
+          this.setState({
+            rackOptions: myOptions,
+            selectedRackOption: { value: this.state.assetChanged.rack.url, label: this.state.assetChanged.rack.rack_number, id: this.state.assetChanged.rack.id },
+          })
+        })
+          .catch(function (error) {
+            // TODO: handle error
+            alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+          });
+      }
 
     getPowerPortConnectionInfo = (ppArray) => {
         let a = ppArray;
@@ -178,11 +262,11 @@ export class ChangeExistingAssetForm extends Component {
           if (Object.entries(a[i]).length > 0 && a[i].constructor === Object) {
             if (! a[i]) {
               let obj = {}
-              obj.id = this.state.asset.power_ports[i].id
+              obj.id = this.state.assetChangedpower_ports[i].id
               a.push(obj)
             }
             else {
-              a[i].id = this.state.asset.power_ports[i].id
+              a[i].id = this.state.assetChanged.power_ports[i].id
             }
           }
           console.log(a[i])
@@ -194,6 +278,7 @@ export class ChangeExistingAssetForm extends Component {
       loadNumberOfPowerPortsForModel = () => {
         const dst = '/api/models/' + this.state.selectedModelOption.id + '/';
         axios.get(dst).then(res => {
+            console.log(res)
           this.setState({ numberOfPowerPorts: res.data.power_ports });
         })
           .catch(function (error) {
@@ -203,8 +288,8 @@ export class ChangeExistingAssetForm extends Component {
       }
 
       loadNetworkPortInfoForCurrentlySelectedModel = () => {
-        let modelURL = this.state.selectedModelOption.value
-        axios.get(modelURL).then(res => {
+        const dst = '/api/models/' + this.state.selectedModelOption.id + '/';
+        axios.get(dst).then(res => {
           this.setState({
             numberOfNetworkPortsForCurrentAsset: res.data.network_ports_num,
             networkPortNamesForCurrentAsset: res.data.network_ports,
@@ -241,6 +326,7 @@ export class ChangeExistingAssetForm extends Component {
         axios.get(dst).then(res => {
           this.setState({ leftFreePDUSlots: res.data.pdu_slots.left });
           this.setState({ rightFreePDUSlots: res.data.pdu_slots.right });
+          this.setState({ loading: false });
         })
           .catch(function (error) {
             // TODO: handle error
@@ -269,9 +355,9 @@ export class ChangeExistingAssetForm extends Component {
           this.setState({
             datacenterOptions: myOptions,
             selectedDatacenterOption: {
-              value: this.state.asset.datacenter ? this.state.asset.datacenter.url : null,
-              label: this.state.asset.datacenter ? this.state.asset.datacenter.abbreviation : null,
-              id: this.state.asset.datacenter ? this.state.asset.datacenter.id : null,
+              value: this.state.assetChanged.datacenter ? this.state.assetChanged.datacenter.url : null,
+              label: this.state.assetChanged.datacenter ? this.state.assetChanged.datacenter.abbreviation : null,
+              id: this.state.assetChanged.datacenter ? this.state.assetChanged.datacenter.id : null,
             }
           });
         })
@@ -321,8 +407,18 @@ export class ChangeExistingAssetForm extends Component {
         return fieldList;
       }
 
+      handleChangeRack = (event, selectedRackOption) => {
+        this.setState({ selectedRackOption });
+      };
+
     render() {
+        console.log(this.state)
         return(
+            <div>
+            {this.state.loading ?  
+                <center>
+                <CircularProgress size={100}/>
+            </center> : 
             <div>
             <Container maxwidth="xl">
                 <Grid container className="themed-container" spacing={2}>
@@ -400,9 +496,123 @@ export class ChangeExistingAssetForm extends Component {
                   <Grid item justify="flex-start" alignContent='center' xs={6}>
                     <Card>
                         <CardContent>
-                            <Typography variant="h4" >
-                                Changes to Asset
-                            </Typography>
+                            <Container maxwidth="xl">
+                                <Grid container className="themed-container" spacing={1}>
+                                    <Grid item justify="flex-start" alignContent='center' xs={12}>
+                                        <Typography variant="h5" >
+                                            Asset Changes
+                                        </Typography>
+                                    </Grid>
+
+                                    <Grid item justify="flex-start" alignContent='center' xs={12} />
+                                    <Grid item justify="flex-start" alignContent='center' xs={12} />
+
+                                    <Grid item xs={12}>
+                                    <Typography variant="h6" gutterBottom>
+                                        Basic Details
+                                    </Typography>
+                                    <Grid item xs={6}>
+                                        <TextField label='Hostname' type="text" fullWidth
+                                            value={this.state.assetChanged.hostname}
+                                            InputLabelProps={{ shrink: true }}
+                                            onChange={e => {
+                                            let instanceCopy = JSON.parse(JSON.stringify(this.state.assetChanged))
+                                            instanceCopy.hostname = e.target.value
+                                            this.setState({
+                                                assetChanged: instanceCopy
+                                            })
+                                            }} />
+                                        </Grid>
+                                    <Grid item xs={6}>
+                                        <Autocomplete
+                                            autoComplete
+                                            autoHighlight
+                                            autoSelect
+                                            id="datacenter-select"
+                                            options={this.state.datacenterOptions}
+                                            getOptionLabel={option => option.label}
+                                            onChange={this.handleChangeDatacenter}
+                                            value={this.state.selectedDatacenterOption}
+                                            defaultValue={this.state.assetChanged.datacenter.abbreviation}
+                                            renderInput={params => (
+                                            <TextField {...params} label="Datacenter" fullWidth />
+                                            )}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={6}>
+                                        <Autocomplete
+                                            autoComplete
+                                            autoHighlight
+                                            autoSelect
+                                            id="instance-create-rack-select"
+                                            options={this.state.rackOptions}
+                                            getOptionLabel={option => option.label}
+                                            onChange={this.handleChangeRack}
+                                            defaultValue={this.state.assetChanged.rack.rack_number}
+                                            value={this.state.selectedRackOption}
+                                            disabled={this.state.selectedDatacenterOption === null}
+                                            renderInput={params => (
+                                            <TextField {...params} label="Rack" fullWidth />
+                                            )}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={6}>
+                                        < TextField label="Rack U"
+                                            fullWidth
+                                            type="number"
+                                            value={this.state.assetChanged.rack_u}
+                                            InputLabelProps={{ shrink: true }}
+                                            onChange={e => {
+                                            let instanceCopy = JSON.parse(JSON.stringify(this.state.asset))
+                                            instanceCopy.rack_u = e.target.value
+                                            this.setState({
+                                                assetChanged: instanceCopy
+                                            })
+                                            }} />
+                                    </Grid>
+                                    
+                                    </Grid>
+
+                                    {/* connected PP */}
+                            <Grid item justify="flex-start" alignContent='center' xs={12} />
+                            <Grid item justify="flex-start" alignContent='center' xs={12} />
+
+
+                                    <Grid item xs={12}>
+                                        <Paper>
+                                            <Typography variant="h6" gutterBottom>
+                                                Network Ports
+                                            </Typography>
+                                            <List style={{ maxHeight: 200, overflow: 'auto' }}>
+                                                {this.openNetworkPortConfigAndMAC()}
+                                            </List>
+                                        </Paper>
+                                    </Grid>
+
+                            <Grid item justify="flex-start" alignContent='center' xs={12} />
+                            <Grid item justify="flex-start" alignContent='center' xs={12} />
+                                    
+                                    {/* connected assets */}
+                                    <Grid item xs={12}>
+                                        <Paper>
+                                            <Typography variant="h6" gutterBottom>
+                                            Power Ports
+                                            </Typography>
+                                            <PowerPortConnectionDialog
+                                            sendPowerPortConnectionInfo={this.getPowerPortConnectionInfo}
+                                            numberOfPowerPorts={this.state.numberOfPowerPorts}
+                                            rackID={this.state.selectedRackOption ? this.state.selectedRackOption.id : null}
+                                            leftPPName={this.state.leftPPName}
+                                            rightPPName={this.state.rightPPName}
+                                            leftFree={this.state.leftFreePDUSlots}
+                                            rightFree={this.state.rightFreePDUSlots}
+                                            isDisabled={this.state.selectedRackOption === null}
+                                            currentPowerPortConfiguration={this.state.assetChanged ? this.state.assetChanged.power_ports : null}
+                                            />
+                                        </Paper>
+                                    </Grid>
+                                </Grid>
+                            </Container>
                         </CardContent>
                     </Card>
                   </Grid>
@@ -410,6 +620,8 @@ export class ChangeExistingAssetForm extends Component {
                 </Grid>
               </Container>
             </div>
+        }
+        </div>
         )
     }
 
