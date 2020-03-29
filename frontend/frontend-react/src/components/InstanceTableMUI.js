@@ -15,7 +15,7 @@ import BlockIcon from '@material-ui/icons/Block';
 import InstanceFilters from './InstanceFilters';
 import '../stylesheets/TableView.css'
 import axios, { post } from 'axios'
-import { Link } from 'react-router-dom'
+import { Link, Redirect } from 'react-router-dom'
 import DatacenterContext from './DatacenterContext';
 
 
@@ -48,7 +48,9 @@ export class InstanceTableMUI extends Component {
       selected: [], // list of IDs
       allAssetIDs: [],
 
-
+      //for AssetLabels.js, the labels table
+      assetLabelTableGenerationData: [],
+      redirectToAssetTagPage: false,
     }
   }
 
@@ -68,6 +70,14 @@ export class InstanceTableMUI extends Component {
   componentDidMount() {
     this.loadAllAssetIDs();
   }
+
+
+//   componentDidUpdate(prevProps, prevState) {
+//     if (prevState.assetLabelTableGenerationData !== this.state.assetLabelTableGenerationData) {
+//       console.log('want to go to asset tags page')
+//       this.setState({ redirectToAssetTagPage: true })
+//     }
+//   }
 
   showDecommissionedForm = (id) => {
     if (window.confirm('Are you sure you want to decommission?')) {
@@ -131,15 +141,34 @@ export class InstanceTableMUI extends Component {
   handleMakeAssetTags = () => {
     let arrayToSend = Object.assign([], this.state.selected)
     console.log(arrayToSend)
-    let dst = '/api/assets/generate_barcodes/';
-    axios.post(dst, arrayToSend).then(res => {
-      //alert('Created tags successfully');
-      const FileDownload = require('js-file-download');
-      FileDownload(res.data, 'asset-tags.svg');
+//     let dst = '/api/assets/generate_barcodes/';
+//     axios.post(dst, arrayToSend).then(res => {
+//       //alert('Created tags successfully');
+//       const FileDownload = require('js-file-download');
+//       FileDownload(res.data, 'asset-tags.svg');
+
+    this.setState({ 
+      assetLabelTableGenerationData: [
+        { 
+          one: 100000, 
+          two: 100001, 
+          three: 100002, 
+          four: 100003,
+        }
+      ] 
     })
-      .catch(function (error) {
-        alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
-      });
+
+    // choked
+    // let dst = '/api/assets/generate_barcodes/';
+    // axios.post(dst, arrayToSend).then(res => {
+    //   //alert('Created tags successfully');
+    //   // const FileDownload = require('js-file-download');
+    //   // FileDownload(res.data, 'asset-tags.svg');
+    //   console.log(res.data)
+    // })
+    //   .catch(function (error) {
+    //     alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+    //   });
   }
 
   renderTableToolbar = () => {
@@ -341,6 +370,12 @@ export class InstanceTableMUI extends Component {
 
 
   render() {
+    if(this.state.redirectToAssetTagPage){
+      return <Redirect to = {{
+        pathname: '/assetlabels', 
+        state: { labelTable: this.state.assetLabelTableGenerationData } 
+      }} />;
+    }
     return (
       <div>
         <Paper>
