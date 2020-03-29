@@ -68,7 +68,7 @@ export class InstanceTableMUI extends Component {
   componentDidMount() {
     this.loadAllAssetIDs();
   }
-  
+
   showDecommissionedForm = (id) => {
     if (window.confirm('Are you sure you want to decommission?')) {
       let dst = '/api/assets/'.concat(id).concat('/?decommissioned=true');
@@ -135,7 +135,7 @@ export class InstanceTableMUI extends Component {
     axios.post(dst, arrayToSend).then(res => {
       //alert('Created tags successfully');
       const FileDownload = require('js-file-download');
-      FileDownload(res.data, 'asset-tags.pdf');
+      FileDownload(res.data, 'asset-tags.svg');
     })
       .catch(function (error) {
         alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
@@ -328,7 +328,7 @@ export class InstanceTableMUI extends Component {
     let selectedArrayCopy = Object.assign([], this.state.selected)
     const idx = selectedArrayCopy.indexOf(id)
     if (idx > -1) {
-      selectedArrayCopy.splice(idx, 1) //remove one element at index 
+      selectedArrayCopy.splice(idx, 1) //remove one element at index
     }
     else {
       selectedArrayCopy.push(id)
