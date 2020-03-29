@@ -200,38 +200,53 @@ export class InstanceTableMUI extends Component {
                 </Tooltip>
               </Link>
             </TableCell>
-            {this.context.is_admin ? (
-              <TableCell align="right">
-                <Link to={'/assets/' + id + '/edit'}>
-                  <Tooltip title='Edit'>
-                    <IconButton size="sm">
-                      <EditIcon />
-                    </IconButton>
-                  </Tooltip>
-                </Link>
-              </TableCell>) : <div></div>
+            {
+              (
+                this.context.is_admin
+                || this.context.username === 'admin'
+                || this.context.asset_permission.includes(datacenter.id)
+              ) ? (
+                  <TableCell align="right">
+                    <Link to={'/assets/' + id + '/edit'}>
+                      <Tooltip title='Edit'>
+                        <IconButton size="sm">
+                          <EditIcon />
+                        </IconButton>
+                      </Tooltip>
+                    </Link>
+                  </TableCell>) : <div></div>
             }
-            {this.context.is_admin ? (
-              < TableCell align="right">
-                < Tooltip title='Decommission'>
-                  <IconButton size="sm" onClick={() => this.showDecommissionedForm(id)}>
-                    <BlockIcon />
-                  </IconButton>
-                </Tooltip>
-              </TableCell>
-            ) : <div></div>
+            {
+              (
+                this.context.is_admin
+                || this.context.username === 'admin'
+                || this.context.asset_permission.includes(datacenter.id)
+              ) ? (
+                  < TableCell align="right">
+                    < Tooltip title='Decommission'>
+                      <IconButton size="sm" onClick={() => this.showDecommissionedForm(id)}>
+                        <BlockIcon />
+                      </IconButton>
+                    </Tooltip>
+                  </TableCell>
+                ) : <div></div>
             }
-            {this.context.is_admin ? (
-              < TableCell align="right">
-                < Tooltip title='Delete'>
-                  <IconButton size="sm" onClick={() => this.showDeleteForm(id)}>
-                    <DeleteIcon />
-                  </IconButton>
-                </Tooltip>
-              </TableCell>
-            ) : <div></div>
+            {
+              (
+                this.context.is_admin
+                || this.context.username === 'admin'
+                || this.context.asset_permission.includes(datacenter.id)
+              ) ? (
+                  < TableCell align="right">
+                    < Tooltip title='Delete'>
+                      <IconButton size="sm" onClick={() => this.showDeleteForm(id)}>
+                        <DeleteIcon />
+                      </IconButton>
+                    </Tooltip>
+                  </TableCell>
+                ) : <div></div>
             }
-            
+
           </div>
         </TableRow>
       )

@@ -39,13 +39,15 @@ export class EditUserForm extends Component {
 
 
       datacenterOptions: [],
+
+      // this is the DC permissions
       selectedDatacenterOption: [],
 
       //selectedDatacenterDualListOption: [],
     }
   }
 
-  loadUserPermissions = () => {
+  loadUserInfo = () => {
     const editID = this.props.match.params.id
     console.log(editID)
     let dst = '/api/users/'.concat(this.props.match.params.id).concat('/');
@@ -54,6 +56,23 @@ export class EditUserForm extends Component {
       this.setState({
         is_admin: res.data.is_superuser,
         username: res.data.username
+      })
+    })
+      .catch(function (error) {
+        alert(JSON.stringify(error.response.data, null, 2));
+      });
+  }
+
+  loadUserPermissions = () => {
+    const editID = this.props.match.params.id
+    let dst = '/all-permissions/?id='.concat(this.props.match.params.id).concat('/');
+    axios.get(dst).then(res => {
+      console.log(res.data)
+      this.setState({
+        hasModelPermission: res.data.model_permission,
+        hasPowerPermission: res.data.power_permission,
+        hasAuditPermission: res.data.log_permission,
+        selectedDatacenterOption: res.data.asset_permission,
       })
     })
       .catch(function (error) {
@@ -88,6 +107,7 @@ export class EditUserForm extends Component {
 
   componentDidMount() {
     this.loadDatacenters();
+    this.loadUserInfo();
     this.loadUserPermissions();
   }
 
@@ -102,7 +122,7 @@ export class EditUserForm extends Component {
     obj.asset = this.state.selectedDatacenterOption;
     obj.power = this.state.hasPowerPermission.toString();
     obj.log = this.state.hasAuditPermission.toString();
-    obj.username = this.context.username
+    obj.username = this.state.username;
 
     console.log(JSON.stringify(obj, null, 2))
     let self = this
@@ -260,11 +280,11 @@ export class EditUserForm extends Component {
                                 selected={this.state.selectedDatacenterOption}
                                 onChange={this.handleDatacenterChange}
                                 icons={{
-                                  moveLeft: <ChevronLeftIcon/>,
+                                  moveLeft: <ChevronLeftIcon />,
                                   moveAllLeft: [
                                     <FirstPageIcon />
                                   ],
-                                  moveRight: <ChevronRightIcon/>,
+                                  moveRight: <ChevronRightIcon />,
                                   moveAllRight: [
                                     <LastPageIcon />
                                   ],
