@@ -65,7 +65,7 @@ export class EditUserForm extends Component {
 
   loadUserPermissions = () => {
     const editID = this.props.match.params.id
-    let dst = '/all-permissions/?id='.concat(this.props.match.params.id).concat('/');
+    let dst = '/all-permissions/?id='.concat(this.props.match.params.id);
     axios.get(dst).then(res => {
       console.log(res.data)
       this.setState({
