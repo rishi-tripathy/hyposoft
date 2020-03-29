@@ -22,6 +22,9 @@ export class ChangeNewAssetForm extends Component {
     super();
     this.state = {
       asset: {
+        id: null,
+        id_ref: null, //new asset
+        cp: null,
         model: null,
         hostname: null,
         datacenter: null,
@@ -282,20 +285,24 @@ export class ChangeNewAssetForm extends Component {
     }
 
     let stateCopy = Object.assign({}, this.state.asset);
-    stateCopy.model = this.state.selectedModelOption ? this.state.selectedModelOption.value : null;
-    stateCopy.datacenter = this.state.selectedDatacenterOption ? this.state.selectedDatacenterOption.value : null;
-    stateCopy.rack = this.state.selectedRackOption ? this.state.selectedRackOption.value : null;
-    stateCopy.owner = this.state.selectedOwnerOption ? this.state.selectedOwnerOption.value : null;
+    stateCopy.model = this.state.selectedModelOption ? this.state.selectedModelOption.id : null;
+    stateCopy.datacenter = this.state.selectedDatacenterOption ? this.state.selectedDatacenterOption.id : null;
+    stateCopy.rack = this.state.selectedRackOption ? this.state.selectedRackOption.id : null;
+    stateCopy.owner = this.state.selectedOwnerOption ? this.state.selectedOwnerOption.id : null;
     stateCopy.network_ports = networkPortsBuilder
     stateCopy.power_ports = tmpPP
+    stateCopy.cp = this.props.match.params.id;
+
     let stateToSend = this.removeEmpty(stateCopy);
+
+    console.log(stateToSend)
 
     console.log(JSON.stringify(stateToSend, null, 2))
     //console.log(JSON.stringify(this.state, null, 2))
 
     //CHOKE THE POST CALL
     var self = this;
-    axios.post('/api/assets/', stateToSend)
+    axios.post('/api/cpAsset/', stateToSend)
       .then(function (response) {
         alert('Created successfully');
         // window.location = '/assets'
@@ -365,7 +372,7 @@ export class ChangeNewAssetForm extends Component {
   render() {
     return (
       <div>
-        {this.state.redirect && <Redirect to={{ pathname: '/assets' }} />}
+        {this.state.redirect && <Redirect to={{ pathname: '/changeplans/'.concat(this.props.match.params.id) }} />}
         <Container maxwidth="xl">
           <Grid container className='themed-container' spacing={2}>
             <Grid item alignContent='center' xs={12} />
