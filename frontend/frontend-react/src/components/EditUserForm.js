@@ -247,7 +247,6 @@ export class EditUserForm extends Component {
                   {
                     !this.state.is_admin ? (
                       <div>
-                        <Paper>
                           <Grid container spacing={3}>
                             <Grid item alignContent='center' xs={4}>
                               <FormLabel component="legend">
@@ -345,7 +344,6 @@ export class EditUserForm extends Component {
                             <Grid item xs={4}>
                             </Grid>
                           </Grid>
-                        </Paper>
                       </div>
                     )
                       : <div></div>
