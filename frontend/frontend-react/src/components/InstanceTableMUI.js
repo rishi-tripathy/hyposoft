@@ -15,7 +15,7 @@ import BlockIcon from '@material-ui/icons/Block';
 import InstanceFilters from './InstanceFilters';
 import '../stylesheets/TableView.css'
 import axios, { post } from 'axios'
-import { Link } from 'react-router-dom'
+import { Link, Redirect } from 'react-router-dom'
 import DatacenterContext from './DatacenterContext';
 
 
@@ -48,7 +48,9 @@ export class InstanceTableMUI extends Component {
       selected: [], // list of IDs
       allAssetIDs: [],
 
-
+      //for AssetLabels.js, the labels table
+      assetLabelTableGenerationData: [],
+      redirectToAssetTagPage: false,
     }
   }
 
@@ -69,6 +71,17 @@ export class InstanceTableMUI extends Component {
     this.loadAllAssetIDs();
   }
 
+<<<<<<< HEAD
+=======
+
+    componentDidUpdate(prevProps, prevState) {
+      if (prevState.assetLabelTableGenerationData !== this.state.assetLabelTableGenerationData) {
+        console.log('going to asset tags page')
+        this.setState({ redirectToAssetTagPage: true })
+      }
+    }
+
+>>>>>>> d6da45ce6c240c673ec54c8238dda1e74bbd84bc
   showDecommissionedForm = (id) => {
     if (window.confirm('Are you sure you want to decommission?')) {
       let dst = '/api/assets/'.concat(id).concat('/?decommissioned=true');
@@ -131,11 +144,32 @@ export class InstanceTableMUI extends Component {
   handleMakeAssetTags = () => {
     let arrayToSend = Object.assign([], this.state.selected)
     console.log(arrayToSend)
+
+    // this.setState({ 
+    //   assetLabelTableGenerationData: [
+    //     { 
+    //       one: 100000, 
+    //       two: 100001, 
+    //       three: 100002, 
+    //       four: 100003,
+    //     }
+    //   ] 
+    // })
+
+    var self = this
     let dst = '/api/assets/generate_barcodes/';
     axios.post(dst, arrayToSend).then(res => {
+<<<<<<< HEAD
       //alert('Created tags successfully');
       const FileDownload = require('js-file-download');
       FileDownload(res.data, 'asset-tags.svg');
+=======
+      console.log(res.data)
+
+      self.setState({
+        assetLabelTableGenerationData: res.data
+      })
+>>>>>>> d6da45ce6c240c673ec54c8238dda1e74bbd84bc
     })
       .catch(function (error) {
         alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
@@ -339,8 +373,14 @@ export class InstanceTableMUI extends Component {
     })
   }
 
-
   render() {
+    console.log(this.state.assetLabelTableGenerationData)
+    if (this.state.redirectToAssetTagPage) {
+      return <Redirect to={{
+        pathname: '/assetlabels',
+        state: { labelTable: this.state.assetLabelTableGenerationData }
+      }} />;
+    }
     return (
       <div>
         <Paper>
