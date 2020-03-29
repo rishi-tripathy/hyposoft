@@ -72,12 +72,12 @@ export class InstanceTableMUI extends Component {
   }
 
 
-//   componentDidUpdate(prevProps, prevState) {
-//     if (prevState.assetLabelTableGenerationData !== this.state.assetLabelTableGenerationData) {
-//       console.log('want to go to asset tags page')
-//       this.setState({ redirectToAssetTagPage: true })
-//     }
-//   }
+    componentDidUpdate(prevProps, prevState) {
+      if (prevState.assetLabelTableGenerationData !== this.state.assetLabelTableGenerationData) {
+        console.log('going to asset tags page')
+        this.setState({ redirectToAssetTagPage: true })
+      }
+    }
 
   showDecommissionedForm = (id) => {
     if (window.confirm('Are you sure you want to decommission?')) {
@@ -141,34 +141,30 @@ export class InstanceTableMUI extends Component {
   handleMakeAssetTags = () => {
     let arrayToSend = Object.assign([], this.state.selected)
     console.log(arrayToSend)
-//     let dst = '/api/assets/generate_barcodes/';
-//     axios.post(dst, arrayToSend).then(res => {
-//       //alert('Created tags successfully');
-//       const FileDownload = require('js-file-download');
-//       FileDownload(res.data, 'asset-tags.svg');
 
-    this.setState({ 
-      assetLabelTableGenerationData: [
-        { 
-          one: 100000, 
-          two: 100001, 
-          three: 100002, 
-          four: 100003,
-        }
-      ] 
-    })
-
-    // choked
-    // let dst = '/api/assets/generate_barcodes/';
-    // axios.post(dst, arrayToSend).then(res => {
-    //   //alert('Created tags successfully');
-    //   // const FileDownload = require('js-file-download');
-    //   // FileDownload(res.data, 'asset-tags.svg');
-    //   console.log(res.data)
+    // this.setState({ 
+    //   assetLabelTableGenerationData: [
+    //     { 
+    //       one: 100000, 
+    //       two: 100001, 
+    //       three: 100002, 
+    //       four: 100003,
+    //     }
+    //   ] 
     // })
-    //   .catch(function (error) {
-    //     alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
-    //   });
+
+    var self = this
+    let dst = '/api/assets/generate_barcodes/';
+    axios.post(dst, arrayToSend).then(res => {
+      console.log(res.data)
+
+      self.setState({
+        assetLabelTableGenerationData: res.data
+      })
+    })
+      .catch(function (error) {
+        alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+      });
   }
 
   renderTableToolbar = () => {
@@ -368,12 +364,12 @@ export class InstanceTableMUI extends Component {
     })
   }
 
-
   render() {
-    if(this.state.redirectToAssetTagPage){
-      return <Redirect to = {{
-        pathname: '/assetlabels', 
-        state: { labelTable: this.state.assetLabelTableGenerationData } 
+    console.log(this.state.assetLabelTableGenerationData)
+    if (this.state.redirectToAssetTagPage) {
+      return <Redirect to={{
+        pathname: '/assetlabels',
+        state: { labelTable: this.state.assetLabelTableGenerationData }
       }} />;
     }
     return (
