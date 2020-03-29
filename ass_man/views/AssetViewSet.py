@@ -449,9 +449,17 @@ class AssetViewSet(viewsets.ModelViewSet):
                 dict = {}
             count+=1
         if len(dict) > 0:
+            while count <=4:
+                if count == 1:
+                    dict['one'] = None
+                if count == 2:
+                    dict['two'] = None
+                if count == 3:
+                    dict['three'] = None
+                if count == 4:
+                    dict['four'] = None
             table.append(dict)
         return Response(table)
-
         # asset_ids = request.data
         # c128 = barcode.get_barcode_class('code128')
         # response = HttpResponse(content_type='application/pdf')
