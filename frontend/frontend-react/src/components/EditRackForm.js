@@ -39,7 +39,7 @@ var self = this;
         });
       })
       .catch(function (error) {
-        alert('Edit was not successful.\n' + JSON.stringify(error.response.data, null, 2));
+        alert('Edit was not successful: \n' + error.response.data.rack_number);
       });
   }
 

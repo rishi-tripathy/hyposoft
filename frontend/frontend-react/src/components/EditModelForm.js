@@ -120,7 +120,16 @@ export class EditModelForm extends Component {
         });
       })
       .catch(function (error) {
-        alert('Edit was not successful.\n' + JSON.stringify(error.response.data, null, 2));
+        let errorMessage = 'Edit was not successful. See details below.\n';
+        let errors = Object.values(error.response.data);
+        let errorKeys = Object.keys(error.response.data);
+        console.log(errors)
+        for(var i = 0; i < errors.length; i ++){
+          console.log(errorKeys[i])
+          console.log(errors[i])
+          errorMessage = errorMessage + " " + errorKeys[i] + ": " + errors[i] + '\n';
+        }
+        alert(errorMessage);
       });
   }
 
