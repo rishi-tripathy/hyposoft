@@ -2,10 +2,11 @@ import React, { Component } from 'react'
 import axios from 'axios'
 import InstanceCard from './InstanceCard';
 import {
-  Typography, Dialog, DialogTitle, DialogContent, Container, Grid, Button, TextField
+  Typography, Dialog, DialogTitle, DialogContent, Container, Grid, Button, TextField, IconButton
 } from "@material-ui/core";
 import PageviewIcon from '@material-ui/icons/Pageview';
-import { Link } from 'react-router-dom'
+import EditIcon from '@material-ui/icons/Edit';
+import { Link, Redirect } from 'react-router-dom'
 import ChangePlanAssetTable from './ChangePlanAssetTable'
 import DatacenterContext from './DatacenterContext';
 import AddCircleIcon from "@material-ui/icons/AddCircle";
@@ -21,31 +22,50 @@ export class DetailedChangePlan extends Component {
     super();
     // keep this default here so InstanceCard doesn't freak out
     this.state = {
+      id: null,
+      name: null,
+      changedName: null,
+      datacenter: null,
+      executed: null,
       showDialog: false,
       assetOptions: [],
       assetsAffectedByChangePlan: [],
       existingAssetSelected: null,
+      showEditModal: false,
+      redirect: false,
     };
     this.open = this.open.bind(this);
     this.close = this.close.bind(this);
   }
 
-  // initializeFakeData = () => {
-  //   this.state.assets = null;
+  componentDidMount() {
+    this.getChangePlanDetails();
+  }
 
-  //   var arr = [];
+  getChangePlanDetails = () => {
+    if (this.props.match.params.id) {
+      let dst = '/api/cp/'.concat(this.props.match.params.id).concat('/');
+      axios.get(dst).then(res => {
+        var assets_arr = [];
+        res.data.assets_cp.map((ass, index) => {
+          assets_arr.push(ass);
+        });
 
-  //   var ass1 = {
-  //     id:0,
-  //     name: 'asset1',
-  //   }
+        this.setState({
+          id: res.data.id,
+          name: res.data.name,
+          datacenter: res.data.datacenter,
+          executed: res.data.executed,
+          assetsAffectedByChangePlan: assets_arr,
+        });
 
-  //   arr.push(ass1);
-
-  //   this.setState({
-  //     assets: arr,
-  //   })
-  // }
+      })
+        .catch(function (error) {
+          // TODO: handle error
+          alert('Could not load owners. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+        });
+    }
+  }
 
   open = () => {
     this.setState({
@@ -93,6 +113,18 @@ export class DetailedChangePlan extends Component {
     });
   }
 
+  showEditForm = () => {
+    this.setState({
+      showEditModal: true,
+    })
+  }
+
+  hideEditForm = () => {
+    this.setState({
+      showEditModal: false,
+    })
+  }
+
   handleChangeAsset = (event, selectedAsset) => {
     //do later when string stuff is fixed 
     console.log('changing asset')
@@ -100,6 +132,35 @@ export class DetailedChangePlan extends Component {
       existingAssetSelected: selectedAsset,
     });
     console.log(this.state)
+  }
+
+  submitEditName = (e) => {
+    this.setState({
+      name: this.state.changedName,
+    })
+      e.preventDefault();
+      let dst = '/api/cp/'.concat(this.props.match.params.id).concat('/');
+  
+      let stateCopy = Object.assign({}, this.state);
+      let stateToSend = this.removeEmpty(stateCopy);
+      console.log(stateToSend)
+      var self = this;
+      axios.put(dst, stateToSend)
+        .then(function (response) {
+          alert('Edit was successful');
+          self.setState({
+            showEditModal: false,
+            redirect: true,
+          })
+        })
+        .catch(function (error) {
+          alert('Edit was not successful.\n' + JSON.stringify(error.response.data, null, 2));
+        });
+  }
+
+  removeEmpty = (obj) => {
+    Object.keys(obj).forEach((k) => (!obj[k] && obj[k] !== undefined) && delete obj[k]);
+    return obj;
   }
 
   render() {
@@ -115,27 +176,71 @@ export class DetailedChangePlan extends Component {
       <Link to={'/changeplans/1/changeNewAsset'}>
         {/* change above to :id later */}
         <Button color="primary" variant="contained" endIcon={<AddCircleIcon/>}>
-          Add Change Plan Action to New Asset
+          Add New Asset
         </Button>
       </Link>;
+
+     
 
 
     return (
       <div>
+        {this.state.redirect && <Redirect to={{ pathname: '/changeplans/'.concat(this.props.match.params.id).concat('/') }} />}
         <Container maxwidth="xl">
           <Grid container className="themed-container" spacing={2}>
             <Grid item justify="flex-start" alignContent='center' xs={12} />
-            <Grid item justify="flex-start" alignContent='center' xs={10}>
+            <Grid item justify="flex-start" alignContent='center' xs={4}>
               <Typography variant="h3">
-                Detailed Change Plan:
+                Change Plan: {this.state.name}
               </Typography>
             </Grid>
+            <Grid item justify="flex-start" alignContent='center' xs={8}>
+              < Tooltip title='Rename Change Plan'> 
+              <IconButton color="primary" aria-label="edit changeplan" component="span" onClick={this.showEditForm}>
+                <EditIcon />
+              </IconButton>
+              </ Tooltip>
+              <Dialog open={this.state.showEditModal}>
+                <DialogTitle>
+                  Edit Change Plan Name
+                </DialogTitle>
+                <DialogContent>
+                <Container maxwidth="xl">
+                <Grid container className="themed-container" spacing={2}>
+                  <Grid item justify="flex-start" alignContent='center' xs={12} />
+                  <Grid item justify="flex-start" alignContent='center' xs={10}>
+                  <TextField label='Name' type="text" fullWidth
+                    value={this.state.changedName}
+                    defaultValue={this.state.name}
+                    InputLabelProps={{ shrink: true }}
+                    onChange={e => {
+                      this.setState({
+                        changedName: e.target.value,
+                      });
+                    }} />
+                    </Grid>
+                    <Grid item justify="flex-start" alignContent='center' xs={4}>
+                      <Button variant="contained" onClick={this.submitEditName}>
+                        Submit
+                      </Button>
+                    </Grid>
+                    <Grid item justify="flex-start" alignContent='center' xs={4}>
+                      <Button variant="outlined" onClick={this.hideEditForm}>
+                        Cancel
+                      </Button>
+                    </Grid>
+                    </Grid>
+                  </Container>
+                  </DialogContent>
+              </Dialog>
+            </Grid>
 
-            <Grid item justify="flex-start" alignContent='center' xs={6}>
+
+            <Grid item justify="flex-start" alignContent='center' xs={3}>
               {addNewAsset}
             </Grid>
 
-            <Grid item justify="flex-start" alignContent='center' xs={6}>
+            <Grid item justify="flex-start" alignContent='center' xs={3}>
             <div>
 
               <Button 
@@ -143,7 +248,7 @@ export class DetailedChangePlan extends Component {
                 variant="contained" 
                 endIcon={<AddCircleIcon/>}
                 onClick={this.open.bind(this)}> 
-                Add Change Plan Action to Existing Asset
+                Change an Existing Asset
               </Button>
 
               <Dialog
@@ -191,7 +296,11 @@ export class DetailedChangePlan extends Component {
               </Dialog>
             </div>
             </Grid>
-             
+            <Grid item justify="flex-start" alignContent='center' xs={3}>
+              <Button variant="contained" onClick={this.validateCP}>
+                Validate
+              </Button>
+            </Grid>
             <Grid item alignContent='center' xs={12} />
             <Grid item alignContent='center' xs={12} />
 

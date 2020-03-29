@@ -35,7 +35,7 @@ export class ChangePlanTable extends Component {
 
   showDeleteForm = (id) => {
     if (window.confirm('Are you sure you want to delete?')) {
-      let dst = '/api/models/'.concat(id).concat('/');
+      let dst = '/api/cp/'.concat(id).concat('/');
       axios.delete(dst)
         .then(function (response) {
           alert('Delete was successful');

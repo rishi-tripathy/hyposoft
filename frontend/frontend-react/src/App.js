@@ -343,8 +343,7 @@ class App extends React.Component {
                       render={(props) => <CreateChangePlanForm {...props} />} />
 
                     <Route
-                      path='/changeplans/1'
-                      //TODO: change above to :id after
+                      path='/changeplans/:id'
                       exact
                       render={(props) => <DetailedChangePlan {...props} />} />
 

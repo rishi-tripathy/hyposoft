@@ -32,10 +32,9 @@ export class ChangePlanAssetTable extends Component {
   }
 
 
-
   showDeleteForm = (id) => {
     if (window.confirm('Are you sure you want to delete?')) {
-      let dst = '/api/models/'.concat(id).concat('/');
+      let dst = '/api/cp/'.concat(id).concat('/');
       axios.delete(dst)
         .then(function (response) {
           alert('Delete was successful');
@@ -77,7 +76,7 @@ export class ChangePlanAssetTable extends Component {
       <Toolbar>
         {
           <Typography style={{flex: '1 1 20%'}} variant="h6" id="modelTableTitle">
-            Change Plans
+            Assets Modified by this Change Plan
           </Typography>
         }
         <Collapse in={this.state.filtersOpen}>
@@ -94,7 +93,9 @@ export class ChangePlanAssetTable extends Component {
 
   renderTableHeader() {
     let headCells = [
-      {id: 'name', label: 'Name'},
+      {id: 'newOrNa', label: 'New or Existing Asset?'},
+      {id: 'hostname', label: 'Hostname'},
+      {id: 'description', label: 'Description'},
     ];
     return headCells.map(headCell => (
       <TableCell
@@ -103,14 +104,7 @@ export class ChangePlanAssetTable extends Component {
         padding={'default'}
 
       >
-        <TableSortLabel
-          active={this.state.sortBy === headCell.id}
-          hideSortIcon={!(this.state.sortBy === headCell.id)}
-          direction={this.state.sortBy === headCell.id ? this.state.sortType : false}
-          onClick={() => this.handleHeaderClickSort(headCell.id)}
-        >
-          {headCell.label.toUpperCase()}
-        </TableSortLabel>
+        {headCell.label.toUpperCase()}
       </TableCell>
     ))
   }
@@ -123,14 +117,20 @@ export class ChangePlanAssetTable extends Component {
       </TableRow>
     )
     return this.props.assets.map((asset, index) => {
-      const {id, name} = asset //destructuring
+      const {id, hostname, id_ref, description} = asset //destructuring
+      var exists = "Yes";
+      if(id_ref === null){
+        exists = "No";
+      }
       return (
         <TableRow
           hover
           tabIndex={-1}
           key={id}
         >
-          <TableCell align="center">{name}</TableCell>
+          <TableCell align="center">{exists}</TableCell>
+          <TableCell align="center">{hostname}</TableCell>
+          <TableCell align="center">{description}</TableCell>
         </TableRow>
       )
     })
