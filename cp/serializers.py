@@ -36,7 +36,7 @@ class AssetCPSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AssetCP
-        fields = ['id', 'id_ref', 'hostname', 'cp', 'model', 'datacenter', 'rack', 'rack_u', 'owner', 'asset_number']
+        fields = ['id', 'id_ref', 'hostname', 'cp', 'model', 'datacenter', 'rack', 'rack_u', 'owner']
 
 
 class AssetCPFetchSerializer(serializers.ModelSerializer):
@@ -50,7 +50,7 @@ class AssetCPFetchSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AssetCP
-        fields = ['id', 'id_ref', 'hostname', 'cp', 'model', 'datacenter', 'rack', 'rack_u', 'nps_cp', 'pps_cp', 'owner', 'comment', 'asset_number']
+        fields = ['id', 'id_ref', 'hostname', 'cp', 'model', 'datacenter', 'rack', 'rack_u', 'nps_cp', 'pps_cp', 'owner', 'comment']
 
 
 
@@ -60,7 +60,7 @@ class ChangePlanListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ChangePlan
-        fields = ['id', 'name', 'datacenter', 'owner']
+        fields = ['id', 'name', 'datacenter', 'owner', 'executed']
 
 
 class ChangePlanFetchSerializer(serializers.ModelSerializer):
@@ -70,4 +70,5 @@ class ChangePlanFetchSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ChangePlan
-        fields = ['id', 'name', 'owner', 'datacenter', 'assets_cp']
+        fields = ['id', 'name', 'owner', 'datacenter', 'assets_cp', 'executed']
+

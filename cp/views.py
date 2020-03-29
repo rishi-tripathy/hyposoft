@@ -116,8 +116,7 @@ class ChangePlanViewSet(viewsets.ModelViewSet):
                 a_ref.save()
             else:
                 a_new = Asset(model=a.model, hostname=a.hostname, datacenter=a.datacenter,
-                              rack=a.rack, rack_u = a.rack_u, owner=a.owner, comment=a.comment,
-                              asset_number=a.asset_number)
+                              rack=a.rack, rack_u = a.rack_u, owner=a.owner, comment=a.comment)
                 ChangePlanViewSet.move_asset(self, a_new, a)
                 a_new.save()
                 a.id_ref=a_new.pk #when doing network ports, now have a way to access to the real object
@@ -135,11 +134,13 @@ class ChangePlanViewSet(viewsets.ModelViewSet):
                     # mac may change
                     n_ref.mac = n.mac
                     # connection may change
-                    n_ref.connection = n.connection # This assumes that the CPNP n is planned to be connected to a preexisting NP
-                    n.connection = n_ref
+                    if n.connection:
+                        n_ref.connection = n.connection # This assumes that the CPNP n is planned to be connected to a preexisting NP
+                        n.connection.connection = n_ref
+                        n.connection.save()
 
                     n_ref.save()
-                    n.connection.save()
+
 
                     # not sure how to process connected to another new NP (created in CP)
 
@@ -149,6 +150,10 @@ class ChangePlanViewSet(viewsets.ModelViewSet):
 
                     n_new = Network_Port(name=n.name, mac=n.mac, connection=n.connection,
                                          asset=Asset.objects.get(AssetCP.objects.get(id=n.asset_cp_id).id_ref)) # This assumes that the CPNP n is planned to be connected to a preexisting NP
+
+                    if n.connection:
+                        n.connection.connection = n_new
+                        n.connection.save()
 
                     n_new.save()
 
@@ -166,7 +171,7 @@ class ChangePlanViewSet(viewsets.ModelViewSet):
 
 
             return Response({
-                'hostname': assets_cp.hostname
+                'status': 'ok!'
             })
 
 

@@ -8,6 +8,7 @@ class ChangePlan(models.Model):
     name = models.CharField(max_length=64, blank=False, null=False)
     owner = models.ForeignKey(User, blank=True, null=True, on_delete=models.CASCADE)
     datacenter = models.ForeignKey(Datacenter, blank=True, null=True, on_delete=models.CASCADE)
+    executed = models.BooleanField(default=False)
     # ADD DATACENTER
 
     def __str__(self):
