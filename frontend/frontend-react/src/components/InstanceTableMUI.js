@@ -203,8 +203,11 @@ export class InstanceTableMUI extends Component {
     return this.props.assets.map((asset) => {
       //console.log(asset)
       const { id, model, hostname, rack, owner, rack_u, datacenter, network_ports, power_ports, asset_number } = asset //destructuring
-      //console.log(network_ports)
-
+      console.log(datacenter.id)
+      console.log(this.context.asset_permission)
+      console.log(this.context.asset_permission.includes(datacenter.id))
+      console.log(this.context.is_admin)
+      console.log(this.context.username === 'admin')
       return (
         <TableRow
           hover
