@@ -25,13 +25,17 @@ export class DetailedChangePlan extends Component {
       name: null,
       changedName: null,
       datacenter: null,
+      datacenterAbbreviation: null,
       executed: null,
       showDialog: false,
       assetOptions: [],
       assets_cp: [],
-      existingAssetSelected: null,
+      existingAssetSelected: {
+        id: null,
+      },
       showEditModal: false,
       redirect: false,
+      selectedAsset: null,
     };
     this.open = this.open.bind(this);
     this.close = this.close.bind(this);
@@ -59,12 +63,23 @@ export class DetailedChangePlan extends Component {
           assets_cp: assets_arr,
         });
 
-      })
-        .catch(function (error) {
-          // TODO: handle error
-          alert('Could not load owners. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+        let dst2 = '/api/datacenters/' + res.data.datacenter + '/';
+        axios.get(dst2).then(res2 => {
+          console.log(res2)
+          this.setState({
+            datacenterAbbreviation: res2.data.abbreviation,
+          })
+        })
+        .catch(function (error1) {
+          console.log(error1.response)
+          alert('Cannot load. Re-login.\n' + JSON.stringify(error1.response.data, null, 2));
         });
-    }
+  })
+  .catch(function (error) {
+    // TODO: handle error
+    alert('Could not load owners. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+  });
+  }
   }
 
   open = () => {
@@ -83,23 +98,11 @@ export class DetailedChangePlan extends Component {
 
   loadExistingAssetsInDatacenter= () => {
     //get assets from dc
-    console.log(this.context)
-    let dst = '/api/assets/?datacenter=' + this.context.datacenter_id + '&show_all=true';
+    let dst = '/api/assets/?datacenter=' + this.state.datacenter + '&show_all=true';
     console.log(dst)
 
     axios.get(dst).then(res => {
-        // var raw_assets = res.data;
-      //put in digestible form 
-      // var ass_arr = [];
-      // raw_assets.map((asset, index) =>{
-      //   var temp = asset['id'];
-      //   ass_arr.push(temp);
-      // });
-
-      // this.setState({
-      //   assets: ass_arr,
-      // });
-      
+      console.log(res)
       this.setState({
         assetOptions: res.data,
       })
@@ -111,6 +114,16 @@ export class DetailedChangePlan extends Component {
       console.log(error.response)
       alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
     });
+  }
+
+  getDatacenterAbbreviation = () => {
+    let dst = '/api/datacenters/' + this.state.datacenter + '/';
+    axios.get(dst).then(res => {
+      console.log(res)
+      this.setState({
+        datacenterAbbreviation: res.abbreviation,
+      })
+    })
   }
 
   showEditForm = () => {
@@ -127,9 +140,10 @@ export class DetailedChangePlan extends Component {
 
   handleChangeAsset = (event, selectedAsset) => {
     //do later when string stuff is fixed 
-    console.log('changing asset')
+    console.log(selectedAsset)
+    var obj = {id: selectedAsset.id}
     this.setState({
-      existingAssetSelected: selectedAsset,
+      existingAssetSelected: obj,
     });
     console.log(this.state)
   }
@@ -219,12 +233,13 @@ export class DetailedChangePlan extends Component {
                       });
                     }} />
                     </Grid>
-                    <Grid item justify="flex-start" alignContent='center' xs={4}>
+                    <Grid item justify="flex-start" alignContent='center' xs={1}>
                       <Button variant="contained" onClick={this.submitEditName}>
                         Submit
                       </Button>
                     </Grid>
-                    <Grid item justify="flex-start" alignContent='center' xs={4}>
+                    <Grid item justify="flex-start" alignContent='center' xs={1} />
+                    <Grid item justify="flex-start" alignContent='center' xs={1}>
                       <Button variant="outlined" onClick={this.hideEditForm}>
                         Cancel
                       </Button>
@@ -255,12 +270,11 @@ export class DetailedChangePlan extends Component {
                 open={this.state.showDialog}
               >
                 <DialogTitle>
-                  Select an Asset within Datacenter: {this.context.datacenter_ab} 
+                  Select an Asset within Datacenter: {this.state.datacenterAbbreviation} 
                 </DialogTitle>
                 
                 <DialogContent>
                   {console.log(this.state.assetOptions)}
-                  {console.log(this.state.assetOptions[1])}
                 
                 <Container maxwidth="xl">
                   <Grid container className="themed-container" spacing={2}>
@@ -269,23 +283,25 @@ export class DetailedChangePlan extends Component {
                         id="cp-existing-asset-select"
                         //noOptionsText="No existing assets in Datacenter"
                         options={this.state.assetOptions}
-                        getOptionLabel={(option) => option.id}
-                        onInputChange={this.handleChangeAsset}
+                        getOptionLabel={(option) => option.hostname}
+                        onChange={this.handleChangeAsset}
                         // defaultValue={this.state.assetOptions[0]}
+                        value={this.state.selectedAsset}
                         renderInput={(params) =>
                           <TextField {...params} label="Asset" fullWidth/>}
                       />
                     </Grid>
-                    <Grid item justify="flex-start" alignContent='center' xs={2}>
+                    <Grid item justify="flex-start" alignContent='center' xs={6}>
                       {/* change 1 to :id to edit existing asset page below */}
                       {/* TWO ids below, first is CP, second is asset */}
-                      <Link to={'/changeplans/1/changeExistingAsset/1/'}>
+                      {console.log(this.state.existingAssetSelected)}
+                      <Link to={'/changeplans/'.concat(this.props.match.params.id).concat('/changeExistingAsset/').concat(this.state.existingAssetSelected.id).concat('/')}>
                         <Button color="primary" variant="contained" onClick={this.submitAsset}>
                           Submit
                         </Button>
                       </Link>
                     </Grid>
-                    <Grid item justify="flex-start" alignContent='center' xs={2}>
+                    <Grid item justify="flex-start" alignContent='center' xs={6}>
                       <Button variant="contained" onClick={this.close}>
                         Close
                       </Button>

@@ -353,7 +353,7 @@ class App extends React.Component {
                       render={(props) => <ChangeNewAssetForm {...props} />} />
 
                     <Route 
-                      path='/changeplans/1/changeExistingAsset/1'
+                      path='/changeplans/:id/changeExistingAsset/:assId'
                       exact
                       render={(props) => <ChangeExistingAssetForm {...props} />} />
 

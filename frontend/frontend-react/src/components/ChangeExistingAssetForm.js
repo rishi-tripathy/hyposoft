@@ -25,7 +25,6 @@ export class ChangeExistingAssetForm extends Component {
         this.state = {
 
             //changeplan metadata
-            changePlanId: 1,
             loading: true,
 
             //stuff for view
@@ -89,9 +88,9 @@ export class ChangeExistingAssetForm extends Component {
     }
 
       loadLVInstance = () => {
-        // if (this.props.match.params.id) {
-        //   let dst = '/api/assets/'.concat(this.props.match.params.id).concat('/');
-        let dst = '/api/assets/13/' //change later
+        console.log(this.props.match.params.assId)
+        if (this.props.match.params.assId) {
+          let dst = '/api/assets/'.concat(this.props.match.params.assId).concat('/');
           axios.get(dst).then(res => {
             this.setState({
               assetLV: res.data,
@@ -104,7 +103,7 @@ export class ChangeExistingAssetForm extends Component {
               // TODO: handle error
               alert('Cannot load assets. Re-login.\n' + JSON.stringify(error.response, null, 2));
             });
-        // }
+        }
       }
 
       loadMACAddresses = () => {
@@ -425,7 +424,7 @@ export class ChangeExistingAssetForm extends Component {
                   <Grid item justify="flex-start" alignContent='center' xs={12}/>
                   <Grid item justify="flex-start" alignContent='center' xs={10}>
                     <Typography variant="h4" gutterBottom>
-                        Changing an Existing Asset in Change Plan: {this.state.changePlanId}
+                        Changing an Existing Asset in Change Plan: {this.props.match.params.id}
                     </Typography>
                   </Grid>
                   <Grid item justify="flex-start" alignContent='center' xs={12} >
