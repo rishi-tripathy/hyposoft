@@ -10,6 +10,7 @@ import {
 import {Redirect, Link} from 'react-router-dom'
 import AddCircleIcon from "@material-ui/icons/AddCircle";
 import CancelIcon from '@material-ui/icons/Cancel';
+import DatacenterContext from './DatacenterContext';
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
@@ -18,10 +19,12 @@ export class CreateChangePlanForm extends Component {
   constructor() {
     super();
     this.state = {
-        'id': null,
-        'name': null,
-        'datacenter': null,
-        'datacenterOptions': [],
+        owner: null,
+        name: null,
+        datacenter: null,
+        datacenterOptions: [],
+        selectedDataCenterOption: null,
+        redirect: false,
     }
   }
 
@@ -29,49 +32,33 @@ export class CreateChangePlanForm extends Component {
     this.loadDatacenters();
     this.setState({
       datacenter: '/api/datacenters/'.concat(this.context.datacenter_id).toString().concat('/'),
-    })
+      owner: this.context.username,
+    });
     console.log(this.state.datacenter)
   }
 
   loadDatacenters = () => {
-    // DCs
-    let dst = '/api/datacenters/?show_all=true';
+    const dst = '/api/datacenters/?show_all=true';
     axios.get(dst).then(res => {
       let myOptions = [];
-      let myIds = [];
-      let myIdMap = [];
-      for(var i = 0; i < res.data.length; i++) {
-        myOptions.push(res.data[i].abbreviation);
-        myIds.push(res.data[i].id);
-        var obj = {id: res.data[i].id, datacenter: res.data[i].abbreviation};
-
-        myIdMap.push(obj);
+      for (let i = 0; i < res.data.length; i++) {
+        //TODO: change value to URL
+        myOptions.push({ value: res.data[i].url, label: res.data[i].abbreviation, id: res.data[i].id });
       }
-      this.setState({
-        datacenterOptions: myOptions,
-        datacenterToIdMap: myIdMap,
-      });
-
+      this.setState({ datacenterOptions: myOptions });
     })
       .catch(function (error) {
         // TODO: handle error
-        alert('Could not datacenters.\n' + JSON.stringify(error.response.data.result, null, 2));
+        alert('Could not load owners. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
       });
   }
 
-  handleChangeDatacenter = (event, selectedDataCenterOption) => {
-    if(selectedDataCenterOption!== null || selectedDataCenterOption!== undefined ){
-      // console.log((this.state.datacenterToIdMap.find(x => x.datacenter === selectedDataCenterOption)))
-      let id = this.state.datacenterToIdMap.find(x => x.datacenter === selectedDataCenterOption);
-      if(id=== null || id=== undefined){
-        //do nothing (doesn't work flipped idk why JS shit)
-      }
-      else{
-        let dc = '/api/datacenters/'.concat(id.id).concat('/');
-        this.setState({datacenter: dc});
-      }
-    }
-  };
+ 
+  handleChangeDatacenter = (event, option) => {
+    this.setState({ selectedDatacenterOption: option});
+    this.setState({ datacenter: option.id});
+    console.log(option.id)
+  }
 
   removeEmpty = (obj) => {
     Object.keys(obj).forEach((k) => (!obj[k] && obj[k] !== undefined) && delete obj[k]);
@@ -89,7 +76,7 @@ export class CreateChangePlanForm extends Component {
 
     //THE API CALL TO POST
     var self = this;
-    axios.post('/api/datacenters/', stateToSend)
+    axios.post('/api/cp/', stateToSend)
       .then(function (response) {
         alert('Created successfully');
         self.setState({
@@ -117,6 +104,7 @@ export class CreateChangePlanForm extends Component {
 
     return (
       <div>
+        {this.state.redirect && <Redirect to={{ pathname: '/changeplans' }} />}
         <Container maxwidth="xl">
           <Grid container className='themed-container' spacing={2}>
             <Grid item alignContent='center' xs={12}/>
@@ -135,19 +123,18 @@ export class CreateChangePlanForm extends Component {
                     })
                   }}/>
                 </Grid>
-                <Grid item xs={3}>
+                <Grid item xs={6}>
                   <Autocomplete
-                    freeSolo
                     autoComplete
                     autoHighlight
                     autoSelect
-                    id="rack-datacenter-select"
-                    noOptionsText={"Create New in DC tab"}
+                    id="datacenter-select"
                     options={this.state.datacenterOptions}
-                    onInputChange={this.handleChangeDatacenter}
-                    defaultValue={defVal}
+                    getOptionLabel={option => option.label}
+                    onChange={this.handleChangeDatacenter}
+                    value={this.state.selectedDatacenterOption}
                     renderInput={params => (
-                      <TextField {...params} label="Datacenter" fullWidth/>
+                      <TextField {...params} label="Datacenter" fullWidth />
                     )}
                   />
                 </Grid>
@@ -175,5 +162,7 @@ export class CreateChangePlanForm extends Component {
     )
   }
 }
+
+CreateChangePlanForm.contextType = DatacenterContext;
 
 export default CreateChangePlanForm
