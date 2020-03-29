@@ -72,13 +72,12 @@ export class InstanceTableMUI extends Component {
   }
 
 
-
-  componentDidUpdate(prevProps, prevState) {
-    if (prevState.assetLabelTableGenerationData !== this.state.assetLabelTableGenerationData) {
-      console.log('want to go to asset tags page')
-      this.setState({ redirectToAssetTagPage: true })
-    }
-  }
+//   componentDidUpdate(prevProps, prevState) {
+//     if (prevState.assetLabelTableGenerationData !== this.state.assetLabelTableGenerationData) {
+//       console.log('want to go to asset tags page')
+//       this.setState({ redirectToAssetTagPage: true })
+//     }
+//   }
 
   showDecommissionedForm = (id) => {
     if (window.confirm('Are you sure you want to decommission?')) {
@@ -142,6 +141,11 @@ export class InstanceTableMUI extends Component {
   handleMakeAssetTags = () => {
     let arrayToSend = Object.assign([], this.state.selected)
     console.log(arrayToSend)
+//     let dst = '/api/assets/generate_barcodes/';
+//     axios.post(dst, arrayToSend).then(res => {
+//       //alert('Created tags successfully');
+//       const FileDownload = require('js-file-download');
+//       FileDownload(res.data, 'asset-tags.svg');
 
     this.setState({ 
       assetLabelTableGenerationData: [

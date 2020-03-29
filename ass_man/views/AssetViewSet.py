@@ -430,7 +430,7 @@ class AssetViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=[POST])
     def generate_barcodes(self, request, *args, **kwargs):
-        asset_ids = request.data['assets']
+        asset_ids = request.data
         count = 1
         table = []
         dict = {}
