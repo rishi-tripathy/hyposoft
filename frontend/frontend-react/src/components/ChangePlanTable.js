@@ -47,27 +47,6 @@ export class ChangePlanTable extends Component {
     this.showRerender();
   }
 
-//   handleHeaderClickSort = (id) => {
-//     let sortByCopy = id
-//     this.setState({
-//       sortBy: sortByCopy
-//     })
-//     let sortTypeCopy = this.state.sortingStates[(this.state.sortingStates.indexOf(this.state.sortType) + 1) % 2];
-//     this.setState({
-//       sortType: sortTypeCopy
-//     })
-
-//     // Make Query
-//     let modifier = (sortTypeCopy === 'desc') ? '-' : ''
-//     let q = 'ordering=' + modifier + sortByCopy;
-//     // for (let i = 0; i < arr.length; i++) {
-//     //   q = q + arr[i].value + ',';
-//     // }
-//     // // take off the last &
-//     // q = q.slice(0, -1);
-//     this.props.sendSortQuery(q);
-//   };
-
   showRerender = () => {
     this.props.sendRerender(true);
   }
@@ -95,8 +74,7 @@ export class ChangePlanTable extends Component {
   renderTableHeader() {
     let headCells = [
       {id: 'name', label: 'Name'},
-      {id: 'status', label: 'Status'},
-      {id: 'actions', label: 'Actions', disablePadding: false,},
+      {id: 'status', label: 'Executed?'},
     ];
     return headCells.map(headCell => (
       <TableCell
@@ -105,14 +83,8 @@ export class ChangePlanTable extends Component {
         padding={'default'}
 
       >
-        <TableSortLabel
-          active={this.state.sortBy === headCell.id}
-          hideSortIcon={!(this.state.sortBy === headCell.id)}
-          direction={this.state.sortBy === headCell.id ? this.state.sortType : false}
-          onClick={() => this.handleHeaderClickSort(headCell.id)}
-        >
-          {headCell.label.toUpperCase()}
-        </TableSortLabel>
+        {headCell.label.toUpperCase()}
+
       </TableCell>
     ))
   }
@@ -125,7 +97,8 @@ export class ChangePlanTable extends Component {
       </TableRow>
     )
     return this.props.changePlans.map((cp, index) => {
-      const {id, name, status, actions} = cp //destructuring
+      const {id, name, executed} = cp //destructuring
+      var executedString = executed ? "Yes" : "No";
       return (
         <TableRow
           hover
@@ -133,10 +106,10 @@ export class ChangePlanTable extends Component {
           key={id}
         >
           <TableCell align="center">{name}</TableCell>
-          <TableCell align="center">{status}</TableCell>
+          <TableCell align="center">{executedString}</TableCell>
           <div>
             {this.context.is_admin ? (
-              <TableCell align="center">
+              <TableCell align="right">
                 <Link to={'/changeplans/1/'}>
                 {/* UNCOMMENT BELOW POST FAKE DATA */}
                 {/* <Link to={'/changeplans/' + id + '/'}> */}
@@ -149,7 +122,7 @@ export class ChangePlanTable extends Component {
               </TableCell>) : <p></p>
             }
             {this.context.is_admin ? (
-              < TableCell align="center">
+              < TableCell align="right">
                 < Tooltip title='Delete'>
                   <IconButton size="sm" onClick={() => this.showDeleteForm(id)}>
                     <DeleteIcon/>

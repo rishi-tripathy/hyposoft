@@ -22,39 +22,59 @@ export class ChangePlanController extends Component {
     }
 
     componentDidMount() {
-        this.initializeFakeData();
+        // this.initializeFakeData();
+        this.getChangePlans();
     }
 
-    initializeFakeData = () => {
-        this.state.changePlans = null;
-
+    getChangePlans() {
+      let dst = '/api/cp/';
+      axios.get(dst).then(res => {
+        console.log(res.data.results)
         var arr = [];
-
-        var cp1 = {
-            id: 0,
-            name : 'cp1',
-            status: 'some time ago',
-            objects: []};
-        var cp2 = {
-            id: 1,
-            name : 'cp2',
-            status: 'some longer time ago',
-            objects: []};
-        var cp3 = {
-            id: 2,
-            name : 'cp3',
-            status: 'some longest time ago',
-            objects: []};
-        arr.push(cp1);
-        arr.push(cp2);
-        arr.push(cp3);
-
-        console.log(arr)
-
+        res.data.results.map((cp, index) => {
+          arr.push(cp);
+        });
         this.setState({
-            changePlans: arr,
-        })
+          changePlans: arr,
+          prevPage: res.data.previous,
+          nextPage: res.data.next,
+        });
+      })
+      .catch(function (error) {
+        alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+      });
     }
+
+    // initializeFakeData = () => {
+    //     this.state.changePlans = null;
+
+    //     var arr = [];
+
+    //     var cp1 = {
+    //         id: 0,
+    //         name : 'cp1',
+    //         status: 'some time ago',
+    //         objects: []};
+    //     var cp2 = {
+    //         id: 1,
+    //         name : 'cp2',
+    //         status: 'some longer time ago',
+    //         objects: []};
+    //     var cp3 = {
+    //         id: 2,
+    //         name : 'cp3',
+    //         status: 'some longest time ago',
+    //         objects: []};
+    //     arr.push(cp1);
+    //     arr.push(cp2);
+    //     arr.push(cp3);
+
+    //     console.log(arr)
+
+    //     this.setState({
+    //         changePlans: arr,
+    //     })
+    // }
 
     render() {
         console.log(this.state.changePlans)
