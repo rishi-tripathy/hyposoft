@@ -17,8 +17,11 @@ import ReactToPrint from 'react-to-print';
 // marginRight={this.state.marginRight}
 
 // LABEL PARAMETERS
-const labelHeight = 50
-const labelWidth = 4
+//height 50 -> fits 14
+//40->16
+//25 -> 20
+const labelHeight = 18
+const labelWidth = 3.5
 const textAlignPosition = 'left'
 
 export class AssetLabels extends Component {
@@ -49,6 +52,11 @@ export class AssetLabels extends Component {
   }
 }
 
+const myTableStyle = {
+  //border: '1px solid black',
+  textAlign: 'center',
+};
+
 class ComponentToPrint extends Component {
 
   constructor() {
@@ -75,8 +83,122 @@ class ComponentToPrint extends Component {
           one: 100004,
           two: 100005,
           three: 100006,
-          four: null,
-        }
+          four: 100007,
+        },
+        {
+          one: 100004,
+          two: 100005,
+          three: 100006,
+          four: 100007,
+        },
+        {
+          one: 100000,
+          two: 100001,
+          three: 100002,
+          four: 100003,
+        },
+        {
+          one: 100004,
+          two: 100005,
+          three: 100006,
+          four: 100007,
+        },
+        {
+          one: 100004,
+          two: 100005,
+          three: 100006,
+          four: 100007,
+        },
+        {
+          one: 100000,
+          two: 100001,
+          three: 100002,
+          four: 100003,
+        },
+        {
+          one: 100004,
+          two: 100005,
+          three: 100006,
+          four: 100007,
+        },
+        {
+          one: 100004,
+          two: 100005,
+          three: 100006,
+          four: 100007,
+        },
+        {
+          one: 100000,
+          two: 100001,
+          three: 100002,
+          four: 100003,
+        },
+        {
+          one: 100004,
+          two: 100005,
+          three: 100006,
+          four: 100007,
+        },
+        {
+          one: 100004,
+          two: 100005,
+          three: 100006,
+          four: 100007,
+        },
+        {
+          one: 100000,
+          two: 100001,
+          three: 100002,
+          four: 100003,
+        },
+        {
+          one: 100004,
+          two: 100005,
+          three: 100006,
+          four: 100007,
+        },
+        {
+          one: 100004,
+          two: 100005,
+          three: 100006,
+          four: 100007,
+        },
+        {
+          one: 100000,
+          two: 100001,
+          three: 100002,
+          four: 100003,
+        },
+        {
+          one: 100004,
+          two: 100005,
+          three: 100006,
+          four: 100007,
+        },
+        {
+          one: 100004,
+          two: 100005,
+          three: 100006,
+          four: 100007,
+        },
+        {
+          one: 100000,
+          two: 100001,
+          three: 100002,
+          four: 100003,
+        },
+        {
+          one: 100004,
+          two: 100005,
+          three: 100006,
+          four: 100007,
+        },
+        {
+          one: 100004,
+          two: 100005,
+          three: 100006,
+          four: 100007,
+        },
       ]
     })
   }
@@ -88,7 +210,7 @@ class ComponentToPrint extends Component {
       const { one, two, three, four } = row //destructuring
       return (
         <tr>
-          <td>
+          <td style={myTableStyle}>
             {
               one ? (
                 <Barcode
@@ -102,7 +224,7 @@ class ComponentToPrint extends Component {
               ) : <div></div>
             }
           </td>
-          <td>
+          <td style={myTableStyle}>
             {
               two ? (
                 <Barcode
@@ -116,7 +238,7 @@ class ComponentToPrint extends Component {
               ) : <div></div>
             }
           </td>
-          <td>
+          <td style={myTableStyle}>
             {
               three ? (
                 <Barcode
@@ -130,7 +252,7 @@ class ComponentToPrint extends Component {
               ) : <div></div>
             }
           </td>
-          <td>
+          <td style={myTableStyle}>
             {
               four ? (
                 <Barcode
@@ -152,12 +274,16 @@ class ComponentToPrint extends Component {
   render() {
 
     return (
-      <table>
+      <table style={myTableStyle} >
         <thead>
-          <th>column 1</th>
+          {/* <th>column 1</th>
           <th>column 2</th>
           <th>column 3</th>
-          <th>column 4</th>
+          <th>column 4</th> */}
+          <th></th>
+          <th></th>
+          <th></th>
+          <th></th>
         </thead>
         <tbody>
           {this.renderTableData()}
