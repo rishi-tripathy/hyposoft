@@ -74,7 +74,10 @@ def all_permissions(request):
             user_permissions['log_permission'] = 'false'
         users.append(user_permissions)
 
-    return Response(users)
+    if len(users) == 1:
+        return Response(users[0])
+    else:
+        return Response(users)
 
 @api_view(['POST'])
 @permission_classes([IsAdminUser])
