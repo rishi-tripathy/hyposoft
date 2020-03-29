@@ -1,6 +1,10 @@
 import React, { Component } from 'react'
 import ReactToPrint from 'react-to-print';
-
+import {
+  Grid, Button, Container, Paper,
+  ButtonGroup, Switch, FormControlLabel,
+  Typography, Tooltip, IconButton, CircularProgress
+} from "@material-ui/core"
 
 // fontOptions={this.state.fontOptions}
 // font={this.state.font}
@@ -17,9 +21,8 @@ import ReactToPrint from 'react-to-print';
 // marginRight={this.state.marginRight}
 
 // LABEL PARAMETERS
-//height 50 -> fits 14
-//40->16
-//25 -> 20
+//height 18 -> fits 20
+
 const labelHeight = 18
 const labelWidth = 3.5
 const textAlignPosition = 'left'
@@ -37,16 +40,13 @@ export class AssetLabels extends Component {
     //ReactPDF.render(<MyDocument />, `${__dirname}/test.pdf`);
     return (
       <div>
-        <p>asset labels</p>
-
-        {/* <PDFViewer>
-          <MyDocument />
-        </PDFViewer> */}
-        <ReactToPrint
-          trigger={() => <a href="#">Print this out!</a>}
-          content={() => this.componentRef}
-        />
-        <ComponentToPrint ref={el => (this.componentRef = el)} />
+        <Container maxwidth="xl">
+          <ReactToPrint
+            trigger={() => <Button variant="contained" color="primary">Print Asset Labels</Button>}
+            content={() => this.componentRef}
+          />
+          <ComponentToPrint ref={el => (this.componentRef = el)} />
+        </Container>
       </div>
     )
   }
