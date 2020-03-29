@@ -157,22 +157,23 @@ class ChangePlanViewSet(viewsets.ModelViewSet):
 
                     n_new.save()
 
-
             # Handle Power Ports for this CP Asset
             for p in PPCP.objects.all().filter(asset_cp_id=a):
                 if p.id_ref: # if referencing existing pp
                     pass
 
-                else: #creating new PP
+                else: # creating new PP
                     p_new = Power_Port(name="", pdu=p.pdu, port_number=p.port_number,
                                        asset=Asset.objects.get(AssetCP.objects.get(id=n.asset_cp_id).id_ref))
 
                     p_new.save()
 
+        target.executed = True
+        target.save()
 
-            return Response({
-                'status': 'ok!'
-            })
+        return Response({
+            'status': 'ok!'
+        })
 
 
 class AssetCPViewSet(viewsets.ModelViewSet):
