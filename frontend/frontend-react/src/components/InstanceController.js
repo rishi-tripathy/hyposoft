@@ -450,16 +450,16 @@ export class InstanceController extends Component {
       />
     }
 
-    let add = this.context.is_admin ? (
+    let add = (this.context.is_admin || this.context.username === 'admin' || this.context.asset_permission) ? (
       <Link to={'/assets/create'}>
         <Button color="primary" variant="contained" endIcon={<AddCircleIcon />}>
           Add Asset
         </Button>
       </Link>
 
-    ) : <p></p>;
+    ) : <div></div>;
 
-    let imp = this.context.is_admin ? (
+    let imp = (this.context.is_admin || this.context.username === 'admin' || this.context.asset_permission) ? (
       <>
         <Button variant="outlined" component="span" startIcon={<CloudUploadIcon />} onClick={this.handleImport}>
           Import Assets
@@ -472,9 +472,9 @@ export class InstanceController extends Component {
           onChange={this.handleFileUpload}
         />
       </>
-    ) : <p></p>;
+    ) : <div></div>;
 
-    let importNetworkConnections = this.context.is_admin ? (
+    let importNetworkConnections = (this.context.is_admin || this.context.username === 'admin' || this.context.asset_permission) ? (
       <>
         <Button variant="outlined" component="span" startIcon={<SettingsEthernetIcon />} onClick={this.handleNPImport}>
           Import Network Connections
@@ -487,7 +487,7 @@ export class InstanceController extends Component {
           onChange={this.handleNPFileUpload}
         />
       </>
-    ) : <p></p>;
+    ) : <div></div>;
 
     // if we're not on the table, then don't show pagination or filters or sorting
     if (!this.state.showTableView) {

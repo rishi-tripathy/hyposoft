@@ -45,6 +45,23 @@ export class InstanceTableMUI extends Component {
     }
   }
 
+  loadAllAssetIDs = () => {
+    let dst = '/api/assets/all_ids/';
+    axios.get(dst).then(res => {
+      this.setState({
+        allAssetIDs: res.data.ids
+      });
+    })
+      .catch(function (error) {
+        // TODO: handle error
+        alert('Cannot load assets. Re-login.\n' + JSON.stringify(error.response, null, 2));
+      });
+  }
+
+  componentDidMount() {
+    this.loadAllAssetIDs();
+  }
+
   showDecommissionedForm = (id) => {
     if (window.confirm('Are you sure you want to decommission?')) {
       let dst = '/api/assets/'.concat(id).concat('/?decommissioned=true');
@@ -103,6 +120,20 @@ export class InstanceTableMUI extends Component {
     // q = q.slice(0, -1);
     this.props.sendSortQuery(q);
   };
+
+  handleMakeAssetTags = () => {
+    let arrayToSend = Object.assign([], this.state.selected)
+    console.log(arrayToSend)
+    let dst = '/api/assets/generate_barcodes/';
+    axios.post(dst, arrayToSend).then(res => {
+      //alert('Created tags successfully');
+      const FileDownload = require('js-file-download');
+      FileDownload(res.data, 'asset-tags.svg');
+    })
+      .catch(function (error) {
+        alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+      });
+  }
 
   renderTableToolbar = () => {
     return (
@@ -172,8 +203,11 @@ export class InstanceTableMUI extends Component {
     return this.props.assets.map((asset) => {
       //console.log(asset)
       const { id, model, hostname, rack, owner, rack_u, datacenter, network_ports, power_ports, asset_number } = asset //destructuring
-      //console.log(network_ports)
-
+      console.log(datacenter.id)
+      console.log(this.context.asset_permission)
+      console.log(this.context.asset_permission.includes(datacenter.id))
+      console.log(this.context.is_admin)
+      console.log(this.context.username === 'admin')
       return (
         <TableRow
           hover
@@ -200,41 +234,88 @@ export class InstanceTableMUI extends Component {
                 </Tooltip>
               </Link>
             </TableCell>
-            {this.context.is_admin ? (
-              <TableCell align="right">
-                <Link to={'/assets/' + id + '/edit'}>
-                  <Tooltip title='Edit'>
-                    <IconButton size="sm">
-                      <EditIcon />
-                    </IconButton>
-                  </Tooltip>
-                </Link>
-              </TableCell>) : <p></p>
+            {
+              (
+                this.context.is_admin
+                || this.context.username === 'admin'
+                || this.context.asset_permission.includes(datacenter.id)
+              ) ? (
+                  <TableCell align="right">
+                    <Link to={'/assets/' + id + '/edit'}>
+                      <Tooltip title='Edit'>
+                        <IconButton size="sm">
+                          <EditIcon />
+                        </IconButton>
+                      </Tooltip>
+                    </Link>
+                  </TableCell>) : <div></div>
             }
-            {this.context.is_admin ? (
-              < TableCell align="right">
-                < Tooltip title='Decommission'>
-                  <IconButton size="sm" onClick={() => this.showDecommissionedForm(id)}>
-                    <BlockIcon />
-                  </IconButton>
-                </Tooltip>
-              </TableCell>
-            ) : <p></p>
+            {
+              (
+                this.context.is_admin
+                || this.context.username === 'admin'
+                || this.context.asset_permission.includes(datacenter.id)
+              ) ? (
+                  < TableCell align="right">
+                    < Tooltip title='Decommission'>
+                      <IconButton size="sm" onClick={() => this.showDecommissionedForm(id)}>
+                        <BlockIcon />
+                      </IconButton>
+                    </Tooltip>
+                  </TableCell>
+                ) : <div></div>
             }
-            {this.context.is_admin ? (
-              < TableCell align="right">
-                < Tooltip title='Delete'>
-                  <IconButton size="sm" onClick={() => this.showDeleteForm(id)}>
-                    <DeleteIcon />
-                  </IconButton>
-                </Tooltip>
-              </TableCell>
-            ) : <p></p>
+            {
+              (
+                this.context.is_admin
+                || this.context.username === 'admin'
+                || this.context.asset_permission.includes(datacenter.id)
+              ) ? (
+                  < TableCell align="right">
+                    < Tooltip title='Delete'>
+                      <IconButton size="sm" onClick={() => this.showDeleteForm(id)}>
+                        <DeleteIcon />
+                      </IconButton>
+                    </Tooltip>
+                  </TableCell>
+                ) : <div></div>
             }
-            
+
           </div>
         </TableRow>
       )
+    })
+  }
+
+  onSelectAllCheckboxClick = () => {
+    console.log('select all')
+
+    if (this.state.selected.length === this.state.allAssetIDs.length) {
+      this.setState({ selected: [] })
+    }
+    else {
+      console.log(this.state.allAssetIDs)
+      let allIDs = Object.assign([], this.state.allAssetIDs)
+      this.setState({ selected: allIDs })
+    }
+    console.log(this.state.selected)
+  }
+
+  onSelectCheckboxClick = (id) => {
+    console.log(this.state.selected)
+    console.log('clicked on ' + id)
+
+    let selectedArrayCopy = Object.assign([], this.state.selected)
+    const idx = selectedArrayCopy.indexOf(id)
+    if (idx > -1) {
+      selectedArrayCopy.splice(idx, 1) //remove one element at index
+    }
+    else {
+      selectedArrayCopy.push(id)
+    }
+
+    this.setState({
+      selected: selectedArrayCopy
     })
   }
 

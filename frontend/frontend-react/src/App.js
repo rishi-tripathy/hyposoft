@@ -54,6 +54,13 @@ class App extends React.Component {
       username: null,
       delay: false,
       loading: true,
+
+
+      // permissions stuff
+      model_permission: false,
+      asset_permission: [],
+      power_permission: false,
+      audit_permission: false,
     }
   }
 
@@ -135,6 +142,7 @@ class App extends React.Component {
             delay: true,
           });
           // console.log('netid state has been set')
+          this.getUserInfo();
           this.getUserPermissions();
         })
         .catch(function (error) {
@@ -142,11 +150,12 @@ class App extends React.Component {
         });
     }
     else {
+      this.getUserInfo();
       this.getUserPermissions();
     }
   }
 
-  getUserPermissions() {
+  getUserInfo() {
     axios.get('api/users/who_am_i/').then(res => {
       // console.log(res.data)
       if (res.data.current_user != '') {
@@ -156,6 +165,38 @@ class App extends React.Component {
           user_last: res.data.last_name,
           username: res.data.current_user,
           is_admin: res.data.is_admin,
+        });
+        //  console.log('going to fill DCs')
+        this.getDatacenters();
+      }
+    })
+      .catch(error => {
+        // console.log(error.response)
+        this.setState({
+          loading: false,
+        })
+      });
+  }
+
+  getUserPermissions = () => {
+    axios.get('/user-permissions/').then(res => {
+      // console.log(res.data)
+      if (res.data.current_user != '') {
+
+        
+          //this.setState({ model_permission: res.data.model_permission === 'true'})
+        
+
+        this.setState({
+          // logged_in: true,
+          // user_first: res.data.first_name,
+          // user_last: res.data.last_name,
+          // username: res.data.current_user,
+          // is_admin: res.data.is_admin,
+          model_permission: res.data.model_permission === 'true',
+          asset_permission: res.data.asset_permission,
+          power_permission: res.data.power_permission === 'true',
+          audit_permission: res.data.log_permission === 'true',
         });
         //  console.log('going to fill DCs')
         this.getDatacenters();
@@ -335,7 +376,7 @@ class App extends React.Component {
                       path='/decommissioned'
                       exact
                       render={(props) => <DecommissionedController {...props} />} />
-                    
+
                     <Route
                       path='/decommissioned/:id'
                       exact
