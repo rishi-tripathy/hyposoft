@@ -34,11 +34,12 @@ def import_model_file(request):
             if row['network_ports']:
                 new_model.network_ports_num = row['network_ports']
             if row['power_ports']:
-                new_model.power_ports = row['power_ports']
+                new_model.power_ports = int(row['power_ports'])
             if row['memory']:
                 new_model.memory = row['memory']
             nps = []
-            for i in range(1, int(row['network_ports']) + 1):
+            csv_num_netports = int(row['network_ports']) if row['network_ports'] else 0
+            for i in range(1, csv_num_netports + 1):
                 if i <= 4 and row['network_port_name_{}'.format(i)]:
                     nps.append(row['network_port_name_{}'.format(i)])
                 else:
@@ -47,12 +48,19 @@ def import_model_file(request):
                 new_model.network_ports = nps
             models_to_create.append(new_model)
             continue
-
-        for i in range(int(row['network_ports'])):
-            if i<=3 and row['network_port_name_{}'.format(i + 1)] and row['network_port_name_{}'.format(i + 1)] is not \
-                    model.network_ports[i]:
+        csv_num_netports = int(row['network_ports']) if row['network_ports'] else 0
+        created = False
+        for i in range(csv_num_netports):
+            if i<=3 and row['network_port_name_{}'.format(i + 1)] and (not model.network_ports or (len(model.network_ports) <= i or row['network_port_name_{}'.format(i + 1)] is not \
+                    model.network_ports[i])):
                 if should_override:
-                    model.network_ports[i] = row['network_port_name_{}'.format(i + 1)]
+                    if not model.network_ports:
+                        model.network_ports = []
+                        created = True
+                    if created:
+                        model.network_ports.append(row['network_port_name_{}'.format(i + 1)])
+                    else:
+                        model.network_ports[i] = row['network_port_name_{}'.format(i + 1)]
                     should_update = True
 
         if str(model.height) != row['height']:
@@ -81,7 +89,8 @@ def import_model_file(request):
             override = True
         if str(model.power_ports) != row['power_ports'] and (model.power_ports or row['power_ports']):
             if should_override:
-                model.power_ports = row['power_ports']
+                pp_num = int(row['power_ports']) if row['power_ports'] else None
+                model.power_ports = pp_num
                 should_update = True
             else:
                 key = model.vendor + model.model_number + "_power_ports"
@@ -454,7 +463,7 @@ def import_asset_file(request):
             dash2=True
 
         pp1 = asset.power_port_set.first()
-        if pp1_reg and (dash1 or (int(pp1_reg.group(2)) != pp1.port_number or (pp1_reg.group(1).upper() != pp1.pdu.name.upper()[-1]))):
+        if pp1_reg and (dash1 or (not pp1 or int(pp1_reg.group(2)) != pp1.port_number or (pp1_reg.group(1).upper() != pp1.pdu.name.upper()[-1]))):
             #someting is different about port location
             if should_override:
                 if pp1_reg == '-':
@@ -471,12 +480,14 @@ def import_asset_file(request):
                         row['power_port_connection_1']
                     except Power_Port.DoesNotExist:
                         pass
+                    if not pp1:
+                        pp1 = Power_Port(name='', pdu=pdu_update, port_number=int(pp1_reg.group(2)), asset=asset)
                     pp1.port_number = int(pp1_reg.group(2))
                     pp1.pdu = pdu_update
                 should_update=True
                 power_ports_to_create.append(pp1)
             else:
-                key = pp1.pdu.name.upper()[-1]+str(pp1.port_number) if pp1.pdu else ''
+                key = pp1.pdu.name.upper()[-1]+str(pp1.port_number) if (pp1 and pp1.pdu) else ''
                 fields_overriden[str(asset.asset_number)+'_power_port'] = \
                 [key,row['power_port_connection_1']]
             override=True
@@ -486,7 +497,7 @@ def import_asset_file(request):
             pp2 = asset.power_port_set.all().order_by('pk')[1]
         except IndexError:
             pp2=None
-        if pp2_reg and (dash2 or (int(pp2_reg.group(2)) != pp2.port_number or (pp2_reg.group(1).upper() != pp2.pdu.name.upper()[-1]))):
+        if pp2_reg and (dash2 or (not pp2 or int(pp2_reg.group(2)) != pp2.port_number or (pp2_reg.group(1).upper() != pp2.pdu.name.upper()[-1]))):
             #someting is different about port location
             if should_override:
                 if pp2_reg == '-':
@@ -503,12 +514,14 @@ def import_asset_file(request):
                         row['power_port_connection_2']
                     except Power_Port.DoesNotExist:
                         pass
+                    if not pp2:
+                        pp2 = Power_Port(name='', pdu=pdu_update, port_number=int(pp2_reg.group(2)), asset=asset)
                     pp2.port_number = int(pp2_reg.group(2))
                     pp2.pdu = pdu_update
                 should_update=True
                 power_ports_to_create.append(pp2)
             else:
-                key = pp2.pdu.name.upper()[-1]+str(pp2.port_number) if pp2.pdu else ''
+                key = pp2.pdu.name.upper()[-1]+str(pp2.port_number) if (pp2 and pp2.pdu) else ''
                 fields_overriden[str(asset.asset_number)+'_power_port'] = \
                 [key,row['power_port_connection_2']]
             override=True

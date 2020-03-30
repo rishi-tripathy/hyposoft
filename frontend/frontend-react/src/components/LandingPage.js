@@ -7,9 +7,11 @@ axios.defaults.xsrfHeaderName = "X-CSRFToken";
 class LandingPage extends React.Component {
   render() {
     return (
+      <center>
       <div id="fade">
         <img src={require('../PoweredBy.png')}/>
       </div>
+      </center>
     )
   }
 }

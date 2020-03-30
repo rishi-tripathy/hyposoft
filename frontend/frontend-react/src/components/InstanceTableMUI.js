@@ -3,18 +3,21 @@ import PropTypes from 'prop-types';
 import clsx from 'clsx';
 import { lighten, makeStyles } from '@material-ui/core/styles';
 import {
-  Collapse, Table, TableBody, Button, TableCell, TableContainer, TableRow, Toolbar,
-  Typography, Paper, IconButton, Tooltip, TableSortLabel
+  Collapse, Table, TableBody, Button, TableCell, TableContainer, TableRow, Toolbar, Grid,
+  Typography, Paper, IconButton, Tooltip, TableSortLabel, Checkbox
 } from "@material-ui/core";
 import PageviewIcon from '@material-ui/icons/Pageview';
 import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
 import FilterListIcon from '@material-ui/icons/FilterList';
+import LocalOfferIcon from '@material-ui/icons/LocalOffer';
+import BlockIcon from '@material-ui/icons/Block';
 import InstanceFilters from './InstanceFilters';
 import '../stylesheets/TableView.css'
 import axios, { post } from 'axios'
-import { Link } from 'react-router-dom'
+import { Link, Redirect } from 'react-router-dom'
 import DatacenterContext from './DatacenterContext';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
@@ -40,8 +43,84 @@ export class InstanceTableMUI extends Component {
       //   'memory': 'none',
       //   'storage': 'none'
       // },
-      sortingStates: ['asc', 'desc']
+      sortingStates: ['asc', 'desc'],
+
+      // for checkboxes
+      selected: [], // list of IDs
+      allAssetIDs: [],
+
+      //for AssetLabels.js, the labels table
+      assetLabelTableGenerationData: [],
+      redirectToAssetTagPage: false,
+
+      //spinner for decom
+      loadingDecommission: false,
     }
+  }
+
+  loadAllAssetIDs = () => {
+    let dst = '/api/assets/all_ids/';
+    axios.get(dst).then(res => {
+      this.setState({
+        allAssetIDs: res.data.ids
+      });
+    })
+      .catch(function (error) {
+        // TODO: handle error
+        alert('Cannot load assets. Re-login.\n' + JSON.stringify(error.response, null, 2));
+      });
+  }
+
+  componentDidMount() {
+    this.loadAllAssetIDs();
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState.assetLabelTableGenerationData !== this.state.assetLabelTableGenerationData) {
+      console.log('going to asset tags page')
+      this.setState({ redirectToAssetTagPage: true })
+    }
+  }
+
+  loadAllAssetIDs = () => {
+    let dst = '/api/assets/all_ids/';
+    axios.get(dst).then(res => {
+      this.setState({
+        allAssetIDs: res.data.ids
+      });
+    })
+      .catch(function (error) {
+        // TODO: handle error
+        alert('Cannot load assets. Re-login.\n' + JSON.stringify(error.response, null, 2));
+      });
+  }
+
+  componentDidMount() {
+    this.loadAllAssetIDs();
+  }
+
+  showDecommissionedForm = (id) => {
+    if (window.confirm('Are you sure you want to decommission?')) {
+      this.setState({
+        loadingDecommission: true
+      })
+      let dst = '/api/assets/'.concat(id).concat('/?decommissioned=true');
+      let self = this
+      axios.delete(dst)
+        .then(function (response) {
+          alert('Decommission was successful');
+          self.setState({
+            loadingDecommission: false
+          })
+        })
+        .catch(function (error) {
+          alert('Decommission was not successful.\n' + JSON.stringify(error.response.data, null, 2));
+          self.setState({
+            loadingDecommission: false
+          })
+        });
+    }
+    this.showRerender();
   }
 
   showDeleteForm = (id) => {
@@ -65,6 +144,7 @@ export class InstanceTableMUI extends Component {
   }
 
   showRerender = () => {
+    this.loadAllAssetIDs();
     this.props.sendRerender(true);
   }
 
@@ -89,13 +169,69 @@ export class InstanceTableMUI extends Component {
     this.props.sendSortQuery(q);
   };
 
+  handleMakeAssetTags = () => {
+    let arrayToSend = Object.assign([], this.state.selected)
+    console.log(arrayToSend)
+
+    // this.setState({ 
+    //   assetLabelTableGenerationData: [
+    //     { 
+    //       one: 100000, 
+    //       two: 100001, 
+    //       three: 100002, 
+    //       four: 100003,
+    //     }
+    //   ] 
+    // })
+
+    var self = this
+    let dst = '/api/assets/generate_barcodes/';
+    axios.post(dst, arrayToSend).then(res => {
+      console.log(res.data)
+
+      self.setState({
+        assetLabelTableGenerationData: res.data
+      })
+
+    })
+      .catch(function (error) {
+        alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+      });
+  }
+
   renderTableToolbar = () => {
     return (
       <Toolbar>
         {
-          <Typography style={{ flex: '1 1 20%' }} variant="h6" id="instanceTableTitle">
-            Assets
-          </Typography>
+          this.state.selected.length === 0 ? (
+            <Typography variant="h6" id="instanceTableTitle">
+              Assets
+            </Typography>
+          ) : (
+              <div>
+                <Grid container spacing={2}>
+                  <Grid item xs={2}>
+                    <Typography variant="subtitle1" >
+                      {this.state.selected.length}
+                    </Typography>
+                  </Grid>
+
+                  <Grid item xs={8}>
+                    <Typography variant="subtitle1" >
+                      selected
+                  </Typography>
+                  </Grid>
+
+                  <Grid item xs={2}>
+                    <Tooltip title='Make Asset Tags'>
+                      <IconButton size="sm" onClick={() => this.handleMakeAssetTags()}>
+                        <LocalOfferIcon />
+                      </IconButton>
+                    </Tooltip>
+                  </Grid>
+                </Grid>
+              </div>
+            )
         }
         <Collapse in={this.state.filtersOpen}>
           <Paper>
@@ -109,8 +245,6 @@ export class InstanceTableMUI extends Component {
             Filter
           </Button>
         </Tooltip>
-
-
       </Toolbar>
     );
   };
@@ -157,14 +291,24 @@ export class InstanceTableMUI extends Component {
     return this.props.assets.map((asset) => {
       //console.log(asset)
       const { id, model, hostname, rack, owner, rack_u, datacenter, network_ports, power_ports, asset_number } = asset //destructuring
-      //console.log(network_ports)
-
+      console.log(datacenter.id)
+      console.log(this.context.asset_permission)
+      console.log(this.context.asset_permission.includes(datacenter.id))
+      console.log(this.context.is_admin)
+      console.log(this.context.username === 'admin')
       return (
         <TableRow
           hover
           tabIndex={-1}
           key={id}
         >
+          <TableCell padding="checkbox">
+            <Checkbox
+              checked={this.state.selected.includes(id)}
+              onChange={(e) => this.onSelectCheckboxClick(id, e)}
+              inputProps={{ 'aria-labelledby': id }}
+            />
+          </TableCell>
           <TableCell align="center">{rack ? rack.rack_number : null}</TableCell>
           <TableCell align="center">{rack_u}</TableCell>
           <TableCell align="center">{model ? model.vendor : null}</TableCell>
@@ -185,53 +329,140 @@ export class InstanceTableMUI extends Component {
                 </Tooltip>
               </Link>
             </TableCell>
-            {this.context.is_admin ? (
-              <TableCell align="right">
-                <Link to={'/assets/' + id + '/edit'}>
-                  <Tooltip title='Edit'>
-                    <IconButton size="sm">
-                      <EditIcon />
-                    </IconButton>
-                  </Tooltip>
-                </Link>
-              </TableCell>) : <p></p>
+
+            {
+              (
+                this.context.is_admin
+                || this.context.username === 'admin'
+                || this.context.asset_permission.includes(datacenter.id)
+              ) ? (
+                  <TableCell align="right">
+                    <Link to={'/assets/' + id + '/edit'}>
+                      <Tooltip title='Edit'>
+                        <IconButton size="sm">
+                          <EditIcon />
+                        </IconButton>
+                      </Tooltip>
+                    </Link>
+                  </TableCell>) : <div></div>
             }
-            {this.context.is_admin ? (
-              < TableCell align="right">
-                < Tooltip title='Delete'>
-                  <IconButton size="sm" onClick={() => this.showDeleteForm(id)}>
-                    <DeleteIcon />
-                  </IconButton>
-                </Tooltip>
-              </TableCell>
-            ) : <p></p>
+            {
+              (
+                this.context.is_admin
+                || this.context.username === 'admin'
+                || this.context.asset_permission.includes(datacenter.id)
+              ) ? (
+                  < TableCell align="right">
+                    < Tooltip title='Decommission'>
+                      <IconButton size="sm" onClick={() => this.showDecommissionedForm(id)}>
+                        <BlockIcon />
+                      </IconButton>
+                    </Tooltip>
+                  </TableCell>
+                ) : <div></div>
             }
+            {
+              (
+                this.context.is_admin
+                || this.context.username === 'admin'
+                || this.context.asset_permission.includes(datacenter.id)
+              ) ? (
+                  < TableCell align="right">
+                    < Tooltip title='Delete'>
+                      <IconButton size="sm" onClick={() => this.showDeleteForm(id)}>
+                        <DeleteIcon />
+                      </IconButton>
+                    </Tooltip>
+                  </TableCell>
+                ) : <div></div>
+            }
+
           </div>
         </TableRow>
       )
     })
   }
 
+  onSelectAllCheckboxClick = () => {
+    console.log('select all')
+
+    if (this.state.selected.length === this.state.allAssetIDs.length || this.state.allAssetIDs.length === 0) {
+      this.setState({ selected: [] })
+    }
+    else {
+      console.log(this.state.allAssetIDs)
+      let allIDs = Object.assign([], this.state.allAssetIDs)
+      this.setState({ selected: allIDs })
+    }
+    console.log(this.state.selected)
+  }
+
+  onSelectCheckboxClick = (id) => {
+    console.log(this.state.selected)
+    console.log('clicked on ' + id)
+
+    let selectedArrayCopy = Object.assign([], this.state.selected)
+    const idx = selectedArrayCopy.indexOf(id)
+    if (idx > -1) {
+      selectedArrayCopy.splice(idx, 1) //remove one element at index
+    }
+    else {
+      selectedArrayCopy.push(id)
+    }
+
+    this.setState({
+      selected: selectedArrayCopy
+    })
+  }
 
   render() {
+    console.log(this.state.assetLabelTableGenerationData)
+    if (this.state.redirectToAssetTagPage) {
+      return <Redirect to={{
+        pathname: '/assetlabels',
+        state: { labelTable: this.state.assetLabelTableGenerationData }
+      }} />;
+    }
     return (
       <div>
-        <Paper>
-          {this.renderTableToolbar()}
-          <TableContainer>
-            <Table
-              size="small"
-              aria-labelledby="instanceTableTitle"
-              aria-label="instanceTable"
-            >
-              <TableRow>{this.renderTableHeader()}</TableRow>
+        {
+          this.state.loadingDecommission ? (
+            <div>
+              <center>
+                <CircularProgress size={100} />
+              </center>
+            </div>
+          ) : (
+              <div>
+                <Paper>
+                  {this.renderTableToolbar()}
+                  <TableContainer>
+                    <Table
+                      size="small"
+                      aria-labelledby="instanceTableTitle"
+                      aria-label="instanceTable"
+                    >
+                      <TableRow>
+                        <TableCell padding="checkbox">
+                          <Checkbox
+                            //indeterminate={numSelected > 0 && numSelected < rowCount}
+                            checked={this.state.selected.length === this.state.allAssetIDs.length && this.state.selected.length != 0}
+                            onChange={this.onSelectAllCheckboxClick}
+                            inputProps={{ 'aria-label': 'select all desserts' }}
+                          />
+                        </TableCell>
+                        {this.renderTableHeader()}
+                      </TableRow>
 
-              <TableBody>
-                {this.renderTableData()}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </Paper>
+                      <TableBody>
+                        {this.renderTableData()}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                </Paper>
+              </div>
+            )
+        }
       </div>
     );
   }

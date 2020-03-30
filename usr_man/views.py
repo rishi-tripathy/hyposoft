@@ -55,6 +55,19 @@ class UserViewSet(viewsets.ModelViewSet):
                 "status": "Failure. You may not delete a NetID user."
             })
 
+    @action(detail=True, methods=[POST])
+    def update_super_status(self, request, *args, **kwargs):
+        user = self.get_object()
+        if request.data.get('is_superuser'):
+            user.is_superuser = True
+            user.is_staff = True
+            user.save()
+        elif not request.data.get('is_superuser'):
+            user.is_superuser = False
+            user.is_staff = False
+            user.save()
+        return Response('sup big mike')
+
     # Override default actions here
     def partial_update(self, request, *args, **kwargs):
 
@@ -113,6 +126,7 @@ class UserViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=[GET])
     def who_am_i(self, request, *args, **kwargs):
         try:
+            id = request.user.pk
             un = request.user.username
             fn = request.user.first_name or None
             ln = request.user.last_name or None
@@ -122,6 +136,7 @@ class UserViewSet(viewsets.ModelViewSet):
                 'current_user': None
             }, status=status.HTTP_400_BAD_REQUEST)
         return Response({
+            'id': id,
             'current_user': un,
             'first_name': fn,
             'last_name': ln,
@@ -167,4 +182,3 @@ class UserViewSet(viewsets.ModelViewSet):
                 'creation': 'success',
                 'login': 'success'
             })
-

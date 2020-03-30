@@ -30,7 +30,14 @@ PUT = 'PUT'
 class DatacenterViewSet(viewsets.ModelViewSet):
     def get_permissions(self):
         if self.action in ADMIN_ACTIONS:
-            permission_classes = [IsAdminUser]
+            try:
+                user = User.objects.get(username=self.request.user.username)
+                if user.is_staff or len(user.permission_set.all().filter(name='asset')) > 0:
+                    permission_classes = [IsAdminUser]
+                else:
+                    permission_classes = [IsAuthenticated]
+            except:
+                permission_classes = [IsAuthenticated]
         else:
             permission_classes = [IsAuthenticated]
         return [permission() for permission in permission_classes]
@@ -80,3 +87,16 @@ class DatacenterViewSet(viewsets.ModelViewSet):
         matches = self.get_object().rack_set  # Rack.objects.filter(datacenter=self.get_object())
         rs = RackOfAssetSerializer(matches, many=True, context={'request': request})
         return Response(rs.data)
+
+    @action(detail=True, methods=[GET])
+    def asset_options_cp(self, request, *args, **kwargs):
+        this_dc = self.get_object()
+
+        matches = Asset.objects.all().filter(datacenter=this_dc)
+        options = {}
+        for match in matches:
+            options[' '.join([match.hostname, match.model.vendor, match.model.model_number,
+                              match.rack.rack_number, str(match.rack_u)])] = match.pk
+        return Response({
+            'data': options
+        })

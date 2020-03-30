@@ -1,6 +1,6 @@
 import React, {Component} from 'react'
 import '../stylesheets/RackTable.css'
-import '../stylesheets/Printing.css'
+// import '../stylesheets/Printing.css'
 import {Link} from 'react-router-dom'
 
 export class RackRow extends Component {
@@ -85,11 +85,11 @@ export class RackRow extends Component {
               fontSize: 12,
               borderBottom: 'solid',
             }}>
-            </td>;
+            </td>
         } else if (this.props.row === '42') {
           content =
             <td>
-            </td>;
+            </td>
         } else if (this.props.model === '...') {
           // ... case
           row = '';
@@ -99,11 +99,11 @@ export class RackRow extends Component {
               color: 'black',
             }}>
               {this.props.model}
-            </td>;
+            </td>
         } else {
           //null with 2 instances sandwiching, render normal
           content =
-            <td style={{fontSize: 12,}}> </td>;
+            <td style={{fontSize: 12,}}> </td>
         }
       }
     }
@@ -121,7 +121,7 @@ export class RackRow extends Component {
           <Link style={{color: textColor }} to={'/assets/' + this.props.id}>
             {this.props.model} {this.displayName()}
           </Link>
-          </td>;
+          </td>
       } else if (!objectIsNull && this.props.hostname == null) {
         content =
           <td style={{
@@ -130,9 +130,9 @@ export class RackRow extends Component {
             cursor: 'pointer',
           }}>
             <Link style={{color: textColor }} to={'/assets/' + this.props.id}>{ }</Link>
-          </td>;
+          </td>
       } else {
-        content = <td style={{fontSize: 12,}}> </td>;
+        content = <td style={{fontSize: 12,}}> </td>
       }
 
       if (objectIsNull && this.props.index === 1) {
@@ -142,7 +142,7 @@ export class RackRow extends Component {
             borderBottom: 'solid',
           }}>
 
-          </td>;
+          </td>
       }
     }
 

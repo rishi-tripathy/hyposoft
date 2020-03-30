@@ -27,8 +27,6 @@ export class AuditLogTable extends Component {
     this.state = {
       filtersOpen: false,
       filterQuery: ''
-
-
     };
   }
 

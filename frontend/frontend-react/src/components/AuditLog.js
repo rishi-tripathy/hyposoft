@@ -1,8 +1,5 @@
 import React, {Component} from 'react'
 import '../stylesheets/Printing.css'
-import {AppBar, Tabs, Tab, Button, Toolbar, IconButton, Typography} from "@material-ui/core";
-import {NavLink} from 'react-router-dom'
-import {Autocomplete} from "@material-ui/lab"
 import AuditLogTable from './AuditLogTable'
 import axios, {post} from 'axios'
 

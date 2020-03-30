@@ -5,7 +5,7 @@ import EditModelForm from "./EditModelForm";
 import ModelTableMUI from "./ModelTableMUI"
 import DetailedModel from "./DetailedModel";
 import {
-  Grid, Button, Container, Paper, ButtonGroup, Switch, FormControlLabel, Typography
+  Grid, Button, Container, Paper, ButtonGroup, Switch, FormControlLabel, Typography, CircularProgress
 } from "@material-ui/core"
 import CloudUploadIcon from "@material-ui/icons/CloudUpload";
 import SaveAltIcon from "@material-ui/icons/SaveAlt";
@@ -29,7 +29,8 @@ export class ModelController extends Component {
       filterQuery: "",
       sortQuery: "",
       rerender: false,
-      file: null
+      file: null,
+      loading: true,
     };
 
   }
@@ -43,10 +44,14 @@ export class ModelController extends Component {
         models: res.data.results,
         prevPage: res.data.previous,
         nextPage: res.data.next,
+        loading: false,
       });
     })
       .catch(function (error) {
         // TODO: handle error
+        this.setState({
+          loading: false,
+        })
         alert("Cannot load. Re-login.\n" + JSON.stringify(error.response, null, 2));
       });
   }
@@ -227,6 +232,10 @@ export class ModelController extends Component {
   }
 
   getAllModels = () => {
+
+    this.setState({
+      loading: true,
+    })
     let filter = this.state.filterQuery;
     let sort = this.state.sortQuery;
 
@@ -247,10 +256,14 @@ export class ModelController extends Component {
         models: res.data,
         prevPage: null,
         nextPage: null,
+        loading: false,
       });
     })
       .catch(function (error) {
         // TODO: handle error
+        this.setState({
+          loading: false,
+        })
         alert("Cannot load. Re-login.\n" + JSON.stringify(error.response.data, null, 2));
       });
   }
@@ -287,7 +300,7 @@ export class ModelController extends Component {
 
     let exp = <Button variant="outlined" startIcon={<SaveAltIcon/>} onClick={this.exportData}>Export</Button>
     let showAll = <p></p>;
-    if (this.state.prevPage != null || this.state.nextPage != null) {
+    if (this.state.prevPage != null || this.state.nextPage != null || this.state.showingAll) {
        showAll = <FormControlLabel labelPlacement="left"
                                       control={
                                         <Switch value={this.state.showingAll} onChange={() => this.toggleShowingAll()}/>
@@ -298,17 +311,17 @@ export class ModelController extends Component {
       />
     }
 
-    let add = this.context.is_admin ? (
+    let add = (this.context.is_admin || this.context.username === 'admin' || this.context.model_permission) ? (
       <Link to={'/models/create'}>
         <Button color="primary" variant="contained" endIcon={<AddCircleIcon/>}>
           Add Model
         </Button>
       </Link>
 
-    ) : <p></p>;
+    ) : <div></div>;
 
 
-    let imp = this.context.is_admin ? (
+    let imp = (this.context.is_admin || this.context.username === 'admin' || this.context.model_permission) ? (
       <>
         <Button variant="outlined" component="span" startIcon={<CloudUploadIcon/>} onClick={this.handleImport}>
           Import
@@ -321,7 +334,7 @@ export class ModelController extends Component {
           onChange={this.handleFileUpload}
         />
       </>
-    ) : <p></p>;
+    ) : <div></div>;
 
 
     return (
@@ -350,7 +363,7 @@ export class ModelController extends Component {
               {paginateNavigation}
             </Grid>
             <Grid item xs={12}>
-              {content}
+              {this.state.loading ? <center><CircularProgress size={100}/> </center>: content}
             </Grid>
           </Grid>
         </Container>

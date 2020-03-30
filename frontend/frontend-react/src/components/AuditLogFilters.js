@@ -1,5 +1,4 @@
 import React, {Component} from 'react'
-import {Autocomplete} from "@material-ui/lab"
 import {Button, TextField, Grid, Input, Container, FormControl} from "@material-ui/core";
 
 export class AuditLogFilters extends Component {
@@ -70,7 +69,7 @@ export class AuditLogFilters extends Component {
                 }}/>
               </Grid>
               <Grid item xs={3}>
-                <Button variant="contained" type="submit" color="primary" onClick={() => this.handleSubmit}>Searchs</Button>
+                <Button variant="contained" type="submit" color="primary" onClick={() => this.handleSubmit}>Search</Button>
               </Grid>
             </Grid>
           </form>

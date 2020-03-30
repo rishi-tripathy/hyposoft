@@ -1,8 +1,8 @@
 import React, {Component} from 'react'
 import ReactDOMServer from 'react-dom'
-import '../stylesheets/RacksView.css'
+// import '../stylesheets/RacksView.css'
 import '../stylesheets/RackTable.css'
-import '../stylesheets/Printing.css'
+// import '../stylesheets/Printing.css'
 import RackTable from './RackTable'
 import axios from 'axios'
 import {
@@ -151,7 +151,7 @@ export class RacksView extends Component {
       is_admin = true;
     }
 
-    let add = is_admin? (
+    let add = (is_admin || this.context.username === 'admin' || this.context.asset_permission.length != 0) ? (
       <Link to={'/racks/create'}>
         <Button color="primary" variant="contained" endIcon={<AddCircleIcon/>}>
           Add Rack(s)
@@ -159,7 +159,7 @@ export class RacksView extends Component {
       </Link>
     ) : <p></p>;
 
-    let deleteMultiple = is_admin? (
+    let deleteMultiple = (is_admin || this.context.username === 'admin' || this.context.asset_permission.length != 0) ? (
       <Link to={'/racks/delete'}>
         <Button color='primary' variant="contained" endIcon={<DeleteIcon/>}>
           Delete Rack Range

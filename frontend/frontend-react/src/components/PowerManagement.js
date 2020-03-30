@@ -11,6 +11,7 @@ import {
 import CircularProgress from '@material-ui/core/CircularProgress';
 import PowerIcon from '@material-ui/icons/Power';
 import PowerOffIcon from '@material-ui/icons/PowerOff';
+import BatteryUnknownIcon from '@material-ui/icons/BatteryUnknown';
 import { green } from '@material-ui/core/colors';
 
 
@@ -137,7 +138,13 @@ export class PowerManagement extends Component {
                 ?
                 <PowerIcon style={{ color: green[500] }} />
                 :
-                <PowerOffIcon color="secondary" />
+                (
+                  this.state.status === 'OFF'
+                  ?
+                  <PowerOffIcon color="secondary" />
+                  :
+                  <BatteryUnknownIcon />
+                )
               }
               {/* <TextField
                 label='PDU Status'

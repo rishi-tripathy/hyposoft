@@ -7,7 +7,7 @@ import EditInstanceForm from './EditInstanceForm';
 import {
   Grid, Button, Container, Paper,
   ButtonGroup, Switch, FormControlLabel,
-  Typography, Tooltip, IconButton
+  Typography, Tooltip, IconButton, CircularProgress
 } from "@material-ui/core"
 import CloudUploadIcon from "@material-ui/icons/CloudUpload";
 import SaveAltIcon from "@material-ui/icons/SaveAlt";
@@ -40,6 +40,7 @@ export class InstanceController extends Component {
       npFile: null,
       showingAll: false,
       datacenterID: null,
+      loading: true,
     };
 
   }
@@ -61,10 +62,14 @@ export class InstanceController extends Component {
         assets: res.data.results,
         prevPage: res.data.previous,
         nextPage: res.data.next,
+        loading: false,
       });
     })
       .catch(function (error) {
         // TODO: handle error
+        this.setState({
+          loading: false,
+        })
         console.log(error.response)
         alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
       });
@@ -343,6 +348,11 @@ export class InstanceController extends Component {
   }
 
   getAllInstances = () => {
+
+    this.setState({
+      loading: true,
+    })
+
     let filter = this.state.filterQuery;
     let sort = this.state.sortQuery;
 
@@ -364,10 +374,14 @@ export class InstanceController extends Component {
         assets: res.data,
         prevPage: null,
         nextPage: null,
+        loading: false,
       });
     })
       .catch(function (error) {
         // TODO: handle error
+        this.setState({
+          loading: false,
+        })
         console.log(error.response.data)
         alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
       });
@@ -425,7 +439,7 @@ export class InstanceController extends Component {
     let np_exp = <Button variant="outlined" startIcon={<SaveAltIcon />} onClick={this.exportNPData}>Export Network Connections</Button>
 
     let showAll = <p></p>;
-    if (this.state.prevPage != null || this.state.nextPage != null) {
+    if (this.state.prevPage != null || this.state.nextPage != null || this.state.showingAll) {
       showAll = <FormControlLabel labelPlacement="left"
                                       control={
                                         <Switch value={this.state.showingAll} onChange={() => this.toggleShowingAll()} />
@@ -436,16 +450,16 @@ export class InstanceController extends Component {
       />
     }
 
-    let add = this.context.is_admin ? (
+    let add = (this.context.is_admin || this.context.username === 'admin' || this.context.asset_permission) ? (
       <Link to={'/assets/create'}>
         <Button color="primary" variant="contained" endIcon={<AddCircleIcon />}>
           Add Asset
         </Button>
       </Link>
 
-    ) : <p></p>;
+    ) : <div></div>;
 
-    let imp = this.context.is_admin ? (
+    let imp = (this.context.is_admin || this.context.username === 'admin' || this.context.asset_permission) ? (
       <>
         <Button variant="outlined" component="span" startIcon={<CloudUploadIcon />} onClick={this.handleImport}>
           Import Assets
@@ -458,9 +472,9 @@ export class InstanceController extends Component {
           onChange={this.handleFileUpload}
         />
       </>
-    ) : <p></p>;
+    ) : <div></div>;
 
-    let importNetworkConnections = this.context.is_admin ? (
+    let importNetworkConnections = (this.context.is_admin || this.context.username === 'admin' || this.context.asset_permission) ? (
       <>
         <Button variant="outlined" component="span" startIcon={<SettingsEthernetIcon />} onClick={this.handleNPImport}>
           Import Network Connections
@@ -473,7 +487,7 @@ export class InstanceController extends Component {
           onChange={this.handleNPFileUpload}
         />
       </>
-    ) : <p></p>;
+    ) : <div></div>;
 
     // if we're not on the table, then don't show pagination or filters or sorting
     if (!this.state.showTableView) {
@@ -527,7 +541,7 @@ export class InstanceController extends Component {
               {paginateNavigation}
             </Grid>
             <Grid item xs={12}>
-              {content}
+            {this.state.loading ? <center><CircularProgress size={100} /></center> : content }
             </Grid>
           </Grid>
         </Container>
