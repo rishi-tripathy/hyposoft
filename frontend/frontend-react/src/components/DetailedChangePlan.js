@@ -342,7 +342,7 @@ export class DetailedChangePlan extends Component {
                       {/* change 1 to :id to edit existing asset page below */}
                       {/* TWO ids below, first is CP, second is asset */}
                       {console.log(this.state.existingAssetSelected)}
-                      <Link to={'/changeplans/'.concat(this.props.match.params.id).concat('/changeExistingAsset/').concat(this.state.existingAssetSelected.id).concat('/')}>
+                      <Link to={'/changeplans/'.concat(this.props.match.params.id).concat('/changeExistingAsset/').concat(this.state.existingAssetSelected.id)}>
                         <Button color="primary" variant="contained" onClick={this.submitAsset}>
                           Submit
                         </Button>

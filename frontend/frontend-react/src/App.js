@@ -399,13 +399,13 @@ class App extends React.Component {
                       exact
                       render={(props) => <ChangeNewAssetForm {...props} />} />
 
-                    {/* BELOW EDITING AN EXISTING ASSET NOT YET IN CP */}
+                    {/* DONE BELOW EDITING AN EXISTING ASSET NOT YET IN CP */}
                     <Route 
                       path='/changeplans/:cpId/changeExistingAsset/:assId'
                       exact
                       render={(props) => <ChangeExistingAssetForm {...props} />} />
 
-                    {/* BELOW CHANGING A NEW ASSET THAT HAS BEEN CHANGED IN CP  */}
+                    {/* DONE BELOW CHANGING A NEW ASSET THAT HAS BEEN CHANGED IN CP  */}
                     <Route 
                       path='/changeplans/:cpId/assets/:cpAssId/edit'
                       exact
