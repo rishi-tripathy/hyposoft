@@ -31,6 +31,7 @@ import CreateChangePlanForm from './components/CreateChangePlanForm'
 import DetailedChangePlan from './components/DetailedChangePlan'
 import ChangeNewAssetForm from './components/ChangeNewAssetForm'
 import ChangeExistingAssetForm from './components/ChangeExistingAssetForm'
+import EditNewAssetForm from './components/EditNewAssetForm'
 import { Button } from "@material-ui/core"
 import CircularProgress from '@material-ui/core/CircularProgress';
 
@@ -354,8 +355,21 @@ class App extends React.Component {
                       exact
                       render={(props) => <ChangeNewAssetForm {...props} />} />
 
+                    {/* BELOW EDITING AN EXISTING ASSET NOT YET IN CP */}
                     <Route 
-                      path='/changeplans/:id/changeExistingAsset/:assId'
+                      path='/changeplans/:cpId/changeExistingAsset/:assId'
+                      exact
+                      render={(props) => <ChangeExistingAssetForm {...props} />} />
+
+                    {/* BELOW CHANGING A NEW ASSET THAT HAS BEEN CHANGED IN CP  */}
+                    <Route 
+                      path='changeplans/:cpId/assets/:cpAssId/edit'
+                      exact
+                      render={(props) => <EditNewAssetForm {...props} />} />
+
+                    {/* BELOW EDITING AN EXISTING ASSET THAT HAS BEEN CHANGED IN CP */}
+                    <Route 
+                      path='/changeplans/:cpId/changeExistingAsset/:assId/:cpAssId'
                       exact
                       render={(props) => <ChangeExistingAssetForm {...props} />} />
 

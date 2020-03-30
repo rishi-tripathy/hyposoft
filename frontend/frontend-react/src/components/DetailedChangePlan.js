@@ -199,6 +199,7 @@ export class DetailedChangePlan extends Component {
         spinnerSpinning: false,
       })
       alert('Conflicts found:\n'+ JSON.stringify(error.response.data));
+      
     })
   }
 
@@ -216,10 +217,10 @@ export class DetailedChangePlan extends Component {
     })
     .catch(function (error) {
       console.log(error)
+      alert('Conflicts found:\n'+ JSON.stringify(error.response.data));
       this.setState({
         exSpinnerSpinning: false,
       })
-      alert('Conflicts found:\n'+ JSON.stringify(error.response.data));
     })
   }
 
@@ -297,7 +298,7 @@ export class DetailedChangePlan extends Component {
             </Grid>
 
 
-            <Grid item justify="flex-start" alignContent='center' xs={3}>
+            <Grid item justify="flex-start" alignContent='center' xs={2}>
               {addNewAsset}
             </Grid>
 
@@ -358,19 +359,19 @@ export class DetailedChangePlan extends Component {
               </Dialog>
             </div>
             </Grid>
-            <Grid item justify="flex-start" alignContent='center' xs={3}>
+            <Grid item justify="flex-start" alignContent='center' xs={2}>
               <Button variant="contained" onClick={this.validateCP}>
                 Validate
               </Button>
               {this.state.spinnerSpinning && 
-              <CircularProgress />}
+              <CircularProgress size={15}/>}
             </Grid>
             <Grid item justify="flex-start" alignContent='center' xs={3}>
               <Button variant="contained" onClick={this.executeCP}>
                 Validate + Execute
               </Button>
               {this.state.exSpinnerSpinning && 
-                <CircularProgress size={30}/>
+                <CircularProgress size={15}/>
               }
             </Grid>
             <Grid item alignContent='center' xs={12} />

@@ -26,8 +26,6 @@ export class ChangeExistingAssetForm extends Component {
 
             //changeplan metadata
             loading: true,
-            assetInCP: false,
-            existing_id: false,
 
             //stuff for view
             assetLV: {},
@@ -62,14 +60,14 @@ export class ChangeExistingAssetForm extends Component {
             selectedModelOption: null,
             selectedDatacenterOption: null,
             datacenterOptions: [],
+            ppConnections: [],
         }
     }
 
     componentDidMount() {
         const delay = 70;
         this.loadLVInstance(); //has to be first
-        // this.loadInstanceChanged();
-        this.checkIfInCP();
+        this.loadInstanceChanged();
 
         setTimeout(() => {
          // this.loadModels();
@@ -87,36 +85,6 @@ export class ChangeExistingAssetForm extends Component {
           this.loadFreePDUsAndSetDefaultConfigurations();
         }, 320);
 
-    }
-
-    checkIfInCP = () => {
-      let dst = '/api/cp/'.concat(this.props.match.params.id).concat('/');
-      let assetBool = false;
-      let id_save = null;
-      axios.get(dst).then(res => {
-        res.data.assets_cp.map((ass, index) => {
-          console.log(ass.id_ref)
-          console.log(this.props.match.params.assId)
-          if(ass.id_ref === parseInt(this.props.match.params.assId)){
-            //do we have a ref in the cp_assets already of this asset?
-            console.log('match found:' + ass.hostname)
-            assetBool = true;
-            id_save = ass.id_ref;
-          }
-        })
-
-        if(assetBool){
-          this.setState({
-            assetInCP: true,
-            existing_id: id_save,
-          })
-        }
-        this.loadInstanceChanged();
-      })
-
-      .catch(function(error) {
-        alert('Cannot load assets. Re-login.\n' + JSON.stringify(error.response, null, 2));
-      })
     }
 
       loadLVInstance = () => {
@@ -232,10 +200,11 @@ export class ChangeExistingAssetForm extends Component {
       loadInstanceChanged = () => {
         let dst;
 
-        if(this.state.assetInCP){
+        if(this.props.match.params.cpAssId!== null && this.props.match.params.cpAssId!== undefined){
           console.log('getting data from assets_cp')
+          console.log('cp Asset Id: ' + this.props.match.params.cpAssId)
           //get data from cp_assets
-          dst = '/api/cp/'.concat(this.state.existing_id).concat('/');
+          dst = '/api/cpAsset/'.concat(this.props.match.params.cpAssId).concat('/');
           axios.get(dst).then(res => {
             console.log(res.data)
             let instanceCopy = JSON.parse(JSON.stringify(this.state.assetChanged));
@@ -525,14 +494,16 @@ export class ChangeExistingAssetForm extends Component {
         stateCopy.network_ports = networkPortsBuilder
         stateCopy.power_ports = tmpPP
         stateCopy.rack_u = this.state.assetChanged.rack_u;
-        stateCopy.cp = this.props.match.params.id;
+        stateCopy.cp = this.props.match.params.cpId;
         stateCopy.id_ref = this.props.match.params.assId;
     
         let stateToSend = this.removeEmpty(stateCopy);
         console.log(JSON.stringify(stateToSend, null, 2))
         var self = this;
     
-        axios.post(dst, stateToSend)
+        if(this.props.match.params.cpAssId!==null && this.props.match.params.cpAssId!==undefined){
+          dst = '/api/cpAsset/'.concat(this.props.match.params.cpAssId).concat('/')
+          axios.put(dst, stateToSend)
           .then(function (response) {
             alert('Change(s) added to Plan');
             // window.location = '/assets'
@@ -543,13 +514,27 @@ export class ChangeExistingAssetForm extends Component {
           .catch(function (error) {
             alert('Changes were not added.\n' + JSON.stringify(error.response.data, null, 2));
           });
+        }
+        else {
+          axios.post(dst, stateToSend)
+            .then(function (response) {
+              alert('Change(s) added to Plan');
+              // window.location = '/assets'
+              self.setState({
+                redirect: true,
+              });
+            })
+            .catch(function (error) {
+              alert('Changes were not added.\n' + JSON.stringify(error.response.data, null, 2));
+            });
+          }
       }
 
     render() {
         console.log(this.state)
         return(
             <div>
-        {this.state.redirect && <Redirect to={{ pathname: '/changeplans/'.concat(this.props.match.params.id) }} />}
+        {this.state.redirect && <Redirect to={{ pathname: '/changeplans/'.concat(this.props.match.params.cpId) }} />}
             {this.state.loading ?  
                 <center>
                 <CircularProgress size={100}/>
@@ -560,7 +545,7 @@ export class ChangeExistingAssetForm extends Component {
                   <Grid item justify="flex-start" alignContent='center' xs={12}/>
                   <Grid item justify="flex-start" alignContent='center' xs={10}>
                     <Typography variant="h4" gutterBottom>
-                        Changing an Existing Asset in Change Plan: {this.props.match.params.id}
+                        Changing an Existing Asset
                     </Typography>
                   </Grid>
                   <Grid item justify="flex-start" alignContent='center' xs={12} >
@@ -758,7 +743,7 @@ export class ChangeExistingAssetForm extends Component {
                     </Button>
                 </Grid>
                 <Grid item xs={2}>
-                  <Link to={'/changeplans/'.concat(this.props.match.params.id).concat('/')}>
+                  <Link to={'/changeplans/'.concat(this.props.match.params.cpId).concat('/')}>
                     <Tooltip title='Cancel'>
                       <Button variant="outlined" type="submit" color="primary" endIcon={<CancelIcon />}>Cancel</Button>
                     </Tooltip>

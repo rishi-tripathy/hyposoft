@@ -18,6 +18,7 @@ export class ChangePlanController extends Component {
             changePlans: [],
             prevPage: null,
             nextPage: null,
+            showingAll: false,
         }
     }
 
@@ -29,7 +30,7 @@ export class ChangePlanController extends Component {
     getChangePlans() {
       let dst = '/api/cp/';
       axios.get(dst).then(res => {
-        console.log(res.data.results)
+        console.log(res.data)
         var arr = [];
         res.data.results.map((cp, index) => {
           arr.push(cp);
@@ -45,36 +46,73 @@ export class ChangePlanController extends Component {
       });
     }
 
-    // initializeFakeData = () => {
-    //     this.state.changePlans = null;
 
-    //     var arr = [];
+    getAllChangePlanDetails = () => {
+      this.setState({
+        loading: true,
+      })
 
-    //     var cp1 = {
-    //         id: 0,
-    //         name : 'cp1',
-    //         status: 'some time ago',
-    //         objects: []};
-    //     var cp2 = {
-    //         id: 1,
-    //         name : 'cp2',
-    //         status: 'some longer time ago',
-    //         objects: []};
-    //     var cp3 = {
-    //         id: 2,
-    //         name : 'cp3',
-    //         status: 'some longest time ago',
-    //         objects: []};
-    //     arr.push(cp1);
-    //     arr.push(cp2);
-    //     arr.push(cp3);
+      let dst = '/api/cp/' + '?show_all=true';
 
-    //     console.log(arr)
+      axios.get(dst).then(res => {
+        console.log(res.data)
+        var arr = [];
+        res.data.results.map((cp, index) => {
+          arr.push(cp);
+        });
+        this.setState({
+          loading: false,
+          changePlans: arr,
+          prevPage: res.data.previous,
+          nextPage: res.data.next,
+        });
+      })
+      .catch(function (error) {
+        alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+        this.setState({
+          loading: false,
+        })
+      });
+    }
 
-    //     this.setState({
-    //         changePlans: arr,
-    //     })
-    // }
+    paginateNext = () => {
+    axios.get(this.state.nextPage).then(res => {
+      this.setState({
+        changePlans: res.data.results,
+        prevPage: res.data.previous,
+        nextPage: res.data.next,
+      });
+    })
+      .catch(function (error) {
+        // TODO: handle error
+        console.log(error.response)
+        alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+      });
+  }
+
+  paginatePrev = () => {
+    axios.get(this.state.prevPage).then(res => {
+      this.setState({
+        changePlans: res.data.results,
+        prevPage: res.data.previous,
+        nextPage: res.data.next,
+      });
+    })
+      .catch(function (error) {
+        // TODO: handle error
+        console.log(error.response)
+        alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+      });
+  }
+
+  toggleShowingAll = () => {
+    this.state.showingAll ? (
+      this.getChangePlans()
+    ) : (this.getAllChangePlanDetails())
+    this.setState(prevState => ({
+      showingAll: !prevState.showingAll
+    }));
+  }
 
     render() {
         console.log(this.state.changePlans)
@@ -139,9 +177,9 @@ export class ChangePlanController extends Component {
                   <Grid item justify="flex-start" alignContent='center' xs={10}>
                     To create a change plan, use the "Add change plan" button, and select view/edit in the table below.
                  </Grid>
-                  <Grid item justify="flex-end" alignContent="flex-end" xs={2}>
+                  {/* <Grid item justify="flex-end" alignContent="flex-end" xs={2}>
                     {showAll}
-                  </Grid>
+                  </Grid> */}
                   <Grid item justify="flex-start" alignContent="center" xs={3}>
                     {add}
                   </Grid>

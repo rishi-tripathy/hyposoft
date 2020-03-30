@@ -6,7 +6,7 @@ import {
   Typography, Paper, IconButton, Tooltip, TableSortLabel
 } from "@material-ui/core";
 import PageviewIcon from '@material-ui/icons/Pageview';
-import BlockIcon from '@material-ui/icons/Block';
+import DeleteIcon from '@material-ui/icons/Delete';
 import EditIcon from '@material-ui/icons/Edit';
 import ModelFilters from './ModelFilters';
 import '../stylesheets/TableView.css'
@@ -32,7 +32,7 @@ export class ChangePlanAssetTable extends Component {
 
 
   showDeleteForm = (id) => {
-    if (window.confirm('Are you sure you want to delete?')) {
+    if (window.confirm('Are you sure you want to delete the proposed changes to this action?')) {
       let dst = '/api/cp/'.concat(id).concat('/');
       axios.delete(dst)
         .then(function (response) {
@@ -116,11 +116,18 @@ export class ChangePlanAssetTable extends Component {
       </TableRow>
     )
     return this.props.assets.map((asset, index) => {
-      const {id, hostname, id_ref, description} = asset //destructuring
-      var exists = "Yes";
+      const {id, hostname, id_ref, description, cp} = asset //destructuring
+
+      console.log('cp:'+ cp)
+      console.log('id:'+ id)
+
+      var existBool = true;
+      var exists = "Existing";
       if(id_ref === null){
-        exists = "No";
+        exists = "New";
+        existBool = false;
       }
+      console.log(existBool)
       return (
         <TableRow
           hover
@@ -131,6 +138,8 @@ export class ChangePlanAssetTable extends Component {
           <TableCell align="center">{hostname}</TableCell>
           <TableCell align="center">{description}</TableCell>
           <div>
+            {existBool ? (
+              <div>
             <TableCell align="right">
               <Link to={'/assets/' + id}>
                 <Tooltip title='View Details'>
@@ -141,7 +150,7 @@ export class ChangePlanAssetTable extends Component {
               </Link>
             </TableCell>
               <TableCell align="right">
-                <Link to={'/assets/' + id + '/edit'}>
+                <Link to={'/changeplans/' + cp + '/changeExistingAsset/' + id_ref + '/'+ id}>
                   <Tooltip title='Edit'>
                     <IconButton size="sm">
                       <EditIcon />
@@ -150,13 +159,44 @@ export class ChangePlanAssetTable extends Component {
                 </Link>
               </TableCell>
               < TableCell align="right">
-                < Tooltip title='Decommission'>
+                < Tooltip title='Delete'>
                   <IconButton size="sm" onClick={() => this.showDeleteForm(id)}>
-                    <BlockIcon />
+                    <DeleteIcon />
                   </IconButton>
                 </Tooltip>
               </ TableCell>
-            
+            </div>
+            )
+            :
+            (
+              <div>
+              <TableCell align="right">
+              <Link to={'/assets/' + id}>
+                <Tooltip title='View Details'>
+                  <IconButton size="sm">
+                    <PageviewIcon />
+                  </IconButton>
+                </Tooltip>
+              </Link>
+            </TableCell>
+              <TableCell align="right">
+                <Link to={'/changeplans/' + cp + 'assets/' + id + '/edit'}>
+                  <Tooltip title='Edit'>
+                    <IconButton size="sm">
+                      <EditIcon />
+                    </IconButton>
+                  </Tooltip>
+                </Link>
+              </TableCell>
+              < TableCell align="right">
+                < Tooltip title='Delete'>
+                  <IconButton size="sm" onClick={() => this.showDeleteForm(id)}>
+                    <DeleteIcon />
+                  </IconButton>
+                </Tooltip>
+              </ TableCell>
+              </div>
+            )}
           </div>
         </TableRow>
       )

@@ -107,7 +107,7 @@ export class ChangePlanTable extends Component {
           <TableCell align="center">{name}</TableCell>
           <TableCell align="center">{executedString}</TableCell>
           <div>
-            {this.context.is_admin ? (
+            {!executed ? (
               <TableCell align="right">
                 <Link to={'/changeplans/' + id + '/'}>
                   <Tooltip title='View Details/Edit'>
@@ -116,9 +116,20 @@ export class ChangePlanTable extends Component {
                     </IconButton>
                   </Tooltip>
                 </Link>
-              </TableCell>) : <p></p>
+              </TableCell>) 
+              :
+              // (<TableCell align="right">
+              //     <Link to={'/changeplans/' + id + '/static'}>
+              //       <Tooltip title='View Details/'>
+              //         <IconButton size="sm">
+              //           <SearchIcon/>
+              //         </IconButton>
+              //       </Tooltip>
+              //     </Link>
+              //   </TableCell>)
+              <p></p>
             }
-            {this.context.is_admin ? (
+            {!executed ? (
               < TableCell align="right">
                 < Tooltip title='Delete'>
                   <IconButton size="sm" onClick={() => this.showDeleteForm(id)}>
