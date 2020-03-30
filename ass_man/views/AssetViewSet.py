@@ -427,48 +427,79 @@ class AssetViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=[POST])
     def generate_barcodes(self, request, *args, **kwargs):
         asset_ids = request.data
-        c128 = barcode.get_barcode_class('code128')
-        response = HttpResponse(content_type='application/pdf')
-        response['Content-Disposition'] = 'attachment; filename="barcodes.pdf"'
-        p = canvas.Canvas(response)
-        svgs = []
-        if asset_ids:
-            for id in asset_ids:
-                asset = Asset.objects.all().get(pk=id)
-                c128_barcode = c128(str(asset.asset_number))
-                raw = c128_barcode.render(
-                writer_options = {
-                    'module_width':.5,
-                    'module_height':6,
-                    'font_size':6,
-                    'text_distance':3,
-                },
-                text=str(asset.asset_number)
-                )
-                c128_barcode.save('test.svg')
-                svg = ContentFile(raw)
-                svgs.append(svg)
-                print(c128_barcode)
-        x = 8
-        y = 35
-        for svg in svgs:
-            print(svg.name)
-            print(svg)
-            rlg = svg2rlg('test.svg')
-            renderPDF.draw(rlg, canvas, x, y)
-            if x < 400:
-                x += 155
-            else:
-                x = 8
-                y += 39
-            barcodes_on_page += 1
-            if barcodes_on_page == 80:
-                canvas.showPage()
-                x = 8
-                y = 35
-                barcodes_on_page = 0
-        canvas.save()
-        return response
+        count = 1
+        table = []
+        dict = {}
+        for i in asset_ids:
+            asset = Asset.objects.all().get(pk=i)
+            if count == 1:
+                dict['one'] = asset.asset_number
+            if count == 2:
+                dict['two'] = asset.asset_number
+            if count == 3:
+                dict['three'] = asset.asset_number
+            if count == 4:
+                dict['four'] = asset.asset_number
+                count = 0
+                table.append(dict)
+                dict = {}
+            count+=1
+        if len(dict) > 0:
+            while count <= 4:
+                if count == 1:
+                    dict['one'] = None
+                if count == 2:
+                    dict['two'] = None
+                if count == 3:
+                    dict['three'] = None
+                if count == 4:
+                    dict['four'] = None
+                count+=1
+            table.append(dict)
+        return Response(table)
+        # asset_ids = request.data
+        # c128 = barcode.get_barcode_class('code128')
+        # response = HttpResponse(content_type='application/pdf')
+        # response['Content-Disposition'] = 'attachment; filename="barcodes.pdf"'
+        # p = canvas.Canvas(response)
+        # svgs = []
+        # if asset_ids:
+        #     for id in asset_ids:
+        #         asset = Asset.objects.all().get(pk=id)
+        #         c128_barcode = c128(str(asset.asset_number))
+        #         raw = c128_barcode.render(
+        #         writer_options = {
+        #             'module_width':.5,
+        #             'module_height':6,
+        #             'font_size':6,
+        #             'text_distance':3,
+        #         },
+        #         text=str(asset.asset_number)
+        #         )
+        #         raw.save('test.svg')
+        #         svg = ContentFile(raw)
+        #         svgs.append(svg)
+        #         print(c128_barcode)
+        # x = 8
+        # y = 35
+        # for svg in svgs:
+        #     print(svg.name)
+        #     print(svg)
+        #     rlg = svg2rlg('test.svg')
+        #     renderPDF.draw(rlg, canvas, x, y)
+        #     if x < 400:
+        #         x += 155
+        #     else:
+        #         x = 8
+        #         y += 39
+        #     barcodes_on_page += 1
+        #     if barcodes_on_page == 80:
+        #         canvas.showPage()
+        #         x = 8
+        #         y = 35
+        #         barcodes_on_page = 0
+        # canvas.save()
+        # return response
 
 
         # asset_ids = request.data

@@ -3,18 +3,19 @@ import PropTypes from 'prop-types';
 import clsx from 'clsx';
 import { lighten, makeStyles } from '@material-ui/core/styles';
 import {
-  Collapse, Table, TableBody, Button, TableCell, TableContainer, TableRow, Toolbar,
-  Typography, Paper, IconButton, Tooltip, TableSortLabel
+  Collapse, Table, TableBody, Button, TableCell, TableContainer, TableRow, Toolbar, Grid,
+  Typography, Paper, IconButton, Tooltip, TableSortLabel, Checkbox
 } from "@material-ui/core";
 import PageviewIcon from '@material-ui/icons/Pageview';
 import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
 import FilterListIcon from '@material-ui/icons/FilterList';
+import LocalOfferIcon from '@material-ui/icons/LocalOffer';
 import BlockIcon from '@material-ui/icons/Block';
 import InstanceFilters from './InstanceFilters';
 import '../stylesheets/TableView.css'
 import axios, { post } from 'axios'
-import { Link } from 'react-router-dom'
+import { Link, Redirect } from 'react-router-dom'
 import DatacenterContext from './DatacenterContext';
 
 
@@ -41,7 +42,39 @@ export class InstanceTableMUI extends Component {
       //   'memory': 'none',
       //   'storage': 'none'
       // },
-      sortingStates: ['asc', 'desc']
+      sortingStates: ['asc', 'desc'],
+
+      // for checkboxes
+      selected: [], // list of IDs
+      allAssetIDs: [],
+
+      //for AssetLabels.js, the labels table
+      assetLabelTableGenerationData: [],
+      redirectToAssetTagPage: false,
+    }
+  }
+
+  loadAllAssetIDs = () => {
+    let dst = '/api/assets/all_ids/';
+    axios.get(dst).then(res => {
+      this.setState({
+        allAssetIDs: res.data.ids
+      });
+    })
+      .catch(function (error) {
+        // TODO: handle error
+        alert('Cannot load assets. Re-login.\n' + JSON.stringify(error.response, null, 2));
+      });
+  }
+
+  componentDidMount() {
+    this.loadAllAssetIDs();
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState.assetLabelTableGenerationData !== this.state.assetLabelTableGenerationData) {
+      console.log('going to asset tags page')
+      this.setState({ redirectToAssetTagPage: true })
     }
   }
 
@@ -124,11 +157,27 @@ export class InstanceTableMUI extends Component {
   handleMakeAssetTags = () => {
     let arrayToSend = Object.assign([], this.state.selected)
     console.log(arrayToSend)
+
+    // this.setState({ 
+    //   assetLabelTableGenerationData: [
+    //     { 
+    //       one: 100000, 
+    //       two: 100001, 
+    //       three: 100002, 
+    //       four: 100003,
+    //     }
+    //   ] 
+    // })
+
+    var self = this
     let dst = '/api/assets/generate_barcodes/';
     axios.post(dst, arrayToSend).then(res => {
-      //alert('Created tags successfully');
-      const FileDownload = require('js-file-download');
-      FileDownload(res.data, 'asset-tags.svg');
+      console.log(res.data)
+
+      self.setState({
+        assetLabelTableGenerationData: res.data
+      })
+
     })
       .catch(function (error) {
         alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
@@ -139,9 +188,35 @@ export class InstanceTableMUI extends Component {
     return (
       <Toolbar>
         {
-          <Typography style={{ flex: '1 1 20%' }} variant="h6" id="instanceTableTitle">
-            Assets
-          </Typography>
+          this.state.selected.length === 0 ? (
+            <Typography variant="h6" id="instanceTableTitle">
+              Assets
+            </Typography>
+          ) : (
+              <div>
+                <Grid container spacing={2}>
+                  <Grid item xs={2}>
+                    <Typography variant="subtitle1" >
+                      {this.state.selected.length}
+                    </Typography>
+                  </Grid>
+
+                  <Grid item xs={8}>
+                    <Typography variant="subtitle1" >
+                      selected
+                  </Typography>
+                  </Grid>
+
+                  <Grid item xs={2}>
+                    <Tooltip title='Make Asset Tags'>
+                      <IconButton size="sm" onClick={() => this.handleMakeAssetTags()}>
+                        <LocalOfferIcon />
+                      </IconButton>
+                    </Tooltip>
+                  </Grid>
+                </Grid>
+              </div>
+            )
         }
         <Collapse in={this.state.filtersOpen}>
           <Paper>
@@ -155,8 +230,6 @@ export class InstanceTableMUI extends Component {
             Filter
           </Button>
         </Tooltip>
-
-
       </Toolbar>
     );
   };
@@ -214,6 +287,13 @@ export class InstanceTableMUI extends Component {
           tabIndex={-1}
           key={id}
         >
+          <TableCell padding="checkbox">
+            <Checkbox
+              checked={this.state.selected.includes(id)}
+              onChange={(e) => this.onSelectCheckboxClick(id, e)}
+              inputProps={{ 'aria-labelledby': id }}
+            />
+          </TableCell>
           <TableCell align="center">{rack ? rack.rack_number : null}</TableCell>
           <TableCell align="center">{rack_u}</TableCell>
           <TableCell align="center">{model ? model.vendor : null}</TableCell>
@@ -234,6 +314,7 @@ export class InstanceTableMUI extends Component {
                 </Tooltip>
               </Link>
             </TableCell>
+
             {
               (
                 this.context.is_admin
@@ -319,8 +400,14 @@ export class InstanceTableMUI extends Component {
     })
   }
 
-
   render() {
+    console.log(this.state.assetLabelTableGenerationData)
+    if (this.state.redirectToAssetTagPage) {
+      return <Redirect to={{
+        pathname: '/assetlabels',
+        state: { labelTable: this.state.assetLabelTableGenerationData }
+      }} />;
+    }
     return (
       <div>
         <Paper>
@@ -331,7 +418,17 @@ export class InstanceTableMUI extends Component {
               aria-labelledby="instanceTableTitle"
               aria-label="instanceTable"
             >
-              <TableRow>{this.renderTableHeader()}</TableRow>
+              <TableRow>
+                <TableCell padding="checkbox">
+                  <Checkbox
+                    //indeterminate={numSelected > 0 && numSelected < rowCount}
+                    checked={this.state.selected.length === this.state.allAssetIDs.length}
+                    onChange={this.onSelectAllCheckboxClick}
+                    inputProps={{ 'aria-label': 'select all desserts' }}
+                  />
+                </TableCell>
+                {this.renderTableHeader()}
+              </TableRow>
 
               <TableBody>
                 {this.renderTableData()}

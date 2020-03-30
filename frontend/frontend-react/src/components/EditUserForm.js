@@ -40,6 +40,7 @@ export class EditUserForm extends Component {
 
       datacenterOptions: [],
 
+
       // this is the DC permissions
       selectedDatacenterOption: [],
 
@@ -47,7 +48,9 @@ export class EditUserForm extends Component {
     }
   }
 
+
   loadUserInfo = () => {
+
     const editID = this.props.match.params.id
     console.log(editID)
     let dst = '/api/users/'.concat(this.props.match.params.id).concat('/');
@@ -62,6 +65,7 @@ export class EditUserForm extends Component {
         alert(JSON.stringify(error.response.data, null, 2));
       });
   }
+
 
   loadUserPermissions = () => {
     const editID = this.props.match.params.id
@@ -79,6 +83,7 @@ export class EditUserForm extends Component {
         alert(JSON.stringify(error.response.data, null, 2));
       });
   }
+
 
   loadDatacenters = () => {
     const dst = '/api/datacenters/?show_all=true';
@@ -122,6 +127,7 @@ export class EditUserForm extends Component {
     obj.asset = this.state.selectedDatacenterOption;
     obj.power = this.state.hasPowerPermission.toString();
     obj.log = this.state.hasAuditPermission.toString();
+
     obj.username = this.state.username;
 
     console.log(JSON.stringify(obj, null, 2))
@@ -153,16 +159,17 @@ export class EditUserForm extends Component {
     var self = this;
     axios.post(dst, stateCopy)
       .then(function (response) {
-        alert('Edit was successful');
+        alert('Edit was successful.');
+        // window.location = '/assets'
         self.setState({
-          redirect: true
+          redirect: true,
         })
       })
       .catch(function (error) {
         alert('Edit was not successful.\n' + JSON.stringify(error.response.data, null, 2));
       });
-  }
 
+  }
 
   handleAdminChange = (event) => {
     if (event.target.value === 'true') {
@@ -279,6 +286,7 @@ export class EditUserForm extends Component {
                                 selected={this.state.selectedDatacenterOption}
                                 onChange={this.handleDatacenterChange}
                                 icons={{
+
                                   moveLeft: <ChevronLeftIcon />,
                                   moveAllLeft: [
                                     <FirstPageIcon />

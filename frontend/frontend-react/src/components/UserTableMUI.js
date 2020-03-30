@@ -113,6 +113,7 @@ export class UserTableMUI extends Component {
           <TableCell align="center">{first_name}</TableCell>
           <TableCell align="center">{last_name}</TableCell>
           <TableCell align="center">{admin_icon}</TableCell>
+
           {
             !is_superuser ? (
               //<React.Fragment>

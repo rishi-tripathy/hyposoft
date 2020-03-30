@@ -92,19 +92,7 @@ def update_permissions(request):
         print('user not found')
         print(request.data.get('username'))
         return Response('User not found.')
-    # print(request.data.get('model'))
-    # print(type(request.data.get('model')))
-    # b = request.data.get('model') == 'false'
-    # c = request.data.get('model') is 'false'
-    # m = request.data.get('model')
-    # d = m is 'true'
-    # print(b)
-    # print(c)
-    # print(d)
-    # j = request.data.get('power') is request.data.get('model')
-    # print(request.data.get('power'))
-    # aa = request.data.get('power') is 'false'
-    # print(aa)
+
     if request.data.get('model') and request.data.get('model') == 'true':
         print('model is true')
         try:
@@ -134,21 +122,6 @@ def update_permissions(request):
                 p = Permission(name='asset', datacenter=dc, user=user)
                 p.save()
 
-            # if request.data.get('asset')[dc_id]:
-            #     print('val is true')
-            #     try:
-            #         p = Permission.objects.all().get(name='asset', datacenter=dc, user=user)
-            #         print('exisiting permission')
-            #     except:
-            #         p = Permission(name='asset', datacenter=dc, user=user)
-            #         p.save()
-            #         print('created new one')
-            # elif request.data.get('asset').get(pk=dc_id) is 'false':
-            #     try:
-            #         p = Permission.objects.all().get(name='asset', datacenter=dc, user=user)
-            #         p.delete()
-            #     except:
-            #         pass
     if request.data.get('power'):
         if request.data.get('power') == 'true':
             try:
