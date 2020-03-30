@@ -142,16 +142,16 @@ export class EditUserForm extends Component {
 
   handleSubmit = (e) => {
     e.preventDefault();
-    let dst = '/api/users/'.concat(this.props.match.params.id).concat('/');
+    let dst = '/api/users/'.concat(this.props.match.params.id).concat('/update_super_status/');
 
     let stateCopy = Object.assign({}, this.state);
 
-    stateCopy.is_admin = this.state.is_admin
+    stateCopy.is_superuser = this.state.is_admin
     this.postPermissions();
     //console.log(JSON.stringify(stateCopy, null, 2))
     // choke
     var self = this;
-    axios.patch(dst, stateCopy)
+    axios.post(dst, stateCopy)
       .then(function (response) {
         alert('Edit was successful');
         self.setState({
