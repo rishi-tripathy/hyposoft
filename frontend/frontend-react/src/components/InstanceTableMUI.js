@@ -17,6 +17,7 @@ import '../stylesheets/TableView.css'
 import axios, { post } from 'axios'
 import { Link, Redirect } from 'react-router-dom'
 import DatacenterContext from './DatacenterContext';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
@@ -51,6 +52,9 @@ export class InstanceTableMUI extends Component {
       //for AssetLabels.js, the labels table
       assetLabelTableGenerationData: [],
       redirectToAssetTagPage: false,
+
+      //spinner for decom
+      loadingDecommission: false,
     }
   }
 
@@ -97,13 +101,23 @@ export class InstanceTableMUI extends Component {
 
   showDecommissionedForm = (id) => {
     if (window.confirm('Are you sure you want to decommission?')) {
+      this.setState({
+        loadingDecommission: true
+      })
       let dst = '/api/assets/'.concat(id).concat('/?decommissioned=true');
+      let self = this
       axios.delete(dst)
         .then(function (response) {
           alert('Decommission was successful');
+          self.setState({
+            loadingDecommission: false
+          })
         })
         .catch(function (error) {
           alert('Decommission was not successful.\n' + JSON.stringify(error.response.data, null, 2));
+          self.setState({
+            loadingDecommission: false
+          })
         });
     }
     this.showRerender();
@@ -130,6 +144,7 @@ export class InstanceTableMUI extends Component {
   }
 
   showRerender = () => {
+    this.loadAllAssetIDs();
     this.props.sendRerender(true);
   }
 
@@ -371,7 +386,7 @@ export class InstanceTableMUI extends Component {
   onSelectAllCheckboxClick = () => {
     console.log('select all')
 
-    if (this.state.selected.length === this.state.allAssetIDs.length) {
+    if (this.state.selected.length === this.state.allAssetIDs.length || this.state.allAssetIDs.length === 0) {
       this.setState({ selected: [] })
     }
     else {
@@ -410,32 +425,44 @@ export class InstanceTableMUI extends Component {
     }
     return (
       <div>
-        <Paper>
-          {this.renderTableToolbar()}
-          <TableContainer>
-            <Table
-              size="small"
-              aria-labelledby="instanceTableTitle"
-              aria-label="instanceTable"
-            >
-              <TableRow>
-                <TableCell padding="checkbox">
-                  <Checkbox
-                    //indeterminate={numSelected > 0 && numSelected < rowCount}
-                    checked={this.state.selected.length === this.state.allAssetIDs.length}
-                    onChange={this.onSelectAllCheckboxClick}
-                    inputProps={{ 'aria-label': 'select all desserts' }}
-                  />
-                </TableCell>
-                {this.renderTableHeader()}
-              </TableRow>
+        {
+          this.state.loadingDecommission ? (
+            <div>
+              <center>
+                <CircularProgress size={100} />
+              </center>
+            </div>
+          ) : (
+              <div>
+                <Paper>
+                  {this.renderTableToolbar()}
+                  <TableContainer>
+                    <Table
+                      size="small"
+                      aria-labelledby="instanceTableTitle"
+                      aria-label="instanceTable"
+                    >
+                      <TableRow>
+                        <TableCell padding="checkbox">
+                          <Checkbox
+                            //indeterminate={numSelected > 0 && numSelected < rowCount}
+                            checked={this.state.selected.length === this.state.allAssetIDs.length && this.state.selected.length != 0}
+                            onChange={this.onSelectAllCheckboxClick}
+                            inputProps={{ 'aria-label': 'select all desserts' }}
+                          />
+                        </TableCell>
+                        {this.renderTableHeader()}
+                      </TableRow>
 
-              <TableBody>
-                {this.renderTableData()}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </Paper>
+                      <TableBody>
+                        {this.renderTableData()}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                </Paper>
+              </div>
+            )
+        }
       </div>
     );
   }
