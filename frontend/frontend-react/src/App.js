@@ -56,6 +56,7 @@ class App extends React.Component {
       datacenterOptions: null,
       user_first: null,
       user_last: null,
+      user_id: null,
       username: null,
       delay: false,
       loading: true,
@@ -157,6 +158,7 @@ class App extends React.Component {
           user_last: res.data.last_name,
           username: res.data.current_user,
           is_admin: res.data.is_admin,
+          user_id: res.data.id,
         });
         //  console.log('going to fill DCs')
         this.getDatacenters();

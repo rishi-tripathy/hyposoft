@@ -26,6 +26,8 @@ export class ChangeExistingAssetForm extends Component {
 
             //changeplan metadata
             loading: true,
+            assetInCP: false,
+            existing_id: false,
 
             //stuff for view
             assetLV: {},
@@ -66,14 +68,14 @@ export class ChangeExistingAssetForm extends Component {
     componentDidMount() {
         const delay = 70;
         this.loadLVInstance(); //has to be first
-        this.loadInstanceChanged();
+        // this.loadInstanceChanged();
+        this.checkIfInCP();
 
         setTimeout(() => {
          // this.loadModels();
           this.loadDatacenters();
          // this.loadOwners();
           this.getConnectedAssetsLV();
-          this.loadRacks();
           this.loadMACAddresses();
           this.loadConnectedNPs();
         }, delay);
@@ -85,6 +87,36 @@ export class ChangeExistingAssetForm extends Component {
           this.loadFreePDUsAndSetDefaultConfigurations();
         }, 320);
 
+    }
+
+    checkIfInCP = () => {
+      let dst = '/api/cp/'.concat(this.props.match.params.id).concat('/');
+      let assetBool = false;
+      let id_save = null;
+      axios.get(dst).then(res => {
+        res.data.assets_cp.map((ass, index) => {
+          console.log(ass.id_ref)
+          console.log(this.props.match.params.assId)
+          if(ass.id_ref === parseInt(this.props.match.params.assId)){
+            //do we have a ref in the cp_assets already of this asset?
+            console.log('match found:' + ass.hostname)
+            assetBool = true;
+            id_save = ass.id_ref;
+          }
+        })
+
+        if(assetBool){
+          this.setState({
+            assetInCP: true,
+            existing_id: id_save,
+          })
+        }
+        this.loadInstanceChanged();
+      })
+
+      .catch(function(error) {
+        alert('Cannot load assets. Re-login.\n' + JSON.stringify(error.response, null, 2));
+      })
     }
 
       loadLVInstance = () => {
@@ -198,28 +230,64 @@ export class ChangeExistingAssetForm extends Component {
     
 
       loadInstanceChanged = () => {
-        let dst = '/api/assets/'.concat(this.props.match.params.assId).concat('/');
-        axios.get(dst).then(res => {
-          let instanceCopy = JSON.parse(JSON.stringify(this.state.assetChanged));
-          instanceCopy.model = res.data.model;
-          instanceCopy.hostname = res.data.hostname;
-          instanceCopy.datacenter = res.data.datacenter;
-          instanceCopy.rack = res.data.rack;
-          instanceCopy.rack_u = res.data.rack_u;
-          instanceCopy.owner = res.data.owner;
-          instanceCopy.comment = res.data.comment;
-          instanceCopy.asset_number = res.data.asset_number;
-          instanceCopy.network_ports = res.data.network_ports;
-          instanceCopy.power_ports = res.data.power_ports;
-          this.setState({
-            assetChanged: instanceCopy,
-          });
-          console.log(this.state.assetChanged)
-        })
-          .catch(function (error) {
-            // TODO: handle error
-            alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
-          });
+        let dst;
+
+        if(this.state.assetInCP){
+          console.log('getting data from assets_cp')
+          //get data from cp_assets
+          dst = '/api/cp/'.concat(this.state.existing_id).concat('/');
+          axios.get(dst).then(res => {
+            console.log(res.data)
+            let instanceCopy = JSON.parse(JSON.stringify(this.state.assetChanged));
+              instanceCopy.model = res.data.model;
+              instanceCopy.hostname = res.data.hostname;
+              instanceCopy.datacenter = res.data.datacenter;
+              instanceCopy.rack = res.data.rack;
+              instanceCopy.rack_u = res.data.rack_u;
+              instanceCopy.owner = res.data.owner;
+              instanceCopy.comment = res.data.comment;
+              instanceCopy.asset_number = res.data.asset_number;
+              instanceCopy.network_ports = res.data.network_ports;
+              instanceCopy.power_ports = res.data.power_ports;
+              this.setState({
+                assetChanged: instanceCopy,
+                selectedDatacenter: res.data.datacenter,
+                selectedrackOption: res.data.rack,
+              });
+              console.log(this.state.assetChanged)
+            })
+            .catch(function (error) {
+              alert('error.\n' + JSON.stringify(error.response.data));
+            })
+        }
+        else {
+          console.log('getting data from assets live view')
+          dst = '/api/assets/'.concat(this.props.match.params.assId).concat('/');
+
+          axios.get(dst).then(res => {
+            let instanceCopy = JSON.parse(JSON.stringify(this.state.assetChanged));
+            instanceCopy.model = res.data.model;
+            instanceCopy.hostname = res.data.hostname;
+            instanceCopy.datacenter = res.data.datacenter;
+            instanceCopy.rack = res.data.rack;
+            instanceCopy.rack_u = res.data.rack_u;
+            instanceCopy.owner = res.data.owner;
+            instanceCopy.comment = res.data.comment;
+            instanceCopy.asset_number = res.data.asset_number;
+            instanceCopy.network_ports = res.data.network_ports;
+            instanceCopy.power_ports = res.data.power_ports;
+            this.setState({
+              assetChanged: instanceCopy,
+              selectedDatacenter: res.data.datacenter,
+              selectedrackOption: res.data.rack,
+            });
+            console.log(this.state.assetChanged)
+          })
+            .catch(function (error) {
+              // TODO: handle error
+              alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+            });
+        }
       }
 
       loadRacks = () => {
@@ -358,6 +426,9 @@ export class ChangeExistingAssetForm extends Component {
               id: this.state.assetChanged.datacenter ? this.state.assetChanged.datacenter.id : null,
             }
           });
+
+          this.loadRacks();
+
         })
           .catch(function (error) {
             // TODO: handle error
@@ -449,11 +520,10 @@ export class ChangeExistingAssetForm extends Component {
         stateCopy.owner = this.state.selectedOwnerOption ? this.state.selectedOwnerOption.id : null;
         stateCopy.datacenter = this.state.selectedDatacenterOption ? this.state.selectedDatacenterOption.id : null;
         stateCopy.network_ports = networkPortsBuilder
-        stateCopy.id_ref = this.state.assetChanged.id
         stateCopy.power_ports = tmpPP
         stateCopy.rack_u = this.state.assetChanged.rack_u;
         stateCopy.cp = this.props.match.params.id;
-        stateCopy.id = this.props.match.params.id;
+        stateCopy.id_ref = this.props.match.params.assId;
     
         let stateToSend = this.removeEmpty(stateCopy);
         console.log(JSON.stringify(stateToSend, null, 2))
@@ -477,10 +547,10 @@ export class ChangeExistingAssetForm extends Component {
         return(
             <div>
         {this.state.redirect && <Redirect to={{ pathname: '/changeplans/'.concat(this.props.match.params.id) }} />}
-            {/* {this.state.loading ?  
+            {this.state.loading ?  
                 <center>
                 <CircularProgress size={100}/>
-            </center> :  */}
+            </center> :
             <div>
             <Container maxwidth="xl">
                 <Grid container className="themed-container" spacing={2}>

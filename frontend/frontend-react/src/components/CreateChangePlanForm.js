@@ -30,9 +30,10 @@ export class CreateChangePlanForm extends Component {
 
   componentDidMount() {
     this.loadDatacenters();
+    console.log(this.context.user_id)
     this.setState({
       datacenter: '/api/datacenters/'.concat(this.context.datacenter_id).toString().concat('/'),
-      owner: 4, //TODO: CHANGE LATER TO CONTEXT 
+      owner: this.context.user_id, //TODO: CHANGE LATER TO CONTEXT 
     });
     console.log(this.state.datacenter)
   }
