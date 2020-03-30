@@ -17,6 +17,7 @@ export class ModelCard extends Component {
       {id: 'cpu', label: 'CPU'},
       {id: 'memory', label: 'Memory (GB)'},
       {id: 'storage', label: 'Storage'},
+      {id: 'comment', label: 'Comment'},
     ];
     return headCells.map(headCell => (
       <TableCell

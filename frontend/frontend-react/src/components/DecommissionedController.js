@@ -145,7 +145,7 @@ export class DecommissionedController extends Component {
 
 
     let showAll = <p></p>;
-    if (this.state.prevPage != null || this.state.nextPage != null) {
+    if (this.state.prevPage != null || this.state.nextPage != null || this.state.showingAll) {
       showAll = <FormControlLabel labelPlacement="left"
         control={
           <Switch value={this.state.showingAll} onChange={() => this.toggleShowingAll()} />

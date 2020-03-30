@@ -300,7 +300,7 @@ export class ModelController extends Component {
 
     let exp = <Button variant="outlined" startIcon={<SaveAltIcon/>} onClick={this.exportData}>Export</Button>
     let showAll = <p></p>;
-    if (this.state.prevPage != null || this.state.nextPage != null) {
+    if (this.state.prevPage != null || this.state.nextPage != null || this.state.showingAll) {
        showAll = <FormControlLabel labelPlacement="left"
                                       control={
                                         <Switch value={this.state.showingAll} onChange={() => this.toggleShowingAll()}/>

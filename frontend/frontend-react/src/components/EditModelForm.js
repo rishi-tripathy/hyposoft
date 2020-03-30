@@ -309,10 +309,10 @@ export class EditModelForm extends Component {
                     rows="4"
                     type="text"
                     onChange={e => {
-                      let instanceCopy = JSON.parse(JSON.stringify(this.state.instance))
+                      let instanceCopy = JSON.parse(JSON.stringify(this.state.model))
                       instanceCopy.comment = e.target.value
                       this.setState({
-                        instance: instanceCopy
+                        model: instanceCopy
                       })
                     }} />
                 </Grid>
