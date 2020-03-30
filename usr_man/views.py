@@ -125,6 +125,7 @@ class UserViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=[GET])
     def who_am_i(self, request, *args, **kwargs):
         try:
+            id = request.user.pk
             un = request.user.username
             fn = request.user.first_name or None
             ln = request.user.last_name or None
@@ -134,6 +135,7 @@ class UserViewSet(viewsets.ModelViewSet):
                 'current_user': None
             }, status=status.HTTP_400_BAD_REQUEST)
         return Response({
+            'id': id,
             'current_user': un,
             'first_name': fn,
             'last_name': ln,
