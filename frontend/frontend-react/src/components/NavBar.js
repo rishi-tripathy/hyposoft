@@ -20,15 +20,15 @@ export class NavBar extends Component {
   }
 
   componentDidMount() {
-    console.log(this.context.datacenterOptions)
-    this.setState({
-      datacenters: this.context.datacenterOptions,
-    })
-    console.log('set DCs')
-  }
-
+    // console.log( this.context.datacenterOptions)
+      this.setState({
+        datacenters: this.context.datacenterOptions,
+      })
+    // console.log('set DCs')
+ }
+ 
   render() {
-    console.log(this.state.datacenters)
+    // console.log(this.state.datacenters)
     return (
       <div id='hideOnPrint'>
         <AppBar title="Django Unchained" position='sticky'>
@@ -84,6 +84,10 @@ export class NavBar extends Component {
 
             <NavLink style={{ color: 'white' }} activeStyle={{ color: '#dc004e' }} to='/decommissioned'>
               <Tab label='Decommissioned' />
+            </NavLink>
+
+            <NavLink style={{color: 'white'}} activeStyle={{color: '#dc004e'}} to='/changeplans'>
+              <Tab label='Change Plans'/>
             </NavLink>
 
           </Tabs>

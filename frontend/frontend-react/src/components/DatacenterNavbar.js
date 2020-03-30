@@ -11,13 +11,10 @@ export class DatacenterNavbar extends Component{
   render() {
 
     let options = [];
-
-    // this.context.datacenterOptions.map((option, index) => {
-    //   console.log(option)
-    //   options.push(option.abbreviation)
-    // })
-    console.log(this.context.datacenterOptions[0].name);
-    console.log(this.context.datacenterOptions);
+  
+    // console.log(this.context.datacenterOptions[0].name);
+    // console.log(this.context.datacenterOptions);
+    
   return (
     <DatacenterContext.Consumer>
     {({ datacenter_ab, datacenter_id, datacenter_name, datacenterOptions, setDatacenter }) => (

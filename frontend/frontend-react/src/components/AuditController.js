@@ -11,10 +11,7 @@ import {
   ButtonGroup,
   FormControlLabel, Switch
 } from "@material-ui/core";
-import { NavLink } from 'react-router-dom'
-import { Autocomplete } from "@material-ui/lab"
-import DatacenterNavbar from './DatacenterNavbar'
-import axios, { post } from 'axios'
+import axios, {post} from 'axios'
 import AuditLog from './AuditLog'
 import CircularProgress from '@material-ui/core/CircularProgress';
 import DatacenterContext from './DatacenterContext';

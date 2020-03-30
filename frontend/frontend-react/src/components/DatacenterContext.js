@@ -12,6 +12,7 @@ const DatacenterContext = React.createContext({
     user_first: null,
     user_last: null,
     username: null,
+    user_id: null,
   });
 
 export default DatacenterContext;
