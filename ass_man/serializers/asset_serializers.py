@@ -156,6 +156,8 @@ class AssetSerializer(serializers.HyperlinkedModelSerializer):
     # adapted from https://stackoverflow.com/questions/2063213/regular-expression-for-validating-dns-label-host-name
 
     def validate_hostname(self, value):
+        if not value:
+            return value
         if not re.match('^(?![0-9]+$)(?!-)[a-zA-Z0-9-]{,63}(?<!-)$', value):
             raise serializers.ValidationError(
                 '{} is not an valid hostname. Please ensure this value is a valid hostname as per RFC 1034.'.format(
