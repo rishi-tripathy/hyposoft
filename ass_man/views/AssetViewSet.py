@@ -10,10 +10,6 @@ from django.core.files.base import ContentFile
 from django.contrib.auth.models import User
 import re, requests, io
 from django.http import FileResponse, HttpResponse
-import barcode
-from reportlab.pdfgen import canvas
-from reportlab.graphics import renderPDF
-from svglib.svglib import svg2rlg
 # API
 from rest_framework import viewsets
 
