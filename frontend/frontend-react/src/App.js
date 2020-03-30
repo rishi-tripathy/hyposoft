@@ -241,6 +241,7 @@ class App extends React.Component {
     // console.log(this.state.delay)
     if (!this.state.logged_in && !this.state.loading) {
       return (
+        <center>
         <div id="contentContainer">
           <LandingPage />
           <div id='login'>
@@ -249,6 +250,7 @@ class App extends React.Component {
       </Button>
           </div>
         </div>
+        </center>
       );
     }
     else {
