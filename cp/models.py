@@ -16,12 +16,12 @@ class ChangePlan(models.Model):
 
 
 class AssetCP(models.Model):
-    model = models.ForeignKey(Model, on_delete=models.PROTECT)
+    model = models.ForeignKey(Model, on_delete=models.CASCADE)
     hostname = models.CharField(max_length=64, blank=True, null=True)
     datacenter = models.ForeignKey(Datacenter, on_delete=models.PROTECT, blank=True, null=True)
-    rack = models.ForeignKey(Rack, on_delete=models.PROTECT)
+    rack = models.ForeignKey(Rack, on_delete=models.CASCADE)
     rack_u = models.PositiveIntegerField(blank=False)
-    owner = models.ForeignKey(User, blank=True, null=True, on_delete=models.PROTECT)
+    owner = models.ForeignKey(User, blank=True, null=True, on_delete=models.CASCADE)
     comment = models.TextField(blank=True)
     # asset_number = models.PositiveIntegerField(blank=True, default=100000)
     id_ref = models.PositiveIntegerField(blank=True, null=True)
