@@ -279,7 +279,7 @@ def import_asset_file(request):
                 asset = Asset(model=model, hostname=row['hostname'], \
                               datacenter=datacenter, rack=rack, rack_u=row['rack_position'], \
                               owner=owner, comment=row['comment'], asset_number=my_asset_number)
-                num_nps = model.network_ports_num if model else 0
+                num_nps = model.network_ports_num if (model and model.network_ports_num) else 0
                 for i in range(num_nps):
                     np = Network_Port(name=model.network_ports[i], connection=None, asset=asset)
                     nps_to_create.append(np)
