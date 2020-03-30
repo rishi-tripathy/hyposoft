@@ -125,13 +125,15 @@ export class DecommissionedTable extends Component {
       const { id, asset_state, username, timestamp } = asset //destructuring
       //console.log(network_ports)
 
+      let readableTime = new Date(timestamp);
+
       return (
         <TableRow
           hover
           tabIndex={-1}
           key={id}
         >
-          <TableCell align="center">{timestamp}</TableCell>
+          <TableCell align="center">{readableTime.toDateString()}</TableCell>
           <TableCell align="center">{username}</TableCell>
           <TableCell align="center">{asset_state.rack.rack_number}</TableCell>
           <TableCell align="center">{asset_state.rack_u}</TableCell>

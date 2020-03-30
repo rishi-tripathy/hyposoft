@@ -163,7 +163,7 @@ export class DatacenterController extends Component {
                                 }
         />
 
-        let add = this.context.is_admin ? (
+        let add = ( this.context.is_admin || this.context.username === 'admin' || this.context.asset_permission.length != 0 ) ? (
             <Link to={'/datacenters/create'}>
               <Button color="primary" variant="contained" endIcon={<AddCircleIcon/>}>
                 Add Datacenter

@@ -42,9 +42,10 @@ export class AuditController extends Component {
     let dst = '/api/log/log/?' + this.state.filterQuery;
     console.log("QUERY")
     console.log(dst)
+    let self = this
     axios.get(dst).then(res => {
       console.log('getlogs promise')
-      this.setState({
+      self.setState({
         logs: res.data.results,
         prevPage: res.data.previous,
         nextPage: res.data.next,
