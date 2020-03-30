@@ -5,6 +5,7 @@ import {
   ButtonGroup, Switch, FormControlLabel,
   Typography, Tooltip, IconButton, CircularProgress
 } from "@material-ui/core"
+import '../stylesheets/PrintingAssetLabels.css'
 
 // fontOptions={this.state.fontOptions}
 // font={this.state.font}
@@ -52,7 +53,7 @@ export class AssetLabels extends Component {
       <div>
         <Container maxwidth="xl">
           <ReactToPrint
-            trigger={() => <Button variant="contained" color="primary">Print Asset Labels</Button>}
+            trigger={() => <Button variant="contained" color="primary" id="hideOnPrint">Print Asset Labels</Button>}
             content={() => this.componentRef}
           />
           <ComponentToPrint ref={el => (this.componentRef = el)} myData={this.props.location.state.labelTable}/>

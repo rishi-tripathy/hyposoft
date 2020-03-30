@@ -1,0 +1,16 @@
+@media print {
+  #hideOnPrint {
+      display: none;
+    }
+    body {
+      margin: 0;
+      -webkit-print-color-adjust: exact !important;
+    }
+    #header{
+      display: none;
+    }
+}
+@page { 
+  margin: 1.25cm 1cm 1.25cm 1cm;
+  size: portrait;
+ }
