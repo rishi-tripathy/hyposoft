@@ -534,7 +534,7 @@ export class RackController extends Component {
             {paginateNavigation}{' '}
           </Grid>
           <Grid item justify="flex-start" alignContent='center' xs={12}>
-          {this.state.loading ? <center><CircularProgress size={100} /></center> : content };
+          {this.state.loading ? <center><CircularProgress size={100} /></center> : content }
           </Grid>
         </Grid>
         </Container>
