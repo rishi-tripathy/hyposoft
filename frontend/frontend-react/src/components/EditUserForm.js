@@ -159,14 +159,14 @@ export class EditUserForm extends Component {
     var self = this;
     axios.post(dst, stateCopy)
       .then(function (response) {
-        alert('Created successfully');
+        alert('Edit was successful.');
         // window.location = '/assets'
-        this.setState({
+        self.setState({
           redirect: true,
         })
       })
       .catch(function (error) {
-        alert('Creation was not successful.\n' + JSON.stringify(error.response.data, null, 2));
+        alert('Edit was not successful.\n' + JSON.stringify(error.response.data, null, 2));
       });
 
   }
