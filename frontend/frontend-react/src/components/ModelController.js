@@ -311,17 +311,17 @@ export class ModelController extends Component {
       />
     }
 
-    let add = this.context.is_admin ? (
+    let add = (this.context.is_admin || this.context.username === 'admin' || this.context.model_permission) ? (
       <Link to={'/models/create'}>
         <Button color="primary" variant="contained" endIcon={<AddCircleIcon/>}>
           Add Model
         </Button>
       </Link>
 
-    ) : <p></p>;
+    ) : <div></div>;
 
 
-    let imp = this.context.is_admin ? (
+    let imp = (this.context.is_admin || this.context.username === 'admin' || this.context.model_permission) ? (
       <>
         <Button variant="outlined" component="span" startIcon={<CloudUploadIcon/>} onClick={this.handleImport}>
           Import
@@ -334,7 +334,7 @@ export class ModelController extends Component {
           onChange={this.handleFileUpload}
         />
       </>
-    ) : <p></p>;
+    ) : <div></div>;
 
 
     return (

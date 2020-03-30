@@ -1,4 +1,4 @@
-import React, {Component} from 'react'
+import React, { Component } from 'react'
 import AddUserModal from './AddUserModal'
 import axios from 'axios'
 import UserTable from './UserTable';
@@ -23,6 +23,7 @@ export class UserController extends Component {
       prevPage: null,
       nextPage: null,
       rerender: false,
+      usersPermissions: [],
     }
   }
 
@@ -40,17 +41,36 @@ export class UserController extends Component {
       });
   }
 
+  getUserPermissions = () => {
+    let dst = '/all-permissions/';
+    axios.get(dst).then(res => {
+      // let permissionArray = res.data
+      // permissionArray.forEach((userObject) => {
+      //   console.log(userObject)
+      // })
+      
+      this.setState({
+        usersPermissions: res.data,
+      });
+    })
+      .catch(function (error) {
+        alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+      });
+  }
+
   componentDidMount() {
     this.getUsers();
+    this.getUserPermissions();
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
     const delay = 50
-     // After crud, rerender
+    // After crud, rerender
     if (prevState.rerender === false && this.state.rerender === true) {
       setTimeout(() => {
         this.getUsers();
-        this.setState({rerender: false});
+        this.getUserPermissions();
+        this.setState({ rerender: false });
       }, delay);
 
     }
@@ -58,7 +78,7 @@ export class UserController extends Component {
 
   getRerender = (re) => {
     if (re) {
-      this.setState({rerender: true})
+      this.setState({ rerender: true })
     }
   }
   paginateNext = () => {
@@ -90,8 +110,9 @@ export class UserController extends Component {
   }
 
   render() {
+    console.log(this.context)
     let content = <div>
-      <UserTableMUI sendRerender={this.getRerender} users={this.state.users} />
+      <UserTableMUI sendRerender={this.getRerender} users={this.state.users} usersPermissions={this.state.usersPermissions}/>
     </div>;
 
     let paginateNavigation = <p></p>;

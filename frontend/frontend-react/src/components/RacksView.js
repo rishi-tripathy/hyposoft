@@ -1,8 +1,8 @@
 import React, {Component} from 'react'
 import ReactDOMServer from 'react-dom'
-import '../stylesheets/RacksView.css'
+// import '../stylesheets/RacksView.css'
 import '../stylesheets/RackTable.css'
-import '../stylesheets/Printing.css'
+// import '../stylesheets/Printing.css'
 import RackTable from './RackTable'
 import axios from 'axios'
 import {

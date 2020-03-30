@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField, JSONField
 from django.db.models.fields import DateTimeField
+from django.core.validators import RegexValidator
 
 # Create your models here.
 
@@ -39,7 +40,8 @@ class Asset(models.Model):
     rack_u = models.PositiveIntegerField(blank=False)
     owner = models.ForeignKey(User, blank=True, null=True, on_delete=models.PROTECT)
     comment = models.TextField(blank=True)
-    asset_number = models.PositiveIntegerField(blank=True, default=100000)
+    asset_number = models.PositiveIntegerField(blank=True, default=100000, \
+    validators=[RegexValidator(r'^[0-9]{6}$', 'Number must be 6 digits', 'Invalid Number')])
 
     def __str__(self):
         return self.hostname or ''
@@ -122,3 +124,9 @@ class Rack(models.Model):
 
     def __str__(self):
         return self.rack_number or ''
+
+class Permission(models.Model):
+    name = models.CharField(max_length=50)
+    datacenter = models.ForeignKey(Datacenter, on_delete=models.CASCADE, blank=True, null=True)
+    asset = models.ForeignKey(Asset, on_delete=models.CASCADE, blank=True, null=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)

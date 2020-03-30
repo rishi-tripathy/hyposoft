@@ -55,6 +55,18 @@ class UserViewSet(viewsets.ModelViewSet):
                 "status": "Failure. You may not delete a NetID user."
             })
 
+    @action(detail=True, methods=[POST])
+    def update_super_status(self, request, *args, **kwargs):
+        user = self.get_object()
+        print(request.data)
+        if request.data.get('is_superuser'):
+            user.is_superuser = True
+            user.save()
+        elif not request.data.get('is_superuser'):
+            user.is_superuser = False
+            user.save()
+        return Response('sup big mike')
+
     # Override default actions here
     def partial_update(self, request, *args, **kwargs):
 
@@ -169,4 +181,3 @@ class UserViewSet(viewsets.ModelViewSet):
                 'creation': 'success',
                 'login': 'success'
             })
-
