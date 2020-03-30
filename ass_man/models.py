@@ -41,7 +41,7 @@ class Asset(models.Model):
     owner = models.ForeignKey(User, blank=True, null=True, on_delete=models.PROTECT)
     comment = models.TextField(blank=True)
     asset_number = models.PositiveIntegerField(blank=True, default=100000, \
-    validators=[RegexValidator(r'\^[0-9]{1,6}$','Number must be 6 digits','Invalid number')])
+    validators=[RegexValidator(r'^[0-9]{6}$', 'Number must be 6 digits', 'Invalid Number')])
 
     def __str__(self):
         return self.hostname or ''

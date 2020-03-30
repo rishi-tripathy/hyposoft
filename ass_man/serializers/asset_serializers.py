@@ -179,6 +179,19 @@ class AssetSerializer(serializers.HyperlinkedModelSerializer):
             try:
                 Asset.objects.get(asset_number=validated_data['asset_number'])
             except Asset.DoesNotExist:
+                try:
+                    num = Asset_Number.objects.get(pk=1)
+                except Asset_Number.DoesNotExist:
+                    num = Asset_Number.objects.create(next_avail=100000)
+                if validated_data['asset_number'] == num.next_avail:
+                    try:
+                        curr = num.next_avail
+                        while True:
+                            Asset.objects.get(asset_number=curr)
+                            curr += 1
+                    except Asset.DoesNotExist:
+                        num.next_avail = curr+1
+                        num.save()
                 return validated_data
             raise serializers.ValidationError(
                 "Asset Number: {} is already taken.".format(validated_data['asset_number'])
