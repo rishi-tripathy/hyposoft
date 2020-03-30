@@ -140,15 +140,6 @@ export class ChangePlanAssetTable extends Component {
           <div>
             {existBool ? (
               <div>
-            <TableCell align="right">
-              <Link to={'/assets/' + id}>
-                <Tooltip title='View Details'>
-                  <IconButton size="sm">
-                    <PageviewIcon />
-                  </IconButton>
-                </Tooltip>
-              </Link>
-            </TableCell>
               <TableCell align="right">
                 <Link to={'/changeplans/' + cp + '/changeExistingAsset/' + id_ref + '/'+ id}>
                   <Tooltip title='Edit'>
@@ -171,16 +162,7 @@ export class ChangePlanAssetTable extends Component {
             (
               <div>
               <TableCell align="right">
-              <Link to={'/assets/' + id}>
-                <Tooltip title='View Details'>
-                  <IconButton size="sm">
-                    <PageviewIcon />
-                  </IconButton>
-                </Tooltip>
-              </Link>
-            </TableCell>
-              <TableCell align="right">
-                <Link to={'/changeplans/' + cp + 'assets/' + id + '/edit'}>
+                <Link to={'/changeplans/' + cp + '/assets/' + id + '/edit'}>
                   <Tooltip title='Edit'>
                     <IconButton size="sm">
                       <EditIcon />

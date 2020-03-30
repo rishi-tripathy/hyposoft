@@ -223,14 +223,28 @@ export class EditNewAssetForm extends Component {
   }
 
   getCpAssetDetails = () => {
-      let dst = '/api/cp/'.concat(this.props.match.params.id).concat('/');
+      let dst = '/api/cpAsset/'.concat(this.props.match.params.cpAssId).concat('/');
 
       axios.get(dst).then(res => {
-          console.log(res.data.assets_cp)
-
+          console.log(res.data)
+          let instanceCopy = JSON.parse(JSON.stringify(this.state.asset));
+          instanceCopy.model = res.data.model;
+          instanceCopy.hostname = res.data.hostname;
+          instanceCopy.datacenter = res.data.datacenter;
+          instanceCopy.rack = res.data.rack;
+          instanceCopy.rack_u = res.data.rack_u;
+          instanceCopy.owner = res.data.owner;
+          instanceCopy.comment = res.data.comment;
+          instanceCopy.asset_number = res.data.asset_number;
+          instanceCopy.network_ports = res.data.network_ports;
+          instanceCopy.power_ports = res.data.power_ports;
+          instanceCopy.id = this.props.match.params.cpAssId;
+          this.setState({
+            asset: instanceCopy,
+          })
       })
       .catch(function (error) {
-          alert('cannot load');
+          alert('cannot load' + error.response.data);
       })
   }
 
@@ -425,6 +439,7 @@ export class EditNewAssetForm extends Component {
 
 
   render() {
+      console.log(this.state)
     return (
       <div>
         {this.state.redirect && <Redirect to={{ pathname: '/changeplans/'.concat(this.props.match.params.id) }} />}
@@ -435,7 +450,7 @@ export class EditNewAssetForm extends Component {
               <Grid container spacing={1}>
                 <Grid item xs={12}>
                   <Typography variant="h3" gutterBottom>
-                    Create Asset
+                    Edit Asset
                   </Typography>
                 </Grid>
                 <Grid item xs={6}>
