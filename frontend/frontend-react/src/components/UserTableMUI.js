@@ -74,7 +74,7 @@ export class UserTableMUI extends Component {
   }
   renderTableData() {
     console.log(this.context.is_admin)
-    if (this.props.users.length == 0) return (
+    if (!this.props.users || this.props.users.length === 0) return (
       <TableRow hover tabIndex={-1}>
         <TableCell align="center" colSpan={3}>No entries</TableCell>
       </TableRow>
@@ -88,14 +88,19 @@ export class UserTableMUI extends Component {
       let currentUserPowerPermission;
       let currentUserAuditPermission;
 
-      this.props.usersPermissions.forEach((userObject) => {
-        if (userObject.user_id === id) {
-          currentUserModelPermission = userObject.model_permission
-          currentUserAssetPermission = userObject.asset_permission
-          currentUserPowerPermission = userObject.power_permission
-          currentUserAuditPermission = userObject.log_permission
-        }
-      })
+      if (this.props.usersPermissions.length != 0) {
+        //console.log(this.props.usersPermissions)
+        this.props.usersPermissions.forEach((userObject) => {
+          if (userObject.user_id === id) {
+            currentUserModelPermission = userObject.model_permission
+            currentUserAssetPermission = userObject.asset_permission
+            currentUserPowerPermission = userObject.power_permission
+            currentUserAuditPermission = userObject.log_permission
+          }
+        })
+      }
+
+
 
       return (
         <TableRow
@@ -122,10 +127,10 @@ export class UserTableMUI extends Component {
             ) : (
                 //<div>
                 <React.Fragment>
-                  <TableCell align="center" style={{backgroundColor: "#d1d1d1"}} ></TableCell>
-                  <TableCell align="center" style={{backgroundColor: "#d1d1d1"}} ></TableCell>
-                  <TableCell align="center" style={{backgroundColor: "#d1d1d1"}}></TableCell>
-                  <TableCell align="center" style={{backgroundColor: "#d1d1d1"}}></TableCell>
+                  <TableCell align="center" style={{ backgroundColor: "#d1d1d1" }} ></TableCell>
+                  <TableCell align="center" style={{ backgroundColor: "#d1d1d1" }} ></TableCell>
+                  <TableCell align="center" style={{ backgroundColor: "#d1d1d1" }}></TableCell>
+                  <TableCell align="center" style={{ backgroundColor: "#d1d1d1" }}></TableCell>
                 </React.Fragment>
 
                 //</div>
