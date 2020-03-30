@@ -30,7 +30,14 @@ PUT = 'PUT'
 class DatacenterViewSet(viewsets.ModelViewSet):
     def get_permissions(self):
         if self.action in ADMIN_ACTIONS:
-            permission_classes = [IsAdminUser]
+            try:
+                user = User.objects.get(username=self.request.user.username)
+                if user.is_staff or len(user.permission_set.all().filter(name='asset')) > 0:
+                    permission_classes = [IsAdminUser]
+                else:
+                    permission_classes = [IsAuthenticated]
+            except:
+                permission_classes = [IsAuthenticated]
         else:
             permission_classes = [IsAuthenticated]
         return [permission() for permission in permission_classes]
