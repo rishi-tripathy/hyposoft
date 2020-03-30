@@ -153,7 +153,7 @@ class ChangePlanViewSet(viewsets.ModelViewSet):
                 # name may not change
 
                 # Validate Mac
-                if not re.match(
+                if len(n.mac)>1 and not re.match(
                     '^([0-9a-f]{2})[-:_]?([0-9a-f]{2})[-:_]?([0-9a-f]{2})[-:_]?([0-9a-f]{2})[-:_]?([0-9a-f]{2})[-:_]?([0-9a-f]{2})',
                     n.mac.lower()):
                     conflicts.append('Change Plan Network Port {}'.format(n.id) + ' Invalid MAC Address')
@@ -272,10 +272,23 @@ class ChangePlanViewSet(viewsets.ModelViewSet):
                     # mac may change
                     n_ref.mac = n.mac
                     # connection may change
-                    if n.connection:
+                    if n.conn_cp_id: # connecting to a CP np
+                        if n.conn_cp_id.id_ref:
+                            n_ref_conn = Network_Port.objects.get(id=n.conn_cp_id.id_ref)
+                            n_ref.connection = n_ref_conn
+                            n_ref_conn.connection = n_ref
+                            n_ref.save()
+                            n_ref_conn.save()
+                            continue
+                        else:
+                            n.conn_cp_id.connection = n_ref # make it point to you so when it gets processed link is made
+                            n.conn_cp_ip.save()
+
+                    if n.connection and not n.conn_cp_id: # Connecting to a real CP NP
                         n_ref.connection = n.connection # This assumes that the CPNP n is planned to be connected to a preexisting NP
                         n.connection.connection = n_ref
                         n.connection.save()
+                        n_ref.save()
 
                     n_ref.save()
 
@@ -289,9 +302,25 @@ class ChangePlanViewSet(viewsets.ModelViewSet):
                     n_new = Network_Port(name=n.name, mac=n.mac, connection=n.connection,
                                          asset=Asset.objects.get(AssetCP.objects.get(id=n.asset_cp_id).id_ref)) # This assumes that the CPNP n is planned to be connected to a preexisting NP
 
-                    if n.connection:
+                    n.id_ref = n_new.pk
+                    n.save()
+
+                    if n.connection and not n.conn_cp_id: # connecting to preexisting thing
                         n.connection.connection = n_new
                         n.connection.save()
+
+                    if n.conn_cp_id: # connecting to a CP np
+                        if n.conn_cp_id.id_ref:
+                            n_ref_conn = Network_Port.objects.get(id=n.conn_cp_id.id_ref)
+                            n_new.connection = n_ref_conn
+                            n_ref_conn.connection = n_new
+                            n_new.save()
+                            n_ref_conn.save()
+                            continue
+                        else:
+                            n.conn_cp_id.connection = n_new # make it point to you so when it gets processed link is made
+                            n.conn_cp_id.save()
+
 
                     n_new.save()
 
