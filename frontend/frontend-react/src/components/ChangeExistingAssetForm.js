@@ -33,6 +33,7 @@ export class ChangeExistingAssetForm extends Component {
 
             //stuff for editing
             assetChanged: {
+                    id_ref: null,
                     model: null,
                     hostname: null,
                     datacenter: null,
@@ -68,7 +69,6 @@ export class ChangeExistingAssetForm extends Component {
         this.loadInstanceChanged();
 
         setTimeout(() => {
-            this.initializeDCState();
          // this.loadModels();
           this.loadDatacenters();
          // this.loadOwners();
@@ -198,8 +198,7 @@ export class ChangeExistingAssetForm extends Component {
     
 
       loadInstanceChanged = () => {
-        //let dst = '/api/assets/'.concat(this.props.match.params.id).concat('/');
-        let dst = '/api/assets/13/' //change later
+        let dst = '/api/assets/'.concat(this.props.match.params.assId).concat('/');
         axios.get(dst).then(res => {
           let instanceCopy = JSON.parse(JSON.stringify(this.state.assetChanged));
           instanceCopy.model = res.data.model;
@@ -221,13 +220,6 @@ export class ChangeExistingAssetForm extends Component {
             // TODO: handle error
             alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
           });
-      }
-
-      initializeDCState = () => {
-          this.setState({
-              selectedDatacenterOption: this.state.assetChanged.datacenter,
-          })
-          console.log(this.selectedDatacenterOption)
       }
 
       loadRacks = () => {
@@ -342,6 +334,13 @@ export class ChangeExistingAssetForm extends Component {
         return obj;
       };
     
+      removeEmptyRecursive = (obj) => {
+        Object.keys(obj).forEach(k =>
+          (obj[k] && typeof obj[k] === 'object') && this.removeEmptyRecursive(obj[k]) ||
+          (!obj[k] && obj[k] !== undefined) && delete obj[k]
+        );
+        return obj;
+      };
 
     loadDatacenters = () => {
         const dst = '/api/datacenters/?show_all=true';
@@ -410,14 +409,78 @@ export class ChangeExistingAssetForm extends Component {
         this.setState({ selectedRackOption });
       };
 
+
+      handleSubmit = (e) => {
+        e.preventDefault();
+    
+        let networkPortsBuilder = [];
+        for (let i = 0; i < this.state.numberOfNetworkPortsForCurrentAsset; i++) {
+          let obj = {}
+          let connectionObj = {}
+    
+          connectionObj.network_port_id = this.state.networkPortConnectionIDs[i];
+          obj.mac = this.state.macAddresses[i];
+          obj.name = this.state.networkPortNamesForCurrentAsset[i];
+    
+          if (Object.entries(connectionObj).length > 0 && connectionObj.constructor === Object) {
+            obj.connection = connectionObj;
+          }
+    
+          console.log(obj)
+          networkPortsBuilder.push(this.removeEmptyRecursive(obj))
+        }
+    
+        let tmpPP = []
+        for (let i = 0; i < this.state.ppConnections.length; i++) {
+          let currentObj = this.removeEmptyRecursive(this.state.ppConnections[i]);
+          //console.log(this.state.ppIDs)
+          //currentObj.id = this.state.ppIDs[i]
+          //console.log(currentObj)
+          if (Object.entries(currentObj).length > 0 && currentObj.constructor === Object) {
+            tmpPP.push(currentObj)
+          }
+        }
+    
+        let dst = '/api/cpAsset/';
+        let stateCopy = Object.assign({}, this.state.assetChanged);
+    
+        stateCopy.model = this.state.selectedModelOption ? this.state.selectedModelOption.id : null;
+        stateCopy.rack = this.state.selectedRackOption ? this.state.selectedRackOption.id : null;
+        stateCopy.owner = this.state.selectedOwnerOption ? this.state.selectedOwnerOption.id : null;
+        stateCopy.datacenter = this.state.selectedDatacenterOption ? this.state.selectedDatacenterOption.id : null;
+        stateCopy.network_ports = networkPortsBuilder
+        stateCopy.id_ref = this.state.assetChanged.id
+        stateCopy.power_ports = tmpPP
+        stateCopy.rack_u = this.state.assetChanged.rack_u;
+        stateCopy.cp = this.props.match.params.id;
+        stateCopy.id = this.props.match.params.id;
+    
+        let stateToSend = this.removeEmpty(stateCopy);
+        console.log(JSON.stringify(stateToSend, null, 2))
+        var self = this;
+    
+        axios.post(dst, stateToSend)
+          .then(function (response) {
+            alert('Change(s) added to Plan');
+            // window.location = '/assets'
+            self.setState({
+              redirect: true,
+            });
+          })
+          .catch(function (error) {
+            alert('Changes were not added.\n' + JSON.stringify(error.response.data, null, 2));
+          });
+      }
+
     render() {
         console.log(this.state)
         return(
             <div>
-            {this.state.loading ?  
+        {this.state.redirect && <Redirect to={{ pathname: '/changeplans/'.concat(this.props.match.params.id) }} />}
+            {/* {this.state.loading ?  
                 <center>
                 <CircularProgress size={100}/>
-            </center> : 
+            </center> :  */}
             <div>
             <Container maxwidth="xl">
                 <Grid container className="themed-container" spacing={2}>
@@ -562,7 +625,7 @@ export class ChangeExistingAssetForm extends Component {
                                             value={this.state.assetChanged.rack_u}
                                             InputLabelProps={{ shrink: true }}
                                             onChange={e => {
-                                            let instanceCopy = JSON.parse(JSON.stringify(this.state.asset))
+                                            let instanceCopy = JSON.parse(JSON.stringify(this.state.assetChanged))
                                             instanceCopy.rack_u = e.target.value
                                             this.setState({
                                                 assetChanged: instanceCopy
@@ -616,6 +679,18 @@ export class ChangeExistingAssetForm extends Component {
                     </Card>
                   </Grid>
 
+                  <Grid item xs={2}>
+                    <Button variant="contained" type="submit" color="primary" endIcon={<AddCircleIcon />}
+                      onClick={this.handleSubmit}>Add Changes to Plan
+                    </Button>
+                </Grid>
+                <Grid item xs={2}>
+                  <Link to={'/changeplans/'.concat(this.props.match.params.id).concat('/')}>
+                    <Tooltip title='Cancel'>
+                      <Button variant="outlined" type="submit" color="primary" endIcon={<CancelIcon />}>Cancel</Button>
+                    </Tooltip>
+                  </Link>
+                </Grid>
                 </Grid>
               </Container>
             </div>

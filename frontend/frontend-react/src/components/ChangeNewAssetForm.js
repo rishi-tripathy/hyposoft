@@ -21,8 +21,13 @@ export class ChangeNewAssetForm extends Component {
   constructor() {
     super();
     this.state = {
+
+      //CP stuff
+      cp_nps: [],
+      assetId: null, 
+
       asset: {
-        id: null,
+        id: null, //cp id
         id_ref: null, //new asset
         cp: null,
         model: null,
@@ -288,32 +293,68 @@ export class ChangeNewAssetForm extends Component {
     stateCopy.model = this.state.selectedModelOption ? this.state.selectedModelOption.id : null;
     stateCopy.datacenter = this.state.selectedDatacenterOption ? this.state.selectedDatacenterOption.id : null;
     stateCopy.rack = this.state.selectedRackOption ? this.state.selectedRackOption.id : null;
+    console.log(this.state.selectedOwnerOption)
     stateCopy.owner = this.state.selectedOwnerOption ? this.state.selectedOwnerOption.id : null;
+    console.log(stateCopy.owner);
     stateCopy.network_ports = networkPortsBuilder
     stateCopy.power_ports = tmpPP
     stateCopy.cp = this.props.match.params.id;
+    stateCopy.id = this.props.match.params.id;
 
     let stateToSend = this.removeEmpty(stateCopy);
 
+    stateToSend.id_ref = null;
     console.log(stateToSend)
 
     console.log(JSON.stringify(stateToSend, null, 2))
     //console.log(JSON.stringify(this.state, null, 2))
 
-    //CHOKE THE POST CALL
-    var self = this;
     axios.post('/api/cpAsset/', stateToSend)
       .then(function (response) {
         alert('Created successfully');
-        // window.location = '/assets'
-        self.setState({
-          redirect: true,
-        })
+        //this.postNP();
+        // this.postPP();
       })
       .catch(function (error) {
         alert('Creation was not successful.\n' + JSON.stringify(error.response.data, null, 2));
       });
+
+      this.getCPId();
   }
+
+  getCPId = () => {
+    let dst = '/api/cp/'.concat(this.props.match.params.id).concat('/')
+
+    //looking up what the asset CP id is from the cpAsset list and hostname 
+    axios.get(dst).then(res => {
+      console.log(res.data)
+
+      res.data.assets_cp.map((a, index) => {
+        console.log(a.hostname)
+        if(a.hostname === this.state.asset.hostname){
+          //match found
+          this.setState({
+            assetId: a.id,
+          });
+        }
+      })
+    })
+    .catch(function (error) {
+      console.log('Error: ' + error.response.data)
+    })
+
+    var self = this;
+    self.setState({
+      redirect: true,
+    })
+  }
+
+  // postNP = () => {
+  //   console.log('posting NP')
+  //   let dst = '/api/cpnp/'.concat().concat('/');
+  //   axios.post(dst, stateToSend)
+
+  // }
 
   handleChangeModel = (event, selectedModelOption) => {
     this.setState({ selectedModelOption });
@@ -535,7 +576,7 @@ export class ChangeNewAssetForm extends Component {
                   </Tooltip>
                 </Grid>
                 <Grid item xs={2}>
-                  <Link to={'/changeplans'}>
+                <Link to={'/changeplans/'.concat(this.props.match.params.id) }>
                     <Tooltip title='Cancel'>
                       <Button variant="outlined" type="submit" color="primary" endIcon={<CancelIcon />}>Cancel</Button>
                     </Tooltip>

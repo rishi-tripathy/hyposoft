@@ -149,7 +149,7 @@ export class ChangePlanTable extends Component {
             >
               <TableRow>{this.renderTableHeader()}</TableRow>
 
-              <TableBody>
+              <TableBody textAlign='center' >
                 {this.renderTableData()}
               </TableBody>
             </Table>

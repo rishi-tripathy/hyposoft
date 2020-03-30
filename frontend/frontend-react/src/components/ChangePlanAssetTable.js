@@ -1,14 +1,13 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
-import {lighten, makeStyles} from '@material-ui/core/styles';
 import {
   Collapse, Table, TableBody, Button, TableCell, TableContainer, TableRow, Toolbar,
   Typography, Paper, IconButton, Tooltip, TableSortLabel
 } from "@material-ui/core";
 import PageviewIcon from '@material-ui/icons/Pageview';
-import SearchIcon from '@material-ui/icons/Search';
-import DeleteIcon from '@material-ui/icons/Delete';
+import BlockIcon from '@material-ui/icons/Block';
+import EditIcon from '@material-ui/icons/Edit';
 import ModelFilters from './ModelFilters';
 import '../stylesheets/TableView.css'
 import axios, {post} from 'axios'
@@ -76,7 +75,7 @@ export class ChangePlanAssetTable extends Component {
       <Toolbar>
         {
           <Typography style={{flex: '1 1 20%'}} variant="h6" id="modelTableTitle">
-            Assets Modified by this Change Plan
+            Assets Modified
           </Typography>
         }
         <Collapse in={this.state.filtersOpen}>
@@ -131,6 +130,34 @@ export class ChangePlanAssetTable extends Component {
           <TableCell align="center">{exists}</TableCell>
           <TableCell align="center">{hostname}</TableCell>
           <TableCell align="center">{description}</TableCell>
+          <div>
+            <TableCell align="right">
+              <Link to={'/assets/' + id}>
+                <Tooltip title='View Details'>
+                  <IconButton size="sm">
+                    <PageviewIcon />
+                  </IconButton>
+                </Tooltip>
+              </Link>
+            </TableCell>
+              <TableCell align="right">
+                <Link to={'/assets/' + id + '/edit'}>
+                  <Tooltip title='Edit'>
+                    <IconButton size="sm">
+                      <EditIcon />
+                    </IconButton>
+                  </Tooltip>
+                </Link>
+              </TableCell>
+              < TableCell align="right">
+                < Tooltip title='Decommission'>
+                  <IconButton size="sm" onClick={() => this.showDeleteForm(id)}>
+                    <BlockIcon />
+                  </IconButton>
+                </Tooltip>
+              </ TableCell>
+            
+          </div>
         </TableRow>
       )
     })
