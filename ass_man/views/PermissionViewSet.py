@@ -43,9 +43,11 @@ def user_permissions(request):
 @permission_classes([IsAuthenticated])
 def all_permissions(request):
     user_set = []
+    single = False
     if request.query_params.get('id'):
         id = request.query_params.get('id')
         user_set.append(User.objects.all().get(pk=id))
+        single = True
     else:
         user_set = User.objects.all()
     users = []
@@ -74,7 +76,7 @@ def all_permissions(request):
             user_permissions['log_permission'] = 'false'
         users.append(user_permissions)
 
-    if len(users) == 1:
+    if single:
         return Response(users[0])
     else:
         return Response(users)
