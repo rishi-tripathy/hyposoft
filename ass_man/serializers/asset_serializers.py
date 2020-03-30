@@ -15,7 +15,7 @@ from ass_man.serializers.datacenter_serializers import DatacenterSerializer
 
 
 class AssetSerializer(serializers.HyperlinkedModelSerializer):
-    hostname = serializers.CharField(validators=[UniqueValidator(queryset=Asset.objects.all())])
+    # hostname = serializers.CharField(validators=[UniqueValidator(queryset=Asset.objects.all())])
     rack_u = serializers.IntegerField(validators=[MinValueValidator(1)])
 
     # network_ports = NetworkPortSerializer()
@@ -161,6 +161,16 @@ class AssetSerializer(serializers.HyperlinkedModelSerializer):
                 '{} is not an valid hostname. Please ensure this value is a valid hostname as per RFC 1034.'.format(
                     value.__str__())
             )
+        if value:
+            try:
+                Asset.objects.all().get(hostname=value)
+                raise serializers.ValidationError(
+                    '{} is not a unique hostname. Please ensure this value is unique across all assets.'.format(
+                        value.__str__())
+                )
+            except Asset.DoesNotExist:
+                pass
+
         return value
 
     def check_asset_number(self, validated_data):
@@ -169,6 +179,19 @@ class AssetSerializer(serializers.HyperlinkedModelSerializer):
             try:
                 Asset.objects.get(asset_number=validated_data['asset_number'])
             except Asset.DoesNotExist:
+                try:
+                    num = Asset_Number.objects.get(pk=1)
+                except Asset_Number.DoesNotExist:
+                    num = Asset_Number.objects.create(next_avail=100000)
+                if validated_data['asset_number'] == num.next_avail:
+                    try:
+                        curr = num.next_avail
+                        while True:
+                            Asset.objects.get(asset_number=curr)
+                            curr += 1
+                    except Asset.DoesNotExist:
+                        num.next_avail = curr+1
+                        num.save()
                 return validated_data
             raise serializers.ValidationError(
                 "Asset Number: {} is already taken.".format(validated_data['asset_number'])
