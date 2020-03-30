@@ -73,6 +73,41 @@ export class EditNewAssetForm extends Component {
     }
   }
 
+  loadMACAddresses = () => {
+    let tmpMAC = []
+    let NPs = this.state.asset.network_ports
+    for (let i = 0; i < this.state.numberOfNetworkPortsForCurrentAsset; i++) {
+      tmpMAC.push(NPs[i].mac)
+    }
+    this.setState({
+      macAddresses: tmpMAC,
+    })
+  }
+
+
+  loadConnectedNPs = () => {
+    let NPs = this.state.asset.network_ports
+    let tmpNPConnects = []
+    for (let i = 0; i < this.state.numberOfNetworkPortsForCurrentAsset; i++) {
+      if (NPs[i].connection) {
+        tmpNPConnects[i] = {}
+        tmpNPConnects[i].connectedPortID = NPs[i].connection.id;
+        tmpNPConnects[i].connectedPortName = NPs[i].connection.name;
+        tmpNPConnects[i].connectedAssetHostname = NPs[i].connection.asset.hostname;
+      }
+      else {
+        tmpNPConnects[i] = {}
+        tmpNPConnects[i].connectedPortID = null
+        tmpNPConnects[i].connectedPortName = null
+        tmpNPConnects[i].connectedAssetHostname = null
+      }
+    }
+    console.log(tmpNPConnects)
+    this.setState({
+      connectedNPs: tmpNPConnects
+    })
+  }
+
   loadAssetNumber = () => {
     const dst = '/api/assets/asset_number/';
     axios.get(dst).then(res => {
@@ -117,7 +152,14 @@ export class EditNewAssetForm extends Component {
       for (let i = 0; i < res.data.length; i++) {
         myOptions.push({ value: res.data[i].url, label: res.data[i].vendor + ' ' + res.data[i].model_number, id: res.data[i].id });
       }
-      this.setState({ modelOptions: myOptions });
+      this.setState({
+        modelOptions: myOptions,
+        selectedModelOption: {
+          value: this.state.asset.model.url,
+          label: this.state.asset.model.vendor + ' ' + this.state.asset.model.model_number,
+          id: this.state.asset.model.id,
+        }
+      });
     })
       .catch(function (error) {
         // TODO: handle error
@@ -135,7 +177,10 @@ export class EditNewAssetForm extends Component {
       for (let i = 0; i < res.data.length; i++) {
         myOptions.push({ value: res.data[i].url, label: res.data[i].rack_number, id: res.data[i].id });
       }
-      this.setState({ rackOptions: myOptions });
+      this.setState({
+        rackOptions: myOptions,
+        selectedRackOption: { value: this.state.asset.rack.url, label: this.state.asset.rack.rack_number, id: this.state.asset.rack.id },
+      });
     })
       .catch(function (error) {
         // TODO: handle error
@@ -151,7 +196,11 @@ export class EditNewAssetForm extends Component {
       for (let i = 0; i < res.data.length; i++) {
         myOptions.push({ value: res.data[i].url, label: res.data[i].username });
       }
-      this.setState({ ownerOptions: myOptions });
+      this.setState({ ownerOptions: myOptions,
+        selectedOwnerOption: {
+            value: this.state.asset.owner ? this.state.asset.owner.url : null,
+            label: this.state.asset.owner ? this.state.asset.owner.username : null
+          },});
     })
       .catch(function (error) {
         // TODO: handle error
@@ -167,7 +216,13 @@ export class EditNewAssetForm extends Component {
         //TODO: change value to URL
         myOptions.push({ value: res.data[i].url, label: res.data[i].abbreviation, id: res.data[i].id });
       }
-      this.setState({ datacenterOptions: myOptions });
+      this.setState({ 
+        datacenterOptions: myOptions,
+        selectedDatacenterOption: {
+            value: this.state.asset.datacenter ? this.state.asset.datacenter.url : null,
+            label: this.state.asset.datacenter ? this.state.asset.datacenter.abbreviation : null,
+            id: this.state.asset.datacenter ? this.state.asset.datacenter.id : null,
+          } });
     })
       .catch(function (error) {
         // TODO: handle error
@@ -214,12 +269,16 @@ export class EditNewAssetForm extends Component {
   }
 
   componentDidMount() {
+    this.getCpAssetDetails();
+
+    setTimeout(() => {
     this.loadAssetNumber();
     this.loadModels();
     this.loadDatacenters();
     this.loadOwners();
 
     this.getCpAssetDetails();
+    }, 100);
   }
 
   getCpAssetDetails = () => {
@@ -605,7 +664,7 @@ export class EditNewAssetForm extends Component {
                   </Tooltip>
                 </Grid>
                 <Grid item xs={2}>
-                <Link to={'/changeplans/'.concat(this.props.match.params.id) }>
+                <Link to={'/changeplans/'.concat(this.props.match.params.cpId) }>
                     <Tooltip title='Cancel'>
                       <Button variant="outlined" type="submit" color="primary" endIcon={<CancelIcon />}>Cancel</Button>
                     </Tooltip>

@@ -50,7 +50,7 @@ export class ChangeExistingAssetForm extends Component {
             macAddresses: [],
             networkPortConnectionIDs: [],
             networkPortNamesForCurrentAsset: null,
-            connectedNPs: null,
+            connectedNPs: [],
             numberOfPowerPorts: null,
             leftPPName: null,
             rightPPName: null,
@@ -85,6 +85,34 @@ export class ChangeExistingAssetForm extends Component {
           this.loadFreePDUsAndSetDefaultConfigurations();
         }, 320);
 
+    }
+
+    componentDidUpdate(prevProps, prevState) {
+      if (prevState.selectedModelOption !== this.state.selectedModelOption) {
+        if (this.state.selectedModelOption) {
+          this.loadNetworkPortInfoForCurrentlySelectedModel();
+          this.loadNumberOfPowerPortsForModel();
+        }
+        else {
+          this.setState({ networkPortNamesForCurrentAsset: [], numberOfNetworkPortsForCurrentAsset: null });
+        }
+      }
+  
+      if (prevState.selectedDatacenterOption !== this.state.selectedDatacenterOption) {
+        if (this.state.selectedDatacenterOption) {
+          this.loadRacks();
+        }
+        else {
+          this.setState({ rackOptions: [], selectedRackOption: null });
+        }
+      }
+  
+      if (this.state.selectedRackOption !== prevState.selectedRackOption) {
+        if (this.state.selectedRackOption) {
+          this.loadLeftAndRightPDUNames();
+          this.loadFreePDUsAndSetDefaultConfigurations();
+        }
+      }
     }
 
       loadLVInstance = () => {
@@ -451,6 +479,11 @@ export class ChangeExistingAssetForm extends Component {
       handleChangeRack = (event, selectedRackOption) => {
         this.setState({ selectedRackOption });
       };
+    
+      handleChangeDatacenter = (event, selectedDatacenterOption) => {
+        this.setState({ selectedDatacenterOption });
+        console.log(selectedDatacenterOption)
+      }
 
 
       handleSubmit = (e) => {

@@ -11,7 +11,7 @@ import EditIcon from '@material-ui/icons/Edit';
 import ModelFilters from './ModelFilters';
 import '../stylesheets/TableView.css'
 import axios, {post} from 'axios'
-import {Link} from 'react-router-dom'
+import {Link, Redirect} from 'react-router-dom'
 import DatacenterContext from './DatacenterContext'
 
 
@@ -26,48 +26,27 @@ export class ChangePlanAssetTable extends Component {
       dense: false,
       sortBy: 'vendor',
       sortType: 'asc',
-      sortingStates: ['asc', 'desc']
+      sortingStates: ['asc', 'desc'],
+      redirect: false,
     }
   }
 
 
   showDeleteForm = (id) => {
     if (window.confirm('Are you sure you want to delete the proposed changes to this action?')) {
-      let dst = '/api/cp/'.concat(id).concat('/');
+      let dst = '/api/cpAsset/'.concat(id).concat('/');
       axios.delete(dst)
         .then(function (response) {
           alert('Delete was successful');
+          this.setState({
+            redirect: true,
+          })
         })
         .catch(function (error) {
           alert('Delete was not successful.\n' + JSON.stringify(error.response.data, null, 2));
         });
     }
     this.showRerender();
-  }
-
-//   handleHeaderClickSort = (id) => {
-//     let sortByCopy = id
-//     this.setState({
-//       sortBy: sortByCopy
-//     })
-//     let sortTypeCopy = this.state.sortingStates[(this.state.sortingStates.indexOf(this.state.sortType) + 1) % 2];
-//     this.setState({
-//       sortType: sortTypeCopy
-//     })
-
-//     // Make Query
-//     let modifier = (sortTypeCopy === 'desc') ? '-' : ''
-//     let q = 'ordering=' + modifier + sortByCopy;
-//     // for (let i = 0; i < arr.length; i++) {
-//     //   q = q + arr[i].value + ',';
-//     // }
-//     // // take off the last &
-//     // q = q.slice(0, -1);
-//     this.props.sendSortQuery(q);
-//   };
-
-  showRerender = () => {
-    this.props.sendRerender(true);
   }
 
   renderTableToolbar = () => {
@@ -189,6 +168,7 @@ export class ChangePlanAssetTable extends Component {
   render() {
     return (
       <div>
+        {this.state.redirect && <Redirect to={{ pathname: '/changeplans/'.concat(this.props.match.params.id) }} />}
         <Paper>
           {this.renderTableToolbar()}
           <TableContainer>
