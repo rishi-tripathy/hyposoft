@@ -39,13 +39,18 @@ export class EditUserForm extends Component {
 
 
       datacenterOptions: [],
+
+
+      // this is the DC permissions
       selectedDatacenterOption: [],
 
       //selectedDatacenterDualListOption: [],
     }
   }
 
-  loadUserPermissions = () => {
+
+  loadUserInfo = () => {
+
     const editID = this.props.match.params.id
     console.log(editID)
     let dst = '/api/users/'.concat(this.props.match.params.id).concat('/');
@@ -60,6 +65,25 @@ export class EditUserForm extends Component {
         alert(JSON.stringify(error.response.data, null, 2));
       });
   }
+
+
+  loadUserPermissions = () => {
+    const editID = this.props.match.params.id
+    let dst = '/all-permissions/?id='.concat(this.props.match.params.id);
+    axios.get(dst).then(res => {
+      console.log(res.data)
+      this.setState({
+        hasModelPermission: res.data.model_permission,
+        hasPowerPermission: res.data.power_permission,
+        hasAuditPermission: res.data.log_permission,
+        selectedDatacenterOption: res.data.asset_permission,
+      })
+    })
+      .catch(function (error) {
+        alert(JSON.stringify(error.response.data, null, 2));
+      });
+  }
+
 
   loadDatacenters = () => {
     const dst = '/api/datacenters/?show_all=true';
@@ -88,6 +112,7 @@ export class EditUserForm extends Component {
 
   componentDidMount() {
     this.loadDatacenters();
+    this.loadUserInfo();
     this.loadUserPermissions();
   }
 
@@ -102,11 +127,37 @@ export class EditUserForm extends Component {
     obj.asset = this.state.selectedDatacenterOption;
     obj.power = this.state.hasPowerPermission.toString();
     obj.log = this.state.hasAuditPermission.toString();
-    obj.username = this.context.username
+
+    obj.username = this.state.username;
 
     console.log(JSON.stringify(obj, null, 2))
-
+    let self = this
     axios.post('/update-permissions/', obj)
+      .then(function (response) {
+        alert('Permissions successfully updated');
+        // window.location = '/assets'
+        // self.setState({
+        //   redirect: true,
+        // })
+      })
+      .catch(function (error) {
+        alert('Permissions were not updated.\n' + JSON.stringify(error.response.data, null, 2));
+      });
+
+  }
+
+  handleSubmit = (e) => {
+    e.preventDefault();
+    let dst = '/api/users/'.concat(this.props.match.params.id).concat('/update_super_status/');
+
+    let stateCopy = Object.assign({}, this.state);
+
+    stateCopy.is_superuser = this.state.is_admin
+    this.postPermissions();
+    //console.log(JSON.stringify(stateCopy, null, 2))
+    // choke
+    var self = this;
+    axios.post(dst, stateCopy)
       .then(function (response) {
         alert('Created successfully');
         // window.location = '/assets'
@@ -119,30 +170,6 @@ export class EditUserForm extends Component {
       });
 
   }
-
-  handleSubmit = (e) => {
-    e.preventDefault();
-    let dst = '/api/users/'.concat(this.props.match.params.id).concat('/');
-
-    let stateCopy = Object.assign({}, this.state);
-
-    //stateCopy.is_admin = this.state.is_admin
-    this.postPermissions();
-    //console.log(JSON.stringify(stateCopy, null, 2))
-    // choke
-    // var self = this;
-    // axios.patch(dst, stateCopy)
-    //   .then(function (response) {
-    //     alert('Edit was successful');
-    //     self.setState({
-    //       redirect: true
-    //     })
-    //   })
-    //   .catch(function (error) {
-    //     alert('Edit was not successful.\n' + JSON.stringify(error.response.data, null, 2));
-    //   });
-  }
-
 
   handleAdminChange = (event) => {
     if (event.target.value === 'true') {
@@ -227,7 +254,6 @@ export class EditUserForm extends Component {
                   {
                     !this.state.is_admin ? (
                       <div>
-                        <Paper>
                           <Grid container spacing={3}>
                             <Grid item alignContent='center' xs={4}>
                               <FormLabel component="legend">
@@ -260,11 +286,12 @@ export class EditUserForm extends Component {
                                 selected={this.state.selectedDatacenterOption}
                                 onChange={this.handleDatacenterChange}
                                 icons={{
-                                  moveLeft: <ChevronLeftIcon/>,
+
+                                  moveLeft: <ChevronLeftIcon />,
                                   moveAllLeft: [
                                     <FirstPageIcon />
                                   ],
-                                  moveRight: <ChevronRightIcon/>,
+                                  moveRight: <ChevronRightIcon />,
                                   moveAllRight: [
                                     <LastPageIcon />
                                   ],
@@ -325,7 +352,6 @@ export class EditUserForm extends Component {
                             <Grid item xs={4}>
                             </Grid>
                           </Grid>
-                        </Paper>
                       </div>
                     )
                       : <div></div>

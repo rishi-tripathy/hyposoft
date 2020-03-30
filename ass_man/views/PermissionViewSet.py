@@ -19,7 +19,7 @@ def user_permissions(request):
         curr_user.permission_set.get(name='model')
         permissions['model_permission'] = 'true'
     except Permission.DoesNotExist:
-        user_permissions['model_permission'] = 'false'
+        permissions['model_permission'] = 'false'
 
     permissions['asset_permission'] = []
     for p in curr_user.permission_set.filter(name='asset'):
@@ -42,8 +42,16 @@ def user_permissions(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def all_permissions(request):
+    user_set = []
+    single = False
+    if request.query_params.get('id'):
+        id = request.query_params.get('id')
+        user_set.append(User.objects.all().get(pk=id))
+        single = True
+    else:
+        user_set = User.objects.all()
     users = []
-    for u in User.objects.all():
+    for u in user_set:
         user_permissions = {}
         user_permissions['user_id'] = u.id
         user_permissions['username'] = u.username
@@ -68,7 +76,10 @@ def all_permissions(request):
             user_permissions['log_permission'] = 'false'
         users.append(user_permissions)
 
-    return Response(users)
+    if single:
+        return Response(users[0])
+    else:
+        return Response(users)
 
 @api_view(['POST'])
 @permission_classes([IsAdminUser])

@@ -78,6 +78,23 @@ export class InstanceTableMUI extends Component {
     }
   }
 
+  loadAllAssetIDs = () => {
+    let dst = '/api/assets/all_ids/';
+    axios.get(dst).then(res => {
+      this.setState({
+        allAssetIDs: res.data.ids
+      });
+    })
+      .catch(function (error) {
+        // TODO: handle error
+        alert('Cannot load assets. Re-login.\n' + JSON.stringify(error.response, null, 2));
+      });
+  }
+
+  componentDidMount() {
+    this.loadAllAssetIDs();
+  }
+
   showDecommissionedForm = (id) => {
     if (window.confirm('Are you sure you want to decommission?')) {
       let dst = '/api/assets/'.concat(id).concat('/?decommissioned=true');
@@ -160,6 +177,7 @@ export class InstanceTableMUI extends Component {
       self.setState({
         assetLabelTableGenerationData: res.data
       })
+
     })
       .catch(function (error) {
         alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
@@ -258,8 +276,11 @@ export class InstanceTableMUI extends Component {
     return this.props.assets.map((asset) => {
       //console.log(asset)
       const { id, model, hostname, rack, owner, rack_u, datacenter, network_ports, power_ports, asset_number } = asset //destructuring
-      //console.log(network_ports)
-
+      console.log(datacenter.id)
+      console.log(this.context.asset_permission)
+      console.log(this.context.asset_permission.includes(datacenter.id))
+      console.log(this.context.is_admin)
+      console.log(this.context.username === 'admin')
       return (
         <TableRow
           hover
@@ -293,36 +314,52 @@ export class InstanceTableMUI extends Component {
                 </Tooltip>
               </Link>
             </TableCell>
-            {this.context.is_admin ? (
-              <TableCell align="right">
-                <Link to={'/assets/' + id + '/edit'}>
-                  <Tooltip title='Edit'>
-                    <IconButton size="sm">
-                      <EditIcon />
-                    </IconButton>
-                  </Tooltip>
-                </Link>
-              </TableCell>) : <div></div>
+
+            {
+              (
+                this.context.is_admin
+                || this.context.username === 'admin'
+                || this.context.asset_permission.includes(datacenter.id)
+              ) ? (
+                  <TableCell align="right">
+                    <Link to={'/assets/' + id + '/edit'}>
+                      <Tooltip title='Edit'>
+                        <IconButton size="sm">
+                          <EditIcon />
+                        </IconButton>
+                      </Tooltip>
+                    </Link>
+                  </TableCell>) : <div></div>
             }
-            {this.context.is_admin ? (
-              < TableCell align="right">
-                < Tooltip title='Decommission'>
-                  <IconButton size="sm" onClick={() => this.showDecommissionedForm(id)}>
-                    <BlockIcon />
-                  </IconButton>
-                </Tooltip>
-              </TableCell>
-            ) : <div></div>
+            {
+              (
+                this.context.is_admin
+                || this.context.username === 'admin'
+                || this.context.asset_permission.includes(datacenter.id)
+              ) ? (
+                  < TableCell align="right">
+                    < Tooltip title='Decommission'>
+                      <IconButton size="sm" onClick={() => this.showDecommissionedForm(id)}>
+                        <BlockIcon />
+                      </IconButton>
+                    </Tooltip>
+                  </TableCell>
+                ) : <div></div>
             }
-            {this.context.is_admin ? (
-              < TableCell align="right">
-                < Tooltip title='Delete'>
-                  <IconButton size="sm" onClick={() => this.showDeleteForm(id)}>
-                    <DeleteIcon />
-                  </IconButton>
-                </Tooltip>
-              </TableCell>
-            ) : <div></div>
+            {
+              (
+                this.context.is_admin
+                || this.context.username === 'admin'
+                || this.context.asset_permission.includes(datacenter.id)
+              ) ? (
+                  < TableCell align="right">
+                    < Tooltip title='Delete'>
+                      <IconButton size="sm" onClick={() => this.showDeleteForm(id)}>
+                        <DeleteIcon />
+                      </IconButton>
+                    </Tooltip>
+                  </TableCell>
+                ) : <div></div>
             }
 
           </div>
