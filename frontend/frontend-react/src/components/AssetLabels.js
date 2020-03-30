@@ -24,7 +24,7 @@ import '../stylesheets/PrintingAssetLabels.css'
 // LABEL PARAMETERS
 //height 18 -> fits 20
 
-const labelHeight = 18
+const labelHeight = 25
 const labelWidth = 3.5
 const textAlignPosition = 'left'
 
