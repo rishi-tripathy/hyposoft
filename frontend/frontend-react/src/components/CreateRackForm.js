@@ -57,7 +57,7 @@ export class CreateRackForm extends Component {
     })
       .catch(function (error) {
         // TODO: handle error
-        alert('Could not load model vendors. Re-login.\n' + JSON.stringify(error.response.data.result, null, 2));
+        alert('Could not datacenters.\n' + JSON.stringify(error.response.data.result, null, 2));
       });
   }
 

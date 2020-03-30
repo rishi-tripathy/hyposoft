@@ -1,5 +1,4 @@
 import React, {Component} from 'react'
-import {Autocomplete} from "@material-ui/lab"
 import {Button, TextField, Grid, Input, Container, FormControl} from "@material-ui/core";
 
 export class AuditLogFilters extends Component {

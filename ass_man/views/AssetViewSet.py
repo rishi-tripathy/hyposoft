@@ -56,10 +56,12 @@ class AssetViewSet(viewsets.ModelViewSet):
                 try:
                     user = User.objects.get(username=self.request.user.username)
                     if self.action is not 'create':
-                        datacenter = self.get_object().datacenter
+                        permission_classes = [IsAuthenticated]
+                        return [permission() for permission in permission_classes]
+                        # datacenter = self.get_object().datacenter
                     else:
-                        datacenter = self.request.POST.get('datacenter')
-
+                        datacenter_url = self.request.data.get('datacenter')
+                        datacenter = Datacenter.objects.all().get(pk=datacenter_url[-2])
                     if user.is_superuser or user.permission_set.get(name='asset', datacenter=datacenter):
                         permission_classes = [IsAuthenticated]
                 except:

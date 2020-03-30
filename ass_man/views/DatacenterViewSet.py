@@ -80,3 +80,16 @@ class DatacenterViewSet(viewsets.ModelViewSet):
         matches = self.get_object().rack_set  # Rack.objects.filter(datacenter=self.get_object())
         rs = RackOfAssetSerializer(matches, many=True, context={'request': request})
         return Response(rs.data)
+
+    @action(detail=True, methods=[GET])
+    def asset_options_cp(self, request, *args, **kwargs):
+        this_dc = self.get_object()
+
+        matches = Asset.objects.all().filter(datacenter=this_dc)
+        options = {}
+        for match in matches:
+            options[' '.join([match.hostname, match.model.vendor, match.model.model_number,
+                              match.rack.rack_number, str(match.rack_u)])] = match.pk
+        return Response({
+            'data': options
+        })

@@ -26,6 +26,12 @@ import EditDatacenterForm from './components/EditDatacenterForm'
 import AuditController from './components/AuditController.js'
 import LandingPage from './components/LandingPage'
 import EditUserForm from './components/EditUserForm'
+import ChangePlanController from './components/ChangePlanController'
+import CreateChangePlanForm from './components/CreateChangePlanForm'
+import DetailedChangePlan from './components/DetailedChangePlan'
+import ChangeNewAssetForm from './components/ChangeNewAssetForm'
+import ChangeExistingAssetForm from './components/ChangeExistingAssetForm'
+import EditNewAssetForm from './components/EditNewAssetForm'
 import { Button } from "@material-ui/core"
 import CircularProgress from '@material-ui/core/CircularProgress';
 
@@ -52,6 +58,7 @@ class App extends React.Component {
       datacenterOptions: null,
       user_first: null,
       user_last: null,
+      user_id: null,
       username: null,
       delay: false,
       loading: true,
@@ -123,11 +130,7 @@ class App extends React.Component {
 
     const querystring = require('querystring');
 
-    if (window.location.href.indexOf("token") > -1) { //exists
-      // console.log('back from oit')
-      // console.log(window.location.hash)
-      // console.log(window.location.hash.substring(1));
-      // console.log(querystring.parse(window.location.hash.substring(1)));
+    if(window.location.href.indexOf("token") > -1){ //exists
 
       let client_id = 'hyposoft-ev2';
 
@@ -166,6 +169,7 @@ class App extends React.Component {
           user_last: res.data.last_name,
           username: res.data.current_user,
           is_admin: res.data.is_admin,
+          user_id: res.data.id,
         });
         //  console.log('going to fill DCs')
         this.getDatacenters();
@@ -237,6 +241,7 @@ class App extends React.Component {
     // console.log(this.state.delay)
     if (!this.state.logged_in && !this.state.loading) {
       return (
+        <center>
         <div id="contentContainer">
           <LandingPage />
           <div id='login'>
@@ -245,6 +250,7 @@ class App extends React.Component {
       </Button>
           </div>
         </div>
+        </center>
       );
     }
     else {
@@ -373,6 +379,45 @@ class App extends React.Component {
                       path='/log'
                       render={(props) => <AuditController {...props} />} />
 
+                    <Route
+                      path='/changeplans/'
+                      exact
+                      render={(props) => <ChangePlanController {...props} />} />
+        
+                    <Route
+                      path='/changeplans/create'
+                      exact
+                      render={(props) => <CreateChangePlanForm {...props} />} />
+
+                    <Route
+                      path='/changeplans/:id'
+                      exact
+                      render={(props) => <DetailedChangePlan {...props} />} />
+
+                    <Route 
+                      path='/changeplans/:id/changeNewAsset'
+                      exact
+                      render={(props) => <ChangeNewAssetForm {...props} />} />
+
+                    {/* BELOW EDITING AN EXISTING ASSET NOT YET IN CP */}
+                    <Route 
+                      path='/changeplans/:cpId/changeExistingAsset/:assId'
+                      exact
+                      render={(props) => <ChangeExistingAssetForm {...props} />} />
+
+                    {/* BELOW CHANGING A NEW ASSET THAT HAS BEEN CHANGED IN CP  */}
+                    <Route 
+                      path='/changeplans/:cpId/assets/:cpAssId/edit'
+                      exact
+                      render={(props) => <EditNewAssetForm {...props} />} />
+
+                    {/* DONE: BELOW EDITING AN EXISTING ASSET THAT HAS BEEN CHANGED IN CP */}
+                    <Route 
+                      path='/changeplans/:cpId/changeExistingAsset/:assId/:cpAssId'
+                      exact
+                      render={(props) => <ChangeExistingAssetForm {...props} />} />
+
+                        
                     <Route
                       path='/decommissioned'
                       exact
