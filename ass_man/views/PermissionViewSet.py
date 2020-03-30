@@ -109,14 +109,15 @@ def update_permissions(request):
             except:
                 p = Permission(name='asset', datacenter=dc, user=user)
                 p.save()
-        ids = list(Datacenter.objects.values_list('id', flat=True))
-        for id in list(set(ids).difference(request.data.get('asset'))):
-            try:
-                dc = Datacenter.objects.all().get(pk=id)
-                p = Permission.objects.all().get(name='asset', datacenter=dc, user=user)
-                p.delete()
-            except:
-                pass
+    ids = list(Datacenter.objects.values_list('id', flat=True))
+    for id in list(set(ids).difference(request.data.get('asset'))):
+        print(id)
+        try:
+            dc = Datacenter.objects.all().get(pk=id)
+            p = Permission.objects.all().get(name='asset', datacenter=dc, user=user)
+            p.delete()
+        except:
+            pass
 
     if request.data.get('power'):
         if request.data.get('power') == 'true':
