@@ -87,11 +87,149 @@ class ChangePlanViewSet(viewsets.ModelViewSet):
 
         return
 
+    def validate_helper(self, target):
+        conflicts = []
+        asset_cps = AssetCP.objects.all().filter(cp=target)
+        affected_asset_ids = [a.id_ref for a in asset_cps]
+        npcp_of_this_cp = NPCP.objects.filter(asset_cp_id__cp=target)
+        affected_np_ids = [n.id_ref for n in npcp_of_this_cp]
+        ppcp_of_this_cp = PPCP.objects.filter(asset_cp_id__cp=target)
+        affected_pp_ids = [n.id_ref for n in ppcp_of_this_cp]
+
+
+
+        # Validate asset metadata
+        for a in asset_cps:
+            # Hostname
+            ahn = a.hostname
+            if len(ahn) > 0:
+
+                # check against assets in cp
+                if asset_cps.filter(hostname=ahn).count() > 1: # Conflict
+                    conflicts.append('Change Plan Asset {}'.format(a.id) + ': Hostname conflict with another asset in this change plan')
+
+                # check against assets not in CP
+                unaffected_matches = Asset.objects.all().exclude(pk=a.id_ref).filter(hostname=ahn)
+                if unaffected_matches.exists():
+                    if unaffected_matches.first().id not in affected_asset_ids:
+                        conflicts.append('Change Plan Asset {}'.format(a.id) +
+                                         ': Hostname conflict with asset {} in live data at location {} {} {}'
+                                         .format(unaffected_matches.first().hostname,
+                                                 unaffected_matches.first().datacenter.name,
+                                                 unaffected_matches.first().rack.rack_number,
+                                                 unaffected_matches.first().rack_u))
+
+
+            # Location
+
+            this_rack = a.rack
+            this_u = a.rack_u
+            this_height = a.model.height
+            this_lb = this_u
+            this_ub = this_lb + this_height
+
+            # check against things in same CP on same rack
+            cp_rackmates = asset_cps.filter(rack=this_rack).exclude(pk=a.id)
+            for mate in cp_rackmates:
+                for i in range(mate.rack_u, mate.rack_u+mate.model.height-1):
+                    if i in range(this_lb, this_ub):
+                        conflicts.append('Change Plan Asset {}'.format(a.id) + ': Location conflict with change plan asset {}, name {} in this change plan at Rack {} U {}'.format(
+                            mate.id, mate.hostname, this_rack.rack_number, i))
+
+            # check against things in live db that are not in the cp
+            live_rackmates = Asset.objects.filter(rack=this_rack)
+            for mate in live_rackmates:
+                if mate.id in affected_asset_ids:
+                    continue
+                for i in range(mate.rack_u, mate.rack_u+mate.model.height-1):
+                    if i in range(this_lb, this_ub):
+                        conflicts.append('Change Plan Asset {}'.format(a.id)  + ': Location conflict with asset {}, name {} in live data at Rack {} U {}'.format(
+                            mate.id, mate.hostname, this_rack.rack_number, i))
+
+
+            this_np_cps = NPCP.objects.all().filter(asset_cp_id=a)
+            for n in this_np_cps: #Validate each NP in the CP
+
+                # name may not change
+
+                # Validate Mac
+                if len(n.mac)>1 and not re.match(
+                    '^([0-9a-f]{2})[-:_]?([0-9a-f]{2})[-:_]?([0-9a-f]{2})[-:_]?([0-9a-f]{2})[-:_]?([0-9a-f]{2})[-:_]?([0-9a-f]{2})',
+                    n.mac.lower()):
+                    conflicts.append('Change Plan Network Port {}'.format(n.id) + ' Invalid MAC Address')
+
+                # Validate connection
+                if not n.connection and not n.conn_cp_id:  # not connected to anything
+                    continue
+
+                if n.connection and not n.conn_cp_id: # planning to connect to something real
+                    if n.connection.id in affected_np_ids:
+                        if npcp_of_this_cp.filter(id_ref=n.connection.id).first().connection not in [n, None]:
+                            conflicts.append('Change Plan Network Port {} with name {} on asset {}'.format(n.id, n.name, n.asset_cp_id.hostname) +
+                                             ': conflicting proposed connection {} on asset {} in this change plan is planned on connecting to {} instead'.format(
+                                                 n.connection.name, n.connection.asset.hostname, n.connection.connection.name
+                                             ))
+                        else: #not conflicting with someting else in this change plan
+                            continue
+                    else: # Proposed connection is not affected by this change plan, need to make sure it's clear
+                        if n.connection.connection not in [Network_Port.objects.get(pk=n.id_ref), None]:
+                            conflicts.append('Change Plan Network Port {} with name {} on asset {}'.format(n.id, n.name, n.asset_cp_id.hostname) +
+                                             ': conflicting proposed connection {} on asset {} is already connecting to {} on host {} instead'.format(
+                                                 n.connection.name, n.connection.asset.hostname,
+                                                 n.connection.connection.name, n.connection.connection.asset.hostname
+                                             ))
+                if n.conn_cp_id: # planning to connect to something else in this cp
+                    ncon = n.conn_cp_id
+                    if ncon.conn_cp_id not in [n, None]:
+                        if ncon.connection not in [Network_Port.objects.get(pk=n.id_ref), None]:
+                            conflicts.append('Change Plan Network Port {} with name {} on asset {}'.format(n.id, n.name,
+                                                                                                           n.asset_cp_id.hostname) +
+                                             ': conflicting proposed connection {} on asset {} is already connecting to {} on host {} instead'.format(
+                                                 ncon.name, ncon.asset.hostname,
+                                                 ncon.connection.name, ncon.connection.asset.hostname
+                                             ))
+
+
+                # others may not change
+
+
+        # Validate power connections
+            this_pp_cps = PPCP.objects.all().filter(asset_cp_id=a)
+            for p in this_pp_cps:
+                this_pp_pdu = p.pdu
+                pdu_pp_real = Power_Port.objects.all().filter(pdu=this_pp_pdu).exclude(pk=p.id_ref)
+                pdu_pp_cp = PPCP.objects.all().filter(asset_id__cp=target).filter(pdu=this_pp_pdu).exclude(pk=p.id)
+                for pp in pdu_pp_cp:
+                    if pp.port_number == p.port_number:
+                        conflicts.append('Change plan Power Port on asset {}'.format(p.asset.hostname) + ': Attempting to connect to already occupied port {} on PDU {}- occupied by power port on host {}'
+                                         .format(p.port_number, p.pdu, pp.asset.hostname))
+                for pp in pdu_pp_real:
+                    if pp.port_number == p.port_number:
+                        conflicts.append('Change plan Power Port on asset {}'.format(p.asset.hostname) + ': Attempting to connect to already occupied port {} on PDU {}- occupied by power port on host {}'
+                                         .format(p.port_number, p.pdu, pp.asset.hostname))
+
+            return conflicts
+
+
+    @action(detail=True, methods=['GET'])
+    def validate(self, request, *args, **kwargs):
+        conflicts = self.validate_helper(self.get_object())
+        if len(conflicts) == 0:
+            return Response(status.HTTP_200_OK)
+        else:
+            return Response({
+                'Conflicts': conflicts
+            }, status.HTTP_400_BAD_REQUEST)
+
     @action(detail=True, methods=['GET'])
     def execute(self, request, *args, **kwargs):
         # Get the change plan we're working with
         target = self.get_object()
-        # Validate here
+        conflicts = self.validate_helper(self.get_object())
+        if len(conflicts) > 0:
+            return Response({
+                'Cannot execute due to conflicts': conflicts
+            }, status.HTTP_400_BAD_REQUEST)
         assets_cp = AssetCP.objects.all().filter(cp=target)
         for a in assets_cp:
             # a = AssetCP() # REMOVE THIS LINE AFTER CODING
@@ -134,10 +272,23 @@ class ChangePlanViewSet(viewsets.ModelViewSet):
                     # mac may change
                     n_ref.mac = n.mac
                     # connection may change
-                    if n.connection:
+                    if n.conn_cp_id: # connecting to a CP np
+                        if n.conn_cp_id.id_ref:
+                            n_ref_conn = Network_Port.objects.get(id=n.conn_cp_id.id_ref)
+                            n_ref.connection = n_ref_conn
+                            n_ref_conn.connection = n_ref
+                            n_ref.save()
+                            n_ref_conn.save()
+                            continue
+                        else:
+                            n.conn_cp_id.connection = n_ref # make it point to you so when it gets processed link is made
+                            n.conn_cp_ip.save()
+
+                    if n.connection and not n.conn_cp_id: # Connecting to a real CP NP
                         n_ref.connection = n.connection # This assumes that the CPNP n is planned to be connected to a preexisting NP
                         n.connection.connection = n_ref
                         n.connection.save()
+                        n_ref.save()
 
                     n_ref.save()
 
@@ -151,16 +302,36 @@ class ChangePlanViewSet(viewsets.ModelViewSet):
                     n_new = Network_Port(name=n.name, mac=n.mac, connection=n.connection,
                                          asset=Asset.objects.get(AssetCP.objects.get(id=n.asset_cp_id).id_ref)) # This assumes that the CPNP n is planned to be connected to a preexisting NP
 
-                    if n.connection:
+                    n.id_ref = n_new.pk
+                    n.save()
+
+                    if n.connection and not n.conn_cp_id: # connecting to preexisting thing
                         n.connection.connection = n_new
                         n.connection.save()
+
+                    if n.conn_cp_id: # connecting to a CP np
+                        if n.conn_cp_id.id_ref:
+                            n_ref_conn = Network_Port.objects.get(id=n.conn_cp_id.id_ref)
+                            n_new.connection = n_ref_conn
+                            n_ref_conn.connection = n_new
+                            n_new.save()
+                            n_ref_conn.save()
+                            continue
+                        else:
+                            n.conn_cp_id.connection = n_new # make it point to you so when it gets processed link is made
+                            n.conn_cp_id.save()
+
 
                     n_new.save()
 
             # Handle Power Ports for this CP Asset
             for p in PPCP.objects.all().filter(asset_cp_id=a):
                 if p.id_ref: # if referencing existing pp
-                    pass
+                    p_ref = Power_Port.objects.get(id=p.id_ref)
+                    p_ref.pdu = p.pdu
+                    p_ref.port_number = p.port_number
+                    # asset may not change
+                    p_ref.save()
 
                 else: # creating new PP
                     p_new = Power_Port(name="", pdu=p.pdu, port_number=p.port_number,
