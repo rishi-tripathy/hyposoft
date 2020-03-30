@@ -78,7 +78,7 @@ export class ChangeExistingAssetForm extends Component {
           this.getConnectedAssetsLV();
           this.loadMACAddresses();
           this.loadConnectedNPs();
-        }, delay);
+        }, 100);
 
         setTimeout(() => {
           this.loadNetworkPortInfoForCurrentlySelectedModel();
@@ -254,6 +254,7 @@ export class ChangeExistingAssetForm extends Component {
                 selectedDatacenter: res.data.datacenter,
                 selectedrackOption: res.data.rack,
               });
+            this.loadRacks();
               console.log(this.state.assetChanged)
             })
             .catch(function (error) {
@@ -281,6 +282,7 @@ export class ChangeExistingAssetForm extends Component {
               selectedDatacenter: res.data.datacenter,
               selectedrackOption: res.data.rack,
             });
+            this.loadRacks();
             console.log(this.state.assetChanged)
           })
             .catch(function (error) {
@@ -292,6 +294,7 @@ export class ChangeExistingAssetForm extends Component {
 
       loadRacks = () => {
         // RACK
+        console.log('LOADING RACKS NOW')
         console.log(this.state.selectedDatacenterOption) 
         const dst = '/api/datacenters/' + this.state.selectedDatacenterOption.id + '/racks/?show_all=true';
         console.log(dst)

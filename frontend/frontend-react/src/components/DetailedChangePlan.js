@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import axios from 'axios'
 import {
-  Typography, Tooltip, Dialog, DialogTitle, DialogContent, Container, Grid, Button, TextField, IconButton
+  Typography, Tooltip, Dialog, DialogTitle, DialogContent, Container, Grid, Button, TextField, IconButton, CircularProgress
 } from "@material-ui/core";
 import EditIcon from '@material-ui/icons/Edit';
 import { Link, Redirect } from 'react-router-dom'
@@ -21,7 +21,7 @@ export class DetailedChangePlan extends Component {
     // keep this default here so InstanceCard doesn't freak out
     this.state = {
       id: null,
-      owner: null, //CHANGE LATER WHEN WHO_AM_I UPDATEs
+      owner: null,
       name: null,
       changedName: null,
       datacenter: null,
@@ -36,6 +36,8 @@ export class DetailedChangePlan extends Component {
       showEditModal: false,
       redirect: false,
       selectedAsset: null,
+      spinnerSpinning: false,
+      exSpinnerSpinning: false,
     };
     this.open = this.open.bind(this);
     this.close = this.close.bind(this);
@@ -179,6 +181,48 @@ export class DetailedChangePlan extends Component {
     return obj;
   }
 
+  validateCP = () => {
+    let dst='/api/cp/'.concat(this.props.match.params.id).concat('/validate/');
+    this.setState({
+      spinnerSpinning: true,
+    });
+
+    axios.get(dst).then(res => {
+      this.setState({
+        spinnerSpinning: false,
+      })
+      alert('Validation Successful');
+    })
+    .catch(function (error) {
+      console.log(error)
+      this.setState({
+        spinnerSpinning: false,
+      })
+      alert('Conflicts found:\n'+ JSON.stringify(error.response.data));
+    })
+  }
+
+  executeCP = () => {
+    let dst='/api/cp/'.concat(this.props.match.params.id).concat('/execute/');
+    this.setState({
+      exSpinnerSpinning: true,
+    });
+
+    axios.get(dst).then(res => {
+      this.setState({
+        exSpinnerSpinning: false,
+      })
+      alert('Validation Successful');
+    })
+    .catch(function (error) {
+      console.log(error)
+      this.setState({
+        exSpinnerSpinning: false,
+      })
+      alert('Conflicts found:\n'+ JSON.stringify(error.response.data));
+    })
+  }
+
   render() {
     console.log(this.state)
 
@@ -318,6 +362,16 @@ export class DetailedChangePlan extends Component {
               <Button variant="contained" onClick={this.validateCP}>
                 Validate
               </Button>
+              {this.state.spinnerSpinning && 
+              <CircularProgress />}
+            </Grid>
+            <Grid item justify="flex-start" alignContent='center' xs={3}>
+              <Button variant="contained" onClick={this.executeCP}>
+                Validate + Execute
+              </Button>
+              {this.state.exSpinnerSpinning && 
+                <CircularProgress size={30}/>
+              }
             </Grid>
             <Grid item alignContent='center' xs={12} />
             <Grid item alignContent='center' xs={12} />

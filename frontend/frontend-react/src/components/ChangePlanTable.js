@@ -12,7 +12,7 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import ModelFilters from './ModelFilters';
 import '../stylesheets/TableView.css'
 import axios, {post} from 'axios'
-import {Link} from 'react-router-dom'
+import {Link, Redirect} from 'react-router-dom'
 import DatacenterContext from './DatacenterContext'
 
 
@@ -27,7 +27,8 @@ export class ChangePlanTable extends Component {
       dense: false,
       sortBy: 'vendor',
       sortType: 'asc',
-      sortingStates: ['asc', 'desc']
+      sortingStates: ['asc', 'desc'],
+      redirect: false,
     }
   }
 
@@ -39,16 +40,14 @@ export class ChangePlanTable extends Component {
       axios.delete(dst)
         .then(function (response) {
           alert('Delete was successful');
+          this.setState({
+            redirect: true,
+          })
         })
         .catch(function (error) {
           alert('Delete was not successful.\n' + JSON.stringify(error.response.data, null, 2));
         });
     }
-    this.showRerender();
-  }
-
-  showRerender = () => {
-    this.props.sendRerender(true);
   }
 
   renderTableToolbar = () => {
@@ -139,6 +138,7 @@ export class ChangePlanTable extends Component {
   render() {
     return (
       <div>
+        {this.state.redirect && <Redirect to={{ pathname: '/changeplans' }} />}
         <Paper>
           {this.renderTableToolbar()}
           <TableContainer>
