@@ -58,12 +58,13 @@ class UserViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=[POST])
     def update_super_status(self, request, *args, **kwargs):
         user = self.get_object()
-        print(request.data)
         if request.data.get('is_superuser'):
             user.is_superuser = True
+            user.is_staff = True
             user.save()
         elif not request.data.get('is_superuser'):
             user.is_superuser = False
+            user.is_staff = False
             user.save()
         return Response('sup big mike')
 

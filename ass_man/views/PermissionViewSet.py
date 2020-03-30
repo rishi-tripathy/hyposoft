@@ -84,43 +84,39 @@ def all_permissions(request):
 @api_view(['POST'])
 @permission_classes([IsAdminUser])
 def update_permissions(request):
-    print('here we go')
     try:
         user = User.objects.all().get(username=request.data.get('username'))
-        print(user.username)
     except:
-        print('user not found')
-        print(request.data.get('username'))
         return Response('User not found.')
 
     if request.data.get('model') and request.data.get('model') == 'true':
-        print('model is true')
         try:
             p = Permission.objects.all().get(name='model',user=user)
-            print('found exisiting permission')
         except:
             p = Permission(name='model', user=user)
             p.save()
-            print('created new permission')
     elif request.data.get('model') and request.data.get('model') == 'false':
-        print('model is false')
         try:
             p = Permission.objects.all().get(name='model',user=user)
             p.delete()
-            print('permission deleted')
         except:
-            print('none found')
             pass
     if request.data.get('asset'):
         for dc_id in request.data.get('asset'):
-            print(dc_id)
             dc = Datacenter.objects.all().get(pk=dc_id)
             try:
                 p = Permission.objects.all().get(name='asset', datacenter=dc, user=user)
-                print('exisiting permission')
             except:
                 p = Permission(name='asset', datacenter=dc, user=user)
                 p.save()
+        ids = list(Datacenter.objects.values_list('id', flat=True))
+        for id in list(set(ids).difference(request.data.get('asset'))):
+            try:
+                dc = Datacenter.objects.all().get(pk=id)
+                p = Permission.objects.all().get(name='asset', datacenter=dc, user=user)
+                p.delete()
+            except:
+                pass
 
     if request.data.get('power'):
         if request.data.get('power') == 'true':
