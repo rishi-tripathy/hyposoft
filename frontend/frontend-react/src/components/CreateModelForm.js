@@ -102,19 +102,19 @@ export class CreateModelForm extends Component {
 
 
     //THE API CALL TO POST
-    var self = this;
-    axios.post('/api/models/', stateToSend)
-      .then(function (response) {
-        alert('Created successfully');
-        // window.location = '/models'
-        self.setState({
-          redirect: true,
-        });
+    // var self = this;
+    // axios.post('/api/models/', stateToSend)
+    //   .then(function (response) {
+    //     alert('Created successfully');
+    //     // window.location = '/models'
+    //     self.setState({
+    //       redirect: true,
+    //     });
 
-      })
-      .catch(function (error) {
-        alert('Creation was not successful.\n' + JSON.stringify(error.response.data, null, 2));
-      });
+    //   })
+    //   .catch(function (error) {
+    //     alert('Creation was not successful.\n' + JSON.stringify(error.response.data, null, 2));
+    //   });
   };
 
   handleChangeVendor = (event, selectedVendorOption) => {
@@ -223,13 +223,14 @@ export class CreateModelForm extends Component {
                   }} />
                 </Grid>
                 <Grid item xs={6}>
-                  <TextField label='Height' type="number" fullWidth onChange={e => {
-                    let modelCopy = JSON.parse(JSON.stringify(this.state.model))
-                    modelCopy.height = e.target.value
-                    this.setState({
-                      model: modelCopy
-                    })
-                  }} />{' '}
+                  <TextField label='Height' type="number" fullWidth disabled={this.state.modelType === 'blade'}
+                    onChange={e => {
+                      let modelCopy = JSON.parse(JSON.stringify(this.state.model))
+                      modelCopy.height = e.target.value
+                      this.setState({
+                        model: modelCopy
+                      })
+                    }} />{' '}
                 </Grid>
                 <Grid item xs={6}>
                   <FormControl fullWidth>
@@ -245,22 +246,24 @@ export class CreateModelForm extends Component {
                   </FormControl>
                 </Grid>
                 <Grid item xs={4}>
-                  <TextField label='Network Ports' type="number" fullWidth onChange={e => {
-                    this.handleChangeNP(e);
-                  }} />{' '}
+                  <TextField label='Network Ports' type="number" fullWidth disabled={this.state.modelType === 'blade'}
+                    onChange={e => {
+                      this.handleChangeNP(e);
+                    }} />{' '}
 
                   <List style={{ maxHeight: 200, overflow: 'auto' }}>
                     {this.openNetworkPortFields()}
                   </List>
                 </Grid>
                 <Grid item xs={4}>
-                  <TextField label='Power Ports' type="number" fullWidth onChange={e => {
-                    let modelCopy = JSON.parse(JSON.stringify(this.state.model))
-                    modelCopy.power_ports = e.target.value
-                    this.setState({
-                      model: modelCopy
-                    })
-                  }} />{' '}
+                  <TextField label='Power Ports' type="number" fullWidth disabled={this.state.modelType === 'blade'}
+                    onChange={e => {
+                      let modelCopy = JSON.parse(JSON.stringify(this.state.model))
+                      modelCopy.power_ports = e.target.value
+                      this.setState({
+                        model: modelCopy
+                      })
+                    }} />{' '}
                 </Grid>
 
                 <Grid item xs={4}>
