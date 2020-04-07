@@ -93,28 +93,34 @@ export class CreateModelForm extends Component {
     stateCopy.vendor = this.state.selectedVendorOption ? this.state.selectedVendorOption : null;
     stateCopy.network_ports = this.fillInEmptyDefaultNPNames();
     stateCopy.network_ports_num = this.state.networkPorts;
+    stateCopy.mount_type = this.state.modelType;
     console.log(stateCopy.network_ports_num)
     let stateToSend = this.removeEmpty(stateCopy);
+
+    if (stateCopy.mount_type === 'blade') {
+      stateCopy.network_ports = []
+      delete stateCopy.network_ports_num
+      delete stateCopy.power_ports
+      delete stateCopy.height
+    }
+
     console.log(stateToSend)
-    // make sure there are no empty default values
-    //console.log(this.fillInEmptyDefaultNPNames());
 
 
 
     //THE API CALL TO POST
-    // var self = this;
-    // axios.post('/api/models/', stateToSend)
-    //   .then(function (response) {
-    //     alert('Created successfully');
-    //     // window.location = '/models'
-    //     self.setState({
-    //       redirect: true,
-    //     });
-
-    //   })
-    //   .catch(function (error) {
-    //     alert('Creation was not successful.\n' + JSON.stringify(error.response.data, null, 2));
-    //   });
+    var self = this;
+    axios.post('/api/models/', stateToSend)
+      .then(function (response) {
+        alert('Created successfully');
+        // window.location = '/models'
+        self.setState({
+          redirect: true,
+        });
+      })
+      .catch(function (error) {
+        alert('Creation was not successful.\n' + JSON.stringify(error.response.data, null, 2));
+      });
   };
 
   handleChangeVendor = (event, selectedVendorOption) => {
@@ -152,6 +158,7 @@ export class CreateModelForm extends Component {
             // set its value
             //value={this.state.networkPortNames[i]}
             //placeholder={num}
+            disabled={this.state.modelType === 'blade'}
             defaultValue={num}
             fullWidth onChange={e => {
               //let tmp = this.state.model.network_ports.slice(); //creates the clone of the state
@@ -166,7 +173,9 @@ export class CreateModelForm extends Component {
   }
 
   handleModelTypeChange = (event) => {
-    this.setState({ modelType: event.target.value });
+    this.setState({ 
+      modelType: event.target.value,
+    });
   }
 
   render() {
