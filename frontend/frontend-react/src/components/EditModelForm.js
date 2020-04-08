@@ -4,7 +4,8 @@ import axios from 'axios'
 import {
   Button, Container, TextField,
   Grid, Input, FormControl, List,
-  ListItem, Typography, Tooltip
+  ListItem, Typography, Tooltip,
+  FormLabel, Radio, RadioGroup, FormControlLabel,
 } from "@material-ui/core";
 import { Autocomplete } from "@material-ui/lab";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
@@ -30,6 +31,7 @@ export class EditModelForm extends Component {
         'memory': null,
         'storage': null,
         'comment': null,
+        'mount_type': null,
       },
       vendorOptions: [],
       selectedVendorOption: null,
@@ -54,6 +56,7 @@ export class EditModelForm extends Component {
       modelCopy.memory = res.data.memory;
       modelCopy.storage = res.data.storage;
       modelCopy.comment = res.data.comment;
+      modelCopy.mount_type = res.data.mount_type;
       this.setState({
         model: modelCopy,
       })
@@ -108,6 +111,14 @@ export class EditModelForm extends Component {
     let stateCopy = Object.assign({}, this.state.model);
     stateCopy.network_ports = this.fillInEmptyDefaultNPNames()
     let stateToSend = this.removeEmpty(stateCopy);
+
+    if (stateCopy.mount_type === 'blade') {
+      stateCopy.network_ports = []
+      stateCopy.network_ports_num = "0"
+      stateCopy.power_ports = "0"
+      stateCopy.height = "1"
+    }
+
     console.log(stateToSend)
     var self = this;
 
@@ -159,6 +170,8 @@ export class EditModelForm extends Component {
             type="text"
             // set its value
             value={this.state.model.network_ports[i]}
+            disabled={this.state.model.mount_type === 'blade'}
+
             //placeholder={num}
             defaultValue={num}
             fullWidth onChange={e => {
@@ -176,7 +189,7 @@ export class EditModelForm extends Component {
   render() {
     return (
       <div>
-        {this.state.redirect && <Redirect to={{pathname: '/models'}}/>}
+        {this.state.redirect && <Redirect to={{ pathname: '/models' }} />}
         <Container maxwidth="xl">
           <Grid container className='themed-container' spacing={2}>
             <Grid item justify="flex-start" alignContent='center' xs={12} />
@@ -186,6 +199,29 @@ export class EditModelForm extends Component {
                   <Typography variant="h3" gutterBottom>
                     Edit Model
                   </Typography>
+                </Grid>
+                <Grid item xs={12}>
+                  <FormControl component="fieldset">
+                    <FormLabel component="legend">
+                      <Typography variant="h6" gutterBottom>
+                        Model Type
+                      </Typography>
+                    </FormLabel>
+                    <RadioGroup aria-label="permissions" name="permissions" value={this.state.model.mount_type}
+                      //onChange={this.handleModelTypeChange} 
+                      onChange={e => {
+                        let modelCopy = JSON.parse(JSON.stringify(this.state.model))
+                        modelCopy.mount_type = e.target.value
+                        this.setState({
+                          model: modelCopy
+                        })
+                      }}
+                    >
+                      <FormControlLabel value='normal' control={<Radio />} label="Normal Rack Mount" />
+                      <FormControlLabel value='chassis' control={<Radio />} label="Blade Chassis" />
+                      <FormControlLabel value='blade' control={<Radio />} label="Blade Server" />
+                    </RadioGroup>
+                  </FormControl>
                 </Grid>
                 <Grid item xs={6}>
                   <Autocomplete
@@ -221,6 +257,7 @@ export class EditModelForm extends Component {
                 <Grid item xs={6}>
                   <TextField label='Height' type="number"
                     value={this.state.model.height}
+                    disabled={this.state.model.mount_type === 'blade'}
                     InputLabelProps={{ shrink: true }}
                     fullWidth onChange={e => {
                       let modelCopy = JSON.parse(JSON.stringify(this.state.model))
@@ -244,9 +281,13 @@ export class EditModelForm extends Component {
                   </FormControl>
                 </Grid>
                 <Grid item xs={4}>
-                  <TextField label='Network Ports' type="number" fullWidth value={this.state.model.network_ports_num} onChange={e => {
-                    this.handleChangeNP(e);
-                  }} />{' '}
+                  <TextField label='Network Ports' type="number" fullWidth
+                    disabled={this.state.model.mount_type === 'blade'}
+                    InputLabelProps={{ shrink: true }}
+                    value={this.state.model.network_ports_num}
+                    onChange={e => {
+                      this.handleChangeNP(e);
+                    }} />{' '}
 
                   <List style={{ maxHeight: 200, overflow: 'auto' }}>
                     {this.openNetworkPortFields()}
@@ -254,8 +295,9 @@ export class EditModelForm extends Component {
                 </Grid>
                 <Grid item xs={4}>
                   <TextField label='Power Ports' type="number" fullWidth
-                    value={this.state.model.power_ports}
+                    disabled={this.state.model.mount_type === 'blade'}
                     InputLabelProps={{ shrink: true }}
+                    value={this.state.model.power_ports}
                     onChange={e => {
                       let modelCopy = JSON.parse(JSON.stringify(this.state.model))
                       modelCopy.power_ports = e.target.value
