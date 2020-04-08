@@ -62,7 +62,19 @@ export class CreateInstanceForm extends Component {
       ppConnections: [],
 
       redirect: false,
+
+      currentMountType: '',
     }
+  }
+
+  loadCurrentModelMountType = () => {
+    const dst = '/api/models/' + this.state.selectedModelOption.id + '/';
+    axios.get(dst).then(res => {
+      this.setState({ currentMountType: res.data.mount_type });
+    })
+      .catch(function (error) {
+        alert('Could not load model. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+      });
   }
 
   loadAssetNumber = () => {
@@ -217,6 +229,7 @@ export class CreateInstanceForm extends Component {
       if (this.state.selectedModelOption) {
         this.loadNetworkPortInfoForCurrentlySelectedModel();
         this.loadNumberOfPowerPortsForModel();
+        this.loadCurrentModelMountType();
       }
       else {
         this.setState({ networkPortNamesForCurrentAsset: [], numberOfNetworkPortsForCurrentAsset: null });
@@ -363,6 +376,7 @@ export class CreateInstanceForm extends Component {
 
 
   render() {
+    console.log(this.state.currentMountType)
     return (
       <div>
         {this.state.redirect && <Redirect to={{ pathname: '/assets' }} />}
@@ -417,17 +431,17 @@ export class CreateInstanceForm extends Component {
                   />
                 </Grid>
                 <Grid item xs={6}>
-                  <TextField label='Asset Number' 
-                    type="text" 
-                    fullWidth 
+                  <TextField label='Asset Number'
+                    type="text"
+                    fullWidth
                     InputLabelProps={{ shrink: true }}
                     value={this.state.asset.asset_number} onChange={e => {
-                    let instanceCopy = JSON.parse(JSON.stringify(this.state.asset))
-                    instanceCopy.asset_number = e.target.value
-                    this.setState({
-                      asset: instanceCopy
-                    })
-                  }} />
+                      let instanceCopy = JSON.parse(JSON.stringify(this.state.asset))
+                      instanceCopy.asset_number = e.target.value
+                      this.setState({
+                        asset: instanceCopy
+                      })
+                    }} />
                 </Grid>
 
 
@@ -442,7 +456,7 @@ export class CreateInstanceForm extends Component {
                     getOptionLabel={option => option.label}
                     onChange={this.handleChangeRack}
                     value={this.state.selectedRackOption}
-                    disabled={this.state.selectedDatacenterOption === null}
+                    disabled={this.state.selectedDatacenterOption === null || this.state.currentMountType === 'blade'}
                     renderInput={params => (
                       <TextField {...params} label="Rack" fullWidth />
                     )}
@@ -452,6 +466,38 @@ export class CreateInstanceForm extends Component {
                   < TextField label="Rack U"
                     fullWidth
                     type="number"
+                    disabled={this.state.currentMountType === 'blade'}
+                    onChange={e => {
+                      let instanceCopy = JSON.parse(JSON.stringify(this.state.asset))
+                      instanceCopy.rack_u = e.target.value
+                      this.setState({
+                        asset: instanceCopy
+                      })
+                    }} />
+                </Grid>
+
+                <Grid item xs={6}>
+                  <Autocomplete
+                    autoComplete
+                    autoHighlight
+                    autoSelect
+                    id="instance-create-location-select"
+                    options={this.state.rackOptions}
+                    getOptionLabel={option => option.label}
+                    onChange={this.handleChangeRack}
+                    value={this.state.selectedRackOption}
+                    disabled={this.state.selectedDatacenterOption === null || this.state.currentMountType != 'blade'}
+                    renderInput={params => (
+                      <TextField {...params} label="Location" fullWidth />
+                    )}
+                  />
+                </Grid>
+
+                <Grid item xs={6}>
+                  < TextField label="Chassis Slot"
+                    fullWidth
+                    type="number"
+                    disabled={this.state.currentMountType != 'blade'}
                     onChange={e => {
                       let instanceCopy = JSON.parse(JSON.stringify(this.state.asset))
                       instanceCopy.rack_u = e.target.value
