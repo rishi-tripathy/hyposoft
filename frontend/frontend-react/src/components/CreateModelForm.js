@@ -31,6 +31,7 @@ export class CreateModelForm extends Component {
         'memory': null,
         'storage': null,
         'comment': null,
+        'mount_type': null,
       },
       vendorOptions: [],
       selectedVendorOption: null,
@@ -101,7 +102,7 @@ export class CreateModelForm extends Component {
       stateCopy.network_ports = []
       delete stateCopy.network_ports_num
       delete stateCopy.power_ports
-      delete stateCopy.height
+      stateCopy.height = "1"
     }
 
     console.log(stateToSend)

@@ -8,6 +8,7 @@ export class ModelCard extends Component {
 
   renderTableHeader() {
     let headCells = [
+      {id: 'mount_type', label: 'Mount Type'},
       {id: 'vendor', label: 'Vendor'},
       {id: 'model_number', label: 'Model Number'},
       {id: 'height', label: 'Height (U)'},
@@ -33,13 +34,14 @@ export class ModelCard extends Component {
   renderTableData() {
     return this.props.model.map((model) => {
       const {id, vendor, model_number, height, display_color} = model //destructuring
-      const {network_ports, power_ports, cpu, memory, storage, comment} = model //more destructuring
+      const {network_ports, power_ports, cpu, memory, storage, comment, mount_type} = model //more destructuring
       return (
         <TableRow
           hover
           tabIndex={-1}
           key={id}
         >
+          <TableCell align="center">{mount_type}</TableCell>
           <TableCell align="center">{vendor}</TableCell>
           <TableCell align="center">{model_number}</TableCell>
           <TableCell align="center">{height}</TableCell>
