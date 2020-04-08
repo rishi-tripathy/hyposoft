@@ -2,8 +2,8 @@ import React, {Component} from 'react'
 import axios from 'axios'
 import {
   Button, Container, TextField,
-  Grid, Input, FormControl, Typography,
-  Tooltip
+  Grid, Input, FormControl, FormControlLabel, RadioGroup, 
+  Radio, Typography, Tooltip
 } from "@material-ui/core";
 import {Redirect, Link} from 'react-router-dom'
 import AddCircleIcon from "@material-ui/icons/AddCircle";
@@ -21,6 +21,7 @@ export class CreateDatacenterForm extends Component {
         'abbreviation': null,
         'name': null,
         redirect: false,
+        isDatacenter: true,
     }
   }
   componentDidMount() {
@@ -33,6 +34,15 @@ export class CreateDatacenterForm extends Component {
   removeEmpty = (obj) => {
     Object.keys(obj).forEach((k) => (!obj[k] && obj[k] !== undefined) && delete obj[k]);
     return obj;
+  };
+
+  handleDatacenterBooleanChange = (event) => {
+    if (event.target.value === 'true') {
+      this.setState({ isDatacenter: true });
+    }
+    else {
+      this.setState({ isDatacenter: false });
+    }
   };
 
   handleSubmit = (e) => {
@@ -64,12 +74,7 @@ export class CreateDatacenterForm extends Component {
       <div>
         {/* {this.state.redirect && <Redirect to = {{pathname: '/datacenters/'}} />} */}
         {this.state.redirect &&<Redirect to = {{pathname: '/datacenters/', state: this.state.redirect }}/>}
-          {/* // <DatacenterContext.Consumer>
-          //     {/* {({ resetDatacenter }) =>
-          //       setTimeout(() => {
-          //         resetDatacenter();
-          //       }, 10)}  */}
-             {/* </DatacenterContext.Consumer>  */}
+
         <Container maxwidth="xl">
           <Grid container className='themed-container' spacing={2}>
             <Grid item alignContent='center' xs={12}/>
@@ -77,11 +82,20 @@ export class CreateDatacenterForm extends Component {
               <Grid container spacing={1}>
                 <Grid item xs={12}>
                   <Typography variant="h3" gutterBottom>
-                    Create Datacenter
+                    Create Datacenter or Offline Storage Site
                   </Typography>
                 </Grid>
+                <Grid item xs={12}>
+                  <FormControl component="fieldset">
+                    <RadioGroup aria-label="permissions" name="datacenter-or-storage" value={this.state.isDatacenter.toString()}
+                      onChange={this.handleDatacenterBooleanChange}>
+                      <FormControlLabel value='true' control={<Radio />} label="Datacenter" />
+                      <FormControlLabel value='false' control={<Radio />} label="Offline Storage Site" />
+                    </RadioGroup>
+                  </FormControl>
+                  </Grid>
                 <Grid item xs={4}>
-                  <TextField label='Datacenter Name' type="text" inputProps = {{ maxLength: 50  }} fullWidth onChange={e => {
+                  <TextField label='Name' type="text" inputProps = {{ maxLength: 50  }} fullWidth onChange={e => {
                     let nameField = e.target.value;
                     this.setState({
                       name: nameField,
@@ -89,7 +103,7 @@ export class CreateDatacenterForm extends Component {
                   }}/>
                 </Grid>
                 <Grid item xs={4}>
-                  <TextField label='Datacenter Abbreviation' type="text"  inputProps = {{ maxLength: 6}} fullWidth onChange={e => {
+                  <TextField label='Abbreviation' type="text"  inputProps = {{ maxLength: 6}} fullWidth onChange={e => {
                     let abbreviationField = e.target.value;
                     this.setState({
                       abbreviation: abbreviationField,
