@@ -52,7 +52,7 @@ export class NavBar extends Component {
 
             <Typography>
               <NavLink style={{ color: 'white' }} activeStyle={{ color: '#FF90AB' }} to='/datacenters'>
-                <Tab label='Datacenters' />
+                <Tab label='Datacenters +             Offline Storage Sites' />
               </NavLink>
             </Typography>
 

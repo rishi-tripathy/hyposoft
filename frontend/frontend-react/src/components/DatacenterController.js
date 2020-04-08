@@ -12,6 +12,7 @@ import {
 import {Link} from 'react-router-dom'
 import DatacenterTable from './DatacenterTable'
 import DatacenterContext from './DatacenterContext';
+import OfflineStorageSiteTable from './OfflineStorageSiteTable';
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
@@ -178,6 +179,13 @@ export class DatacenterController extends Component {
                         sendSortQuery={this.getSortQuery}/>
                         </div>;
 
+
+        let content2 = <div>< OfflineStorageSiteTable
+                        datacenters={this.state.datacenters}
+                        filterQuery={this.getFilterQuery}
+                        sendSortQuery={this.getSortQuery}/>
+                        </div>;
+
         return(
             <div>
                 <Container maxwidth="xl">
@@ -185,7 +193,7 @@ export class DatacenterController extends Component {
                         <Grid item justify="flex-start" alignContent='center' xs={12}/>
                         <Grid item justify="flex-start" alignContent='center' xs={10}>
                             <Typography variant="h3">
-                                Datacenters
+                                Datacenters and Offline Storage Sites
                             </Typography>
                          </Grid>
                     <Grid item justify="flex-end" alignContent="flex-end" xs={2}>
@@ -200,6 +208,9 @@ export class DatacenterController extends Component {
                     <Grid item xs={12}>
                         {content}
                     </Grid>
+                    <Grid item xs={12}>
+                        {content2}
+                    </Grid>                    
                     </Grid>
                 </Container>
             </div>
