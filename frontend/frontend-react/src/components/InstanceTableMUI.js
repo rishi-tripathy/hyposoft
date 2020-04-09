@@ -104,7 +104,7 @@ export class InstanceTableMUI extends Component {
       this.setState({
         loadingDecommission: true
       })
-      let dst = '/api/assets/'.concat(id).concat('/?decommissioned=true');
+      let dst = '/api/all_assets/'.concat(id).concat('/?decommissioned=true');
       let self = this
       axios.delete(dst)
         .then(function (response) {
@@ -125,7 +125,7 @@ export class InstanceTableMUI extends Component {
 
   showDeleteForm = (id) => {
     if (window.confirm('Are you sure you want to delete?')) {
-      let dst = '/api/assets/'.concat(id).concat('/');
+      let dst = '/api/all_assets/'.concat(id).concat('/');
       axios.delete(dst)
         .then(function (response) {
           alert('Delete was successful');
@@ -291,11 +291,11 @@ export class InstanceTableMUI extends Component {
     return this.props.assets.map((asset) => {
       //console.log(asset)
       const { id, model, hostname, rack, owner, rack_u, datacenter, network_ports, power_ports, asset_number } = asset //destructuring
-      console.log(datacenter.id)
-      console.log(this.context.asset_permission)
-      console.log(this.context.asset_permission.includes(datacenter.id))
-      console.log(this.context.is_admin)
-      console.log(this.context.username === 'admin')
+      // console.log(datacenter.id)
+      // console.log(this.context.asset_permission)
+      // console.log(this.context.asset_permission.includes(datacenter.id))
+      // console.log(this.context.is_admin)
+      // console.log(this.context.username === 'admin')
       return (
         <TableRow
           hover
