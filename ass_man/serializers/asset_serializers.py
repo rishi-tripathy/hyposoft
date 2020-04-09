@@ -13,6 +13,11 @@ from ass_man.serializers.power_port_serializers import PowerPortSerializer
 from ass_man.serializers.rack_serializers import RackOfAssetSerializer
 from ass_man.serializers.datacenter_serializers import DatacenterSerializer
 
+class ChassisSerializer(serializers.ModelSerializer):
+    model = ModelAssetSerializer()
+    class Meta:
+        model = Asset
+        fields = ['id', 'hostname', 'model']
 
 class AssetSerializer(serializers.HyperlinkedModelSerializer):
     # hostname = serializers.CharField(validators=[UniqueValidator(queryset=Asset.objects.all())])
