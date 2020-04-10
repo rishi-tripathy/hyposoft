@@ -75,6 +75,10 @@ class DatacenterViewSet(viewsets.ModelViewSet):
         try:
             return super().destroy(request, *args, **kwargs)
         except ProtectedError:
+            if self.get_object().is_offline():
+                return Response({
+                    'Error': 'Cannot delete this offline storage site as it contains assets.'
+                }, status=status.HTTP_400_BAD_REQUEST)
             return Response({
                 'Error': 'Cannot delete this datacenter as it contains racks.'
             }, status=status.HTTP_400_BAD_REQUEST)

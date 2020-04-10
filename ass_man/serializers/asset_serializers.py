@@ -13,7 +13,7 @@ from ass_man.serializers.power_port_serializers import PowerPortSerializer
 from ass_man.serializers.rack_serializers import RackOfAssetSerializer
 from ass_man.serializers.datacenter_serializers import DatacenterSerializer
 
-
+# TODO: Make sure that offline assets can be created (without rack)
 class AssetSerializer(serializers.HyperlinkedModelSerializer):
     # hostname = serializers.CharField(validators=[UniqueValidator(queryset=Asset.objects.all())])
     rack_u = serializers.IntegerField(validators=[MinValueValidator(1)])
