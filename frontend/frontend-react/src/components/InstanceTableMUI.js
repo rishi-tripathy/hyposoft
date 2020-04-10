@@ -104,7 +104,7 @@ export class InstanceTableMUI extends Component {
       this.setState({
         loadingDecommission: true
       })
-      let dst = '/api/all_assets/'.concat(id).concat('/?decommissioned=true');
+      let dst = '/api/assets/'.concat(id).concat('/?decommissioned=true');
       let self = this
       axios.delete(dst)
         .then(function (response) {
@@ -254,6 +254,7 @@ export class InstanceTableMUI extends Component {
     let headCells = [
       { id: 'rack__rack_number', label: 'Rack' },
       { id: 'rack_u', label: 'Rack U' },
+      { id: 'slot_number', label: 'Slot No.' },
       { id: 'model__vendor', label: 'Vendor' },
       { id: 'model__model_number', label: 'Model Number' },
       { id: 'hostname', label: 'Hostname' },
@@ -290,7 +291,19 @@ export class InstanceTableMUI extends Component {
     )
     return this.props.assets.map((asset) => {
       //console.log(asset)
-      const { id, model, hostname, rack, owner, rack_u, datacenter, network_ports, power_ports, asset_number } = asset //destructuring
+
+      let id, model, hostname, rack, owner, rack_u, datacenter, asset_number, location, slot_number
+
+
+      if (asset.bladeserver) {
+        ({ id, model, hostname, rack, owner, location, slot_number, asset_number } = asset.bladeserver)
+      }
+      else {
+        ({ id, model, hostname, rack, owner, rack_u, datacenter, asset_number } = asset.asset)
+      }
+
+
+      //const { id, model, hostname, rack, owner, rack_u, datacenter, asset_number } = asset //destructuring
       // console.log(datacenter.id)
       // console.log(this.context.asset_permission)
       // console.log(this.context.asset_permission.includes(datacenter.id))
@@ -309,8 +322,9 @@ export class InstanceTableMUI extends Component {
               inputProps={{ 'aria-labelledby': id }}
             />
           </TableCell>
-          <TableCell align="center">{rack ? rack.rack_number : null}</TableCell>
+          <TableCell align="center">{rack ? rack.rack_number : ( location ? location.hostname : null) }</TableCell>
           <TableCell align="center">{rack_u}</TableCell>
+          <TableCell align="center">{slot_number}</TableCell>
           <TableCell align="center">{model ? model.vendor : null}</TableCell>
           <TableCell align="center">{model ? model.model_number : null}</TableCell>
           <TableCell align="center">{hostname}</TableCell>

@@ -306,19 +306,37 @@ export class CreateInstanceForm extends Component {
     console.log(JSON.stringify(stateToSend, null, 2))
     //console.log(JSON.stringify(this.state, null, 2))
 
-    //CHOKE THE POST CALL
-    var self = this;
-    axios.post('/api/assets/', stateToSend)
-      .then(function (response) {
-        alert('Created successfully');
-        // window.location = '/assets'
-        self.setState({
-          redirect: true,
+
+    if (stateCopy.mount_type === 'blade') {
+      var self = this;
+      axios.post('/api/blades/', stateToSend)
+        .then(function (response) {
+          alert('Created successfully');
+          // window.location = '/assets'
+          self.setState({
+            redirect: true,
+          })
         })
-      })
-      .catch(function (error) {
-        alert('Creation was not successful.\n' + JSON.stringify(error.response.data, null, 2));
-      });
+        .catch(function (error) {
+          alert('Creation was not successful.\n' + JSON.stringify(error.response.data, null, 2));
+        });
+    }
+    else {
+      var self = this;
+      axios.post('/api/assets/', stateToSend)
+        .then(function (response) {
+          alert('Created successfully');
+          // window.location = '/assets'
+          self.setState({
+            redirect: true,
+          })
+        })
+        .catch(function (error) {
+          alert('Creation was not successful.\n' + JSON.stringify(error.response.data, null, 2));
+        });
+    }
+
+
   }
 
   handleChangeModel = (event, selectedModelOption) => {
