@@ -16,6 +16,7 @@ from rest_framework import viewsets
 from ass_man.serializers.asset_serializers import AssetSerializer, AssetFetchSerializer, AssetShortSerializer, \
     AssetSeedForGraphSerializer
 from ass_man.serializers.model_serializers import UniqueModelsSerializer
+from ass_man.serializers.blade_serializer import BladeServerSerializer
 
 # Auth
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
@@ -256,6 +257,13 @@ class AssetViewSet(viewsets.ModelViewSet):
         return super().destroy(self, request, *args, **kwargs)
 
     # Custom actions below
+    @action(detail=True, methods=[GET])
+    def blades(self, request, *args, **kwargs):
+        asset = self.get_object()
+        blades = asset.bladeserver_set
+        serializer = BladeServerSerializer(blades, many=True, context={'request': request})
+        return Response(serializer.data)
+
     @action(detail=False, methods=[GET])
     def asset_number(self, request, *args, **kwargs):
         try:
