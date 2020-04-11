@@ -254,6 +254,7 @@ export class InstanceTableMUI extends Component {
     let headCells = [
       { id: 'rack__rack_number', label: 'Rack' },
       { id: 'rack_u', label: 'Rack U' },
+      { id: 'location', label: 'Location' },
       { id: 'slot_number', label: 'Slot No.' },
       { id: 'model__vendor', label: 'Vendor' },
       { id: 'model__model_number', label: 'Model Number' },
@@ -322,8 +323,9 @@ export class InstanceTableMUI extends Component {
               inputProps={{ 'aria-labelledby': id }}
             />
           </TableCell>
-          <TableCell align="center">{rack ? rack.rack_number : ( location ? location.hostname : null) }</TableCell>
+          <TableCell align="center">{rack ? rack.rack_number : null}</TableCell>
           <TableCell align="center">{rack_u}</TableCell>
+          <TableCell align="center">{location ? location.hostname : null}</TableCell>
           <TableCell align="center">{slot_number}</TableCell>
           <TableCell align="center">{model ? model.vendor : null}</TableCell>
           <TableCell align="center">{model ? model.model_number : null}</TableCell>
@@ -335,7 +337,12 @@ export class InstanceTableMUI extends Component {
           <TableCell align="center">{asset_number}</TableCell>
           <div>
             <TableCell align="right">
-              <Link to={'/assets/' + id}>
+              <Link to={{
+                pathname: '/assets/' + id,
+                state: {
+                  isBlade: model.mount_type === 'blade'
+                }
+              }}>
                 <Tooltip title='View Details'>
                   <IconButton size="sm">
                     <PageviewIcon />

@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import axios from 'axios'
 import InstanceCard from './InstanceCard';
 import {
-  Typography, Paper, IconButton, 
+  Typography, Paper, IconButton,
   Tooltip, Container, Grid,
   Table, TableRow, TableCell, TableContainer,
   TableBody,
@@ -13,6 +13,7 @@ import AllConnectedAssetsView from './AllConnectedAssetsView'
 import PowerManagement from './PowerManagement'
 import AssetNetworkGraph from './AssetNetworkGraph'
 import DatacenterContext from './DatacenterContext';
+import AllInstalledBladesView from './AllInstalledBladesView';
 
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
@@ -26,21 +27,38 @@ export class DetailedInstance extends Component {
     this.state = {
       asset: {},
       connectedAssets: [],
+      installedBlades: [],
     }
   }
 
   loadInstance = () => {
     if (this.props.match.params.id) {
-      let dst = '/api/assets/'.concat(this.props.match.params.id).concat('/');
-      axios.get(dst).then(res => {
-        this.setState({
-          asset: res.data
-        });
-      })
-        .catch(function (error) {
-          // TODO: handle error
-          alert('Cannot load assets. Re-login.\n' + JSON.stringify(error.response, null, 2));
-        });
+      if (this.props.location.state != null && this.props.location.state.isBlade) {
+        let dst = '/api/blades/'.concat(this.props.match.params.id).concat('/');
+        axios.get(dst).then(res => {
+          this.setState({
+            asset: res.data
+          });
+        })
+          .catch(function (error) {
+            // TODO: handle error
+            alert('Cannot load assets. Re-login.\n' + JSON.stringify(error.response, null, 2));
+          });
+      }
+      else {
+        //FIXME: change to all assets here
+        let dst = '/api/assets/'.concat(this.props.match.params.id).concat('/');
+        axios.get(dst).then(res => {
+          this.setState({
+            asset: res.data
+          });
+        })
+          .catch(function (error) {
+            // TODO: handle error
+            alert('Cannot load assets. Re-login.\n' + JSON.stringify(error.response, null, 2));
+          });
+      }
+
     }
   }
 
@@ -68,15 +86,38 @@ export class DetailedInstance extends Component {
   componentDidUpdate(prevProps, prevState) {
     if (prevProps.match.params.id !== this.props.match.params.id) {
       this.loadInstance();
+      // don't put shit in here; it won't reach
+
       // if (this.state.asset) {
       //   this.getConnectedAssets();
       // }
     }
 
     if (prevState.asset !== this.state.asset) {
-      this.getConnectedAssets();
+      if (this.props.location.state != null && this.props.location.state.isBlade) {
+
+      }
+      else {
+        this.loadInstalledBlades();
+        this.getConnectedAssets();
+      }
     }
 
+  }
+
+  loadInstalledBlades = () => {
+    if (this.props.match.params.id) {
+      let dst = '/api/assets/'.concat(this.props.match.params.id).concat('/blades/');
+      axios.get(dst).then(res => {
+        this.setState({
+          installedBlades: res.data
+        });
+      })
+        .catch(function (error) {
+          // TODO: handle error
+          alert('Cannot load blades. Re-login.\n' + JSON.stringify(error.response, null, 2));
+        });
+    }
   }
 
   renderPPConnectionTableData = () => {
@@ -84,14 +125,14 @@ export class DetailedInstance extends Component {
       return this.state.asset.power_ports.map((pp) => {
         return (
           <TableRow
-          hover
-          tabIndex={-1}
-          key={pp.id}
-        >
-          <TableCell align="center">{pp ? (pp.pdu ? pp.pdu.name : null) : null }</TableCell>
-          <TableCell align="center">{pp ? pp.port_number : null} </TableCell>
-          
-        </TableRow>
+            hover
+            tabIndex={-1}
+            key={pp.id}
+          >
+            <TableCell align="center">{pp ? (pp.pdu ? pp.pdu.name : null) : null}</TableCell>
+            <TableCell align="center">{pp ? pp.port_number : null} </TableCell>
+
+          </TableRow>
         )
       })
     }
@@ -120,97 +161,133 @@ export class DetailedInstance extends Component {
 
   render() {
     console.log(this.context)
+    console.log(this.props)
+    console.log(this.state.asset)
+    console.log(this.state.installedBlades)
     const regex = /[a-e][0-1]?[0-9]$/
-    const { id, model, hostname, rack, rack_u, owner, comment } = this.state.asset;
-    return (
-      <div>
-        <Container maxwidth="xl">
-          <Grid container className="themed-container" spacing={2}>
-            <Grid item justify="flex-start" alignContent='center' xs={12} />
-            <Grid item justify="flex-start" alignContent='center' xs={10}>
-              <Typography variant="h3">
-                Detailed Asset View
-              </Typography>
+    //const { id, model, hostname, rack, rack_u, owner, comment } = this.state.asset;
+
+    if (this.props.location.state != null && this.props.location.state.isBlade) {
+      return (
+        <div>
+          <p>blade</p>
+        </div>
+      )
+    }
+    else {
+      return (
+        <div>
+          <Container maxwidth="xl">
+            <Grid container className="themed-container" spacing={2}>
+              <Grid item justify="flex-start" alignContent='center' xs={12} />
+              <Grid item justify="flex-start" alignContent='center' xs={10}>
+                <Typography variant="h3">
+                  Detailed Asset View
+                </Typography>
+              </Grid>
+              <Grid item xs={12}>
+                <Paper>
+                  <InstanceCard asset={[this.state.asset]} />
+                </Paper>
+              </Grid>
+              <Grid item alignContent='center' xs={12} />
+              <Grid item alignContent='center' xs={12} />
+
+
+
+              <Grid item xs={6}>
+                <Typography variant="h4" gutterBottom>
+                  Connected Power Ports
+                </Typography>
+
+                <TableContainer>
+                  <Table
+                    size="small"
+                    aria-labelledby="instanceTableTitle"
+                    aria-label="instanceTable"
+                  >
+                    <TableRow>{this.renderPPConnectionTableHeader()}</TableRow>
+
+                    <TableBody>
+                      {this.renderPPConnectionTableData()}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </Grid>
+
+              <Grid item xs={6}>
+
+              </Grid>
+
+
+              <Grid item xs={6}>
+                <Typography variant="h4" gutterBottom>
+                  Connected Assets
+                </Typography>
+                <AllConnectedAssetsView connectedAssets={this.state.connectedAssets} />
+              </Grid>
+              <Grid item xs={6}>
+                {
+                  this.state.asset.datacenter
+                    && this.state.asset.rack
+                    //&& (this.state.asset.owner && (this.context.username === this.state.asset.owner) || this.context.username === 'admin' || !this.state.asset.owner)
+                    && (this.context.is_admin || this.context.username === 'admin' || this.context.power_permission || (this.context.username === this.state.asset.owner))
+                    && this.state.asset.datacenter.abbreviation.toLowerCase() === 'rtp1'
+                    && regex.test(this.state.asset.rack.rack_number.toLowerCase())
+
+                    ?
+                    (<div>
+                      <Typography variant="h4" gutterBottom>
+                        Power Management
+                    </Typography>
+                      <PowerManagement assetID={this.props.match.params.id} />
+                    </div>)
+                    :
+                    <p></p>
+                }
+
+              </Grid>
+
+              <Grid item xs={6}>
+                {
+                  this.state.asset.model ? (
+                    // FIXME
+                    this.state.asset.model.mount_type === 'nothing' ?
+                      (
+                        <div>
+                          <Typography variant="h4" gutterBottom>Asset Network Graph</Typography>
+                          <AssetNetworkGraph assetID={this.props.match.params.id} />
+                        </div>
+                      )
+                      : (
+                        <div></div>
+                      )
+                  ) : (<div></div>)
+                }
+              </Grid>
+
+              <Grid item xs={6}>
+                {
+                  this.state.asset.model ? (
+                    this.state.asset.model.mount_type === 'chassis' ? (
+                      <div>
+                        <Typography variant="h4" gutterBottom>Installed Blades</Typography>
+                        <AllInstalledBladesView blades={this.state.installedBlades} />
+                      </div>
+                    )
+                      : (<div></div>)
+                  )
+                    : (<div></div>)
+                }
+              </Grid>
+
+
             </Grid>
-            <Grid item xs={12}>
-              <Paper>
-                <InstanceCard asset={[this.state.asset]} />
-              </Paper>
-            </Grid>
-            <Grid item alignContent='center' xs={12} />
-            <Grid item alignContent='center' xs={12} />
+          </Container>
+        </div>
+      )
+    }
 
-
-
-            <Grid item xs={6}>
-              <Typography variant="h4" gutterBottom>
-                Connected Power Ports
-              </Typography>
-
-              <TableContainer>
-                <Table
-                  size="small"
-                  aria-labelledby="instanceTableTitle"
-                  aria-label="instanceTable"
-                >
-                  <TableRow>{this.renderPPConnectionTableHeader()}</TableRow>
-
-                  <TableBody>
-                    {this.renderPPConnectionTableData()}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </Grid>
-
-            <Grid item xs={6}>
-
-            </Grid>
-
-
-            <Grid item xs={6}>
-              <Typography variant="h4" gutterBottom>
-                Connected Assets
-              </Typography>
-              <AllConnectedAssetsView connectedAssets={this.state.connectedAssets} />
-            </Grid>
-            <Grid item xs={6}>
-              {
-                this.state.asset.datacenter
-                  && this.state.asset.rack
-                  //&& (this.state.asset.owner && (this.context.username === this.state.asset.owner) || this.context.username === 'admin' || !this.state.asset.owner)
-                  && (this.context.is_admin || this.context.username === 'admin' || this.context.power_permission || (this.context.username === this.state.asset.owner)  )
-                  && this.state.asset.datacenter.abbreviation.toLowerCase() === 'rtp1'
-                  && regex.test(this.state.asset.rack.rack_number.toLowerCase())
-
-                  ?
-                  (<div>
-                    <Typography variant="h4" gutterBottom>
-                      Power Management
-                  </Typography>
-                    <PowerManagement assetID={this.props.match.params.id} />
-                  </div>)
-                  :
-                  <p></p>
-              }
-
-            </Grid>
-
-            <Grid item xs={6}>
-              <Typography variant="h4" gutterBottom>
-                Asset Network Graph
-              </Typography>
-              <AssetNetworkGraph assetID={this.props.match.params.id} />
-            </Grid>
-
-            <Grid item xs={6}>
-
-            </Grid>
-
-
-          </Grid>
-        </Container>
-      </div>
-    )
   }
 }
 
