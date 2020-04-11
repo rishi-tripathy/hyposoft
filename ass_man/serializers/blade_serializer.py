@@ -17,4 +17,4 @@ class BladeServerSerializer(serializers.ModelSerializer):
 class BladeCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = BladeServer
-        fields = ['id', 'hostname', 'datacenter', 'location', 'slot_number', 'owner', 'comment', 'asset_number']
+        fields = ['id', 'model', 'hostname', 'datacenter', 'location', 'slot_number', 'owner', 'comment', 'asset_number']
