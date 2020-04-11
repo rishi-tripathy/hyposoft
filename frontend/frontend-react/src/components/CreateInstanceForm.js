@@ -5,7 +5,7 @@ import {
   Container, Button, Grid, TextField,
   Typography, IconButton, Tooltip, List,
   ListSubheader, ListItem, ListItemText, Paper,
-  Divider,
+  Divider, Table, TableBody, TableCell, TableContainer, TableRow, Toolbar, TableFooter
 } from "@material-ui/core";
 import EditIcon from '@material-ui/icons/Edit';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
@@ -60,6 +60,12 @@ export class CreateInstanceForm extends Component {
       leftPPName: null,
       rightPPName: null,
       ppConnections: [],
+
+      //changeable model fields for asset
+      selectedDisplayColor: null,
+      selectedMemory: null,
+      selectedCPU: null,
+      selectedStorage: null,
 
       redirect: false,
     }
@@ -217,6 +223,7 @@ export class CreateInstanceForm extends Component {
       if (this.state.selectedModelOption) {
         this.loadNetworkPortInfoForCurrentlySelectedModel();
         this.loadNumberOfPowerPortsForModel();
+        this.loadChangeableModelFields();
       }
       else {
         this.setState({ networkPortNamesForCurrentAsset: [], numberOfNetworkPortsForCurrentAsset: null });
@@ -361,11 +368,99 @@ export class CreateInstanceForm extends Component {
     return fieldList;
   }
 
+  handleModelFieldChange = () => {
+
+  }
+
+  loadChangeableModelFields = () => {
+    let modelURL = this.state.selectedModelOption.value
+    axios.get(modelURL).then(res => {
+      this.setState({
+        selectedDisplayColor: res.data.display_color,
+        selectedCPU: res.data.cpu,
+        selectedMemory: res.data.memory,
+        selectedStorage: res.data.storage,
+      });
+    })
+      .catch(function (error) {
+        alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+      });
+  }
+
+
+
+  renderTableToolbar = () => {
+    return (
+      <Toolbar>
+        {
+          <Typography style={{flex: '1 1 20%'}} variant="h6" id="modelFieldsTableTitle">
+            Edit Model Fields for this Asset
+          </Typography>
+        }
+      </Toolbar>
+    );
+  };
+
+  renderTableHeader() {
+    let headCells = [
+      {id: 'display_color', label: 'Color'},
+      {id: 'cpu', label: 'CPU'},
+      {id: 'memory', label: 'Memory'},
+      {id: 'storage', label: 'Storage'},
+    ];
+    return headCells.map(headCell => (
+      <TableCell
+        align={'center'}
+        padding={'default'}
+
+      >
+        {headCell.label.toUpperCase()}
+
+      </TableCell>
+    ))
+  }
+
+  renderTableData() {
+    let model = this.state.selectedModelOption;
+
+    if (model == null) return (
+      <TableRow hover tabIndex={-1}>
+        <TableCell align="center" colSpan={12}>No entries</TableCell>
+      </TableRow>
+    )
+    console.log(model)
+      return (
+        <TableRow
+          hover
+          tabIndex={-1}
+        >
+          <TableCell align="right">
+            <div style={{
+              width: 12,
+              height: 10,
+              backgroundColor: '#' + this.state.selectedDisplayColor,
+              left: 2,
+              top: 2,
+            }}></div>
+            {this.state.selectedDisplayColor}</TableCell>
+          <TableCell align="center">{this.state.selectedCPU}</TableCell>
+          <TableCell align="center">{this.state.selectedMemory}</TableCell>
+          <TableCell align="center">{this.state.selectedStorage}</TableCell>
+        <TableFooter>
+          <TableRow>
+          <Button variant="contained" type="submit" color="secondary" endIcon={<AddCircleIcon />}
+                      onClick={() => this.handleModelFieldChange}>Change</Button>
+          </TableRow>
+      </TableFooter>
+      </TableRow>
+      )
+    }
 
   render() {
     return (
       <div>
         {this.state.redirect && <Redirect to={{ pathname: '/assets' }} />}
+
         <Container maxwidth="xl">
           <Grid container className='themed-container' spacing={2}>
             <Grid item alignContent='center' xs={12} />
@@ -376,6 +471,7 @@ export class CreateInstanceForm extends Component {
                     Create Asset
                   </Typography>
                 </Grid>
+
                 <Grid item xs={6}>
                   <Autocomplete
                     autoComplete
@@ -391,6 +487,7 @@ export class CreateInstanceForm extends Component {
                     )}
                   />
                 </Grid>
+
                 <Grid item xs={6}>
                   <TextField label='Hostname' type="text" fullWidth onChange={e => {
                     let instanceCopy = JSON.parse(JSON.stringify(this.state.asset))
@@ -400,6 +497,27 @@ export class CreateInstanceForm extends Component {
                     })
                   }} />
                 </Grid>
+
+                <Grid item xs={6}>
+                <Paper>
+                  {this.renderTableToolbar()}
+                  <TableContainer>
+                    <Table
+                      size="small"
+                      aria-labelledby="modelTableTitle"
+                      aria-label="enhanced table"
+                    >
+                      <TableRow>{this.renderTableHeader()}</TableRow>
+
+                      <TableBody textAlign='center' >
+                        {this.renderTableData()}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                </Paper>
+                </Grid>
+
+                <Grid item xs={6} />
 
                 <Grid item xs={6}>
                   <Autocomplete
