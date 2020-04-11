@@ -63,7 +63,22 @@ export class EditInstanceForm extends Component {
 
       redirect: false,
       //ppIDs: [],
+
+      locationOptions: [],
+      selectedLocationOption: null,
+
+      currentMountType: '',
     }
+  }
+
+  loadCurrentModelMountType = () => {
+    const dst = '/api/models/' + this.state.selectedModelOption.id + '/';
+    axios.get(dst).then(res => {
+      this.setState({ currentMountType: res.data.mount_type });
+    })
+      .catch(function (error) {
+        alert('Could not load model. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+      });
   }
 
   // loadPowerPortIDs = () => {
@@ -85,7 +100,7 @@ export class EditInstanceForm extends Component {
     for (let i = 0; i < a.length; i++) {
       console.log(a[i])
       if (Object.entries(a[i]).length > 0 && a[i].constructor === Object) {
-        if (! a[i]) {
+        if (!a[i]) {
           let obj = {}
           obj.id = this.state.asset.power_ports[i].id
           a.push(obj)
@@ -174,6 +189,24 @@ export class EditInstanceForm extends Component {
     this.setState({ networkPortConnectionIDs: a });
   }
 
+  loadLocations = () => {
+    // locations are all chassis assets in a given DC
+    console.log(this.state.selectedDatacenterOption)
+    const dst = '/api/datacenters/' + this.state.selectedDatacenterOption.id + '/chassis/';
+    console.log(dst)
+    axios.get(dst).then(res => {
+      let myOptions = [];
+      for (let i = 0; i < res.data.length; i++) {
+        myOptions.push({ value: res.data[i].id, label: res.data[i].hostname + ' ' + res.data[i].asset_number, id: res.data[i].id });
+      }
+      this.setState({ locationOptions: myOptions });
+    })
+      .catch(function (error) {
+        // TODO: handle error
+        alert('Could not load racks. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+      });
+  }
+
   componentDidMount() {
     const delay = 50;
     this.loadInstance();
@@ -192,6 +225,7 @@ export class EditInstanceForm extends Component {
       if (this.state.selectedModelOption.value) {
         this.loadNetworkPortInfoForCurrentlySelectedModel();
         this.loadNumberOfPowerPortsForModel();
+        this.loadCurrentModelMountType();
       }
       else {
         this.setState({ networkPortNamesForCurrentAsset: [], numberOfNetworkPortsForCurrentAsset: null });
@@ -201,9 +235,11 @@ export class EditInstanceForm extends Component {
     if (prevState.selectedDatacenterOption !== this.state.selectedDatacenterOption) {
       if (this.state.selectedDatacenterOption.value) {
         this.loadRacks();
+        this.loadLocations();
       }
       else {
         this.setState({ rackOptions: [], selectedRackOption: null });
+        this.setState({ locationOptions: [], selectedLocationOption: null });
       }
     }
 
@@ -222,19 +258,36 @@ export class EditInstanceForm extends Component {
   }
 
   loadInstance = () => {
-    let dst = '/api/assets/'.concat(this.props.match.params.id).concat('/');
+    let dst = '/api/all_assets/'.concat(this.props.match.params.id).concat('/');
     axios.get(dst).then(res => {
       let instanceCopy = JSON.parse(JSON.stringify(this.state.asset));
-      instanceCopy.model = res.data.model;
-      instanceCopy.hostname = res.data.hostname;
-      instanceCopy.datacenter = res.data.datacenter;
-      instanceCopy.rack = res.data.rack;
-      instanceCopy.rack_u = res.data.rack_u;
-      instanceCopy.owner = res.data.owner;
-      instanceCopy.comment = res.data.comment;
-      instanceCopy.asset_number = res.data.asset_number;
-      instanceCopy.network_ports = res.data.network_ports;
-      instanceCopy.power_ports = res.data.power_ports;
+
+
+      if (res.data.asset) {
+        instanceCopy.model = res.data.asset.model;
+        instanceCopy.hostname = res.data.asset.hostname;
+        instanceCopy.datacenter = res.data.asset.datacenter;
+        instanceCopy.rack = res.data.asset.rack;
+        instanceCopy.rack_u = res.data.asset.rack_u;
+        instanceCopy.owner = res.data.asset.owner;
+        instanceCopy.comment = res.data.asset.comment;
+        instanceCopy.asset_number = res.data.asset.asset_number;
+        instanceCopy.network_ports = res.data.asset.network_ports;
+        instanceCopy.power_ports = res.data.asset.power_ports;
+      }
+      else {
+        // instanceCopy.model = res.data.model;
+        // instanceCopy.hostname = res.data.hostname;
+        // instanceCopy.datacenter = res.data.datacenter;
+        // instanceCopy.location = res.data.location;
+        // instanceCopy.slot_number = res.data.slot_number;
+      }
+
+
+
+
+      
+
       this.setState({
         asset: instanceCopy,
       })
@@ -377,6 +430,10 @@ export class EditInstanceForm extends Component {
     this.setState({ selectedRackOption });
   };
 
+  handleChangeLocation = (event, selectedLocationOption) => {
+    this.setState({ selectedLocationOption });
+  };
+
   handleChangeOwner = (event, selectedOwnerOption) => {
     this.setState({ selectedOwnerOption });
   };
@@ -431,17 +488,17 @@ export class EditInstanceForm extends Component {
     console.log(JSON.stringify(stateToSend, null, 2))
     var self = this;
 
-    axios.put(dst, stateToSend)
-      .then(function (response) {
-        alert('Edit was successful');
-        // window.location = '/assets'
-        self.setState({
-          redirect: true,
-        });
-      })
-      .catch(function (error) {
-        alert('Edit was not successful.\n' + JSON.stringify(error.response.data, null, 2));
-      });
+    // axios.put(dst, stateToSend)
+    //   .then(function (response) {
+    //     alert('Edit was successful');
+    //     // window.location = '/assets'
+    //     self.setState({
+    //       redirect: true,
+    //     });
+    //   })
+    //   .catch(function (error) {
+    //     alert('Edit was not successful.\n' + JSON.stringify(error.response.data, null, 2));
+    //   });
   }
 
   openNetworkPortConfigAndMAC = () => {
@@ -487,7 +544,7 @@ export class EditInstanceForm extends Component {
   render() {
     return (
       <div>
-        {this.state.redirect && <Redirect to={{pathname: '/assets'}} />}
+        {this.state.redirect && <Redirect to={{ pathname: '/assets' }} />}
         <Container maxwidth="xl">
           <Grid container className='themed-container' spacing={2}>
             <Grid item alignContent='center' xs={12} />
@@ -566,7 +623,7 @@ export class EditInstanceForm extends Component {
                     getOptionLabel={option => option.label}
                     onChange={this.handleChangeRack}
                     value={this.state.selectedRackOption}
-                    disabled={this.state.selectedDatacenterOption === null}
+                    disabled={this.state.selectedDatacenterOption === null || this.state.currentMountType === 'blade'}
                     renderInput={params => (
                       <TextField {...params} label="Rack" fullWidth />
                     )}
@@ -576,11 +633,43 @@ export class EditInstanceForm extends Component {
                   < TextField label="Rack U"
                     fullWidth
                     type="number"
+                    disabled={this.state.currentMountType === 'blade'}
                     value={this.state.asset.rack_u}
                     InputLabelProps={{ shrink: true }}
                     onChange={e => {
                       let instanceCopy = JSON.parse(JSON.stringify(this.state.asset))
                       instanceCopy.rack_u = e.target.value
+                      this.setState({
+                        asset: instanceCopy
+                      })
+                    }} />
+                </Grid>
+
+                <Grid item xs={6}>
+                  <Autocomplete
+                    autoComplete
+                    autoHighlight
+                    autoSelect
+                    id="instance-create-location-select"
+                    options={this.state.locationOptions}
+                    getOptionLabel={option => option.label}
+                    onChange={this.handleChangeLocation}
+                    value={this.state.selectedLocationOption}
+                    disabled={this.state.selectedDatacenterOption === null || this.state.currentMountType != 'blade'}
+                    renderInput={params => (
+                      <TextField {...params} label="Location" fullWidth />
+                    )}
+                  />
+                </Grid>
+
+                <Grid item xs={6}>
+                  < TextField label="Chassis Slot"
+                    fullWidth
+                    type="number"
+                    disabled={this.state.currentMountType != 'blade'}
+                    onChange={e => {
+                      let instanceCopy = JSON.parse(JSON.stringify(this.state.asset))
+                      instanceCopy.slot_number = e.target.value
                       this.setState({
                         asset: instanceCopy
                       })
