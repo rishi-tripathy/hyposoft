@@ -10,7 +10,7 @@ from ass_man.serializers.blade_serializer import BladeServerSerializer, BladeCre
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from django.contrib.auth.models import User
 # Project
-from ass_man.models import BladeServer, Datacenter
+from ass_man.models import BladeServer, Datacenter, Decommissioned
 
 JSON_TRUE = 'true'
 ADMIN_ACTIONS = {'create', 'update', 'partial_update', 'destroy'}
@@ -46,8 +46,20 @@ class BladeViewSet(viewsets.ModelViewSet):
     ordering = ['hostname']
 
     def get_serializer_class(self):
-        if self.action is 'create' or 'update' or 'partial_update':
+        if self.action == 'create' or self.action == 'update' or self.action == 'partial_update':
             serializer_class = BladeCreateSerializer
         else:
             serializer_class = BladeServerSerializer
         return serializer_class
+
+    def destroy(self, request, *args, **kwargs):
+        serialized_blade = BladeServerSerializer(self.get_object(), context={'request': request})
+        decom_blade = Decommissioned(username=request.user.username, \
+        asset_state=serialized_blade.data)
+        decom_blade.save()
+        if self.request.query_params.get('decommissioned')=='true':
+            serialized_blade = BladeServerSerializer(self.get_object(), context={'request': request})
+            decom_blade = Decommissioned(username=request.user.username, \
+            asset_state=serialized_blade.data)
+            decom_blade.save()
+        return super().destroy(self, request, *args, **kwargs)
