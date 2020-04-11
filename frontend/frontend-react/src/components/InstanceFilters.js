@@ -12,6 +12,7 @@ export class InstanceFilters extends Component {
     this.state = {
       modelOptions: [],
       selectedModelOption: null,
+      isDatacenter: null,
 
       // rackOptions: [],
       // selectedRackOption: null,
@@ -115,6 +116,7 @@ export class InstanceFilters extends Component {
     this.mountModelNames();
     //this.mountRacks();
     this.mountDatacenters();
+//TODO: set isDatacenter state variable with context after integration
     this.mountOwners();
   }
 
@@ -156,7 +158,10 @@ export class InstanceFilters extends Component {
 
   createQuery = () => {
     const { datacenterID, modelID, modelNumber, modelVendor, hostname, rackID, rack_u, ownerID, rackStart, rackEnd } = this.state.identifiers;
-    let q = '' +
+    let q;
+    //TODO: chage condition after integration
+    if(this.state.isDatacenter !== null){
+      q = '' +
       'datacenter=' + datacenterID + '&' +
       'model=' + modelID + '&' +
       'model_number=' + modelNumber + '&' +
@@ -165,8 +170,21 @@ export class InstanceFilters extends Component {
       'rack=' + rackID + '&' +
       'rack_u=' + rack_u + '&' +
       'owner=' + ownerID + '&' +
+      'is_datacenter=true&' +
       'rack_num_start=' + rackStart + '&' +
       'rack_num_end=' + rackEnd;
+    }
+    else{
+      q = '' +
+      'datacenter=' + datacenterID + '&' +
+      'model=' + modelID + '&' +
+      'model_number=' + modelNumber + '&' +
+      'vendor=' + modelVendor + '&' +
+      'hostname=' + hostname + '&' +
+      'is_datacenter=false&' +
+      'owner=' + ownerID;
+    }
+     
     this.setState({ query: q });
     return q;
   }
@@ -208,6 +226,11 @@ export class InstanceFilters extends Component {
   }
 
   render() {
+    let isDatacenter = true;
+    if(this.state.isDatacenter == null){
+      isDatacenter = false;
+    }
+
     return (
       <div style={{ padding: 10 }}>
         <Container maxWidth="xl">
@@ -286,37 +309,41 @@ export class InstanceFilters extends Component {
               {/*    )}*/}
               {/*  />*/}
               {/*</Grid>*/}
-              <Grid item xs={3}>
-                <TextField label='Rack Range Start' type="text" fullWidth
-                  onChange={e => {
-                    let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
-                    identifiersCopy.rackStart = e.target.value
-                    this.setState({
-                      identifiers: identifiersCopy
-                    })
-                  }} />
-              </Grid>
+              { isDatacenter ? ( 
+                <div>
+                  <Grid item xs={3}>
+                  <TextField label='Rack Range Start' type="text" fullWidth
+                    onChange={e => {
+                      let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
+                      identifiersCopy.rackStart = e.target.value
+                      this.setState({
+                        identifiers: identifiersCopy
+                      })
+                    }} />
+                </Grid>
 
-              <Grid item xs={3}>
-                <TextField label='Rack Range End' type="text" fullWidth
-                  onChange={e => {
-                    let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
-                    identifiersCopy.rackEnd = e.target.value
-                    this.setState({
-                      identifiers: identifiersCopy
-                    })
-                  }} />
-              </Grid>
-              <Grid item xs={3}>
-                <TextField label='Rack U' type="number" fullWidth
-                  onChange={e => {
-                    let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
-                    identifiersCopy.rack_u = e.target.value
-                    this.setState({
-                      identifiers: identifiersCopy
-                    })
-                  }} />
-              </Grid>
+                <Grid item xs={3}>
+                  <TextField label='Rack Range End' type="text" fullWidth
+                    onChange={e => {
+                      let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
+                      identifiersCopy.rackEnd = e.target.value
+                      this.setState({
+                        identifiers: identifiersCopy
+                      })
+                    }} />
+                </Grid>
+                <Grid item xs={3}>
+                  <TextField label='Rack U' type="number" fullWidth
+                    onChange={e => {
+                      let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
+                      identifiersCopy.rack_u = e.target.value
+                      this.setState({
+                        identifiers: identifiersCopy
+                      })
+                    }} />
+                </Grid>
+                </div>) : <p></p>}
+              
               <Grid item xs={3}>
                 <Autocomplete
                   id="instance-owner-select"
