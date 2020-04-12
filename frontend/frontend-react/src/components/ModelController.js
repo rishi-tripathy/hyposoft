@@ -1,6 +1,6 @@
-import React, {Component} from "react"
+import React, { Component } from "react"
 import CreateModelForm from "./CreateModelForm"
-import axios, {post} from "axios"
+import axios, { post } from "axios"
 import EditModelForm from "./EditModelForm";
 import ModelTableMUI from "./ModelTableMUI"
 import DetailedModel from "./DetailedModel";
@@ -10,7 +10,7 @@ import {
 import CloudUploadIcon from "@material-ui/icons/CloudUpload";
 import SaveAltIcon from "@material-ui/icons/SaveAlt";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
-import {Link} from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import DatacenterContext from "./DatacenterContext";
 
 
@@ -54,15 +54,19 @@ export class ModelController extends Component {
         })
         alert("Cannot load. Re-login.\n" + JSON.stringify(error.response, null, 2));
       });
+
+    this.setState({
+      showingAll: false,
+    })
   }
 
   getFilterQuery = (q) => {
-    this.setState({filterQuery: q});
+    this.setState({ filterQuery: q });
     console.log(this.state.filterQuery);
   }
 
   getSortQuery = (q) => {
-    this.setState({sortQuery: q})
+    this.setState({ sortQuery: q })
     console.log(this.state.sortQuery);
   }
 
@@ -98,7 +102,7 @@ export class ModelController extends Component {
     if (prevState.rerender === false && this.state.rerender === true) {
       setTimeout(() => {
         this.getModels();
-        this.setState({rerender: false});
+        this.setState({ rerender: false });
       }, delay);
 
     }
@@ -106,7 +110,7 @@ export class ModelController extends Component {
 
   getRerender = (re) => {
     if (re) {
-      this.setState({rerender: true})
+      this.setState({ rerender: true })
     }
   }
 
@@ -270,9 +274,9 @@ export class ModelController extends Component {
 
   render() {
     let content = <div><ModelTableMUI models={this.state.models}
-                                      filter_query={this.getFilterQuery}
-                                      sendSortQuery={this.getSortQuery}
-                                      sendRerender={this.getRerender}/>
+      filter_query={this.getFilterQuery}
+      sendSortQuery={this.getSortQuery}
+      sendRerender={this.getRerender} />
     </div>
 
 
@@ -298,22 +302,22 @@ export class ModelController extends Component {
     }
 
 
-    let exp = <Button variant="outlined" startIcon={<SaveAltIcon/>} onClick={this.exportData}>Export</Button>
+    let exp = <Button variant="outlined" startIcon={<SaveAltIcon />} onClick={this.exportData}>Export</Button>
     let showAll = <p></p>;
     if (this.state.prevPage != null || this.state.nextPage != null || this.state.showingAll) {
-       showAll = <FormControlLabel labelPlacement="left"
-                                      control={
-                                        <Switch value={this.state.showingAll} onChange={() => this.toggleShowingAll()}/>
-                                      }
-                                      label={
-                                        <Typography variant="subtitle1"> Show All</Typography>
-                                      }
+      showAll = <FormControlLabel labelPlacement="left"
+        control={
+          <Switch value={this.state.showingAll} onChange={() => this.toggleShowingAll()} />
+        }
+        label={
+          <Typography variant="subtitle1"> Show All</Typography>
+        }
       />
     }
 
     let add = (this.context.is_admin || this.context.username === 'admin' || this.context.model_permission) ? (
       <Link to={'/models/create'}>
-        <Button color="primary" variant="contained" endIcon={<AddCircleIcon/>}>
+        <Button color="primary" variant="contained" endIcon={<AddCircleIcon />}>
           Add Model
         </Button>
       </Link>
@@ -323,7 +327,7 @@ export class ModelController extends Component {
 
     let imp = (this.context.is_admin || this.context.username === 'admin' || this.context.model_permission) ? (
       <>
-        <Button variant="outlined" component="span" startIcon={<CloudUploadIcon/>} onClick={this.handleImport}>
+        <Button variant="outlined" component="span" startIcon={<CloudUploadIcon />} onClick={this.handleImport}>
           Import
         </Button>
         <input
@@ -341,7 +345,7 @@ export class ModelController extends Component {
       <div>
         <Container maxwidth="xl">
           <Grid container className="themed-container" spacing={2}>
-            <Grid item justify="flex-start" alignContent='center' xs={12}/>
+            <Grid item justify="flex-start" alignContent='center' xs={12} />
             <Grid item justify="flex-start" alignContent='center' xs={10}>
               <Typography variant="h3">
                 Model Table
@@ -363,7 +367,7 @@ export class ModelController extends Component {
               {paginateNavigation}
             </Grid>
             <Grid item xs={12}>
-              {this.state.loading ? <center><CircularProgress size={100}/> </center>: content}
+              {this.state.loading ? <center><CircularProgress size={100} /> </center> : content}
             </Grid>
           </Grid>
         </Container>
