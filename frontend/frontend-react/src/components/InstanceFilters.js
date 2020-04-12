@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import axios from 'axios'
 import { Button, TextField, Grid, Input, Container, FormControl } from "@material-ui/core";
 import { Autocomplete } from "@material-ui/lab";
+import DatacenterContext from './DatacenterContext';
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
@@ -12,7 +13,6 @@ export class InstanceFilters extends Component {
     this.state = {
       modelOptions: [],
       selectedModelOption: null,
-      isDatacenter: null,
 
       // rackOptions: [],
       // selectedRackOption: null,
@@ -116,7 +116,6 @@ export class InstanceFilters extends Component {
     this.mountModelNames();
     //this.mountRacks();
     this.mountDatacenters();
-//TODO: set isDatacenter state variable with context after integration
     this.mountOwners();
   }
 
@@ -159,8 +158,7 @@ export class InstanceFilters extends Component {
   createQuery = () => {
     const { datacenterID, modelID, modelNumber, modelVendor, hostname, rackID, rack_u, ownerID, rackStart, rackEnd } = this.state.identifiers;
     let q;
-    //TODO: chage condition after integration
-    if(this.state.isDatacenter !== null){
+    if(this.context.is_datacenter){
       q = '' +
       'datacenter=' + datacenterID + '&' +
       'model=' + modelID + '&' +
@@ -226,10 +224,42 @@ export class InstanceFilters extends Component {
   }
 
   render() {
-    let isDatacenter = true;
-    if(this.state.isDatacenter == null){
-      isDatacenter = false;
-    }
+
+    let rack_range_start = 
+    <Grid item xs={3}>
+      <TextField label='Rack Range Start' type="text" fullWidth
+        onChange={e => {
+          let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
+          identifiersCopy.rackStart = e.target.value
+          this.setState({
+            identifiers: identifiersCopy
+          })
+        }} />
+    </Grid>;
+
+    let rack_range_end = 
+    <Grid item xs={3}>
+      <TextField label='Rack Range End' type="text" fullWidth
+        onChange={e => {
+          let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
+          identifiersCopy.rackEnd = e.target.value
+          this.setState({
+            identifiers: identifiersCopy
+          })
+        }} />
+    </Grid>;
+
+    let rack_u =
+      <Grid item xs={3}>
+      <TextField label='Rack U' type="number" fullWidth
+        onChange={e => {
+          let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
+          identifiersCopy.rack_u = e.target.value
+          this.setState({
+            identifiers: identifiersCopy
+          })
+        }} />
+    </Grid>;
 
     return (
       <div style={{ padding: 10 }}>
@@ -309,40 +339,10 @@ export class InstanceFilters extends Component {
               {/*    )}*/}
               {/*  />*/}
               {/*</Grid>*/}
-              { isDatacenter ? ( 
-                <div>
-                  <Grid item xs={3}>
-                  <TextField label='Rack Range Start' type="text" fullWidth
-                    onChange={e => {
-                      let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
-                      identifiersCopy.rackStart = e.target.value
-                      this.setState({
-                        identifiers: identifiersCopy
-                      })
-                    }} />
-                </Grid>
 
-                <Grid item xs={3}>
-                  <TextField label='Rack Range End' type="text" fullWidth
-                    onChange={e => {
-                      let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
-                      identifiersCopy.rackEnd = e.target.value
-                      this.setState({
-                        identifiers: identifiersCopy
-                      })
-                    }} />
-                </Grid>
-                <Grid item xs={3}>
-                  <TextField label='Rack U' type="number" fullWidth
-                    onChange={e => {
-                      let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
-                      identifiersCopy.rack_u = e.target.value
-                      this.setState({
-                        identifiers: identifiersCopy
-                      })
-                    }} />
-                </Grid>
-                </div>) : <p></p>}
+            { this.context.is_datacenter ? (rack_range_start ) : <p></p>}
+            { this.context.is_datacenter ? ( rack_range_end ) : <p></p> }
+            { this.context.is_datacenter ? ( rack_u ) : <p></p> }
               
               <Grid item xs={3}>
                 <Autocomplete
@@ -378,5 +378,7 @@ export class InstanceFilters extends Component {
     )
   }
 }
+
+InstanceFilters.contextType = DatacenterContext;
 
 export default InstanceFilters

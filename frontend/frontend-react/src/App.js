@@ -54,6 +54,7 @@ class App extends React.Component {
       datacenter_id: -1,
       datacenter_name: 'ALL',
       datacenter_ab: 'ALL',
+      is_datacenter: true,
       setDatacenter: this.setDatacenter,
       datacenterOptions: null,
       user_first: null,
@@ -72,12 +73,13 @@ class App extends React.Component {
     }
   }
 
-  setDatacenter = (value, name, ab) => {
+  setDatacenter = (value, name, ab, is_it) => {
     // console.log("changing id to "+ value + " name: "+name);
     this.setState({
       datacenter_id: value,
       datacenter_name: name,
       datacenter_ab: ab,
+      is_datacenter: is_it,
     });
   }
 
@@ -227,18 +229,6 @@ class App extends React.Component {
 
     let content;
 
-    //   if (!this.state.logged_in) {
-    //    content =         
-    //    <div id="contentContainer">
-    //     <LandingPage />
-    //     <div id='login'>
-    //       <Button color='primary' onClick={this.handleOnClick}>
-    //         Log In!
-    //     </Button>
-    //     </div>
-    //   </div>;
-    // }
-    // console.log(this.state.delay)
     if (!this.state.logged_in && !this.state.loading) {
       return (
         <center>
@@ -265,9 +255,6 @@ class App extends React.Component {
         return (
           <DatacenterContext.Provider value={{ ...this.state, setDatacenter: this.setDatacenter }}>
             <div>
-              {/* { (this.state.delay  ? 
-        <p></p> :
-        (content) )} */}
               {this.state.datacenterOptions &&
                 <Router>
                   <NavBar />

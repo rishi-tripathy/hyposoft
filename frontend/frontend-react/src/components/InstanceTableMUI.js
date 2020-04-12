@@ -263,6 +263,20 @@ export class InstanceTableMUI extends Component {
       // { id: 'pp', label: 'Power Ports' },
       { id: 'asset_number', label: 'Asset no.' },
     ];
+
+    if(!this.context.is_datacenter){
+      headCells = [
+        { id: 'model__vendor', label: 'Vendor' },
+        { id: 'model__model_number', label: 'Model Number' },
+        { id: 'hostname', label: 'Hostname' },
+        { id: 'datacenter', label: 'Offline Storage Site' },
+        { id: 'owner', label: 'Owner' },
+        // { id: 'np', label: 'Network Ports' },
+        // { id: 'pp', label: 'Power Ports' },
+        { id: 'asset_number', label: 'Asset no.' },
+      ];
+    }
+
     return headCells.map(headCell => (
       <TableCell
         key={headCell.id}
@@ -288,7 +302,101 @@ export class InstanceTableMUI extends Component {
         <TableCell align="center" colSpan={12}>No entries</TableCell>
       </TableRow>
     )
-    return this.props.assets.map((asset) => {
+    else if(!this.context.is_datacenter){
+      return this.props.assets.map((asset) => {
+        //console.log(asset)
+        const { id, model, hostname, rack, owner, rack_u, datacenter, network_ports, power_ports, asset_number } = asset //destructuring
+        console.log(datacenter.id)
+        console.log(this.context.asset_permission)
+        console.log(this.context.asset_permission.includes(datacenter.id))
+        console.log(this.context.is_admin)
+        console.log(this.context.username === 'admin')
+        return (
+          <TableRow
+            hover
+            tabIndex={-1}
+            key={id}
+          >
+            <TableCell padding="checkbox">
+              <Checkbox
+                checked={this.state.selected.includes(id)}
+                onChange={(e) => this.onSelectCheckboxClick(id, e)}
+                inputProps={{ 'aria-labelledby': id }}
+              />
+            </TableCell>
+            <TableCell align="center">{model ? model.vendor : null}</TableCell>
+            <TableCell align="center">{model ? model.model_number : null}</TableCell>
+            <TableCell align="center">{hostname}</TableCell>
+            <TableCell align="center">{datacenter ? datacenter.abbreviation : null}</TableCell>
+            <TableCell align="center">{owner ? owner.username : null}</TableCell>
+            {/* <TableCell align="center">{network_ports ? network_ports.length : null}</TableCell>
+            <TableCell align="center">{power_ports ? power_ports.length : null}</TableCell> */}
+            <TableCell align="center">{asset_number}</TableCell>
+            <div>
+              <TableCell align="right">
+                <Link to={'/assets/' + id}>
+                  <Tooltip title='View Details'>
+                    <IconButton size="sm">
+                      <PageviewIcon />
+                    </IconButton>
+                  </Tooltip>
+                </Link>
+              </TableCell>
+  
+              {
+                (
+                  this.context.is_admin
+                  || this.context.username === 'admin'
+                  || this.context.asset_permission.includes(datacenter.id)
+                ) ? (
+                    <TableCell align="right">
+                      <Link to={'/assets/' + id + '/edit'}>
+                        <Tooltip title='Edit'>
+                          <IconButton size="sm">
+                            <EditIcon />
+                          </IconButton>
+                        </Tooltip>
+                      </Link>
+                    </TableCell>) : <div></div>
+              }
+              {
+                (
+                  this.context.is_admin
+                  || this.context.username === 'admin'
+                  || this.context.asset_permission.includes(datacenter.id)
+                ) ? (
+                    < TableCell align="right">
+                      < Tooltip title='Decommission'>
+                        <IconButton size="sm" onClick={() => this.showDecommissionedForm(id)}>
+                          <BlockIcon />
+                        </IconButton>
+                      </Tooltip>
+                    </TableCell>
+                  ) : <div></div>
+              }
+              {
+                (
+                  this.context.is_admin
+                  || this.context.username === 'admin'
+                  || this.context.asset_permission.includes(datacenter.id)
+                ) ? (
+                    < TableCell align="right">
+                      < Tooltip title='Delete'>
+                        <IconButton size="sm" onClick={() => this.showDeleteForm(id)}>
+                          <DeleteIcon />
+                        </IconButton>
+                      </Tooltip>
+                    </TableCell>
+                  ) : <div></div>
+              }
+  
+            </div>
+          </TableRow>
+        )
+      })
+    }
+    else {
+      return this.props.assets.map((asset) => {
       //console.log(asset)
       const { id, model, hostname, rack, owner, rack_u, datacenter, network_ports, power_ports, asset_number } = asset //destructuring
       console.log(datacenter.id)
@@ -380,7 +488,8 @@ export class InstanceTableMUI extends Component {
           </div>
         </TableRow>
       )
-    })
+      })
+    }
   }
 
   onSelectAllCheckboxClick = () => {

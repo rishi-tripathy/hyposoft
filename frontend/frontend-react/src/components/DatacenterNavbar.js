@@ -27,7 +27,7 @@ export class DatacenterNavbar extends Component{
       style={{ width: 150, marginRight: '0px', fontSize: '10px', borderRadius: '15px'}}
       options={options.sort((a, b) => -b.name)}
       groupBy={option => option.firstLetter}
-      onChange={(event, value) =>this.context.setDatacenter(value.id, value.name, value.abbreviation)}
+      onChange={(event, value) =>this.context.setDatacenter(value.id, value.name, value.abbreviation, false)} //TODO CHANGE FALSE TO value.isDatacenter
       getOptionLabel={option => option.abbreviation}
       disableClearable={true}
       defaultValue={this.context.datacenterOptions[0]}
