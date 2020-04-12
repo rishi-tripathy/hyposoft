@@ -189,24 +189,6 @@ export class EditInstanceForm extends Component {
     this.setState({ networkPortConnectionIDs: a });
   }
 
-  loadLocations = () => {
-    // locations are all chassis assets in a given DC
-    console.log(this.state.selectedDatacenterOption)
-    const dst = '/api/datacenters/' + this.state.selectedDatacenterOption.id + '/chassis/';
-    console.log(dst)
-    axios.get(dst).then(res => {
-      let myOptions = [];
-      for (let i = 0; i < res.data.length; i++) {
-        myOptions.push({ value: res.data[i].id, label: res.data[i].hostname + ' ' + res.data[i].asset_number, id: res.data[i].id });
-      }
-      this.setState({ locationOptions: myOptions });
-    })
-      .catch(function (error) {
-        // TODO: handle error
-        alert('Could not load racks. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
-      });
-  }
-
   componentDidMount() {
     const delay = 50;
     this.loadInstance();
@@ -222,7 +204,7 @@ export class EditInstanceForm extends Component {
 
   componentDidUpdate(prevProps, prevState) {
     if (prevState.selectedModelOption !== this.state.selectedModelOption) {
-      if (this.state.selectedModelOption.value) {
+      if (this.state.selectedModelOption) {
         this.loadNetworkPortInfoForCurrentlySelectedModel();
         this.loadNumberOfPowerPortsForModel();
         this.loadCurrentModelMountType();
@@ -233,7 +215,7 @@ export class EditInstanceForm extends Component {
     }
 
     if (prevState.selectedDatacenterOption !== this.state.selectedDatacenterOption) {
-      if (this.state.selectedDatacenterOption.value) {
+      if (this.state.selectedDatacenterOption) {
         this.loadRacks();
         this.loadLocations();
       }
@@ -244,7 +226,7 @@ export class EditInstanceForm extends Component {
     }
 
     if (this.state.selectedRackOption !== prevState.selectedRackOption) {
-      if (this.state.selectedRackOption.id) {
+      if (this.state.selectedRackOption) {
         this.loadLeftAndRightPDUNames();
         this.loadFreePDUsAndSetDefaultConfigurations();
         //this.loadPowerPortIDs();
@@ -258,44 +240,55 @@ export class EditInstanceForm extends Component {
   }
 
   loadInstance = () => {
-    let dst = '/api/all_assets/'.concat(this.props.match.params.id).concat('/');
-    axios.get(dst).then(res => {
-      let instanceCopy = JSON.parse(JSON.stringify(this.state.asset));
 
-
-      if (res.data.asset) {
-        instanceCopy.model = res.data.asset.model;
-        instanceCopy.hostname = res.data.asset.hostname;
-        instanceCopy.datacenter = res.data.asset.datacenter;
-        instanceCopy.rack = res.data.asset.rack;
-        instanceCopy.rack_u = res.data.asset.rack_u;
-        instanceCopy.owner = res.data.asset.owner;
-        instanceCopy.comment = res.data.asset.comment;
-        instanceCopy.asset_number = res.data.asset.asset_number;
-        instanceCopy.network_ports = res.data.asset.network_ports;
-        instanceCopy.power_ports = res.data.asset.power_ports;
-      }
-      else {
+    if (this.props.location.state != null && this.props.location.state.isBlade) {
+      let dst = '/api/blades/'.concat(this.props.match.params.id).concat('/');
+      axios.get(dst).then(res => {
+        let instanceCopy = JSON.parse(JSON.stringify(this.state.asset));
+        instanceCopy.model = res.data.model;
+        instanceCopy.hostname = res.data.hostname;
+        instanceCopy.datacenter = res.data.datacenter;
+        instanceCopy.location = res.data.location;
+        instanceCopy.slot_number = res.data.slot_number;
+        instanceCopy.asset_number = res.data.asset_number;
+        this.setState({
+          asset: instanceCopy,
+        })
+      })
+        .catch(function (error) {
+          // TODO: handle error
+          alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+        });
+    }
+    else {
+      let dst = '/api/assets/'.concat(this.props.match.params.id).concat('/');
+      axios.get(dst).then(res => {
+        let instanceCopy = JSON.parse(JSON.stringify(this.state.asset));
+        instanceCopy.model = res.data.model;
+        instanceCopy.hostname = res.data.hostname;
+        instanceCopy.datacenter = res.data.datacenter;
+        instanceCopy.rack = res.data.rack;
+        instanceCopy.rack_u = res.data.rack_u;
+        instanceCopy.owner = res.data.owner;
+        instanceCopy.comment = res.data.comment;
+        instanceCopy.asset_number = res.data.asset_number;
+        instanceCopy.network_ports = res.data.network_ports;
+        instanceCopy.power_ports = res.data.power_ports;
         // instanceCopy.model = res.data.model;
         // instanceCopy.hostname = res.data.hostname;
         // instanceCopy.datacenter = res.data.datacenter;
         // instanceCopy.location = res.data.location;
         // instanceCopy.slot_number = res.data.slot_number;
-      }
-
-
-
-
-      
-
-      this.setState({
-        asset: instanceCopy,
+        this.setState({
+          asset: instanceCopy,
+        })
       })
-    })
-      .catch(function (error) {
-        // TODO: handle error
-        alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
-      });
+        .catch(function (error) {
+          // TODO: handle error
+          alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+        });
+    }
+
   }
 
   loadMACAddresses = () => {
@@ -398,6 +391,31 @@ export class EditInstanceForm extends Component {
       });
   }
 
+  loadLocations = () => {
+    // locations are all chassis assets in a given DC
+    console.log(this.state.selectedDatacenterOption)
+    const dst = '/api/datacenters/' + this.state.selectedDatacenterOption.id + '/chassis/';
+    console.log(dst)
+    axios.get(dst).then(res => {
+      let myOptions = [];
+      for (let i = 0; i < res.data.length; i++) {
+        myOptions.push({ value: res.data[i].id, label: res.data[i].hostname + ' ' + res.data[i].asset_number, id: res.data[i].id });
+      }
+      this.setState({ 
+        locationOptions: myOptions,
+        selectedLocationOption: {
+          value: this.state.asset.location ? this.state.asset.location.id : null,
+          label: this.state.asset.location ? this.state.asset.location.hostname + ' ' + this.state.asset.location.asset_number : null,
+          id: this.state.asset.location ? this.state.asset.location.id : null,
+        }
+      });
+    })
+      .catch(function (error) {
+        // TODO: handle error
+        alert('Could not load racks. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+      });
+  }
+
   loadDatacenters = () => {
     const dst = '/api/datacenters/?show_all=true';
     axios.get(dst).then(res => {
@@ -474,7 +492,6 @@ export class EditInstanceForm extends Component {
       }
     }
 
-    let dst = '/api/assets/'.concat(this.props.match.params.id).concat('/');
     let stateCopy = Object.assign({}, this.state.asset);
 
     stateCopy.model = this.state.selectedModelOption ? this.state.selectedModelOption.value : null;
@@ -488,17 +505,44 @@ export class EditInstanceForm extends Component {
     console.log(JSON.stringify(stateToSend, null, 2))
     var self = this;
 
-    // axios.put(dst, stateToSend)
-    //   .then(function (response) {
-    //     alert('Edit was successful');
-    //     // window.location = '/assets'
-    //     self.setState({
-    //       redirect: true,
-    //     });
-    //   })
-    //   .catch(function (error) {
-    //     alert('Edit was not successful.\n' + JSON.stringify(error.response.data, null, 2));
-    //   });
+    if (this.props.location.state != null && this.props.location.state.isBlade) {
+      //PUT: blade
+      delete stateToSend.rack
+      delete stateToSend.rack_u
+      stateToSend.model = this.state.selectedModelOption ? this.state.selectedModelOption.id : null;
+      stateToSend.datacenter = this.state.selectedDatacenterOption ? this.state.selectedDatacenterOption.id : null;
+      stateToSend.location = this.state.selectedLocationOption ? this.state.selectedLocationOption.id : null;
+
+      let dst = '/api/blades/'.concat(this.props.match.params.id).concat('/');
+      axios.put(dst, stateToSend)
+        .then(function (response) {
+          alert('Edit was successful');
+          // window.location = '/assets'
+          self.setState({
+            redirect: true,
+          });
+        })
+        .catch(function (error) {
+          alert('Edit was not successful.\n' + JSON.stringify(error.response.data, null, 2));
+        });
+    }
+    else {
+      //PUT: asset
+      let dst = '/api/assets/'.concat(this.props.match.params.id).concat('/');
+      axios.put(dst, stateToSend)
+        .then(function (response) {
+          alert('Edit was successful');
+          // window.location = '/assets'
+          self.setState({
+            redirect: true,
+          });
+        })
+        .catch(function (error) {
+          alert('Edit was not successful.\n' + JSON.stringify(error.response.data, null, 2));
+        });
+    }
+
+
   }
 
   openNetworkPortConfigAndMAC = () => {
@@ -560,6 +604,7 @@ export class EditInstanceForm extends Component {
                     autoComplete
                     autoHighlight
                     autoSelect
+                    disabled={true}
                     id="instance-create-model-select"
                     options={this.state.modelOptions}
                     getOptionLabel={option => option.label}
@@ -667,6 +712,8 @@ export class EditInstanceForm extends Component {
                     fullWidth
                     type="number"
                     disabled={this.state.currentMountType != 'blade'}
+                    value={this.state.asset.slot_number}
+                    InputLabelProps={{ shrink: true }}
                     onChange={e => {
                       let instanceCopy = JSON.parse(JSON.stringify(this.state.asset))
                       instanceCopy.slot_number = e.target.value

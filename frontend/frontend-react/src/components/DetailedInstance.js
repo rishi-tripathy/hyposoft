@@ -14,6 +14,7 @@ import PowerManagement from './PowerManagement'
 import AssetNetworkGraph from './AssetNetworkGraph'
 import DatacenterContext from './DatacenterContext';
 import AllInstalledBladesView from './AllInstalledBladesView';
+import DetailedBladeView from './DetailedBladeView';
 
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
@@ -46,7 +47,6 @@ export class DetailedInstance extends Component {
           });
       }
       else {
-        //FIXME: change to all assets here
         let dst = '/api/assets/'.concat(this.props.match.params.id).concat('/');
         axios.get(dst).then(res => {
           this.setState({
@@ -107,6 +107,7 @@ export class DetailedInstance extends Component {
 
   loadInstalledBlades = () => {
     if (this.props.match.params.id) {
+      // params.id is chassis id
       let dst = '/api/assets/'.concat(this.props.match.params.id).concat('/blades/');
       axios.get(dst).then(res => {
         this.setState({
@@ -170,7 +171,7 @@ export class DetailedInstance extends Component {
     if (this.props.location.state != null && this.props.location.state.isBlade) {
       return (
         <div>
-          <p>blade</p>
+          <DetailedBladeView blade={this.state.asset} />
         </div>
       )
     }
