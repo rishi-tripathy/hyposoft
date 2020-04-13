@@ -88,6 +88,10 @@ class DatacenterViewSet(viewsets.ModelViewSet):
     # This is used for asset creation, not for displaying racks (should use Rack filter endpoint)
     @action(detail=True, methods=[GET])
     def racks(self, request, *args, **kwargs):
+        if self.get_object().is_offline:
+            return Response({
+                'Error': 'Cannot get racks of an offline storage site.'
+            }, status=status.HTTP_400_BAD_REQUEST)
         matches = self.get_object().rack_set  # Rack.objects.filter(datacenter=self.get_object())
         rs = RackOfAssetSerializer(matches, many=True, context={'request': request})
         return Response(rs.data)
