@@ -51,6 +51,21 @@ class DatacenterViewSet(viewsets.ModelViewSet):
         return serializer_class
 
     # Override superfunctions
+    def list(self, request, *args, **kwargs):
+        if request.query_params.get('offline') == 'true':
+            queryset = self.filter_queryset(self.get_queryset()).exclude(is_offline=False)
+        elif request.query_params.get('offline') == 'false':
+            queryset = self.filter_queryset(self.get_queryset()).exclude(is_offline=True)
+        else:
+            queryset = self.filter_queryset(self.get_queryset())
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
 
     def update(self, request, *args, **kwargs):
         resp = super().update(request, *args, **kwargs)
