@@ -1,4 +1,4 @@
-from ass_man.models import Asset, Power_Port, Network_Port, PDU, Asset_Number
+from ass_man.models import Asset, Power_Port, Network_Port, PDU, Asset_Number, BladeServer
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from django.core.validators import MinValueValidator
@@ -161,6 +161,7 @@ class AssetSerializer(serializers.HyperlinkedModelSerializer):
     # adapted from https://stackoverflow.com/questions/2063213/regular-expression-for-validating-dns-label-host-name
 
     def validate_hostname(self, value):
+        print("CALLED VALIDATE HOSTNAME")
         if not value:
             return value
         if not re.match('^(?![0-9]+$)(?!-)[a-zA-Z0-9-]{,63}(?<!-)$', value):
@@ -175,49 +176,88 @@ class AssetSerializer(serializers.HyperlinkedModelSerializer):
                     '{} is not a unique hostname. Please ensure this value is unique across all assets.'.format(
                         value.__str__())
                 )
-            except Asset.DoesNotExist:
+                BladeServer.objects.all().get(hostname=value)
+                raise serializers.ValidationError(
+                    '{} is not a unique hostname. Please ensure this value is unique across all assets.'.format(
+                        value.__str__())
+                )
+            except (Asset.DoesNotExist, BladeServer.DoesNotExist):
                 pass
-
         return value
 
     def check_asset_number(self, validated_data):
         try:
             validated_data['asset_number']
+            bladeserver= True
+            asset = True
+            try:
+                BladeServer.objects.get(asset_number=validated_data['asset_number'])
+            except BladeServer.DoesNotExist:
+                bladeserver = False
             try:
                 Asset.objects.get(asset_number=validated_data['asset_number'])
             except Asset.DoesNotExist:
-                try:
-                    num = Asset_Number.objects.get(pk=1)
-                except Asset_Number.DoesNotExist:
+                asset = False
+            if not bladeserver and not asset:
+                bladeserver= True
+                asset = True
+                num = Asset_Number.objects.all().first()
+                if not num:
                     num = Asset_Number.objects.create(next_avail=100000)
+                # try:
+                #     num = Asset_Number.objects.get(pk=1)
+                # except Asset_Number.DoesNotExist:
+                #     num = Asset_Number.objects.create(next_avail=100000)
                 if validated_data['asset_number'] == num.next_avail:
-                    try:
-                        curr = num.next_avail
-                        while True:
+                    curr = num.next_avail
+                    while True:
+                        bladeserver= True
+                        asset = True
+                        try:
+                            BladeServer.objects.get(asset_number=curr)
+                        except BladeServer.DoesNotExist:
+                            bladerserver = False
+                        try:
                             Asset.objects.get(asset_number=curr)
-                            curr += 1
-                    except Asset.DoesNotExist:
-                        num.next_avail = curr+1
-                        num.save()
+                        except Asset.DoesNotExist:
+                            asset = False
+                        curr += 1
+                        if not asset and not bladeserver:
+                            num.next_avail = curr
+                            num.save()
+                            break
                 return validated_data
             raise serializers.ValidationError(
                 "Asset Number: {} is already taken.".format(validated_data['asset_number'])
             )
         except KeyError:
-            try:
-                num = Asset_Number.objects.get(pk=1)
-            except Asset_Number.DoesNotExist:
+            num = Asset_Number.objects.all().first()
+            if not num:
                 num = Asset_Number.objects.create(next_avail=100000)
-            try:
-                curr = num.next_avail
-                while True:
+            # try:
+            #     num = Asset_Number.objects.get(pk=1)
+            # except Asset_Number.DoesNotExist:
+            #     num = Asset_Number.objects.create(next_avail=100000)
+
+            curr = num.next_avail
+            bladeserver= True
+            asset = True
+            while True:
+                try:
+                    BladeServer.objects.get(asset_number=curr)
+                except BladeServer.DoesNotExist:
+                    bladerserver = False
+                try:
                     Asset.objects.get(asset_number=curr)
-                    curr += 1
-            except Asset.DoesNotExist:
-                num.next_avail = curr + 1
-                num.save()
-                validated_data['asset_number'] = curr
-                return validated_data
+                except Asset.DoesNotExist:
+                    asset = False
+                curr += 1
+                if asset or bladeserver:
+                    num.next_avail = curr
+                    num.save()
+                    break
+            validated_data['asset_number'] = curr
+            return validated_data
 
     class Meta:
         model = Asset
@@ -255,7 +295,7 @@ class AssetOfModelSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Asset
-        fields = ['id', 'url', 'hostname', 'datacenter', 'rack', 'rack_u', 'owner']
+        fields = ['id', 'url', 'hostname', 'asset_number', 'datacenter', 'rack', 'rack_u', 'owner']
 
 
 # For the network graph

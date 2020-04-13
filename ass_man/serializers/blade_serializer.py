@@ -32,13 +32,18 @@ class BladeCreateSerializer(serializers.ModelSerializer):
             if not bladeserver and not asset:
                 bladeserver= True
                 asset = True
-                try:
-                    num = Asset_Number.objects.get(pk=1)
-                except Asset_Number.DoesNotExist:
+                num = Asset_Number.objects.all().first()
+                if not num:
                     num = Asset_Number.objects.create(next_avail=100000)
+                # try:
+                #     num = Asset_Number.objects.all().first() #Asset_Number.objects.get(pk=1)
+                # except Asset_Number.DoesNotExist:
+                #     num = Asset_Number.objects.create(next_avail=100000)
                 if validated_data['asset_number'] == num.next_avail:
                     curr = num.next_avail
                     while True:
+                        bladeserver= True
+                        asset = True
                         try:
                             BladeServer.objects.get(asset_number=curr)
                         except BladeServer.DoesNotExist:
@@ -48,7 +53,10 @@ class BladeCreateSerializer(serializers.ModelSerializer):
                         except Asset.DoesNotExist:
                             asset = False
                         curr += 1
-                        if asset or bladeserver:
+                        print(bladeserver)
+                        print(asset)
+                        print(curr)
+                        if not asset and not bladeserver:
                             num.next_avail = curr
                             num.save()
                             break
@@ -57,10 +65,13 @@ class BladeCreateSerializer(serializers.ModelSerializer):
                 "Asset Number: {} is already taken.".format(validated_data['asset_number'])
             )
         except KeyError:
-            try:
-                num = Asset_Number.objects.get(pk=1)
-            except Asset_Number.DoesNotExist:
+            num = Asset_Number.objects.all().first()
+            if not num:
                 num = Asset_Number.objects.create(next_avail=100000)
+            # try:
+            #     num = Asset_Number.objects.all().first() #get(pk=1)
+            # except Asset_Number.DoesNotExist:
+            #     num = Asset_Number.objects.create(next_avail=100000)
 
             curr = num.next_avail
             bladeserver= True
