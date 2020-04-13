@@ -9,25 +9,30 @@ import DatacenterContext  from './DatacenterContext'
 export class DatacenterNavbar extends Component{
 
   render() {
-
-    let options = [];
   
     // console.log(this.context.datacenterOptions[0].name);
-    // console.log(this.context.datacenterOptions);
+    let options = this.context.datacenterOptions.map(option => {
+      //TODO: change below to option.isDatacenter after integration
+      let firstLetter = option.abbreviation;
+      console.log(firstLetter);
+        return {
+          firstLetter: /true/.test(firstLetter) ? "Offline Storage Sites" : "Datacenters",
+          ...option
+        };
+    })
     
   return (
-    <DatacenterContext.Consumer>
-    {({ datacenter_ab, datacenter_id, datacenter_name, datacenterOptions, setDatacenter }) => (
     <Autocomplete
       id="highlights-demo"
       style={{ width: 150, marginRight: '0px', fontSize: '10px', borderRadius: '15px'}}
-      options={datacenterOptions}
-      onChange={(event, value) => setDatacenter(value.id, value.name, value.abbreviation)}
+      options={options.sort((a, b) => -b.name)}
+      groupBy={option => option.firstLetter}
+      onChange={(event, value) =>this.context.setDatacenter(value.id, value.name, value.abbreviation, false)} //TODO CHANGE FALSE TO value.isDatacenter
       getOptionLabel={option => option.abbreviation}
       disableClearable={true}
-      defaultValue={datacenterOptions[0]}
+      defaultValue={this.context.datacenterOptions[0]}
       renderInput={params => (
-        <TextField style={{backgroundColor: 'white', borderRadius: '15px'}} {...params} label="Datacenter" variant="outlined" fullWidth margin="normal" variant="filled"
+        <TextField style={{backgroundColor: 'white', borderRadius: '15px', fontSize: '8'}} {...params} label="DC/Offline Site" variant="outlined" fullWidth margin="normal" variant="filled"
         color="primary" />
       )}
       renderOption={(option, { inputValue }) => {
@@ -44,9 +49,10 @@ export class DatacenterNavbar extends Component{
           </div>
         );
       }}
-    />)}</DatacenterContext.Consumer>
+    />
   );
 }
 }
+
 DatacenterNavbar.contextType = DatacenterContext;
 export default DatacenterNavbar;

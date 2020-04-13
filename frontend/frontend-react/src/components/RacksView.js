@@ -191,7 +191,14 @@ export class RacksView extends Component {
     console.log(this.props.rack)
 
     if(this.props.rack == null || this.props.rack.length===0){
-      empty = <h1>no racks</h1>;
+      empty = <h1>No racks to display.</h1>;
+      showAll = <p></p>;
+      condensed = <p></p>;
+      deleteMultiple = <p></p>;
+    }
+    //TODO: change this to ,rack.isDatacenter after integration
+    else if (this.props.rack == null) {
+      empty = <h1>Assets are not in racks in offline storage sites.</h1>;
       showAll = <p></p>;
       condensed = <p></p>;
       deleteMultiple = <p></p>;

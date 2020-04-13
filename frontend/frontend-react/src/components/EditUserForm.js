@@ -226,6 +226,18 @@ export class EditUserForm extends Component {
 
     console.log(this.state)
 
+    let groupedOptions = [
+      {
+        label: 'Datacenters',
+        options: this.state.datacenterOptions,
+      },
+      {
+        label: 'Offline Storage Centers',
+        //TODO: change below to oss
+        options: this.state.datacenterOptions,
+      }
+    ]
+
     return (
       <div>
         <Container maxwidth="xl">
@@ -282,7 +294,7 @@ export class EditUserForm extends Component {
                             </Grid>
                             <Grid item xs={8}>
                               <DualListBox
-                                options={this.state.datacenterOptions}
+                                options={groupedOptions}
                                 selected={this.state.selectedDatacenterOption}
                                 onChange={this.handleDatacenterChange}
                                 icons={{
