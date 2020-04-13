@@ -16,15 +16,28 @@ from ass_man.serializers.datacenter_serializers import DatacenterSerializer
 # TODO: Make sure that offline assets can be created (without rack)
 class AssetSerializer(serializers.HyperlinkedModelSerializer):
     # hostname = serializers.CharField(validators=[UniqueValidator(queryset=Asset.objects.all())])
-    rack_u = serializers.IntegerField(validators=[MinValueValidator(1)])
 
     # network_ports = NetworkPortSerializer()
     # power_ports = PowerPortSerializer()
     # model = ModelAssetSerializer()
 
     def check_rack_u_validity(self, validated_data, asset=None):
+        if validated_data['datacenter'].is_offline:
+            return
         rack = validated_data['rack']
         rack_u = validated_data['rack_u']
+        if not rack:
+            raise serializers.ValidationError({
+                'Bad Rack': 'You must specify a rack for an asset in an online datacenter.'
+            })
+        if not rack_u:
+            raise serializers.ValidationError({
+                'Bad rack_u': 'You must specify a rack_u for an asset in an online datacenter.'
+            })
+        if rack_u < 1:
+            raise serializers.ValidationError({
+                'Bad rack_u': 'The specified rack_u must be a positive integer.'
+            })
         model = validated_data['model']
         height = model.height
         invalid_list = []

@@ -37,8 +37,8 @@ class Asset(models.Model):
     model = models.ForeignKey(Model, on_delete=models.PROTECT)
     hostname = models.CharField(max_length=64, blank=True, null=True)
     datacenter = models.ForeignKey('Datacenter', on_delete=models.PROTECT)
-    rack = models.ForeignKey('Rack', on_delete=models.PROTECT)
-    rack_u = models.PositiveIntegerField(blank=False)
+    rack = models.ForeignKey('Rack', on_delete=models.PROTECT, blank=True, null=True)
+    rack_u = models.PositiveIntegerField(blank=True, null=True)
     owner = models.ForeignKey(User, blank=True, null=True, on_delete=models.PROTECT)
     comment = models.TextField(blank=True)
     asset_number = models.PositiveIntegerField(blank=True, default=100000, \
