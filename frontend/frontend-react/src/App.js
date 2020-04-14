@@ -54,7 +54,7 @@ class App extends React.Component {
       datacenter_id: -1,
       datacenter_name: 'ALL',
       datacenter_ab: 'ALL',
-      is_datacenter: true,
+      is_offline: false,
       setDatacenter: this.setDatacenter,
       datacenterOptions: null,
       user_first: null,
@@ -79,7 +79,7 @@ class App extends React.Component {
       datacenter_id: value,
       datacenter_name: name,
       datacenter_ab: ab,
-      is_datacenter: is_it,
+      is_offline: is_it,
     });
   }
 

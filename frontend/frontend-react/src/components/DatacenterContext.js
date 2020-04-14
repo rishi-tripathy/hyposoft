@@ -5,7 +5,7 @@ const DatacenterContext = React.createContext({
     datacenter_id: -1,
     datacenter_name: 'ALL DCs',
     datacenter_ab: 'ALL DCs',
-    is_datacenter: true,
+    is_offline: false,
     is_admin: false,
     logged_in: false,
     setLoginInfo: () => {},

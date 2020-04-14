@@ -158,7 +158,7 @@ export class InstanceFilters extends Component {
   createQuery = () => {
     const { datacenterID, modelID, modelNumber, modelVendor, hostname, rackID, rack_u, ownerID, rackStart, rackEnd } = this.state.identifiers;
     let q;
-    if(this.context.is_datacenter){
+    if(!this.context.is_offline){
       q = '' +
       'datacenter=' + datacenterID + '&' +
       'model=' + modelID + '&' +
@@ -168,7 +168,6 @@ export class InstanceFilters extends Component {
       'rack=' + rackID + '&' +
       'rack_u=' + rack_u + '&' +
       'owner=' + ownerID + '&' +
-      'is_datacenter=true&' +
       'rack_num_start=' + rackStart + '&' +
       'rack_num_end=' + rackEnd;
     }
@@ -179,7 +178,6 @@ export class InstanceFilters extends Component {
       'model_number=' + modelNumber + '&' +
       'vendor=' + modelVendor + '&' +
       'hostname=' + hostname + '&' +
-      'is_datacenter=false&' +
       'owner=' + ownerID;
     }
      
@@ -340,9 +338,9 @@ export class InstanceFilters extends Component {
               {/*  />*/}
               {/*</Grid>*/}
 
-            { this.context.is_datacenter ? (rack_range_start ) : <p></p>}
-            { this.context.is_datacenter ? ( rack_range_end ) : <p></p> }
-            { this.context.is_datacenter ? ( rack_u ) : <p></p> }
+            { !this.context.is_offline ? (rack_range_start ) : <p></p>}
+            { !this.context.is_offline ? ( rack_range_end ) : <p></p> }
+            { !this.context.is_offline ? ( rack_u ) : <p></p> }
               
               <Grid item xs={3}>
                 <Autocomplete

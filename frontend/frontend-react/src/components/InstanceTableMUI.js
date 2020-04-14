@@ -58,19 +58,6 @@ export class InstanceTableMUI extends Component {
     }
   }
 
-  loadAllAssetIDs = () => {
-    let dst = '/api/assets/all_ids/';
-    axios.get(dst).then(res => {
-      this.setState({
-        allAssetIDs: res.data.ids
-      });
-    })
-      .catch(function (error) {
-        // TODO: handle error
-        alert('Cannot load assets. Re-login.\n' + JSON.stringify(error.response, null, 2));
-      });
-  }
-
   componentDidMount() {
     this.loadAllAssetIDs();
   }
@@ -93,10 +80,6 @@ export class InstanceTableMUI extends Component {
         // TODO: handle error
         alert('Cannot load assets. Re-login.\n' + JSON.stringify(error.response, null, 2));
       });
-  }
-
-  componentDidMount() {
-    this.loadAllAssetIDs();
   }
 
   showDecommissionedForm = (id) => {
@@ -264,7 +247,7 @@ export class InstanceTableMUI extends Component {
       { id: 'asset_number', label: 'Asset no.' },
     ];
 
-    if(!this.context.is_datacenter){
+    if(this.context.is_offline){
       headCells = [
         { id: 'model__vendor', label: 'Vendor' },
         { id: 'model__model_number', label: 'Model Number' },
@@ -302,7 +285,7 @@ export class InstanceTableMUI extends Component {
         <TableCell align="center" colSpan={12}>No entries</TableCell>
       </TableRow>
     )
-    else if(!this.context.is_datacenter){
+    else if(this.context.is_offline){
       return this.props.assets.map((asset) => {
         //console.log(asset)
         const { id, model, hostname, rack, owner, rack_u, datacenter, network_ports, power_ports, asset_number } = asset //destructuring
