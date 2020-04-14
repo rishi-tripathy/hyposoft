@@ -12,11 +12,10 @@ export class DatacenterNavbar extends Component{
   
     // console.log(this.context.datacenterOptions[0].name);
     let options = this.context.datacenterOptions.map(option => {
-      //TODO: change below to option.isDatacenter after integration
-      let firstLetter = option.abbreviation;
+      let firstLetter = option.is_offline;
       console.log(firstLetter);
         return {
-          firstLetter: /true/.test(firstLetter) ? "Offline Storage Sites" : "Datacenters",
+          firstLetter: /true/.test(firstLetter) ? "Offline Sites" : "Datacenters",
           ...option
         };
     })
@@ -27,7 +26,7 @@ export class DatacenterNavbar extends Component{
       style={{ width: 150, marginRight: '0px', fontSize: '10px', borderRadius: '15px'}}
       options={options.sort((a, b) => -b.name)}
       groupBy={option => option.firstLetter}
-      onChange={(event, value) =>this.context.setDatacenter(value.id, value.name, value.abbreviation, false)} //TODO CHANGE FALSE TO value.isDatacenter
+      onChange={(event, value) =>this.context.setDatacenter(value.id, value.name, value.abbreviation, value.is_offline)} 
       getOptionLabel={option => option.abbreviation}
       disableClearable={true}
       defaultValue={this.context.datacenterOptions[0]}
