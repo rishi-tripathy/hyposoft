@@ -23,6 +23,8 @@ export class DatacenterController extends Component {
         this.state = {
           datacenters: [{}
           ],
+          offlineStorageSites: [{}
+          ],
           showingAll: false,
           prevPage: null,
           nextPage: null,
@@ -44,9 +46,23 @@ export class DatacenterController extends Component {
         let dst = "/api/datacenters/" + "?" + this.state.filterQuery + "&";
         // console.log("QUERY")
         // console.log(dst)
+        let offlineList = [];
+        let dcList = [];
+
         axios.get(dst).then(res => {
+          
+          res.data.results.map((site, index) => {
+            if(site.is_offline){
+              offlineList.push(site);
+            }
+            else{
+              dcList.push(site);
+            }
+          });
+          
           this.setState({
-            datacenters: res.data.results,
+            datacenters: dcList,
+            offlineStorageSites: offlineList,
             prevPage: res.data.previous,
             nextPage: res.data.next,
           });
@@ -56,6 +72,7 @@ export class DatacenterController extends Component {
             alert("Cannot load. Re-login.\n" + JSON.stringify(error.response, null, 2));
           });
       }
+
 
       getFilterQuery = (q) => {
         this.setState({filterQuery: q});
@@ -100,17 +117,25 @@ export class DatacenterController extends Component {
 
 
       getAllDatacenters = () => {
-        let filter = this.state.filterQuery;
 
-        if (this.state.filterQuery.length !== 0) {
-          filter = filter + "&";
-        }
-
-        let dst = "/api/datacenters/" + "?" + filter + "show_all=true";
+        let dst = "/api/datacenters/" + "?" + "show_all=true";
 
         axios.get(dst).then(res => {
+
+          let oList = [];
+          let dList= [];
+
+          res.data.map((site, index) => {
+            if(site.is_offline){
+              oList.push(site);
+            }
+            else{
+              dList.push(site);
+            }
+          })
           this.setState({
-            datacenters: res.data,
+            datacenters: dList,
+            offlineStorageSites: oList,
             prevPage: null,
             nextPage: null,
           });
@@ -181,7 +206,7 @@ export class DatacenterController extends Component {
 
 
         let content2 = <div>< OfflineStorageSiteTable
-                        datacenters={this.state.datacenters}
+                        datacenters={this.state.offlineStorageSites}
                         filterQuery={this.getFilterQuery}
                         sendSortQuery={this.getSortQuery}/>
                         </div>;
@@ -208,6 +233,7 @@ export class DatacenterController extends Component {
                     <Grid item xs={12}>
                         {content}
                     </Grid>
+                    <Grid item xs={12} />
                     <Grid item xs={12}>
                         {content2}
                     </Grid>                    

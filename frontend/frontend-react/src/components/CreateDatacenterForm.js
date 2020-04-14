@@ -21,7 +21,7 @@ export class CreateDatacenterForm extends Component {
         'abbreviation': null,
         'name': null,
         redirect: false,
-        isDatacenter: true,
+        is_offline: true,
     }
   }
   componentDidMount() {
@@ -37,11 +37,11 @@ export class CreateDatacenterForm extends Component {
   };
 
   handleDatacenterBooleanChange = (event) => {
-    if (event.target.value === 'true') {
-      this.setState({ isDatacenter: true });
+    if (event.target.value === 'false') {
+      this.setState({ is_offline: false });
     }
     else {
-      this.setState({ isDatacenter: false });
+      this.setState({ is_offline: true });
     }
   };
 
@@ -87,10 +87,10 @@ export class CreateDatacenterForm extends Component {
                 </Grid>
                 <Grid item xs={12}>
                   <FormControl component="fieldset">
-                    <RadioGroup aria-label="permissions" name="datacenter-or-storage" value={this.state.isDatacenter.toString()}
+                    <RadioGroup aria-label="permissions" name="datacenter-or-storage" value={this.state.is_offline.toString()}
                       onChange={this.handleDatacenterBooleanChange}>
-                      <FormControlLabel value='true' control={<Radio />} label="Datacenter" />
-                      <FormControlLabel value='false' control={<Radio />} label="Offline Storage Site" />
+                      <FormControlLabel value='false' control={<Radio />} label="Datacenter" />
+                      <FormControlLabel value='true' control={<Radio />} label="Offline Storage Site" />
                     </RadioGroup>
                   </FormControl>
                   </Grid>

@@ -124,7 +124,7 @@ export class OfflineStorageSiteTable extends Component {
             <TableContainer>
             <Table
                 size="small"
-                aria-labelledby="datacenterTableTitle"
+                aria-labelledby="offlineStorageTableTitle"
                 aria-label="enhanced table"
             >
                 <TableRow>{this.renderTableHeader()}</TableRow>
