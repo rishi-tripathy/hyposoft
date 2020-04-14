@@ -39,6 +39,7 @@ export class CreateInstanceForm extends Component {
 
       datacenterOptions: [],
       selectedDatacenterOption: null,
+      isSelectedOffline: false,
 
       rackOptions: [],
       selectedRackOption: null,

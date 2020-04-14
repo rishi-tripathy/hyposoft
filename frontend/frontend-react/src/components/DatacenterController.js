@@ -26,8 +26,10 @@ export class DatacenterController extends Component {
           offlineStorageSites: [{}
           ],
           showingAll: false,
-          prevPage: null,
-          nextPage: null,
+          dcPrevPage: null,
+          dcNextPage: null,
+          offlinePrevPage: null,
+          offlineNextPage: null,
           filterQuery: "",
           rerender: false,
         //   file: null
@@ -43,35 +45,37 @@ export class DatacenterController extends Component {
          window.location = '/';
 
         }
-        let dst = "/api/datacenters/" + "?" + this.state.filterQuery + "&";
+
+        let datacenterDst = "/api/datacenters/" + "?offline=false" + "&";
+        let offlineDst = "/api/datacenters/" + "?offline=true" + "&";
         // console.log("QUERY")
         // console.log(dst)
-        let offlineList = [];
-        let dcList = [];
 
-        axios.get(dst).then(res => {
-          
-          res.data.results.map((site, index) => {
-            if(site.is_offline){
-              offlineList.push(site);
-            }
-            else{
-              dcList.push(site);
-            }
-          });
-          
+        axios.get(datacenterDst).then(res => {
           this.setState({
-            datacenters: dcList,
-            offlineStorageSites: offlineList,
-            prevPage: res.data.previous,
-            nextPage: res.data.next,
+            datacenters: res.data.results,
+            dcPrevPage: res.data.previous,
+            dcNextPage: res.data.next,
           });
         })
           .catch(function (error) {
             // TODO: handle error
             alert("Cannot load. Re-login.\n" + JSON.stringify(error.response, null, 2));
           });
-      }
+
+      axios.get(offlineDst).then(res => {
+        this.setState({
+          offlineStorageSites: res.data.results,
+          offlinePrevPage: res.data.previous,
+          offlineNextPage: res.data.next,
+        });
+      })
+        .catch(function (error) {
+          // TODO: handle error
+          alert("Cannot load. Re-login.\n" + JSON.stringify(error.response, null, 2));
+        });
+    }
+
 
 
       getFilterQuery = (q) => {
@@ -85,12 +89,12 @@ export class DatacenterController extends Component {
 
       //component did update
 
-      paginateNext = () => {
-        axios.get(this.state.nextPage).then(res => {
+      paginateNextDc = () => {
+        axios.get(this.state.dcNextPage).then(res => {
           this.setState({
             datacenters: res.data.results,
-            prevPage: res.data.previous,
-            nextPage: res.data.next,
+            dcPrevPage: res.data.previous,
+            dcNextPage: res.data.next,
           });
         })
           .catch(function (error) {
@@ -99,12 +103,40 @@ export class DatacenterController extends Component {
           });
       }
 
-      paginatePrev = () => {
-        axios.get(this.state.prevPage).then(res => {
+      paginatePrevDc = () => {
+        axios.get(this.state.dcPrevPage).then(res => {
           this.setState({
             datacenters: res.data.results,
-            prevPage: res.data.previous,
-            nextPage: res.data.next,
+            dcPrevPage: res.data.previous,
+            dcNextPage: res.data.next,
+          });
+        })
+          .catch(function (error) {
+            // TODO: handle error
+            alert("Cannot load. Re-login.\n" + JSON.stringify(error.response.data, null, 2));
+          });
+      }
+
+      paginateNextOffline = () => {
+        axios.get(this.state.offlineNextPage).then(res => {
+          this.setState({
+            offlineStorageSites: res.data.results,
+            offlinePrevPage: res.data.previous,
+            offlineNextPage: res.data.next,
+          });
+        })
+          .catch(function (error) {
+            // TODO: handle error
+            alert("Cannot load. Re-login.\n" + JSON.stringify(error.response.data, null, 2));
+          });
+      }
+
+      paginatePrevOffline = () => {
+        axios.get(this.state.offlinePrevPage).then(res => {
+          this.setState({
+            offlineStorageSites: res.data.results,
+            offlinePrevPage: res.data.previous,
+            offlineNextPage: res.data.next,
           });
         })
           .catch(function (error) {
@@ -157,26 +189,45 @@ export class DatacenterController extends Component {
 
     render() {
 
-      // console.log(this.context)
-
         let paginateNavigation = <p></p>;
-            if (this.state.prevPage == null && this.state.nextPage != null) {
+            if (this.state.dcPrevPage == null && this.state.dcNextPage != null) {
             paginateNavigation =
                 <ButtonGroup>
-                <Button color="primary" disabled onClick={this.paginatePrev}>prev page
-                </Button>{"  "}<Button color="primary" onClick={this.paginateNext}>next page</Button>
+                <Button color="primary" disabled onClick={this.paginatePrevDc}>prev page
+                </Button>{"  "}<Button color="primary" onClick={this.paginateNextDc}>next page</Button>
                 </ButtonGroup>
-            } else if (this.state.prevPage != null && this.state.nextPage == null) {
+            } else if (this.state.dcPrevPage != null && this.state.dcNextPage == null) {
             paginateNavigation =
                 <ButtonGroup>
-                <Button color="primary" onClick={this.paginatePrev}>prev page
-                </Button>{"  "}<Button color="primary" disabled onClick={this.paginateNext}>next page</Button>
+                <Button color="primary" onClick={this.paginatePrevDc}>prev page
+                </Button>{"  "}<Button color="primary" disabled onClick={this.paginateNextDc}>next page</Button>
                 </ButtonGroup>
-            } else if (this.state.prevPage != null && this.state.nextPage != null) {
+            } else if (this.state.dcPrevPage != null && this.state.dcNextPage != null) {
             paginateNavigation =
                 <ButtonGroup>
-                <Button color="primary" onClick={this.paginatePrev}>prev page
-                </Button>{"  "}<Button color="primary" onClick={this.paginateNext}>next page</Button>
+                <Button color="primary" onClick={this.paginatePrevDc}>prev page
+                </Button>{"  "}<Button color="primary" onClick={this.paginateNextDc}>next page</Button>
+                </ButtonGroup>
+            }
+
+            let paginateNavigationOffline = <p></p>;
+            if (this.state.offlinePrevPage == null && this.state.offlineNextPage != null) {
+              paginateNavigationOffline =
+                <ButtonGroup>
+                <Button color="primary" disabled onClick={this.paginatePrevOffline}>prev page
+                </Button>{"  "}<Button color="primary" onClick={this.paginateNextOffline}>next page</Button>
+                </ButtonGroup>
+            } else if (this.state.offlinePrevPage != null && this.state.offlineNextPage == null) {
+              paginateNavigationOffline =
+                <ButtonGroup>
+                <Button color="primary" onClick={this.paginatePrevOffline}>prev page
+                </Button>{"  "}<Button color="primary" disabled onClick={this.paginateNextOffline}>next page</Button>
+                </ButtonGroup>
+            } else if (this.state.offlinePrevPage != null && this.state.offlineNextPage != null) {
+              paginateNavigationOffline =
+                <ButtonGroup>
+                <Button color="primary" onClick={this.paginatePrevOffline}>prev page
+                </Button>{"  "}<Button color="primary" onClick={this.paginateNextOffline}>next page</Button>
                 </ButtonGroup>
             }
 
@@ -192,7 +243,7 @@ export class DatacenterController extends Component {
         let add = ( this.context.is_admin || this.context.username === 'admin' || this.context.asset_permission.length != 0 ) ? (
             <Link to={'/datacenters/create'}>
               <Button color="primary" variant="contained" endIcon={<AddCircleIcon/>}>
-                Add Datacenter
+                Add Datacenter/Offline Site
               </Button>
             </Link>
 
@@ -234,9 +285,18 @@ export class DatacenterController extends Component {
                         {content}
                     </Grid>
                     <Grid item xs={12} />
+                    <Grid item justify="flex-start" alignContent="center" xs={3} />
+                    
+                    <Grid item justify="flex-end" alignContent="flex-end" xs={3}>
+                        {paginateNavigationOffline}
+                    </Grid>
                     <Grid item xs={12}>
                         {content2}
-                    </Grid>                    
+                    </Grid>                  
+                    <Grid item xs={12} />
+                    <Grid item xs={12} />
+                    <Grid item xs={12} />
+
                     </Grid>
                 </Container>
             </div>
