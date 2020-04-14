@@ -51,6 +51,21 @@ class DatacenterViewSet(viewsets.ModelViewSet):
         return serializer_class
 
     # Override superfunctions
+    def list(self, request, *args, **kwargs):
+        if request.query_params.get('offline') == 'true':
+            queryset = self.filter_queryset(self.get_queryset()).exclude(is_offline=False)
+        elif request.query_params.get('offline') == 'false':
+            queryset = self.filter_queryset(self.get_queryset()).exclude(is_offline=True)
+        else:
+            queryset = self.filter_queryset(self.get_queryset())
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
 
     def update(self, request, *args, **kwargs):
         resp = super().update(request, *args, **kwargs)
@@ -75,6 +90,10 @@ class DatacenterViewSet(viewsets.ModelViewSet):
         try:
             return super().destroy(request, *args, **kwargs)
         except ProtectedError:
+            if self.get_object().is_offline():
+                return Response({
+                    'Error': 'Cannot delete this offline storage site as it contains assets.'
+                }, status=status.HTTP_400_BAD_REQUEST)
             return Response({
                 'Error': 'Cannot delete this datacenter as it contains racks.'
             }, status=status.HTTP_400_BAD_REQUEST)
@@ -84,6 +103,10 @@ class DatacenterViewSet(viewsets.ModelViewSet):
     # This is used for asset creation, not for displaying racks (should use Rack filter endpoint)
     @action(detail=True, methods=[GET])
     def racks(self, request, *args, **kwargs):
+        if self.get_object().is_offline:
+            return Response({
+                'Error': 'Cannot get racks of an offline storage site.'
+            }, status=status.HTTP_400_BAD_REQUEST)
         matches = self.get_object().rack_set  # Rack.objects.filter(datacenter=self.get_object())
         rs = RackOfAssetSerializer(matches, many=True, context={'request': request})
         return Response(rs.data)

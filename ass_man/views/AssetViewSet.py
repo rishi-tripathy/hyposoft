@@ -204,9 +204,10 @@ class AssetViewSet(viewsets.ModelViewSet):
         # asset.save()
         # asset.datacenter.asset_set.add(asset)
         rack = asset.rack
-        for i in range(asset.rack_u, asset.rack_u + asset.model.height):
-            exec('rack.u{} = asset'.format(i))
-        rack.save()
+        if rack:
+            for i in range(asset.rack_u, asset.rack_u + asset.model.height):
+                exec('rack.u{} = asset'.format(i))
+            rack.save()
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
@@ -217,15 +218,17 @@ class AssetViewSet(viewsets.ModelViewSet):
         prev_rack_u = asset.rack_u
         serializer = self.get_serializer(asset, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
-        for i in range(prev_rack_u, prev_rack_u + asset.model.height + 1):
-            exec('prev_rack.u{} = None'.format(i))
-        prev_rack.save()
+        if prev_rack:
+            for i in range(prev_rack_u, prev_rack_u + asset.model.height + 1):
+                exec('prev_rack.u{} = None'.format(i))
+            prev_rack.save()
         self.perform_update(serializer)
         asset = self.get_object()
         new_rack = asset.rack
-        for i in range(asset.rack_u, asset.rack_u + asset.model.height):
-            exec('new_rack.u{} = asset'.format(i))
-        new_rack.save()
+        if new_rack:
+            for i in range(asset.rack_u, asset.rack_u + asset.model.height):
+                exec('new_rack.u{} = asset'.format(i))
+            new_rack.save()
         network_ports_json, power_ports_json = self.get_port_jsons(request)
         self.cru_network_ports(request, asset, network_ports_json)
         self.cru_power_ports(request, asset, power_ports_json)
@@ -236,6 +239,42 @@ class AssetViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
     def list(self, request, *args, **kwargs):
+        if request.query_params.get('offline') == 'true':
+
+            queryset = self.filter_queryset(Asset.objects.all().annotate(rack_letter=Cast('asset_number', CharField()))
+                                            .annotate(numstr_in_rack=Cast('asset_number', CharField()))
+                                            .annotate(number_in_racknum=Cast('asset_number', IntegerField()))
+                                            .exclude(datacenter__is_offline=False))
+            # Asset.objects.all() \
+            #     .annotate(rack_letter=Substr('rack__rack_number', 1, 1)) \
+            #     .annotate(numstr_in_rack=Substr('rack__rack_number', 2))
+            # queryset = queryset.annotate(number_in_racknum=Cast('numstr_in_rack', IntegerField()))
+            # self.filter_queryset(self.get_queryset())
+            if request.query_params.get('export') == 'true':
+                if request.query_params.get('np') == 'true':
+                    return export_network_ports(queryset)
+                return export_assets(queryset)
+
+            page = self.paginate_queryset(queryset)
+            if page is not None:
+                serializer = self.get_serializer(page, many=True)
+                return self.get_paginated_response(serializer.data)
+            serializer = self.get_serializer(queryset, many=True)
+            return Response(serializer.data)
+
+        if not request.query_params.get('offline') == 'true':
+            queryset = self.filter_queryset(self.get_queryset()).exclude(datacenter__is_offline=True)
+            if request.query_params.get('export') == 'true':
+                queryset = self.filter_queryset(self.get_queryset())
+                if request.query_params.get('np') == 'true':
+                    return export_network_ports(queryset)
+                return export_assets(queryset)
+            page = self.paginate_queryset(queryset)
+            if page is not None:
+                serializer = self.get_serializer(page, many=True)
+                return self.get_paginated_response(serializer.data)
+            serializer = self.get_serializer(queryset, many=True)
+            return Response(serializer.data)
         if request.query_params.get('export') == 'true':
             queryset = self.filter_queryset(self.get_queryset())
             if request.query_params.get('np') == 'true':

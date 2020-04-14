@@ -66,16 +66,18 @@ def export_assets(queryset):
             pp2=asset.power_port_set.all()[1]
         power_port_connection_1=''
         power_port_connection_2=''
-        if pp1 and pp1.pdu == asset.rack.pdu_l:
-            power_port_connection_1 = 'L'+str(pp1.port_number)
-        elif pp1 and pp1.pdu == asset.rack.pdu_r:
-            power_port_connection_1 = 'R'+str(pp1.port_number)
-        if pp2 and pp2.pdu == asset.rack.pdu_l:
-            power_port_connection_2 = 'L'+str(pp2.port_number)
-        elif pp2 and pp2.pdu == asset.rack.pdu_r:
-            power_port_connection_2 = 'R'+str(pp2.port_number)
+        if pp1.pdu:
+            if pp1 and pp1.pdu == asset.rack.pdu_l:
+                power_port_connection_1 = 'L'+str(pp1.port_number)
+            elif pp1 and pp1.pdu == asset.rack.pdu_r:
+                power_port_connection_1 = 'R'+str(pp1.port_number)
+        if pp2.pdu:
+            if pp2 and pp2.pdu == asset.rack.pdu_l:
+                power_port_connection_2 = 'L'+str(pp2.port_number)
+            elif pp2 and pp2.pdu == asset.rack.pdu_r:
+                power_port_connection_2 = 'R'+str(pp2.port_number)
         writer.writerow([asset.asset_number, asset.hostname, asset.datacenter.abbreviation, \
-                         asset.rack.rack_number, asset.rack_u, asset.model.vendor, asset.model.model_number, \
+                         asset.rack.rack_number if asset.rack else '', asset.rack_u, asset.model.vendor, asset.model.model_number, \
                          owner_name, asset.comment, power_port_connection_1, power_port_connection_2])
     return response
 

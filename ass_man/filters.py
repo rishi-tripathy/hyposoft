@@ -53,6 +53,9 @@ class AssetFilter(filters.FilterSet):
 
 class AssetFilterByRack(rest_filters.BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
+        if request.query_params.get('offline') == 'true':
+            return queryset
+
         start_letter = request.query_params.get('rack_num_start')[0].upper() if request.query_params.get(
             'rack_num_start') else 'A'
         start_number = request.query_params.get('rack_num_start')[1:] if request.query_params.get(
