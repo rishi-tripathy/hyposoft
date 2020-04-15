@@ -39,6 +39,7 @@ import DatacenterContext from './components/DatacenterContext';
 import DecommissionedController from './components/DecommissionedController';
 import DetailedDecommissionedAsset from './components/DetailedDecommissionedAsset';
 import AssetLabels from './components/AssetLabels';
+import DetailedInstanceOffline from './components/DetailedInstanceOffline';
 
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
@@ -337,6 +338,11 @@ class App extends React.Component {
                       path='/assets/:id'
                       exact
                       render={(props) => <DetailedInstance {...props} />} />
+
+                      <Route
+                      path='/assets/:id/offline'
+                      exact
+                      render={(props) => <DetailedInstanceOffline {...props} />} />
 
                     <Route
                       path='/assets/:id/edit'

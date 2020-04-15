@@ -280,6 +280,7 @@ export class InstanceTableMUI extends Component {
   }
 
   renderTableData() {
+
     if (this.props.assets.length == 0) return (
       <TableRow hover tabIndex={-1}>
         <TableCell align="center" colSpan={12}>No entries</TableCell>
@@ -289,11 +290,7 @@ export class InstanceTableMUI extends Component {
       return this.props.assets.map((asset) => {
         //console.log(asset)
         const { id, model, hostname, rack, owner, rack_u, datacenter, network_ports, power_ports, asset_number } = asset //destructuring
-        console.log(datacenter.id)
-        console.log(this.context.asset_permission)
-        console.log(this.context.asset_permission.includes(datacenter.id))
-        console.log(this.context.is_admin)
-        console.log(this.context.username === 'admin')
+
         return (
           <TableRow
             hover
@@ -317,13 +314,13 @@ export class InstanceTableMUI extends Component {
             <TableCell align="center">{asset_number}</TableCell>
             <div>
               <TableCell align="right">
-                <Link to={'/assets/' + id}>
-                  <Tooltip title='View Details'>
-                    <IconButton size="sm">
-                      <PageviewIcon />
-                    </IconButton>
-                  </Tooltip>
-                </Link>
+                <Link to={'/assets/' + id+ '/offline'}>
+                <Tooltip title='View Details'>
+                  <IconButton size="sm">
+                    <PageviewIcon />
+                  </IconButton>
+                </Tooltip>
+              </Link>
               </TableCell>
   
               {
@@ -379,14 +376,16 @@ export class InstanceTableMUI extends Component {
       })
     }
     else {
+  
       return this.props.assets.map((asset) => {
       //console.log(asset)
       const { id, model, hostname, rack, owner, rack_u, datacenter, network_ports, power_ports, asset_number } = asset //destructuring
-      console.log(datacenter.id)
-      console.log(this.context.asset_permission)
-      console.log(this.context.asset_permission.includes(datacenter.id))
-      console.log(this.context.is_admin)
-      console.log(this.context.username === 'admin')
+      // console.log(datacenter.id)
+      // console.log(this.context.asset_permission)
+      // console.log(this.context.asset_permission.includes(datacenter.id))
+      // console.log(this.context.is_admin)
+      // console.log(this.context.username === 'admin')
+
       return (
         <TableRow
           hover
@@ -412,13 +411,13 @@ export class InstanceTableMUI extends Component {
           <TableCell align="center">{asset_number}</TableCell>
           <div>
             <TableCell align="right">
-              <Link to={'/assets/' + id}>
-                <Tooltip title='View Details'>
-                  <IconButton size="sm">
-                    <PageviewIcon />
-                  </IconButton>
-                </Tooltip>
-              </Link>
+            <Link to={'/assets/' + id}>
+              <Tooltip title='View Details'>
+                <IconButton size="sm">
+                  <PageviewIcon />
+                </IconButton>
+              </Tooltip>
+            </Link>
             </TableCell>
 
             {
@@ -428,13 +427,13 @@ export class InstanceTableMUI extends Component {
                 || this.context.asset_permission.includes(datacenter.id)
               ) ? (
                   <TableCell align="right">
-                    <Link to={'/assets/' + id + '/edit'}>
-                      <Tooltip title='Edit'>
-                        <IconButton size="sm">
-                          <EditIcon />
-                        </IconButton>
-                      </Tooltip>
-                    </Link>
+                   <Link to={'/assets/' + id + '/edit'}>
+                    <Tooltip title='Edit'>
+                      <IconButton size="sm">
+                        <EditIcon />
+                      </IconButton>
+                    </Tooltip>
+                  </Link>;
                   </TableCell>) : <div></div>
             }
             {
