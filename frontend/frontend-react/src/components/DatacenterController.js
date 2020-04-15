@@ -150,26 +150,27 @@ export class DatacenterController extends Component {
 
       getAllDatacenters = () => {
 
-        let dst = "/api/datacenters/" + "?" + "show_all=true";
+        let dcDst = "/api/datacenters/" + "?" + "show_all=true";
+        let offDst = "/api/datacenters/" + "?" + "show_all=true";
 
-        axios.get(dst).then(res => {
-
-          let oList = [];
-          let dList= [];
-
-          res.data.map((site, index) => {
-            if(site.is_offline){
-              oList.push(site);
-            }
-            else{
-              dList.push(site);
-            }
-          })
+        axios.get(dcDst).then(res => {
           this.setState({
-            datacenters: dList,
-            offlineStorageSites: oList,
-            prevPage: null,
-            nextPage: null,
+            datacenters: res.data,
+            dcPrevPage: null,
+            dcNextPage: null,
+          });
+        })
+          .catch(function (error) {
+            // TODO: handle error
+            alert("Cannot load. Re-login.\n" + JSON.stringify(error.response.data, null, 2));
+          });
+
+
+        axios.get(dcDst).then(res => {
+          this.setState({
+            datacenters: res.data,
+            offlinePrevPage: null,
+            offlineNextPage: null,
           });
         })
           .catch(function (error) {
@@ -286,7 +287,7 @@ export class DatacenterController extends Component {
                     </Grid>
                     <Grid item xs={12} />
                     <Grid item justify="flex-start" alignContent="center" xs={3} />
-                    
+
                     <Grid item justify="flex-end" alignContent="flex-end" xs={3}>
                         {paginateNavigationOffline}
                     </Grid>
