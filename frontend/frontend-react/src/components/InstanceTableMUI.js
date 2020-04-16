@@ -99,40 +99,78 @@ export class InstanceTableMUI extends Component {
     this.loadAllAssetIDs();
   }
 
-  showDecommissionedForm = (id) => {
+  showDecommissionedForm = (id, isBlade) => {
     if (window.confirm('Are you sure you want to decommission?')) {
       this.setState({
         loadingDecommission: true
       })
-      let dst = '/api/assets/'.concat(id).concat('/?decommissioned=true');
-      let self = this
-      axios.delete(dst)
-        .then(function (response) {
-          alert('Decommission was successful');
-          self.setState({
-            loadingDecommission: false
+
+      if (isBlade) {
+        console.log('decommissioning blade')
+        let dst = '/api/blades/'.concat(id).concat('/?decommissioned=true');
+        let self = this
+        axios.delete(dst)
+          .then(function (response) {
+            alert('Decommission was successful');
+            self.setState({
+              loadingDecommission: false
+            })
           })
-        })
-        .catch(function (error) {
-          alert('Decommission was not successful.\n' + JSON.stringify(error.response.data, null, 2));
-          self.setState({
-            loadingDecommission: false
+          .catch(function (error) {
+            alert('Decommission was not successful.\n' + JSON.stringify(error.response.data, null, 2));
+            self.setState({
+              loadingDecommission: false
+            })
+          });
+      }
+      else {
+        console.log('decommissioning nonblade')
+        let dst = '/api/assets/'.concat(id).concat('/?decommissioned=true');
+        let self = this
+        axios.delete(dst)
+          .then(function (response) {
+            alert('Decommission was successful');
+            self.setState({
+              loadingDecommission: false
+            })
           })
-        });
+          .catch(function (error) {
+            alert('Decommission was not successful.\n' + JSON.stringify(error.response.data, null, 2));
+            self.setState({
+              loadingDecommission: false
+            })
+          });
+      }
     }
     this.showRerender();
   }
 
-  showDeleteForm = (id) => {
-    if (window.confirm('Are you sure you want to delete?')) {
-      let dst = '/api/assets/'.concat(id).concat('/');
-      axios.delete(dst)
-        .then(function (response) {
-          alert('Delete was successful');
-        })
-        .catch(function (error) {
-          alert('Delete was not successful.\n' + JSON.stringify(error.response.data, null, 2));
-        });
+  showDeleteForm = (id, isBlade) => {
+    if (isBlade) {
+      console.log('deleting blade')
+      if (window.confirm('Are you sure you want to delete?')) {
+        let dst = '/api/blades/'.concat(id).concat('/');
+        axios.delete(dst)
+          .then(function (response) {
+            alert('Delete was successful');
+          })
+          .catch(function (error) {
+            alert('Delete was not successful.\n' + JSON.stringify(error.response.data, null, 2));
+          });
+      }
+    }
+    else {
+      console.log('deleting nonblade')
+      if (window.confirm('Are you sure you want to delete?')) {
+        let dst = '/api/assets/'.concat(id).concat('/');
+        axios.delete(dst)
+          .then(function (response) {
+            alert('Delete was successful');
+          })
+          .catch(function (error) {
+            alert('Delete was not successful.\n' + JSON.stringify(error.response.data, null, 2));
+          });
+      }
     }
     this.showRerender();
   }
@@ -254,6 +292,8 @@ export class InstanceTableMUI extends Component {
     let headCells = [
       { id: 'rack__rack_number', label: 'Rack' },
       { id: 'rack_u', label: 'Rack U' },
+      { id: 'location', label: 'Location' },
+      { id: 'slot_number', label: 'Slot No.' },
       { id: 'model__vendor', label: 'Vendor' },
       { id: 'model__model_number', label: 'Model Number' },
       { id: 'hostname', label: 'Hostname' },
@@ -290,12 +330,24 @@ export class InstanceTableMUI extends Component {
     )
     return this.props.assets.map((asset) => {
       //console.log(asset)
-      const { id, model, hostname, rack, owner, rack_u, datacenter, network_ports, power_ports, asset_number } = asset //destructuring
-      console.log(datacenter.id)
-      console.log(this.context.asset_permission)
-      console.log(this.context.asset_permission.includes(datacenter.id))
-      console.log(this.context.is_admin)
-      console.log(this.context.username === 'admin')
+
+      let id, model, hostname, rack, owner, rack_u, datacenter, asset_number, location, slot_number
+
+
+      if (asset.bladeserver) {
+        ({ id, model, hostname, rack, owner, location, slot_number, asset_number } = asset.bladeserver)
+      }
+      else {
+        ({ id, model, hostname, rack, owner, rack_u, datacenter, asset_number } = asset.asset)
+      }
+
+
+      //const { id, model, hostname, rack, owner, rack_u, datacenter, asset_number } = asset //destructuring
+      // console.log(datacenter.id)
+      // console.log(this.context.asset_permission)
+      // console.log(this.context.asset_permission.includes(datacenter.id))
+      // console.log(this.context.is_admin)
+      // console.log(this.context.username === 'admin')
       return (
         <TableRow
           hover
@@ -311,6 +363,8 @@ export class InstanceTableMUI extends Component {
           </TableCell>
           <TableCell align="center">{rack ? rack.rack_number : null}</TableCell>
           <TableCell align="center">{rack_u}</TableCell>
+          <TableCell align="center">{location ? location.hostname : null}</TableCell>
+          <TableCell align="center">{slot_number}</TableCell>
           <TableCell align="center">{model ? model.vendor : null}</TableCell>
           <TableCell align="center">{model ? model.model_number : null}</TableCell>
           <TableCell align="center">{hostname}</TableCell>
@@ -321,7 +375,12 @@ export class InstanceTableMUI extends Component {
           <TableCell align="center">{asset_number}</TableCell>
           <div>
             <TableCell align="right">
-              <Link to={'/assets/' + id}>
+              <Link to={{
+                pathname: '/assets/' + id,
+                state: {
+                  isBlade: model.mount_type === 'blade'
+                }
+              }}>
                 <Tooltip title='View Details'>
                   <IconButton size="sm">
                     <PageviewIcon />
@@ -337,7 +396,12 @@ export class InstanceTableMUI extends Component {
                 || this.context.asset_permission.includes(datacenter.id)
               ) ? (
                   <TableCell align="right">
-                    <Link to={'/assets/' + id + '/edit'}>
+                    <Link to={{
+                      pathname: '/assets/' + id + '/edit',
+                      state: {
+                        isBlade: model.mount_type === 'blade'
+                      }
+                    }}>
                       <Tooltip title='Edit'>
                         <IconButton size="sm">
                           <EditIcon />
@@ -354,7 +418,7 @@ export class InstanceTableMUI extends Component {
               ) ? (
                   < TableCell align="right">
                     < Tooltip title='Decommission'>
-                      <IconButton size="sm" onClick={() => this.showDecommissionedForm(id)}>
+                      <IconButton size="sm" onClick={() => this.showDecommissionedForm(id, model.mount_type === 'blade')}>
                         <BlockIcon />
                       </IconButton>
                     </Tooltip>
