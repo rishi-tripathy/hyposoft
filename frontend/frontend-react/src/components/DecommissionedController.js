@@ -69,26 +69,26 @@ export class DecommissionedController extends Component {
   }
 
   getAllDecommissionedAssets = () => {
-    // let dst = '/api/decommissioned/show_all=true/'
-    // console.log('QUERY')
-    // console.log(dst)
-    // axios.get(dst).then(res => {
-    //   // console.log(res.data.next)
-    //   this.setState({
-    //     decommissionedAssets: res.data.results,
-    //     prevPage: res.data.previous,
-    //     nextPage: res.data.next,
-    //     loading: false,
-    //   });
-    // })
-    //   .catch(function (error) {
-    //     // TODO: handle error
-    //     this.setState({
-    //       loading: false,
-    //     })
-    //     console.log(error.response)
-    //     alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
-    //   });
+    let dst = '/api/decommissioned/?show_all=true'
+    console.log('QUERY')
+    console.log(dst)
+    axios.get(dst).then(res => {
+      // console.log(res.data.next)
+      this.setState({
+        decommissionedAssets: res.data,
+        prevPage: null,
+        nextPage: null,
+        loading: false,
+      });
+    })
+      .catch(function (error) {
+        // TODO: handle error
+        this.setState({
+          loading: false,
+        })
+        console.log(error.response)
+        alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+      });
   }
 
   paginateNext = () => {
