@@ -196,18 +196,11 @@ export class RacksView extends Component {
       condensed = <p></p>;
       deleteMultiple = <p></p>;
     }
-    //TODO: change this to ,rack.isDatacenter after integration
-    else if (this.props.rack == null) {
-      empty = <h1>Assets are not in racks in offline storage sites.</h1>;
-      showAll = <p></p>;
-      condensed = <p></p>;
-      deleteMultiple = <p></p>;
-    }
-
 
 
     return (
       <Container maxwidth="xl">
+        {this.context.is_offline ?  <h1>Assets are not displayed in racks in offline storage sites.</h1> : 
           <Grid container className="themed-container" spacing={2}>
             <Grid item justify="flex-start" alignContent='center' xs={12}/>
             <Grid item justify="flex-start" alignContent='flex-start' xs={2}>
@@ -267,7 +260,7 @@ export class RacksView extends Component {
               </div>
         )}
             </Grid>
-          </Grid>
+              </Grid> }
         </Container>
     )
   }
