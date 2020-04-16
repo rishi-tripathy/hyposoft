@@ -428,19 +428,19 @@ export class InstanceTableMUI extends Component {
 
 
       if (asset.bladeserver) {
-        ({ id, model, hostname, rack, owner, location, slot_number, asset_number } = asset.bladeserver)
+        ({ id, model, hostname, rack, owner, location, slot_number, datacenter, asset_number } = asset.bladeserver)
       }
       else {
         ({ id, model, hostname, rack, owner, rack_u, datacenter, asset_number } = asset.asset)
       }
 
 
-      //const { id, model, hostname, rack, owner, rack_u, datacenter, asset_number } = asset //destructuring
-      // console.log(datacenter.id)
-      // console.log(this.context.asset_permission)
-      // console.log(this.context.asset_permission.includes(datacenter.id))
-      // console.log(this.context.is_admin)
-      // console.log(this.context.username === 'admin')
+      // const { id, model, hostname, rack, owner, rack_u, datacenter, asset_number } = asset //destructuring
+      console.log(datacenter.id)
+      console.log(this.context.asset_permission)
+      console.log(this.context.asset_permission.includes(datacenter.id))
+      console.log(this.context.is_admin)
+      console.log(this.context.username === 'admin')
       return (
         <TableRow
           hover

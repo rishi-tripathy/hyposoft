@@ -13,6 +13,7 @@ import { Redirect, Link } from 'react-router-dom'
 import CancelIcon from '@material-ui/icons/Cancel';
 import NetworkPortConnectionDialog from './NetworkPortConnectionDialog';
 import PowerPortConnectionDialog from './PowerPortConnectionDialog';
+import DatacenterContext from './DatacenterContext';
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
@@ -167,21 +168,21 @@ export class CreateInstanceForm extends Component {
       });
   }
 
-  loadDatacenters = () => {
-    const dst = '/api/datacenters/?show_all=true';
-    axios.get(dst).then(res => {
-      let myOptions = [];
-      for (let i = 0; i < res.data.length; i++) {
-        //TODO: change value to URL
-        myOptions.push({ value: res.data[i].url, label: res.data[i].abbreviation, id: res.data[i].id, is_offline: res.data[i].is_offline });
-      }
-      this.setState({ datacenterOptions: myOptions });
-    })
-      .catch(function (error) {
-        // TODO: handle error
-        alert('Could not load owners. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
-      });
-  }
+  // loadDatacenters = () => {
+  //   const dst = '/api/datacenters/?show_all=true';
+  //   axios.get(dst).then(res => {
+  //     let myOptions = [];
+  //     for (let i = 0; i < res.data.length; i++) {
+  //       //TODO: change value to URL
+  //       myOptions.push({ value: res.data[i].url, label: res.data[i].abbreviation, id: res.data[i].id, is_offline: res.data[i].is_offline });
+  //     }
+  //     this.setState({ datacenterOptions: myOptions });
+  //   })
+  //     .catch(function (error) {
+  //       // TODO: handle error
+  //       alert('Could not load owners. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+  //     });
+  // }
 
   loadNumberOfPowerPortsForModel = () => {
     const dst = '/api/models/' + this.state.selectedModelOption.id + '/';
@@ -228,6 +229,7 @@ export class CreateInstanceForm extends Component {
     console.log(dst)
     axios.get(dst).then(res => {
       let myOptions = [];
+      console.log(res.data)
       for (let i = 0; i < res.data.length; i++) {
         myOptions.push({ value: res.data[i].id, label: res.data[i].hostname + ' ' + res.data[i].asset_number, id: res.data[i].id });
       }
@@ -242,7 +244,7 @@ export class CreateInstanceForm extends Component {
   componentDidMount() {
     this.loadAssetNumber();
     this.loadModels();
-    this.loadDatacenters();
+    //this.loadDatacenters();
     this.loadOwners();
   }
 
@@ -272,7 +274,7 @@ export class CreateInstanceForm extends Component {
             is_offline: false,
           })
           this.loadRacks();
-        this.loadLocations();
+          this.loadLocations();
         }
       }
       else {
@@ -332,7 +334,8 @@ export class CreateInstanceForm extends Component {
 
     let stateCopy = Object.assign({}, this.state.asset);
     stateCopy.model = this.state.selectedModelOption ? this.state.selectedModelOption.value : null;
-    stateCopy.datacenter = this.state.selectedDatacenterOption ? this.state.selectedDatacenterOption.value : null;
+    console.log(this.state.selectedDatacenterOption)
+    stateCopy.datacenter = this.state.selectedDatacenterOption ? this.state.selectedDatacenterOption.url : null;
     stateCopy.rack = this.state.selectedRackOption ? this.state.selectedRackOption.value : null;
     stateCopy.owner = this.state.selectedOwnerOption ? this.state.selectedOwnerOption.value : null;
     stateCopy.network_ports = networkPortsBuilder
@@ -501,7 +504,17 @@ export class CreateInstanceForm extends Component {
           />
         </Paper>;
 
+        let options = this.context.datacenterOptions.map(option => {
+          let firstLetter = option.is_offline;
+          console.log(firstLetter);
+            return {
+              firstLetter: /true/.test(firstLetter) ? "Offline Sites" : "Datacenters",
+              ...option
+            };
+        })
+
     console.log(this.state.currentMountType)
+    console.log(this.state.locationOptions)
     return (
       <div>
         {this.state.redirect && <Redirect to={{ pathname: '/assets' }} />}
@@ -546,12 +559,13 @@ export class CreateInstanceForm extends Component {
                     autoHighlight
                     autoSelect
                     id="datacenter-select"
-                    options={this.state.datacenterOptions}
-                    getOptionLabel={option => option.label}
+                    options={options.sort((a, b) => -b.name)}
+                    groupBy={option => option.firstLetter}
+                    getOptionLabel={option => option.abbreviation}
                     onChange={this.handleChangeDatacenter}
                     value={this.state.selectedDatacenterOption}
                     renderInput={params => (
-                      <TextField {...params} label="Datacenter" fullWidth />
+                      <TextField {...params} label="DC/Offline Site" fullWidth />
                     )}
                   />
                 </Grid>
@@ -665,5 +679,7 @@ export class CreateInstanceForm extends Component {
     )
   }
 }
+
+CreateInstanceForm.contextType = DatacenterContext;
 
 export default CreateInstanceForm
