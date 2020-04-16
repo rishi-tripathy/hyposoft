@@ -16,6 +16,7 @@ from rest_framework import viewsets
 from ass_man.serializers.asset_serializers import AssetSerializer, AssetFetchSerializer, AssetShortSerializer, \
     AssetSeedForGraphSerializer
 from ass_man.serializers.model_serializers import UniqueModelsSerializer
+from ass_man.serializers.blade_serializer import BladeServerSerializer
 
 # Auth
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
@@ -190,7 +191,8 @@ class AssetViewSet(viewsets.ModelViewSet):
             except(Power_Port.DoesNotExist, KeyError):
                 pp = Power_Port.objects.create(pdu=pdu, port_number=port_num, asset=asset)
         if not power_ports_json and request.method == 'POST':
-            for i in range(asset.model.power_ports):
+            num_ports = asset.model.power_ports if asset.model.power_ports else 0
+            for i in range(num_ports):
                 Power_Port.objects.create(pdu=None, asset=asset)
         return
 
@@ -294,14 +296,25 @@ class AssetViewSet(viewsets.ModelViewSet):
         return super().destroy(self, request, *args, **kwargs)
 
     # Custom actions below
+    @action(detail=True, methods=[GET])
+    def blades(self, request, *args, **kwargs):
+        asset = self.get_object()
+        blades = asset.bladeserver_set
+        serializer = BladeServerSerializer(blades, many=True, context={'request': request})
+        return Response(serializer.data)
+
     @action(detail=False, methods=[GET])
     def asset_number(self, request, *args, **kwargs):
-        try:
-            num = Asset_Number.objects.get(pk=1)
-            ass_num = num.next_avail
-        except Asset_Number.DoesNotExist:
+        num = Asset_Number.objects.all().first()
+        if not num:
             num = Asset_Number.objects.create(next_avail=100000)
-            ass_num = num.next_avail
+        ass_num = num.next_avail
+        # try:
+        #     num = Asset_Number.objects.get(pk=1)
+        #     ass_num = num.next_avail
+        # except Asset_Number.DoesNotExist:
+        #     num = Asset_Number.objects.create(next_avail=100000)
+        #     ass_num = num.next_avail
         return Response({
             'asset_number': ass_num
         })

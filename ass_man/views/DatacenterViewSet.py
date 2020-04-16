@@ -10,6 +10,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import viewsets
 from ass_man.serializers.datacenter_serializers import DatacenterSerializer
 from ass_man.serializers.rack_serializers import RackOfAssetSerializer
+from ass_man.serializers.asset_serializers import AssetOfModelSerializer
 
 # Auth
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
@@ -99,6 +100,14 @@ class DatacenterViewSet(viewsets.ModelViewSet):
             }, status=status.HTTP_400_BAD_REQUEST)
 
     # Custom Endpoints
+    @action(detail=True, methods=[GET])
+    def chassis(self, request, *args, **kwargs):
+        chassis = {}
+        chassis['chassis'] = []
+        dc = self.get_object()
+        chassis = Asset.objects.filter(model__mount_type='chassis', datacenter=dc)
+        serializer = AssetOfModelSerializer(chassis, many=True, context={'request': request})
+        return Response(serializer.data)
 
     # This is used for asset creation, not for displaying racks (should use Rack filter endpoint)
     @action(detail=True, methods=[GET])

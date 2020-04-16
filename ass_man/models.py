@@ -3,7 +3,6 @@ from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField, JSONField
 from django.db.models.fields import DateTimeField
 from django.core.validators import RegexValidator
-
 # Create your models here.
 
 class Asset_Number(models.Model):
@@ -33,12 +32,29 @@ class Decommissioned(models.Model):
     asset_state = JSONField(default=dict)
     network_graph = JSONField(default=dict)
 
-class Asset(models.Model):
+class AllAssets(models.Model):
+    pass
+
+class Asset(AllAssets):
     model = models.ForeignKey(Model, on_delete=models.PROTECT)
     hostname = models.CharField(max_length=64, blank=True, null=True)
     datacenter = models.ForeignKey('Datacenter', on_delete=models.PROTECT)
     rack = models.ForeignKey('Rack', on_delete=models.PROTECT, blank=True, null=True)
     rack_u = models.PositiveIntegerField(blank=True, null=True)
+    owner = models.ForeignKey(User, blank=True, null=True, on_delete=models.PROTECT)
+    comment = models.TextField(blank=True)
+    asset_number = models.PositiveIntegerField(blank=True, default=100000, \
+    validators=[RegexValidator(r'^[0-9]{6}$', 'Number must be 6 digits', 'Invalid Number')])
+
+    def __str__(self):
+        return self.hostname or ''
+
+class BladeServer(AllAssets):
+    model = models.ForeignKey(Model, on_delete=models.PROTECT)
+    hostname = models.CharField(max_length=64, blank=True, null=True)
+    datacenter = models.ForeignKey('Datacenter', on_delete=models.PROTECT)
+    location = models.ForeignKey('Asset', on_delete=models.PROTECT)
+    slot_number = models.PositiveIntegerField()
     owner = models.ForeignKey(User, blank=True, null=True, on_delete=models.PROTECT)
     comment = models.TextField(blank=True)
     asset_number = models.PositiveIntegerField(blank=True, default=100000, \

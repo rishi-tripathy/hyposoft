@@ -63,7 +63,22 @@ export class CreateInstanceForm extends Component {
       ppConnections: [],
 
       redirect: false,
+
+      currentMountType: '',
+
+      locationOptions: [],
+      selectedLocationOption: null,
     }
+  }
+
+  loadCurrentModelMountType = () => {
+    const dst = '/api/models/' + this.state.selectedModelOption.id + '/';
+    axios.get(dst).then(res => {
+      this.setState({ currentMountType: res.data.mount_type });
+    })
+      .catch(function (error) {
+        alert('Could not load model. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+      });
   }
 
   loadAssetNumber = () => {
@@ -206,6 +221,24 @@ export class CreateInstanceForm extends Component {
     console.log(this.state.rightFreePDUSlots)
   }
 
+  loadLocations = () => {
+    // locations are all chassis assets in a given DC
+    console.log(this.state.selectedDatacenterOption)
+    const dst = '/api/datacenters/' + this.state.selectedDatacenterOption.id + '/chassis/';
+    console.log(dst)
+    axios.get(dst).then(res => {
+      let myOptions = [];
+      for (let i = 0; i < res.data.length; i++) {
+        myOptions.push({ value: res.data[i].id, label: res.data[i].hostname + ' ' + res.data[i].asset_number, id: res.data[i].id });
+      }
+      this.setState({ locationOptions: myOptions });
+    })
+      .catch(function (error) {
+        // TODO: handle error
+        alert('Could not load racks. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+      });
+  }
+
   componentDidMount() {
     this.loadAssetNumber();
     this.loadModels();
@@ -218,6 +251,7 @@ export class CreateInstanceForm extends Component {
       if (this.state.selectedModelOption) {
         this.loadNetworkPortInfoForCurrentlySelectedModel();
         this.loadNumberOfPowerPortsForModel();
+        this.loadCurrentModelMountType();
       }
       else {
         this.setState({ networkPortNamesForCurrentAsset: [], numberOfNetworkPortsForCurrentAsset: null });
@@ -231,16 +265,19 @@ export class CreateInstanceForm extends Component {
           this.setState({
             is_offline: true,
           })
+        this.loadLocations();
         }
         else {
           this.setState({
             is_offline: false,
           })
           this.loadRacks();
+        this.loadLocations();
         }
       }
       else {
         this.setState({ rackOptions: [], selectedRackOption: null });
+        this.setState({ locationOptions: [], selectedLocationOption: null });
       }
     }
 
@@ -310,19 +347,42 @@ export class CreateInstanceForm extends Component {
     console.log(JSON.stringify(stateToSend, null, 2))
     //console.log(JSON.stringify(this.state, null, 2))
 
-    //CHOKE THE POST CALL
-    var self = this;
-    axios.post('/api/assets/', stateToSend)
-      .then(function (response) {
-        alert('Created successfully');
-        // window.location = '/assets'
-        self.setState({
-          redirect: true,
+
+    if (this.state.currentMountType === 'blade') {
+
+      stateToSend.location = this.state.selectedLocationOption ? this.state.selectedLocationOption.id : null;
+      stateToSend.model = this.state.selectedModelOption ? this.state.selectedModelOption.id : null;
+      stateToSend.datacenter = this.state.selectedDatacenterOption ? this.state.selectedDatacenterOption.id : null;
+
+      var self = this;
+      axios.post('/api/blades/', stateToSend)
+        .then(function (response) {
+          alert('Created successfully');
+          // window.location = '/assets'
+          self.setState({
+            redirect: true,
+          })
         })
-      })
-      .catch(function (error) {
-        alert('Creation was not successful.\n' + JSON.stringify(error.response.data, null, 2));
-      });
+        .catch(function (error) {
+          alert('Creation was not successful.\n' + JSON.stringify(error.response.data, null, 2));
+        });
+    }
+    else {
+      var self = this;
+      axios.post('/api/assets/', stateToSend)
+        .then(function (response) {
+          alert('Created successfully');
+          // window.location = '/assets'
+          self.setState({
+            redirect: true,
+          })
+        })
+        .catch(function (error) {
+          alert('Creation was not successful.\n' + JSON.stringify(error.response.data, null, 2));
+        });
+    }
+
+
   }
 
   handleChangeModel = (event, selectedModelOption) => {
@@ -331,6 +391,10 @@ export class CreateInstanceForm extends Component {
 
   handleChangeRack = (event, selectedRackOption) => {
     this.setState({ selectedRackOption });
+  };
+
+  handleChangeLocation = (event, selectedLocationOption) => {
+    this.setState({ selectedLocationOption });
   };
 
   handleChangeOwner = (event, selectedOwnerOption) => {
@@ -437,6 +501,7 @@ export class CreateInstanceForm extends Component {
           />
         </Paper>;
 
+    console.log(this.state.currentMountType)
     return (
       <div>
         {this.state.redirect && <Redirect to={{ pathname: '/assets' }} />}
@@ -491,17 +556,17 @@ export class CreateInstanceForm extends Component {
                   />
                 </Grid>
                 <Grid item xs={6}>
-                  <TextField label='Asset Number' 
-                    type="text" 
-                    fullWidth 
+                  <TextField label='Asset Number'
+                    type="text"
+                    fullWidth
                     InputLabelProps={{ shrink: true }}
                     value={this.state.asset.asset_number} onChange={e => {
-                    let instanceCopy = JSON.parse(JSON.stringify(this.state.asset))
-                    instanceCopy.asset_number = e.target.value
-                    this.setState({
-                      asset: instanceCopy
-                    })
-                  }} />
+                      let instanceCopy = JSON.parse(JSON.stringify(this.state.asset))
+                      instanceCopy.asset_number = e.target.value
+                      this.setState({
+                        asset: instanceCopy
+                      })
+                    }} />
                 </Grid>
 
 
@@ -512,7 +577,36 @@ export class CreateInstanceForm extends Component {
                 <Grid item xs={6}>
                   {this.state.is_offline ? <p></p> : rackU_select}
                 </Grid>
+                <Grid item xs={6}>
+                  <Autocomplete
+                    autoComplete
+                    autoHighlight
+                    autoSelect
+                    id="instance-create-location-select"
+                    options={this.state.locationOptions}
+                    getOptionLabel={option => option.label}
+                    onChange={this.handleChangeLocation}
+                    value={this.state.selectedLocationOption}
+                    disabled={this.state.selectedDatacenterOption === null || this.state.currentMountType != 'blade'}
+                    renderInput={params => (
+                      <TextField {...params} label="Location" fullWidth />
+                    )}
+                  />
+                </Grid>
 
+                <Grid item xs={6}>
+                  < TextField label="Chassis Slot"
+                    fullWidth
+                    type="number"
+                    disabled={this.state.currentMountType != 'blade'}
+                    onChange={e => {
+                      let instanceCopy = JSON.parse(JSON.stringify(this.state.asset))
+                      instanceCopy.slot_number = e.target.value
+                      this.setState({
+                        asset: instanceCopy
+                      })
+                    }} />
+                </Grid>
                 <Grid item xs={6}>
                   {this.state.is_offline ? <p></p> : np_select}
                 </Grid>

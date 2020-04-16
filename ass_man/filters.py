@@ -1,6 +1,6 @@
 from rest_framework import generics
 from django_filters import rest_framework as filters
-from ass_man.models import Model, Asset, Rack, Decommissioned
+from ass_man.models import Model, Asset, Rack, Decommissioned, AllAssets
 from rest_framework import filters as rest_filters
 from django.db.models.fields import IntegerField
 from django.db.models.functions import Substr, Cast, Length
@@ -9,6 +9,19 @@ import django.db.models as models
 from rest_framework.validators import ValidationError
 from rest_framework.response import Response
 
+class AllAssetsFilter(filters.FilterSet):
+    datacenter = filters.NumberFilter(field_name='datacenter__pk', lookup_expr='exact')
+    model = filters.NumberFilter(field_name='model__pk', lookup_expr='exact')
+    vendor = filters.CharFilter(field_name='model__vendor', lookup_expr='icontains')
+    model_number = filters.CharFilter(field_name='model__model_number', lookup_expr='icontains')
+    mount_type = filters.CharFilter(field_name='mount_type', lookup_expr='icontains')
+    hostname = filters.CharFilter(field_name='hostname', lookup_expr='icontains')
+    owner_username = filters.CharFilter(field_name='owner__username', lookup_expr='icontains')
+    comment = filters.CharFilter(field_name='comment', lookup_expr='icontains')
+    class Meta:
+        model = AllAssets
+        fields = ['model', 'datacenter', 'model_number',
+        'vendor', 'mount_type', 'hostname', 'owner_username',]
 
 class DecommissionedFilter(filters.FilterSet):
     username = filters.CharFilter(field_name='username', lookup_expr='icontains')

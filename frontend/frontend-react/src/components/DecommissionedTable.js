@@ -86,6 +86,8 @@ export class DecommissionedTable extends Component {
       { id: 'user', label: 'Decommissioned by' },
       { id: 'rack__rack_number', label: 'Rack' },
       { id: 'rack_u', label: 'Rack U' },
+      { id: 'location', label: 'Location' },
+      { id: 'slot_number', label: 'Slot No.' },
       { id: 'model__vendor', label: 'Vendor' },
       { id: 'model__model_number', label: 'Model Number' },
       { id: 'hostname', label: 'Hostname' },
@@ -135,8 +137,10 @@ export class DecommissionedTable extends Component {
         >
           <TableCell align="center">{readableTime.toDateString()}</TableCell>
           <TableCell align="center">{username}</TableCell>
-          <TableCell align="center">{asset_state.rack.rack_number}</TableCell>
-          <TableCell align="center">{asset_state.rack_u}</TableCell>
+          <TableCell align="center">{asset_state.rack ? asset_state.rack.rack_number : null}</TableCell>
+          <TableCell align="center">{asset_state.rack_u ? asset_state.rack_u : null}</TableCell>
+          <TableCell align="center">{asset_state.location ? asset_state.location.hostname : null}</TableCell>
+          <TableCell align="center">{asset_state.slot_number ? asset_state.slot_number : null}</TableCell>
           <TableCell align="center">{asset_state.model.vendor}</TableCell>
           <TableCell align="center">{asset_state.model.model_number}</TableCell>
           <TableCell align="center">{asset_state.hostname ? asset_state.hostname : null}</TableCell>
