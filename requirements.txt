@@ -9,7 +9,6 @@ Django==3.0.3
 django-cors-headers==3.2.1
 django-easy-audit==1.2.1
 django-filter==2.2.0
-django-model-utils==4.0.0
 djangorestframework==3.11.0
 djangorestframework-simplejwt==4.4.0
 gunicorn==20.0.4

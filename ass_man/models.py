@@ -3,8 +3,6 @@ from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField, JSONField
 from django.db.models.fields import DateTimeField
 from django.core.validators import RegexValidator
-from model_utils.managers import InheritanceManager
-
 # Create your models here.
 
 class Asset_Number(models.Model):
@@ -35,7 +33,7 @@ class Decommissioned(models.Model):
     network_graph = JSONField(default=dict)
 
 class AllAssets(models.Model):
-    objects = InheritanceManager()
+    pass
 
 class Asset(AllAssets):
     model = models.ForeignKey(Model, on_delete=models.PROTECT)

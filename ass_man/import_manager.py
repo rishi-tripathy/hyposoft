@@ -592,11 +592,9 @@ def import_asset_file(request):
         rack.save()
     for np in nps_to_create:
         np.save()
-    try:
-        num = Asset_Number.objects.get(pk=1)
+    num = Asset_Number.objects.all().first()
+    if num:
         num.next_avail = current_ass_num
-    except Asset_Number.DoesNotExist:
-        pass
     return Response({
         'Number of assets created': (len(assets_to_create)),
         'Number of assets ignored': ignored,

@@ -266,12 +266,16 @@ class AssetViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=[GET])
     def asset_number(self, request, *args, **kwargs):
-        try:
-            num = Asset_Number.objects.get(pk=1)
-            ass_num = num.next_avail
-        except Asset_Number.DoesNotExist:
+        num = Asset_Number.objects.all().first()
+        if not num:
             num = Asset_Number.objects.create(next_avail=100000)
-            ass_num = num.next_avail
+        ass_num = num.next_avail
+        # try:
+        #     num = Asset_Number.objects.get(pk=1)
+        #     ass_num = num.next_avail
+        # except Asset_Number.DoesNotExist:
+        #     num = Asset_Number.objects.create(next_avail=100000)
+        #     ass_num = num.next_avail
         return Response({
             'asset_number': ass_num
         })
