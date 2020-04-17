@@ -193,7 +193,7 @@ export class EditInstanceForm extends Component {
   }
 
   componentDidMount() {
-    const delay = 50;
+    const delay = 80;
     this.loadInstance();
     //console.log(this.state.instance)
     setTimeout(() => {
