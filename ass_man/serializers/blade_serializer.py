@@ -13,7 +13,8 @@ class BladeServerSerializer(serializers.ModelSerializer):
     location = ChassisSerializer()
     class Meta:
         model = BladeServer
-        fields = ['id', 'model', 'hostname', 'datacenter', 'location', 'slot_number', 'owner', 'comment', 'asset_number']
+        fields = ['id', 'model', 'hostname', 'datacenter', 'location', 'slot_number', 'owner', 'comment',
+                  'ovr_color', 'ovr_storage', 'ovr_cpu', 'over_memory', 'asset_number']
 
 class BladeCreateSerializer(serializers.ModelSerializer):
     def check_asset_number(self, validated_data):
@@ -132,4 +133,5 @@ class BladeCreateSerializer(serializers.ModelSerializer):
         return super().create(validated_data)
     class Meta:
         model = BladeServer
-        fields = ['id', 'model', 'hostname', 'datacenter', 'location', 'slot_number', 'owner', 'comment', 'asset_number']
+        fields = ['id', 'model', 'hostname', 'datacenter', 'location', 'slot_number', 'owner',
+                  'ovr_color', 'ovr_storage', 'ovr_cpu', 'over_memory', 'comment', 'asset_number']
