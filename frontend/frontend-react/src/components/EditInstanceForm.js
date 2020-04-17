@@ -625,8 +625,9 @@ export class EditInstanceForm extends Component {
 
   render() {
 
-    var options = this.context.datacenterOptions;
+    let options = this.context.datacenterOptions;
     console.log(options)
+    options = options.slice(1);
 
     options.map(option => {
       console.log(option)

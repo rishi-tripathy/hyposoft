@@ -504,7 +504,10 @@ export class CreateInstanceForm extends Component {
           />
         </Paper>;
 
-        let options = this.context.datacenterOptions.map(option => {
+        let options = this.context.datacenterOptions;
+        console.log(options)
+        options = options.slice(1);
+        options.map(option => {
           let firstLetter = option.is_offline;
           console.log(firstLetter);
             return {
