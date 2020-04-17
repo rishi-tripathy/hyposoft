@@ -267,7 +267,7 @@ export class InstanceTableMUI extends Component {
         </Collapse>
         <Tooltip title="Filter list">
           <Button endIcon={<FilterListIcon />} onClick={() => this.handleOpenFilters()} aria-label="filter instance list">
-            Filter
+
           </Button>
         </Tooltip>
       </Toolbar>
@@ -289,23 +289,42 @@ export class InstanceTableMUI extends Component {
       // { id: 'np', label: 'Network Ports' },
       // { id: 'pp', label: 'Power Ports' },
       { id: 'asset_number', label: 'Asset no.' },
+      { id: 'actions', label: 'Actions' },
+
     ];
     return headCells.map(headCell => (
-      <TableCell
-        key={headCell.id}
-        align={'center'}
-        padding={'default'}
-
-      >
-        <TableSortLabel
-          active={this.state.sortBy === headCell.id}
-          hideSortIcon={!(this.state.sortBy === headCell.id)}
-          direction={this.state.sortBy === headCell.id ? this.state.sortType : false}
-          onClick={() => this.handleHeaderClickSort(headCell.id)}
+      headCell.id === 'actions' ?
+        <TableCell
+          key={headCell.id}
+          align={'center'}
+          padding={'default'}
+          rowSpan={4}
         >
-          {headCell.label.toUpperCase()}
-        </TableSortLabel>
-      </TableCell>
+          <TableSortLabel
+            active={this.state.sortBy === headCell.id}
+            hideSortIcon={!(this.state.sortBy === headCell.id)}
+            direction={this.state.sortBy === headCell.id ? this.state.sortType : false}
+          // onClick={() => this.handleHeaderClickSort(headCell.id)}
+          >
+            {headCell.label.toUpperCase()}
+          </TableSortLabel>
+        </TableCell>
+        :
+        <TableCell
+          key={headCell.id}
+          align={'center'}
+          padding={'default'}
+
+        >
+          <TableSortLabel
+            active={this.state.sortBy === headCell.id}
+            hideSortIcon={!(this.state.sortBy === headCell.id)}
+            direction={this.state.sortBy === headCell.id ? this.state.sortType : false}
+            onClick={() => this.handleHeaderClickSort(headCell.id)}
+          >
+            {headCell.label.toUpperCase()}
+          </TableSortLabel>
+        </TableCell>
     ))
   }
 
@@ -346,6 +365,7 @@ export class InstanceTableMUI extends Component {
               checked={this.state.selected.includes(id)}
               onChange={(e) => this.onSelectCheckboxClick(id, e)}
               inputProps={{ 'aria-labelledby': id }}
+              size={'small'}
             />
           </TableCell>
           <TableCell align="center">{rack ? rack.rack_number : null}</TableCell>
@@ -361,7 +381,7 @@ export class InstanceTableMUI extends Component {
           <TableCell align="center">{power_ports ? power_ports.length : null}</TableCell> */}
           <TableCell align="center">{asset_number}</TableCell>
           <div>
-            <TableCell align="right">
+            <TableCell align="right" >
               <Link to={{
                 pathname: '/assets/' + id,
                 state: {
@@ -374,6 +394,7 @@ export class InstanceTableMUI extends Component {
                   </IconButton>
                 </Tooltip>
               </Link>
+
             </TableCell>
 
             {
@@ -395,6 +416,7 @@ export class InstanceTableMUI extends Component {
                         </IconButton>
                       </Tooltip>
                     </Link>
+
                   </TableCell>) : <div></div>
             }
             {
@@ -409,6 +431,7 @@ export class InstanceTableMUI extends Component {
                         <BlockIcon />
                       </IconButton>
                     </Tooltip>
+
                   </TableCell>
                 ) : <div></div>
             }
@@ -424,6 +447,7 @@ export class InstanceTableMUI extends Component {
                         <DeleteIcon />
                       </IconButton>
                     </Tooltip>
+
                   </TableCell>
                 ) : <div></div>
             }
@@ -497,6 +521,7 @@ export class InstanceTableMUI extends Component {
                       size="small"
                       aria-labelledby="instanceTableTitle"
                       aria-label="instanceTable"
+                      padding={'none'}
                     >
                       <TableRow>
                         <TableCell padding="checkbox">
@@ -505,6 +530,7 @@ export class InstanceTableMUI extends Component {
                             checked={firstArrayIncludesAllElementsOfSecond(this.state.selected, this.state.assetIDsOnPage) && this.state.selected.length != 0}
                             onChange={this.onSelectAllCheckboxClick}
                             inputProps={{ 'aria-label': 'select all desserts' }}
+                            size={'small'}
                           />
                         </TableCell>
                         {this.renderTableHeader()}
