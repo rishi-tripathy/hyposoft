@@ -308,8 +308,8 @@ export class PowerPortConnectionDialog extends Component {
 
 
   render() {
-    // console.log(this.props);
-    // console.log(this.state);
+    console.log(this.props);
+    console.log(this.state);
 
     let configuredMessage = (this.state.configured)
       ? this.displayConfiguration()
