@@ -57,22 +57,27 @@ export class PowerPortConnectionDialog extends Component {
   loadCurrentPPConfiguration = () => {
     let tmpConfig = []
 
-    for (let i = 0; i < this.props.currentPowerPortConfiguration.length; i++) {
-      let currentConfigObj = {}
-      currentConfigObj.pdu = this.props.currentPowerPortConfiguration[i].pdu ? this.props.currentPowerPortConfiguration[i].pdu.name : null
-      currentConfigObj.port_number = this.props.currentPowerPortConfiguration[i].port_number ? this.props.currentPowerPortConfiguration[i].port_number.toString() : null
-      tmpConfig.push(currentConfigObj)
+    if (this.props.currentPowerPortConfiguration) {
+      for (let i = 0; i < this.props.currentPowerPortConfiguration.length; i++) {
+        let currentConfigObj = {}
+        currentConfigObj.pdu = this.props.currentPowerPortConfiguration[i].pdu ? this.props.currentPowerPortConfiguration[i].pdu.name : null
+        currentConfigObj.port_number = this.props.currentPowerPortConfiguration[i].port_number ? this.props.currentPowerPortConfiguration[i].port_number.toString() : null
+        tmpConfig.push(currentConfigObj)
+      }
     }
+
 
     console.log(JSON.stringify(tmpConfig, null, 2))
 
     this.setState({ powerPortConfiguration: tmpConfig })
 
     let isConfigured = false;
-    for (let i = 0; i < this.props.currentPowerPortConfiguration.length; i++) {
-      if (this.props.currentPowerPortConfiguration[i].pdu
-        && this.props.currentPowerPortConfiguration[i].port_number) {
-        isConfigured = true;
+    if (this.props.currentPowerPortConfiguration) {
+      for (let i = 0; i < this.props.currentPowerPortConfiguration.length; i++) {
+        if (this.props.currentPowerPortConfiguration[i].pdu
+          && this.props.currentPowerPortConfiguration[i].port_number) {
+          isConfigured = true;
+        }
       }
     }
 
