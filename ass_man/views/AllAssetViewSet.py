@@ -8,7 +8,8 @@ from rest_framework.permissions import IsAuthenticated
 from django.db.models.functions import Greatest
 
 ALLASSETS_ORDERING_FILTERING_FIELDS = ['model', 'datacenter', 'model__model_number',
-'model__vendor', 'model__mount_type', 'hostname', 'owner', 'asset_number']
+'model__vendor', 'model__mount_type', 'hostname', 'owner', 'asset_number', 'rack__rack_number', 'rack_u',
+'location', 'slot_number']
 
 class AllAssetViewSet(viewsets.ModelViewSet):
     queryset = AllAssets.objects.all()\
@@ -19,7 +20,12 @@ class AllAssetViewSet(viewsets.ModelViewSet):
         .annotate(model__mount_type=Greatest('asset__model__mount_type', 'bladeserver__model__mount_type'))\
         .annotate(hostname=Greatest('asset__hostname', 'bladeserver__hostname'))\
         .annotate(owner=Greatest('asset__owner', 'bladeserver__owner'))\
-        .annotate(asset_number=Greatest('asset__asset_number', 'bladeserver__asset_number'))
+        .annotate(asset_number=Greatest('asset__asset_number', 'bladeserver__asset_number'))\
+        .annotate(rack__rack_number=Greatest('asset__rack__rack_number', None))\
+        .annotate(rack_u=Greatest('asset__rack_u', None))\
+        .annotate(location=Greatest('bladeserver__location__hostname', None))\
+        .annotate(slot_number=Greatest('bladeserver__slot_number', None))
+
 
     serializer_class = AllAssetsSerializer
     permission_classes = [IsAuthenticated]
