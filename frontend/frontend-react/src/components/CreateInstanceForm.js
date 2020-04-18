@@ -69,6 +69,12 @@ export class CreateInstanceForm extends Component {
 
       locationOptions: [],
       selectedLocationOption: null,
+
+      //override
+      ovr_color: null,
+      over_storage: null,
+      ovr_cpu: null,
+      ovr_memory: null,
     }
   }
 
@@ -338,6 +344,10 @@ export class CreateInstanceForm extends Component {
     stateCopy.datacenter = this.state.selectedDatacenterOption ? this.state.selectedDatacenterOption.url : null;
     stateCopy.rack = this.state.selectedRackOption ? this.state.selectedRackOption.value : null;
     stateCopy.owner = this.state.selectedOwnerOption ? this.state.selectedOwnerOption.value : null;
+    stateCopy.ovr_color = this.state.ovr_color ? this.state.ovr_color.value : null;
+    stateCopy.ovr_memory = this.state.ovr_memory ? this.state.ovr_memory.value : null;
+    stateCopy.ovr_cpu = this.state.ovr_cpu ? this.state.ovr_cpu.value : null;
+    stateCopy.ovr_storage = this.state.ovr_storage ? this.state.ovr_storage.value : null;
     stateCopy.network_ports = networkPortsBuilder
     stateCopy.power_ports = tmpPP
     let stateToSend = this.removeEmpty(stateCopy);
@@ -458,7 +468,7 @@ export class CreateInstanceForm extends Component {
         getOptionLabel={option => option.label}
         onChange={this.handleChangeRack}
         value={this.state.selectedRackOption}
-        disabled={this.state.selectedDatacenterOption === null}
+        disabled={this.state.selectedDatacenterOption === null || this.state.currentMountType=="blade"}
         renderInput={params => (
           <TextField {...params} label="Rack" fullWidth />
         )}
@@ -468,6 +478,7 @@ export class CreateInstanceForm extends Component {
       < TextField label="Rack U"
         fullWidth
         type="number"
+        disabled={this.state.selectedDatacenterOption === null || this.state.currentMountType=="blade"}
         onChange={e => {
           let instanceCopy = JSON.parse(JSON.stringify(this.state.asset))
           instanceCopy.rack_u = e.target.value
