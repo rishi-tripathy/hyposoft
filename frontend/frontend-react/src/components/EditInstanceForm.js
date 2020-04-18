@@ -655,14 +655,13 @@ export class EditInstanceForm extends Component {
     // console.log(options)
     options = options.slice(1);
 
-    options.map(option => {
-      // console.log(option)
+    options.map((option) => {
       let firstLetter = option.is_offline;
-      // console.log(firstLetter);
-      return {
-        firstLetter: /true/.test(firstLetter) ? "Offline Sites" : "Datacenters",
-        ...option
-      };
+      console.log(firstLetter);
+        return {
+          firstLetter: /true/.test(firstLetter) ? "Offline Sites" : "Datacenters",
+          ...option
+        };
     })
 
     let rack_select =
@@ -744,7 +743,7 @@ export class EditInstanceForm extends Component {
                     autoHighlight
                     autoSelect
                     id="datacenter-select"
-                    options={options.sort((a, b) => -b.name)}
+                    options={options.sort((a, b) => -b.firstLetter.localeCompare(a.firstLetter))}
                     groupBy={option => option.firstLetter}
                     getOptionLabel={option => option.abbreviation}
                     onChange={this.handleChangeDatacenter}

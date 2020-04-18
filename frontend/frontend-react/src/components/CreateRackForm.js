@@ -37,7 +37,7 @@ export class CreateRackForm extends Component {
 
   loadDatacenters = () => {
     // DCs
-    let dst = '/api/datacenters/?show_all=true';
+    let dst = '/api/datacenters/?show_all=true&offline=false';
     axios.get(dst).then(res => {
       let myOptions = [];
       let myIds = [];

@@ -130,7 +130,8 @@ export class CreateInstanceForm extends Component {
     axios.get(dst).then(res => {
       let myOptions = [];
       for (let i = 0; i < res.data.length; i++) {
-        myOptions.push({ value: res.data[i].url, label: res.data[i].vendor + ' ' + res.data[i].model_number, id: res.data[i].id });
+        console.log(res.data[i])
+        myOptions.push({ value: res.data[i].url, label: res.data[i].vendor + ' ' + res.data[i].model_number, id: res.data[i].id, mountType: res.data[i].mount_type });
       }
       this.setState({ modelOptions: myOptions });
     })
@@ -515,10 +516,10 @@ export class CreateInstanceForm extends Component {
           />
         </Paper>;
 
-        let options = this.context.datacenterOptions;
-        console.log(options)
-        options = options.slice(1);
-        options.map(option => {
+        let options2 = this.context.datacenterOptions;
+        console.log(options2)
+        options2 = options2.slice(1);
+        let options = options2.map((option) => {
           let firstLetter = option.is_offline;
           console.log(firstLetter);
             return {
@@ -526,6 +527,18 @@ export class CreateInstanceForm extends Component {
               ...option
             };
         })
+
+        let groupedModelOptions = this.state.modelOptions;
+        console.log(groupedModelOptions)
+        groupedModelOptions.map(modelOption => {
+          let mounts = modelOption.mountType;
+          console.log(mounts);
+            return {
+              mounts: /'normal'/.test(mounts) ? "RACK MOUNT" : modelOption.mountType.toUpperCase(),
+              ...modelOption
+            };
+          })
+
 
     console.log(this.state.currentMountType)
     console.log(this.state.locationOptions)
@@ -548,8 +561,8 @@ export class CreateInstanceForm extends Component {
                     autoHighlight
                     autoSelect
                     id="instance-create-model-select"
-                    options={this.state.modelOptions}
-                    getOptionLabel={option => option.label}
+                    options={groupedModelOptions.sort((a, b) => -b.mounts.localeCompare(a.mounts))}
+                    getOptionLabel={modelOption => modelOption.label}
                     onChange={this.handleChangeModel}
                     value={this.state.selectedModelOption}
                     renderInput={params => (
@@ -573,10 +586,11 @@ export class CreateInstanceForm extends Component {
                     autoHighlight
                     autoSelect
                     id="datacenter-select"
-                    options={options.sort((a, b) => -b.name)}
+                    options={options.sort((a, b) => -b.firstLetter.localeCompare(a.firstLetter))}
                     groupBy={option => option.firstLetter}
                     getOptionLabel={option => option.abbreviation}
                     onChange={this.handleChangeDatacenter}
+                    defaultValue={this.context.datacenter}
                     value={this.state.selectedDatacenterOption}
                     renderInput={params => (
                       <TextField {...params} label="DC/Offline Site" fullWidth />
