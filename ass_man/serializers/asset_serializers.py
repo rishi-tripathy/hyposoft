@@ -17,19 +17,32 @@ class ChassisSerializer(serializers.ModelSerializer):
     model = ModelAssetSerializer()
     class Meta:
         model = Asset
-        fields = ['id', 'hostname', 'model']
+        fields = ['id', 'hostname', 'model', 'ovr_color', 'ovr_storage', 'ovr_cpu', 'over_memory']
 
 class AssetSerializer(serializers.HyperlinkedModelSerializer):
     # hostname = serializers.CharField(validators=[UniqueValidator(queryset=Asset.objects.all())])
-    rack_u = serializers.IntegerField(validators=[MinValueValidator(1)])
 
     # network_ports = NetworkPortSerializer()
     # power_ports = PowerPortSerializer()
     # model = ModelAssetSerializer()
 
     def check_rack_u_validity(self, validated_data, asset=None):
+        if validated_data['datacenter'].is_offline:
+            return
         rack = validated_data['rack']
         rack_u = validated_data['rack_u']
+        if not rack:
+            raise serializers.ValidationError({
+                'Bad Rack': 'You must specify a rack for an asset in an online datacenter.'
+            })
+        if not rack_u:
+            raise serializers.ValidationError({
+                'Bad rack_u': 'You must specify a rack_u for an asset in an online datacenter.'
+            })
+        if rack_u < 1:
+            raise serializers.ValidationError({
+                'Bad rack_u': 'The specified rack_u must be a positive integer.'
+            })
         model = validated_data['model']
         height = model.height
         invalid_list = []
@@ -272,7 +285,8 @@ class AssetSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Asset
-        fields = ['id', 'model', 'hostname', 'datacenter', 'rack', 'rack_u', 'owner', 'comment', 'asset_number']
+        fields = ['id', 'model', 'hostname', 'datacenter', 'rack', 'rack_u', 'owner',
+                  'ovr_color', 'ovr_storage', 'ovr_cpu', 'over_memory', 'comment', 'asset_number']
 
 
 class AssetFetchSerializer(AssetSerializer):
@@ -286,7 +300,7 @@ class AssetFetchSerializer(AssetSerializer):
     class Meta:
         model = Asset
         fields = ['id', 'model', 'hostname', 'datacenter', 'rack', 'rack_u', 'owner', 'comment', 'network_ports',
-                  'power_ports', 'asset_number']
+                  'power_ports', 'ovr_color', 'ovr_storage', 'ovr_cpu', 'over_memory', 'asset_number']
 
 
 class AssetShortSerializer(AssetSerializer):
@@ -297,7 +311,8 @@ class AssetShortSerializer(AssetSerializer):
 
     class Meta:
         model = Asset
-        fields = ['id', 'model', 'hostname', 'datacenter', 'rack', 'rack_u', 'asset_number', 'owner']
+        fields = ['id', 'model', 'hostname', 'datacenter', 'rack', 'rack_u',
+                  'ovr_color', 'ovr_storage', 'ovr_cpu', 'over_memory', 'asset_number', 'owner']
 
 
 class AssetOfModelSerializer(serializers.HyperlinkedModelSerializer):
@@ -306,7 +321,8 @@ class AssetOfModelSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Asset
-        fields = ['id', 'url', 'hostname', 'asset_number', 'datacenter', 'rack', 'rack_u', 'owner']
+        fields = ['id', 'url', 'hostname', 'asset_number', 'datacenter', 'rack', 'rack_u',
+                  'ovr_color', 'ovr_storage', 'ovr_cpu', 'over_memory', 'owner']
 
 
 # For the network graph
