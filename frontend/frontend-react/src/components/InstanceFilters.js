@@ -117,8 +117,21 @@ export class InstanceFilters extends Component {
   }
 
   mountChassis = () => {
-    //const dst = '/api/datacenters/' + this.state.selectedDatacenterOption.id + '/chassis/';
     // get all chassis
+    const dst = '/api/datacenters/all_chassis/';
+    axios.get(dst).then(res => {
+      let myOptions = [];
+      for (let i = 0; i < res.data.length; i++) {
+        myOptions.push({ value: res.data[i].id, label: res.data[i].hostname + ' ' + res.data[i].asset_number });
+      }
+      //console.log(res.data)
+      this.setState({ chassisOptions: myOptions });
+    })
+      .catch(function (error) {
+        // TODO: handle error
+        alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+      });
+
   }
 
   componentDidMount() {
@@ -165,6 +178,17 @@ export class InstanceFilters extends Component {
     })
   };
 
+  handleChangeChassis = (event, selectedChassisOption) => {
+    let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
+    identifiersCopy.location = (selectedChassisOption ? selectedChassisOption.value : '')
+    this.setState({
+      selectedChassisOption,
+      identifiers: identifiersCopy,
+    })
+  };
+
+
+
   createQuery = () => {
     const { datacenterID, modelID, modelNumber, modelVendor, hostname, rackID, rack_u, slot_number, location, ownerID, rackStart, rackEnd } = this.state.identifiers;
     let q = '' +
@@ -175,8 +199,7 @@ export class InstanceFilters extends Component {
       'hostname=' + hostname + '&' +
       'rack=' + rackID + '&' +
       'rack_u=' + rack_u + '&' +
-      //TODO
-      // 'location=' + rackID + '&' +
+      'location=' + location + '&' +
       'slot_number=' + slot_number + '&' +
       'owner=' + ownerID + '&' +
       'rack_num_start=' + rackStart + '&' +
@@ -205,6 +228,7 @@ export class InstanceFilters extends Component {
       //selectedRackOption: null,
       selectedOwnerOption: null,
       selectedDatacenterOption: null,
+      selectedChassisOption: null,
       identifiers: identifiersEmpty,
     })
   }
@@ -318,18 +342,18 @@ export class InstanceFilters extends Component {
                   )}
                 />
               </Grid>
-                    
+
               {/* new shit */}
               <Grid item xs={3}>
                 <Autocomplete
                   id="instance-location-select"
                   autoComplete
                   autoHighlight
-                  disabled={true}
-                  options={this.state.ownerOptions}
+                  //disabled={true}
+                  options={this.state.chassisOptions}
                   getOptionLabel={option => option.label}
-                  onChange={this.handleChangeOwner}
-                  value={this.state.selectedOwnerOption}
+                  onChange={this.handleChangeChassis}
+                  value={this.state.selectedChassisOption}
                   renderInput={params => (
                     <TextField {...params} label="Location" fullWidth />
                   )}
@@ -347,7 +371,7 @@ export class InstanceFilters extends Component {
                   }} />
               </Grid>
               {/* ^^ fix */}
-              
+
 
               <Grid item xs={2}>
                 <Button variant="contained" type="submit" color="primary" onClick={() => this.handleSubmit}>Apply
