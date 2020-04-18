@@ -43,6 +43,12 @@ class Asset(AllAssets):
     rack_u = models.PositiveIntegerField(blank=True, null=True)
     owner = models.ForeignKey(User, blank=True, null=True, on_delete=models.PROTECT)
     comment = models.TextField(blank=True)
+    # Upgrades
+    ovr_color = models.CharField(blank=True, null=True, max_length=6)
+    ovr_cpu = models.CharField(blank=True, null=True, max_length=50)
+    ovr_memory = models.PositiveIntegerField(blank=True, null=True)
+    ovr_storage = models.CharField(blank=True, null=True, max_length=50)
+
     asset_number = models.PositiveIntegerField(blank=True, default=100000, \
     validators=[RegexValidator(r'^[0-9]{6}$', 'Number must be 6 digits', 'Invalid Number')])
 
@@ -57,6 +63,12 @@ class BladeServer(AllAssets):
     slot_number = models.PositiveIntegerField()
     owner = models.ForeignKey(User, blank=True, null=True, on_delete=models.PROTECT)
     comment = models.TextField(blank=True)
+    # Upgrades
+    ovr_color = models.CharField(blank=True, null=True, max_length=6)
+    ovr_cpu = models.CharField(blank=True, null=True, max_length=50)
+    ovr_memory = models.PositiveIntegerField(blank=True, null=True)
+    ovr_storage = models.CharField(blank=True, null=True, max_length=50)
+    
     asset_number = models.PositiveIntegerField(blank=True, default=100000, \
     validators=[RegexValidator(r'^[0-9]{6}$', 'Number must be 6 digits', 'Invalid Number')])
 
