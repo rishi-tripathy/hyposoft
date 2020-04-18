@@ -81,6 +81,11 @@ class DatacenterViewSet(viewsets.ModelViewSet):
             }, status=status.HTTP_400_BAD_REQUEST)
 
     # Custom Endpoints
+    @action(detail=False, methods=[GET])
+    def all_chassis(self, request, *args, **kwargs):
+        chassis = Asset.objects.filter(model__mount_type='chassis')
+        serializer = AssetOfModelSerializer(chassis, many=True, context={'request': request})
+        return Response(serializer.data)
     @action(detail=True, methods=[GET])
     def chassis(self, request, *args, **kwargs):
         chassis = {}
