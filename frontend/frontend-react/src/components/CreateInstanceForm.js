@@ -7,6 +7,8 @@ import {
   ListSubheader, ListItem, ListItemText, Paper,
   Divider, Table, TableBody, TableCell, TableContainer, TableRow, Toolbar, TableFooter
 } from "@material-ui/core";
+import ToggleButton from '@material-ui/lab/ToggleButton';
+import CheckIcon from '@material-ui/icons/Check'
 import EditIcon from '@material-ui/icons/Edit';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
 import { Redirect, Link } from 'react-router-dom'
@@ -66,6 +68,10 @@ export class CreateInstanceForm extends Component {
       selectedMemory: null,
       selectedCPU: null,
       selectedStorage: null,
+      displayColorChecked: false,
+      memoryChecked:false,
+      storageChecked: false,
+      cpuChecked: false,
 
       redirect: false,
 
@@ -375,6 +381,9 @@ export class CreateInstanceForm extends Component {
 
   handleChangeModel = (event, selectedModelOption) => {
     this.setState({ selectedModelOption });
+    setTimeout(() => {
+      this.loadChangeableModelFields();
+    }, 50);
   };
 
   handleChangeRack = (event, selectedRackOption) => {
@@ -436,7 +445,9 @@ export class CreateInstanceForm extends Component {
 
   loadChangeableModelFields = () => {
     let modelURL = this.state.selectedModelOption.value
+    console.log(modelURL)
     axios.get(modelURL).then(res => {
+      console.log(res.data)
       this.setState({
         selectedDisplayColor: res.data.display_color,
         selectedCPU: res.data.cpu,
@@ -482,12 +493,96 @@ export class CreateInstanceForm extends Component {
     ))
   }
 
+  renderCheckRow() {
+    let model = this.state.selectedModelOption;
+    
+    if(model== null){
+    }
+    else {
+      return(
+        <TableRow
+          hover
+          tabIndex={-1}
+        >
+          <TableCell align="center">
+            <ToggleButton
+              value="check"
+              selected={this.state.displayColorChecked}
+              onChange={() => {
+                this.setDisplayColorChecked();
+              }}
+            >
+              <CheckIcon />
+            </ToggleButton>
+            </TableCell>
+          <TableCell align="center">
+          <ToggleButton
+            value="check"
+            selected={this.state.cpuChecked}
+            onChange={() => {
+              this.setCpuChecked();
+            }}
+          >
+            <CheckIcon />
+          </ToggleButton>
+          </TableCell>
+          <TableCell align="center">
+            <ToggleButton
+              value="check"
+              selected={this.state.memoryChecked}
+              onChange={() => {
+                this.setMemoryChecked();
+              }}
+            >
+              <CheckIcon />
+            </ToggleButton>
+          </TableCell>
+          <TableCell align='center'>
+          <ToggleButton
+            value="check"
+            selected={this.state.storageChecked}
+            onChange={() => {
+              this.setStorageSelected();
+            }}
+          >
+            <CheckIcon />
+          </ToggleButton>
+          </TableCell>
+          </TableRow>
+      )
+    }
+  }
+
+  setStorageSelected = () => {
+    this.setState(prevState => ({
+      storageChecked: !prevState.storageChecked
+    }));
+  }
+
+  setDisplayColorChecked = () => {
+    this.setState(prevState => ({
+      displayColorChecked: !prevState.displayColorChecked
+    }));
+  }
+
+  setMemoryChecked = () => {
+    this.setState(prevState => ({
+      memoryChecked: !prevState.memoryChecked
+    }));
+  }
+
+  setCpuChecked = () => {
+    this.setState(prevState => ({
+      cpuChecked: !prevState.cpuChecked
+    }));
+  }
+
   renderTableData() {
     let model = this.state.selectedModelOption;
 
     if (model == null) return (
       <TableRow hover tabIndex={-1}>
-        <TableCell align="center" colSpan={12}>No entries</TableCell>
+        <TableCell align="center" colSpan={12}>Select a Model</TableCell>
       </TableRow>
     )
     console.log(model)
@@ -505,21 +600,25 @@ export class CreateInstanceForm extends Component {
               top: 2,
             }}></div>
             {this.state.selectedDisplayColor}</TableCell>
-          <TableCell align="center">{this.state.selectedCPU}</TableCell>
+          <TableCell align="center">
+              {this.state.cpuChecked ? 
+               <TextField label='CPU' type="text" helperText="Describe the CPU" fullWidth onChange={e => {
+                let instanceCopy = JSON.parse(JSON.stringify(this.state.asset))
+                // modelCopy.cpu = e.target.value
+                // this.setState({
+                //   model: modelCopy
+                // })
+              }} />
+              : this.state.selectedCPU}
+           </TableCell>
           <TableCell align="center">{this.state.selectedMemory}</TableCell>
           <TableCell align="center">{this.state.selectedStorage}</TableCell>
-        <TableFooter>
-          <TableRow>
-          <Button variant="contained" type="submit" color="secondary" endIcon={<AddCircleIcon />}
-                      onClick={() => this.handleModelFieldChange}>Change</Button>
-          </TableRow>
-      </TableFooter>
       </TableRow>
       )
     }
 
   render() {
-    console.log(this.state.currentMountType)
+    console.log(this.state)
     return (
       <div>
         {this.state.redirect && <Redirect to={{ pathname: '/assets' }} />}
@@ -573,6 +672,7 @@ export class CreateInstanceForm extends Component {
                       <TableRow>{this.renderTableHeader()}</TableRow>
 
                       <TableBody textAlign='center' >
+                        {this.renderCheckRow()}
                         {this.renderTableData()}
                       </TableBody>
                     </Table>
