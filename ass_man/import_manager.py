@@ -16,6 +16,7 @@ def import_model_file(request):
     overriden = 0
     ignored = 0
     fields_overriden = {}
+    illegal_change = {}
     for row in reader:
         override = False
         should_update = False
@@ -28,7 +29,7 @@ def import_model_file(request):
             disp_col = disp_col[1:]
         if model is None:
             new_model = Model(vendor=row['vendor'], model_number=row['model_number'], height=row['height'], \
-                              cpu=row['cpu'], storage=row['storage'], comment=row['comment'])
+                              cpu=row['cpu'], storage=row['storage'], comment=row['comment'], mount_type=row['mount_type'])
             if disp_col:
                 new_model.display_color = disp_col
             if row['network_ports']:
@@ -128,6 +129,8 @@ def import_model_file(request):
                 key = model.vendor + model.model_number + "_comment"
                 fields_overriden[key] = [model.comment, row['comment']]
             override = True
+        if model.mount_type != row['mount_type']:
+            illegal_change[model.vendor+' '+model.model_number] = row['mount_type']
         if should_update:
             models_to_update.append(model)
         if override:
@@ -135,7 +138,13 @@ def import_model_file(request):
         else:
             ignored += 1
             models_to_ignore.append(model)
-
+    if len(fields_overriden) > 0:
+        err_message = ''
+        for i in fields_overriden:
+            err_message += ' Cannot update mount_type to {} for existing model: {}.'.format(fields_overriden[i], i)
+        return Response({
+            'Warning': err_message,
+        }, status=status.HTTP_400_BAD_REQUEST)
     if overriden > 0 and not should_override:
         err_message = "Do you want to overwrite the following " \
                       "fields: "
