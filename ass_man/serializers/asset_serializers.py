@@ -314,7 +314,6 @@ class AssetShortSerializer(AssetSerializer):
         fields = ['id', 'model', 'hostname', 'datacenter', 'rack', 'rack_u',
                   'ovr_color', 'ovr_storage', 'ovr_cpu', 'ovr_memory', 'asset_number', 'owner']
 
-
 class AssetOfModelSerializer(serializers.HyperlinkedModelSerializer):
     datacenter = DatacenterSerializer()
     rack = RackOfAssetSerializer()
