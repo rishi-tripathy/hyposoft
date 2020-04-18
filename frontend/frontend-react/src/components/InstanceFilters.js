@@ -325,6 +325,7 @@ export class InstanceFilters extends Component {
                   id="instance-location-select"
                   autoComplete
                   autoHighlight
+                  disabled={true}
                   options={this.state.ownerOptions}
                   getOptionLabel={option => option.label}
                   onChange={this.handleChangeOwner}
