@@ -211,15 +211,15 @@ export class InstanceTableMUI extends Component {
     let arrayToSend = Object.assign([], this.state.selected)
     console.log(arrayToSend)
 
-    // this.setState({ 
+    // this.setState({
     //   assetLabelTableGenerationData: [
-    //     { 
-    //       one: 100000, 
-    //       two: 100001, 
-    //       three: 100002, 
+    //     {
+    //       one: 100000,
+    //       two: 100001,
+    //       three: 100002,
     //       four: 100003,
     //     }
-    //   ] 
+    //   ]
     // })
 
     var self = this
@@ -290,12 +290,12 @@ export class InstanceTableMUI extends Component {
   renderTableHeader() {
     //These now come from sorting fields
     let headCells = [
-      { id: 'rack__rack_number', label: 'Rack' },
+      { id: 'rack_number', label: 'Rack' },
       { id: 'rack_u', label: 'Rack U' },
       { id: 'location', label: 'Location' },
       { id: 'slot_number', label: 'Slot No.' },
-      { id: 'model__vendor', label: 'Vendor' },
-      { id: 'model__model_number', label: 'Model Number' },
+      { id: 'vendor', label: 'Vendor' },
+      { id: 'model_number', label: 'Model Number' },
       { id: 'hostname', label: 'Hostname' },
       { id: 'datacenter', label: 'Datacenter' },
       { id: 'owner', label: 'Owner' },
