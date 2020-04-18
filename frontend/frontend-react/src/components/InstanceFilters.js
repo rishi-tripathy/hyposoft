@@ -33,8 +33,13 @@ export class InstanceFilters extends Component {
         ownerID: '',
         rackStart: '',
         rackEnd: '',
+        location: '',
+        slot_number: '',
       },
       query: null,
+
+      chassisOptions: [],
+      selectedChassisOption: null,
     }
   }
 
@@ -111,11 +116,17 @@ export class InstanceFilters extends Component {
       });
   }
 
+  mountChassis = () => {
+    //const dst = '/api/datacenters/' + this.state.selectedDatacenterOption.id + '/chassis/';
+    // get all chassis
+  }
+
   componentDidMount() {
     this.mountModelNames();
     //this.mountRacks();
     this.mountDatacenters();
     this.mountOwners();
+    this.mountChassis();
   }
 
   handleChangeModel = (event, selectedModelOption, reason) => {
@@ -155,7 +166,7 @@ export class InstanceFilters extends Component {
   };
 
   createQuery = () => {
-    const { datacenterID, modelID, modelNumber, modelVendor, hostname, rackID, rack_u, ownerID, rackStart, rackEnd } = this.state.identifiers;
+    const { datacenterID, modelID, modelNumber, modelVendor, hostname, rackID, rack_u, slot_number, location, ownerID, rackStart, rackEnd } = this.state.identifiers;
     let q = '' +
       'datacenter=' + datacenterID + '&' +
       'model=' + modelID + '&' +
@@ -164,6 +175,9 @@ export class InstanceFilters extends Component {
       'hostname=' + hostname + '&' +
       'rack=' + rackID + '&' +
       'rack_u=' + rack_u + '&' +
+      //TODO
+      // 'location=' + rackID + '&' +
+      'slot_number=' + slot_number + '&' +
       'owner=' + ownerID + '&' +
       'rack_num_start=' + rackStart + '&' +
       'rack_num_end=' + rackEnd;
@@ -228,20 +242,6 @@ export class InstanceFilters extends Component {
                   )}
                 />
               </Grid>
-              {/* <Grid item xs={3}>
-                <Autocomplete
-                  autoComplete
-                  autoHighlight
-                  id="instance-create-dc-select"
-                  options={this.state.datacenterOptions}
-                  getOptionLabel={option => option.label}
-                  onChange={this.handleChangeDatacenter}
-                  value={this.state.selectedDatacenterOption}
-                  renderInput={params => (
-                    <TextField {...params} label="Datacenter" fullWidth />
-                  )}
-                />
-              </Grid> */}
               <Grid item xs={3}>
                 <TextField label='Model Vendor' type="text" fullWidth
                   onChange={e => {
@@ -272,20 +272,7 @@ export class InstanceFilters extends Component {
                     })
                   }} />
               </Grid>
-              {/*<Grid item xs={3}>*/}
-              {/*  <Autocomplete*/}
-              {/*    autoComplete*/}
-              {/*    autoHighlight*/}
-              {/*    id="instance-create-rack-select"*/}
-              {/*    options={this.state.rackOptions}*/}
-              {/*    getOptionLabel={option => option.label}*/}
-              {/*    onChange={ this.handleChangeRack }*/}
-              {/*    value={this.state.selectedRackOption}*/}
-              {/*    renderInput={params => (*/}
-              {/*      <TextField {...params} label="Rack" fullWidth/>*/}
-              {/*    )}*/}
-              {/*  />*/}
-              {/*</Grid>*/}
+
               <Grid item xs={3}>
                 <TextField label='Rack Range Start' type="text" fullWidth
                   onChange={e => {
@@ -331,10 +318,35 @@ export class InstanceFilters extends Component {
                   )}
                 />
               </Grid>
-
-              <Grid item xs={6}>
-
+                    
+              {/* new shit */}
+              <Grid item xs={3}>
+                <Autocomplete
+                  id="instance-location-select"
+                  autoComplete
+                  autoHighlight
+                  options={this.state.ownerOptions}
+                  getOptionLabel={option => option.label}
+                  onChange={this.handleChangeOwner}
+                  value={this.state.selectedOwnerOption}
+                  renderInput={params => (
+                    <TextField {...params} label="Location" fullWidth />
+                  )}
+                />
               </Grid>
+
+              <Grid item xs={3}>
+                <TextField label='Slot Number' type="number" fullWidth
+                  onChange={e => {
+                    let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
+                    identifiersCopy.slot_number = e.target.value
+                    this.setState({
+                      identifiers: identifiersCopy
+                    })
+                  }} />
+              </Grid>
+              {/* ^^ fix */}
+              
 
               <Grid item xs={2}>
                 <Button variant="contained" type="submit" color="primary" onClick={() => this.handleSubmit}>Apply
