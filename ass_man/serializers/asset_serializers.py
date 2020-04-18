@@ -17,7 +17,7 @@ class ChassisSerializer(serializers.ModelSerializer):
     model = ModelAssetSerializer()
     class Meta:
         model = Asset
-        fields = ['id', 'hostname', 'model', 'ovr_color', 'ovr_storage', 'ovr_cpu', 'over_memory']
+        fields = ['id', 'hostname', 'model', 'ovr_color', 'ovr_storage', 'ovr_cpu', 'ovr_memory']
 
 class AssetSerializer(serializers.HyperlinkedModelSerializer):
     # hostname = serializers.CharField(validators=[UniqueValidator(queryset=Asset.objects.all())])
@@ -286,7 +286,7 @@ class AssetSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Asset
         fields = ['id', 'model', 'hostname', 'datacenter', 'rack', 'rack_u', 'owner',
-                  'ovr_color', 'ovr_storage', 'ovr_cpu', 'over_memory', 'comment', 'asset_number']
+                  'ovr_color', 'ovr_storage', 'ovr_cpu', 'ovr_memory', 'comment', 'asset_number']
 
 
 class AssetFetchSerializer(AssetSerializer):
@@ -300,7 +300,7 @@ class AssetFetchSerializer(AssetSerializer):
     class Meta:
         model = Asset
         fields = ['id', 'model', 'hostname', 'datacenter', 'rack', 'rack_u', 'owner', 'comment', 'network_ports',
-                  'power_ports', 'ovr_color', 'ovr_storage', 'ovr_cpu', 'over_memory', 'asset_number']
+                  'power_ports', 'ovr_color', 'ovr_storage', 'ovr_cpu', 'ovr_memory', 'asset_number']
 
 
 class AssetShortSerializer(AssetSerializer):
@@ -312,8 +312,7 @@ class AssetShortSerializer(AssetSerializer):
     class Meta:
         model = Asset
         fields = ['id', 'model', 'hostname', 'datacenter', 'rack', 'rack_u',
-                  'ovr_color', 'ovr_storage', 'ovr_cpu', 'over_memory', 'asset_number', 'owner']
-
+                  'ovr_color', 'ovr_storage', 'ovr_cpu', 'ovr_memory', 'asset_number', 'owner']
 
 class AssetOfModelSerializer(serializers.HyperlinkedModelSerializer):
     datacenter = DatacenterSerializer()
@@ -322,7 +321,7 @@ class AssetOfModelSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Asset
         fields = ['id', 'url', 'hostname', 'asset_number', 'datacenter', 'rack', 'rack_u',
-                  'ovr_color', 'ovr_storage', 'ovr_cpu', 'over_memory', 'owner']
+                  'ovr_color', 'ovr_storage', 'ovr_cpu', 'ovr_memory', 'owner']
 
 
 # For the network graph
