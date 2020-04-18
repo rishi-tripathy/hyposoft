@@ -28,7 +28,11 @@ def import_model_file(request):
         if disp_col.startswith('#'):
             disp_col = disp_col[1:]
         if model is None:
-            new_model = Model(vendor=row['vendor'], model_number=row['model_number'], height=row['height'], \
+            if not row['height'] and row['mount_type']=='blade':
+                height = 1
+            else:
+                height = row['height']
+            new_model = Model(vendor=row['vendor'], model_number=row['model_number'], height=height, \
                               cpu=row['cpu'], storage=row['storage'], comment=row['comment'], mount_type=row['mount_type'])
             if disp_col:
                 new_model.display_color = disp_col
@@ -65,13 +69,17 @@ def import_model_file(request):
                     should_update = True
 
         if str(model.height) != row['height']:
-            if should_override:
+            if model.mount_type == 'blade':
+                pass
+            elif should_override:
                 model.height = row['height']
                 should_update = True
             else:
                 key = model.vendor + model.model_number + "_height"
                 fields_overriden[key] = [model.height, row['height']]
             override = True
+            if model.mount_type == 'blade':
+                override=False
         if model.display_color != disp_col and (model.display_color != '777777' and not disp_col):
             if should_override:
                 model.display_color = disp_col
