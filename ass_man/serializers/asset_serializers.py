@@ -199,6 +199,7 @@ class AssetSerializer(serializers.HyperlinkedModelSerializer):
         return value
 
     def check_asset_number(self, validated_data):
+        print('check asset number')
         try:
             validated_data['asset_number']
             bladeserver= True
@@ -212,38 +213,43 @@ class AssetSerializer(serializers.HyperlinkedModelSerializer):
             except Asset.DoesNotExist:
                 asset = False
             if not bladeserver and not asset:
+                print('asset number does not exist')
                 bladeserver= True
                 asset = True
                 num = Asset_Number.objects.all().first()
                 if not num:
                     num = Asset_Number.objects.create(next_avail=100000)
-                # try:
-                #     num = Asset_Number.objects.get(pk=1)
-                # except Asset_Number.DoesNotExist:
-                #     num = Asset_Number.objects.create(next_avail=100000)
+                    print('new num')
                 if validated_data['asset_number'] == num.next_avail:
-                    curr = num.next_avail
+                    print('input is next avail')
+                    curr = num.next_avail+1
                     while True:
                         bladeserver= True
                         asset = True
                         try:
                             BladeServer.objects.get(asset_number=curr)
                         except BladeServer.DoesNotExist:
-                            bladerserver = False
+                            bladeserver = False
                         try:
                             Asset.objects.get(asset_number=curr)
                         except Asset.DoesNotExist:
                             asset = False
-                        curr += 1
+                        print(asset)
+                        print(bladeserver)
+                        print(curr)
                         if not asset and not bladeserver:
                             num.next_avail = curr
                             num.save()
                             break
+                        curr += 1
+
                 return validated_data
             raise serializers.ValidationError(
                 "Asset Number: {} is already taken.".format(validated_data['asset_number'])
             )
         except KeyError:
+            print('key error')
+            print(validated_data)
             num = Asset_Number.objects.all().first()
             if not num:
                 num = Asset_Number.objects.create(next_avail=100000)
@@ -255,21 +261,26 @@ class AssetSerializer(serializers.HyperlinkedModelSerializer):
             curr = num.next_avail
             bladeserver= True
             asset = True
+            notset = True
             while True:
                 try:
                     BladeServer.objects.get(asset_number=curr)
                 except BladeServer.DoesNotExist:
-                    bladerserver = False
+                    bladeserver = False
                 try:
                     Asset.objects.get(asset_number=curr)
                 except Asset.DoesNotExist:
                     asset = False
+                if not asset and not bladeserver:
+                    if notset:
+                        validated_data['asset_number'] = curr
+                        notset = False
+                    else:
+                        num.next_avail = curr
+                        num.save()
+                        break
                 curr += 1
-                if asset or bladeserver:
-                    num.next_avail = curr
-                    num.save()
-                    break
-            validated_data['asset_number'] = curr
+
             return validated_data
 
     class Meta:
