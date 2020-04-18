@@ -229,11 +229,11 @@ class RackViewSet(viewsets.ModelViewSet):
         pdu_l = self.get_object().pdu_l
         pdu_r = self.get_object().pdu_r
 
-        pp_l = pdu_l.power_port_set
-        pp_r = pdu_r.power_port_set
+        pp_l = pdu_l.power_port_set.all() if pdu_l else []
+        pp_r = pdu_r.power_port_set.all() if pdu_r else []
 
-        l_occ = [int(pp.port_number) for pp in pp_l.all()]
-        r_occ = [int(pp.port_number) for pp in pp_r.all()]
+        l_occ = [int(pp.port_number) for pp in pp_l]
+        r_occ = [int(pp.port_number) for pp in pp_r]
         l_free = [x for x in range(1, 25) if x not in l_occ]
         r_free = [x for x in range(1, 25) if x not in r_occ]
         resp_list = {'left': l_free, 'right': r_free}
