@@ -14,7 +14,7 @@ class BladeServerSerializer(serializers.ModelSerializer):
     class Meta:
         model = BladeServer
         fields = ['id', 'model', 'hostname', 'datacenter', 'location', 'slot_number', 'owner', 'comment',
-                  'ovr_color', 'ovr_storage', 'ovr_cpu', 'over_memory', 'asset_number']
+                  'ovr_color', 'ovr_storage', 'ovr_cpu', 'ovr_memory', 'asset_number']
 
 class BladeCreateSerializer(serializers.ModelSerializer):
     def check_asset_number(self, validated_data):
@@ -143,4 +143,4 @@ class BladeCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = BladeServer
         fields = ['id', 'model', 'hostname', 'datacenter', 'location', 'slot_number', 'owner',
-                  'ovr_color', 'ovr_storage', 'ovr_cpu', 'over_memory', 'comment', 'asset_number']
+                  'ovr_color', 'ovr_storage', 'ovr_cpu', 'ovr_memory', 'comment', 'asset_number']
