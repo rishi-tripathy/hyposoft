@@ -166,7 +166,7 @@ export class DetailedInstanceOffline extends Component {
             : 'n/a'}</TableCell>
       <TableCell align="center">{this.state.asset.ovr_cpu ? this.state.asset.ovr_cpu : 'n/a'}</TableCell>
       <TableCell align="center">{this.state.asset.ovr_memory ? this.state.asset.ovr_memory : 'n/a'}</TableCell>
-      <TableCell align="center">{this.state.asset.ovr_stroage ? this.state.asset.ovr_storage : 'n/a'}</TableCell>
+      <TableCell align="center">{this.state.asset.ovr_storage ? this.state.asset.ovr_storage : 'n/a'}</TableCell>
     </TableRow>
       )
     }

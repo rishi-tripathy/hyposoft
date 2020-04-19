@@ -51,7 +51,7 @@ export class InstanceController extends Component {
       dst = '/api/all_assets/' + '?' + this.state.filterQuery + '&' + this.state.sortQuery + '&offline=false';
     }
     else if (this.context.is_offline) {
-      dst = '/api/assets/' + '?' + 'datacenter=' + this.state.datacenterID + '&' + this.state.filterquery + '&' + this.state.getSortQuery + '&offline=true';
+      dst = '/api/all_assets/' + '?' + 'datacenter=' + this.state.datacenterID + '&' + this.state.filterquery + '&' + this.state.getSortQuery + '&offline=true';
     }
     else {
       dst = '/api/all_assets/' + '?' + 'datacenter=' + this.state.datacenterID + '&' + this.state.filterQuery + '&' + this.state.sortQuery;
