@@ -4,7 +4,7 @@ import InstanceCard from './InstanceCard';
 import {
   Typography, Paper, IconButton,
   Tooltip, Container, Grid,
-  Table, TableRow, TableCell, TableContainer,
+  Table, TableRow, TableCell, TableContainer, Toolbar,
   TableBody,
 } from "@material-ui/core";
 import PageviewIcon from '@material-ui/icons/Pageview';
@@ -30,6 +30,7 @@ export class DetailedInstance extends Component {
       connectedAssets: [],
       installedBlades: [],
       is_offline: false,
+      modelChanged: false,
     }
   }
 
@@ -38,8 +39,13 @@ export class DetailedInstance extends Component {
       if (this.props.location.state != null && this.props.location.state.isBlade) {
         let dst = '/api/blades/'.concat(this.props.match.params.id).concat('/');
         axios.get(dst).then(res => {
+          let mc = false;
+          if(res.data.ovr_color || res.data.ovr_storage || res.data.ovr_cpu || res.data.ovr_memory){
+            mc = true;
+          }
           this.setState({
-            asset: res.data
+            asset: res.data,
+            modelChanged: mc,
           });
         })
           .catch(function (error) {
@@ -50,9 +56,14 @@ export class DetailedInstance extends Component {
       else {
         let dst = '/api/all_assets/'.concat(this.props.match.params.id).concat('/');
         axios.get(dst).then(res => {
+          let mc = false;
+          if(res.data.asset.ovr_color || res.data.asset.ovr_storage || res.data.asset.ovr_cpu || res.data.asset.ovr_memory){
+            mc = true;
+          }
           this.setState({
             asset: res.data.asset,
-            is_offline: res.data.asset.datacenter.is_offline
+            is_offline: res.data.asset.datacenter.is_offline,
+            modelChanged: mc,
           });
         })
           .catch(function (error) {
@@ -165,6 +176,64 @@ export class DetailedInstance extends Component {
 
   }
 
+  renderTableToolbar = () => {
+    return (
+          <Typography variant="h4" id="modelFieldsTableTitle">
+            Model Changes for Asset
+          </Typography>
+    );
+  };
+
+  renderTableHeader() {
+    let headCells = [
+      {id: 'display_color', label: 'Color'},
+      {id: 'cpu', label: 'CPU'},
+      {id: 'memory', label: 'Memory'},
+      {id: 'storage', label: 'Storage'},
+    ];
+    return headCells.map(headCell => (
+      <TableCell
+        align={'center'}
+        padding={'default'}
+
+      >
+        {headCell.label.toUpperCase()}
+
+      </TableCell>
+    ))
+  }
+
+  renderTableData() {
+   
+    if(!this.state.modelChanged){
+      return(
+        <TableRow hover tabIndex={-1}>
+        <TableCell align="center" colSpan={12}>No changes were made to the model.</TableCell>
+      </TableRow>
+      )
+    }
+    else{
+      return (
+        <TableRow
+        hover
+        tabIndex={-1}
+      >
+         <TableCell align="right">{ this.state.asset.ovr_color ? <div style={{
+                width: 12,
+                height: 10,
+                backgroundColor: '#' + this.state.asset.ovr_color,
+                left: 2,
+                top: 2,
+              }}></div> 
+            : 'n/a'}</TableCell>
+      <TableCell align="center">{this.state.asset.ovr_cpu ? this.state.asset.ovr_cpu : 'n/a'}</TableCell>
+      <TableCell align="center">{this.state.asset.ovr_memory ? this.state.asset.ovr_memory : 'n/a'}</TableCell>
+      <TableCell align="center">{this.state.asset.ovr_stroage ? this.state.asset.ovr_storage : 'n/a'}</TableCell>
+    </TableRow>
+      )
+    }
+  }
+
   render() {
     console.log(this.context)
     console.log(this.props)
@@ -177,6 +246,26 @@ export class DetailedInstance extends Component {
       return (
         <div>
           <DetailedBladeView blade={this.state.asset} />
+          <Container maxwidth="xl">
+          <Grid item xs={6}>
+              <Paper>
+                  {this.renderTableToolbar()}
+                  <TableContainer>
+                    <Table
+                      size="small"
+                      aria-labelledby="modelTableTitle"
+                      aria-label="enhanced table"
+                    >
+                      <TableRow>{this.renderTableHeader()}</TableRow>
+
+                      <TableBody textAlign='center' >
+                        {this.renderTableData()}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                </Paper>
+              </Grid>
+            </Container>
         </div>
       )
     }
@@ -225,6 +314,24 @@ export class DetailedInstance extends Component {
 
               </Grid>
 
+              <Grid item xs={6}>
+              <Paper>
+                  {this.renderTableToolbar()}
+                  <TableContainer>
+                    <Table
+                      size="small"
+                      aria-labelledby="modelTableTitle2"
+                      aria-label="enhanced table2"
+                    >
+                      <TableRow>{this.renderTableHeader()}</TableRow>
+
+                      <TableBody textAlign='center' >
+                        {this.renderTableData()}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                </Paper>
+              </Grid>
 
               <Grid item xs={6}>
                 <Typography variant="h4" gutterBottom>

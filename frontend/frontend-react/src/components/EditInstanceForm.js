@@ -367,18 +367,16 @@ export class EditInstanceForm extends Component {
       axios.get(dst).then(res => {
         let instanceCopy = JSON.parse(JSON.stringify(this.state.asset));
         console.log(res.data)
-          instanceCopy.model = res.data.results.asset.model;
-          instanceCopy.hostname = res.data.results.asset.hostname;
-          instanceCopy.datacenter = res.data.results.asset.datacenter;
-          instanceCopy.owner = res.data.results.asset.owner;
-          if(res.data.asset.comment !== undefined){
-            instanceCopy.comment = res.data.asset.comment;
-          }
-          instanceCopy.asset_number = res.data.results.asset.asset_number;
-          instanceCopy.ovr_color = res.data.results.asset.ovr_color;
-          instanceCopy.ovr_storage = res.data.results.asset.ovr_storage;
-          instanceCopy.ovr_cpu = res.data.results.asset.ovr_cpu;
-          instanceCopy.ovr_memory = res.data.results.asset.ovr_memory;
+          instanceCopy.model = res.data.asset.model;
+          instanceCopy.hostname = res.data.asset.hostname;
+          instanceCopy.datacenter = res.data.asset.datacenter;
+          instanceCopy.owner = res.data.asset.owner;
+          instanceCopy.comment = res.data.asset.comment;
+          instanceCopy.asset_number = res.data.asset.asset_number;
+          instanceCopy.ovr_color = res.data.asset.ovr_color;
+          instanceCopy.ovr_storage = res.data.asset.ovr_storage;
+          instanceCopy.ovr_cpu = res.data.asset.ovr_cpu;
+          instanceCopy.ovr_memory = res.data.asset.ovr_memory;
 
           let color = false;
           let cpu = false;
@@ -1088,6 +1086,8 @@ export class EditInstanceForm extends Component {
             asset: instanceCopy
           })
         }} />;
+
+        console.log(this.state)
 
     return (
       <div>
