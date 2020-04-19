@@ -297,6 +297,16 @@ class AssetViewSet(viewsets.ModelViewSet):
 
     # Custom actions below
     @action(detail=True, methods=[GET])
+    def chassis_slots(self, request, *args, **kwargs):
+        asset = self.get_object()
+        if asset.model.mount_type != 'chassis':
+            return Response("Detail must specify a chassis.")
+        openings = []
+        for i in range(1, 15):
+            if not len(asset.bladeserver_set.filter(slot_number=i).all()) > 0:
+                openings.append(i)
+        return Response(openings)
+    @action(detail=True, methods=[GET])
     def blades(self, request, *args, **kwargs):
         asset = self.get_object()
         blades = asset.bladeserver_set

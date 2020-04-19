@@ -70,6 +70,8 @@ export class EditInstanceForm extends Component {
 
       currentMountType: '',
 
+      slotNumberOptions: [],
+      selectedSlotNumberOption: null,
       is_offline: false,
     }
   }
@@ -159,6 +161,8 @@ export class EditInstanceForm extends Component {
     // console.log(this.state.leftFreePDUSlots)
     // console.log(this.state.rightFreePDUSlots)
   }
+
+
 
   removeEmpty = (obj) => {
     Object.keys(obj).forEach((k) => (!obj[k] && obj[k] !== undefined) && delete obj[k]);
@@ -252,6 +256,14 @@ export class EditInstanceForm extends Component {
       this.loadMACAddresses();
       this.loadConnectedNPs();
     }
+
+    if (this.state.selectedLocationOption !== prevState.selectedLocationOption) {
+      if (this.state.selectedLocationOption) {
+        if (this.state.selectedLocationOption.id) {
+          this.loadSlotNumbers();
+        }
+      }
+    }
   }
 
   loadInstance = () => {
@@ -259,6 +271,7 @@ export class EditInstanceForm extends Component {
     console.log(this.props)
 
     if (this.props.location.state != null && this.props.location.state.isBlade) {
+      //blade
       let dst = '/api/blades/'.concat(this.props.match.params.id).concat('/');
       console.log(dst)
       axios.get(dst).then(res => {
@@ -500,6 +513,30 @@ export class EditInstanceForm extends Component {
   //     });
   // }
 
+  loadSlotNumbers = () => {
+    // load array of free slot numbers
+    console.log(this.state.selectedLocationOption)
+    const dst = '/api/assets/' + this.state.selectedLocationOption.id + '/chassis_slots/';
+    console.log(dst)
+    axios.get(dst).then(res => {
+      let myOptions = [];
+      for (let i = 0; i < res.data.length; i++) {
+        myOptions.push({ value: res.data[i], label: res.data[i].toString(), });
+      }
+      this.setState({ slotNumberOptions: myOptions });
+      this.setState({
+        selectedSlotNumberOption: {
+          value: this.state.asset.slot_number ? this.state.asset.slot_number : null,
+          label: this.state.asset.slot_number ? this.state.asset.slot_number.toString() : null,
+        }
+      })
+    })
+      .catch(function (error) {
+        // TODO: handle error
+        alert('Could not load racks. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+      });
+  }
+
   handleChangeModel = (event, selectedModelOption) => {
     this.setState({ selectedModelOption });
     console.log(this.state.asset)
@@ -521,6 +558,10 @@ export class EditInstanceForm extends Component {
     this.setState({ selectedDatacenterOption });
     console.log(selectedDatacenterOption)
   }
+
+  handleChangeSlotNumber = (event, selectedSlotNumberOption) => {
+    this.setState({ selectedSlotNumberOption });
+  };
 
   handleSubmit = (e) => {
     e.preventDefault();
@@ -558,16 +599,29 @@ export class EditInstanceForm extends Component {
     stateCopy.model = this.state.selectedModelOption ? this.state.selectedModelOption.value : null;
     stateCopy.rack = this.state.selectedRackOption ? this.state.selectedRackOption.value : null;
     stateCopy.owner = this.state.selectedOwnerOption ? this.state.selectedOwnerOption.value : null;
-    stateCopy.datacenter = this.state.selectedDatacenterOption ? this.state.selectedDatacenterOption.url : null;
     stateCopy.network_ports = networkPortsBuilder
     stateCopy.power_ports = tmpPP
+
+
+    stateCopy.datacenter = this.state.selectedDatacenterOption ? this.state.selectedDatacenterOption.url : null;
+    console.log(this.state.currentMountType)
+    if(this.state.is_offline){
+      if(this.state.currentMountType === 'blade'){
+        stateCopy.datacenter = this.state.selectedDatacenterOption.id;
+      }
+    }
+    else{
+      if(this.state.currentMountType==='blade'){
+        stateCopy.datacenter = this.state.selectedDatacenterOption.id;
+      }
+    }
 
     let stateToSend = this.removeEmpty(stateCopy);
     if (this.state.is_offline) {
       stateToSend.rack = null;
       stateToSend.rack_u = null;
-      stateToSend.datacenter = this.state.selecterDatacenterOption.id;
     }
+    
     console.log(JSON.stringify(stateToSend, null, 2))
     var self = this;
 
@@ -577,6 +631,8 @@ export class EditInstanceForm extends Component {
       delete stateToSend.rack_u
       stateToSend.model = this.state.selectedModelOption ? this.state.selectedModelOption.id : null;
       stateToSend.location = this.state.selectedLocationOption ? this.state.selectedLocationOption.id : null;
+      stateToSend.slot_number = this.state.selectedSlotNumberOption ? this.state.selectedSlotNumberOption.value : null;
+
 
       let dst = '/api/blades/'.concat(this.props.match.params.id).concat('/');
       axios.put(dst, stateToSend)
@@ -793,7 +849,7 @@ export class EditInstanceForm extends Component {
                 </Grid>
 
                 <Grid item xs={6}>
-                  < TextField label="Chassis Slot"
+                  {/* < TextField label="Chassis Slot"
                     fullWidth
                     type="number"
                     disabled={this.state.currentMountType != 'blade'}
@@ -805,7 +861,21 @@ export class EditInstanceForm extends Component {
                       this.setState({
                         asset: instanceCopy
                       })
-                    }} />
+                    }} /> */}
+                  <Autocomplete
+                    autoComplete
+                    autoHighlight
+                    autoSelect
+                    id="instance-create-slot-select"
+                    options={this.state.slotNumberOptions}
+                    getOptionLabel={option => option.label}
+                    onChange={this.handleChangeSlotNumber}
+                    value={this.state.selectedSlotNumberOption}
+                    disabled={this.state.selectedDatacenterOption === null || this.state.selectedLocationOption == null || this.state.currentMountType != 'blade'}
+                    renderInput={params => (
+                      <TextField {...params} label="Chassis slot number" fullWidth />
+                    )}
+                  />
                 </Grid>
 
                 <Grid item xs={6}>
