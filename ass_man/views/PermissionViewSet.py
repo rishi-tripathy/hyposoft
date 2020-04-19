@@ -101,6 +101,18 @@ def update_permissions(request):
             p.delete()
         except:
             pass
+    if request.data.get('global-asset') and request.data.get('global-asset') == 'true':
+        try:
+            p = Permission.objects.all().get(name='global-asset', user=user)
+        except:
+            p = Permission(name='global-asset', user=user)
+            p.save()
+    elif request.data.get('global-asset') and request.data.get('global-asset') == 'false':
+        try:
+            p = Permission.objects.all().get(name='global-asset', user=user)
+            p.delete()
+        except:
+            pass
     if request.data.get('asset'):
         for dc_id in request.data.get('asset'):
             dc = Datacenter.objects.all().get(pk=dc_id)
