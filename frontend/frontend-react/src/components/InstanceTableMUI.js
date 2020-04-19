@@ -386,7 +386,7 @@ export class InstanceTableMUI extends Component {
                 </Tooltip>
               </Link>
               </TableCell>
-  
+
               {
                 (
                   this.context.is_admin
@@ -433,14 +433,14 @@ export class InstanceTableMUI extends Component {
                     </TableCell>
                   ) : <div></div>
               }
-  
+
             </div>
           </TableRow>
         )
       })
     }
     else {
-  
+
       return this.props.assets.map((asset) => {
       //console.log(asset)
 
@@ -456,7 +456,6 @@ export class InstanceTableMUI extends Component {
 
 
       // const { id, model, hostname, rack, owner, rack_u, datacenter, asset_number } = asset //destructuring
-      
       return (
         <TableRow
           hover
@@ -504,7 +503,7 @@ export class InstanceTableMUI extends Component {
               (
                 this.context.is_admin
                 || this.context.username === 'admin'
-                || this.context.asset_permission.includes(datacenter.id)
+                || (asset.bladeserver ? (this.context.asset_permission.includes(location.datacenter.id)) : (this.context.asset_permission.includes(datacenter.id)))
               ) ? (
                   <TableCell align="right">
                     <Link to={{
@@ -526,7 +525,7 @@ export class InstanceTableMUI extends Component {
               (
                 this.context.is_admin
                 || this.context.username === 'admin'
-                || this.context.asset_permission.includes(datacenter.id)
+                || (asset.bladeserver ? (this.context.asset_permission.includes(location.datacenter.id)) : (this.context.asset_permission.includes(datacenter.id)))
               ) ? (
                   < TableCell align="right">
                     < Tooltip title='Decommission'>
@@ -542,7 +541,7 @@ export class InstanceTableMUI extends Component {
               (
                 this.context.is_admin
                 || this.context.username === 'admin'
-                || this.context.asset_permission.includes(datacenter.id)
+                || (asset.bladeserver ? (this.context.asset_permission.includes(location.datacenter.id)) : (this.context.asset_permission.includes(datacenter.id)))
               ) ? (
                   < TableCell align="right">
                     < Tooltip title='Delete'>

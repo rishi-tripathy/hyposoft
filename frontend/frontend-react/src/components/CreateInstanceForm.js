@@ -14,6 +14,7 @@ import CancelIcon from '@material-ui/icons/Cancel';
 import NetworkPortConnectionDialog from './NetworkPortConnectionDialog';
 import PowerPortConnectionDialog from './PowerPortConnectionDialog';
 import DatacenterContext from './DatacenterContext';
+import { jsonToHumanText } from './Helpers'
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
@@ -408,7 +409,7 @@ export class CreateInstanceForm extends Component {
           })
         })
         .catch(function (error) {
-          alert('Creation was not successful.\n' + JSON.stringify(error.response.data, null, 2));
+          alert('Creation was not successful.\n' + jsonToHumanText(error.response.data));
         });
     }
     else {
@@ -422,7 +423,7 @@ export class CreateInstanceForm extends Component {
           })
         })
         .catch(function (error) {
-          alert('Creation was not successful.\n' + JSON.stringify(error.response.data, null, 2));
+          alert('Creation was not successful.\n' + jsonToHumanText(error.response.data));
         });
     }
 
