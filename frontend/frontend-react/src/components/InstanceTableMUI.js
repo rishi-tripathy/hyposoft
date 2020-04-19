@@ -504,7 +504,7 @@ export class InstanceTableMUI extends Component {
               (
                 this.context.is_admin
                 || this.context.username === 'admin'
-                || this.context.asset_permission.includes(datacenter.id)
+                || (asset.bladeserver ? (this.context.asset_permission.includes(location.datacenter.id)) : (this.context.asset_permission.includes(datacenter.id)))
               ) ? (
                   <TableCell align="right">
                     <Link to={{

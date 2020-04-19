@@ -15,9 +15,10 @@ from ass_man.serializers.datacenter_serializers import DatacenterSerializer
 
 class ChassisSerializer(serializers.ModelSerializer):
     model = ModelAssetSerializer()
+    datacenter = DatacenterSerializer()
     class Meta:
         model = Asset
-        fields = ['id', 'hostname', 'model', 'ovr_color', 'ovr_storage', 'ovr_cpu', 'ovr_memory']
+        fields = ['id', 'hostname', 'datacenter', 'model', 'ovr_color', 'ovr_storage', 'ovr_cpu', 'ovr_memory']
 
 class AssetSerializer(serializers.HyperlinkedModelSerializer):
     # hostname = serializers.CharField(validators=[UniqueValidator(queryset=Asset.objects.all())])
