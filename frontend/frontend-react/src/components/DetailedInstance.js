@@ -79,17 +79,17 @@ export class DetailedInstance extends Component {
     let tmpConnections = []
     let npArray = this.state.asset.network_ports;
     console.log(npArray)
-    if(npArray){
-    for (let i = 0; i < npArray.length; i++) {
-      if (npArray[i].connection) {
-        let obj = npArray[i].connection.asset;
-        obj.my_name = npArray[i].name;
-        obj.name = npArray[i].connection.name;
-        tmpConnections.push(obj)
+    if (npArray) {
+      for (let i = 0; i < npArray.length; i++) {
+        if (npArray[i].connection) {
+          let obj = npArray[i].connection.asset;
+          obj.my_name = npArray[i].name;
+          obj.name = npArray[i].connection.name;
+          tmpConnections.push(obj)
+        }
       }
+      this.setState({ connectedAssets: tmpConnections })
     }
-    this.setState({ connectedAssets: tmpConnections })
-  }
     // return tmpConnections;
   }
 
@@ -154,7 +154,11 @@ export class DetailedInstance extends Component {
       })
     }
     else {
-      return <div><p></p></div>
+      return (
+        <TableRow hover tabIndex={-1}>
+          <TableCell align="center" colSpan={12}>No entries</TableCell>
+        </TableRow>
+      )
     }
   }
 
@@ -294,20 +298,20 @@ export class DetailedInstance extends Component {
                 <Typography variant="h4" gutterBottom>
                   Connected Power Ports
                 </Typography>
+                <Paper>
+                  <TableContainer>
+                    <Table
+                      aria-labelledby="instanceTableTitle"
+                      aria-label="instanceTable"
+                    >
+                      <TableRow>{this.renderPPConnectionTableHeader()}</TableRow>
 
-                <TableContainer>
-                  <Table
-                    size="small"
-                    aria-labelledby="instanceTableTitle"
-                    aria-label="instanceTable"
-                  >
-                    <TableRow>{this.renderPPConnectionTableHeader()}</TableRow>
-
-                    <TableBody>
-                      {this.renderPPConnectionTableData()}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
+                      <TableBody>
+                        {this.renderPPConnectionTableData()}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                </Paper>
               </Grid>
 
               <Grid item xs={6}>
@@ -364,7 +368,22 @@ export class DetailedInstance extends Component {
               <Grid item xs={6}>
                 {
                   this.state.asset.model ? (
-                    // FIXME
+                    this.state.asset.model.mount_type === 'chassis' ? (
+                      <div>
+                        <Typography variant="h4" gutterBottom>Installed Blades</Typography>
+                        <AllInstalledBladesView blades={this.state.installedBlades} />
+                      </div>
+                    )
+                      : (<div></div>)
+                  )
+                    : (<div></div>)
+                }
+              </Grid>
+
+              <Grid item xs={6}>
+                {
+                  this.state.asset.model ? (
+                    // FIXME: right now nobody can see asset graph
                     this.state.asset.model.mount_type === 'nothing' ?
                       (
                         <div>
@@ -379,20 +398,7 @@ export class DetailedInstance extends Component {
                 }
               </Grid>
 
-              <Grid item xs={12}>
-                {
-                  this.state.asset.model ? (
-                    this.state.asset.model.mount_type === 'chassis' ? (
-                      <div>
-                        <Typography variant="h4" gutterBottom>Installed Blades</Typography>
-                        <AllInstalledBladesView blades={this.state.installedBlades} />
-                      </div>
-                    )
-                      : (<div></div>)
-                  )
-                    : (<div></div>)
-                }
-              </Grid>
+
 
 
             </Grid>

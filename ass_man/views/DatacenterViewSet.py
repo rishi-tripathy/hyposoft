@@ -123,7 +123,7 @@ class DatacenterViewSet(viewsets.ModelViewSet):
             }, status=status.HTTP_400_BAD_REQUEST)
         matches = self.get_object().rack_set  # Rack.objects.filter(datacenter=self.get_object())
         rs = RackOfAssetSerializer(matches, many=True, context={'request': request})
-        return Response(rs.data)
+        return Response(sorted(rs.data, key=lambda k: k['id']))
 
     @action(detail=True, methods=[GET])
     def asset_options_cp(self, request, *args, **kwargs):
