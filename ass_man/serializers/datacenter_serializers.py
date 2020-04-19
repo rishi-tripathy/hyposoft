@@ -9,4 +9,4 @@ class DatacenterSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Datacenter
-        fields = ['id', 'url', 'abbreviation', 'name']
+        fields = ['id', 'url', 'abbreviation', 'name', 'is_offline']
