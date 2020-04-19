@@ -779,7 +779,10 @@ def import_network_port_file(request):
             dest_port=None
 
         # connection to different asset, different port, or from unconnected to connected
-        if src_port and src_port.connection != dest_port:
+        if src_port and src_port.connection != dest_port and (src_port.connection or dest_port):
+            print('stat')
+            print(src_port.connection)
+            print(dest_port)
             if should_override:
                 if src_port.connection:
                     src_port.connection.connection = None
@@ -815,8 +818,10 @@ def import_network_port_file(request):
                 override=True
 
         if updated:
-            updated_nps.append(src_port)
-            updated_nps.append(dest_port)
+            if src_port:
+                updated_nps.append(src_port)
+            if dest_port:
+                updated_nps.append(dest_port)
         elif override:
             overriden+=1
         elif ignored:
