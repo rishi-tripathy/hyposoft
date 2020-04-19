@@ -16,6 +16,7 @@ ALLASSETS_FILTERING_FIELDS = ['model', 'model_number',
 'location', 'slot_number']
 
 class AllAssetViewSet(viewsets.ModelViewSet):
+    # queryset = AllAssets.objects.all()
     queryset = AllAssets.objects.all()\
         .annotate(model=Greatest('asset__model', 'bladeserver__model'))\
         .annotate(datacenter=Greatest('asset__datacenter', 'bladeserver__datacenter'))\
@@ -36,7 +37,7 @@ class AllAssetViewSet(viewsets.ModelViewSet):
     http_method_names = ['get']
     ordering_fields = ALLASSETS_ORDERING_FIELDS
     filterset_fields = ALLASSETS_FILTERING_FIELDS
-
+    ordering = ['asset_number']
     filter_backends = [OrderingFilter,
                        djfiltBackend.DjangoFilterBackend,
                        AllAssetFilterByRack]
