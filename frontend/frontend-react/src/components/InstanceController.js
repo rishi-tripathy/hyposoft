@@ -48,7 +48,7 @@ export class InstanceController extends Component {
   getInstances = () => {
     let dst;
     if (this.state.datacenterID === -1 || this.state.datacenterID == null) {
-      dst = '/api/all_assets/' + '?' + this.state.filterQuery + '&' + this.state.sortQuery;
+      dst = '/api/all_assets/' + '?' + this.state.filterQuery + '&' + this.state.sortQuery + '&offline=false';
     }
     else if (this.context.is_offline) {
       dst = '/api/assets/' + '?' + 'datacenter=' + this.state.datacenterID + '&' + this.state.filterquery + '&' + this.state.getSortQuery + '&offline=true';

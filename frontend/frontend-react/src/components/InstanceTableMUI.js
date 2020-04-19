@@ -11,6 +11,7 @@ import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
 import FilterListIcon from '@material-ui/icons/FilterList';
 import LocalOfferIcon from '@material-ui/icons/LocalOffer';
+import CheckIcon from '@material-ui/icons/Check';
 import BlockIcon from '@material-ui/icons/Block';
 import InstanceFilters from './InstanceFilters';
 import '../stylesheets/TableView.css'
@@ -284,8 +285,9 @@ export class InstanceTableMUI extends Component {
       { id: 'slot_number', label: 'Slot No.' },
       { id: 'vendor', label: 'Vendor' },
       { id: 'model_number', label: 'Model Number' },
+      { id: 'override', label: 'Model Upgraded?' },
       { id: 'hostname', label: 'Hostname' },
-      { id: 'datacenter', label: 'Datacenter' },
+      { id: 'datacenter', label: 'DC/Offline Site' },
       { id: 'owner', label: 'Owner' },
       // { id: 'np', label: 'Network Ports' },
       // { id: 'pp', label: 'Power Ports' },
@@ -297,7 +299,8 @@ export class InstanceTableMUI extends Component {
     if(this.context.is_offline){
       headCells = [
         { id: 'model__vendor', label: 'Vendor' },
-        { id: 'model__model_number', label: 'Model Number' },
+        { id: 'model_number', label: 'Model Number' },
+      { id: 'override', label: 'Model Upgraded?' },
         { id: 'hostname', label: 'Hostname' },
         { id: 'datacenter', label: 'Offline Storage Site' },
         { id: 'owner', label: 'Owner' },
@@ -353,7 +356,7 @@ export class InstanceTableMUI extends Component {
     else if(this.context.is_offline){
       return this.props.assets.map((asset) => {
         //console.log(asset)
-        const { id, model, hostname, rack, owner, rack_u, datacenter, network_ports, power_ports, asset_number } = asset //destructuring
+        const { id, model, hostname, rack, owner, rack_u, datacenter, network_ports, power_ports, asset_number, ovr_memory, ovr_cpu, ovr_color, ovr_storage } = asset //destructuring
 
         return (
           <TableRow
@@ -370,6 +373,7 @@ export class InstanceTableMUI extends Component {
             </TableCell>
             <TableCell align="center">{model ? model.vendor : null}</TableCell>
             <TableCell align="center">{model ? model.model_number : null}</TableCell>
+            <TableCell align="center">{(ovr_memory || ovr_cpu || ovr_color || ovr_storage) ? <CheckIcon /> : null}</TableCell>
             <TableCell align="center">{hostname}</TableCell>
             <TableCell align="center">{datacenter ? datacenter.abbreviation : null}</TableCell>
             <TableCell align="center">{owner ? owner.username : null}</TableCell>
@@ -444,14 +448,14 @@ export class InstanceTableMUI extends Component {
       return this.props.assets.map((asset) => {
       //console.log(asset)
 
-      let id, model, hostname, rack, owner, rack_u, datacenter, asset_number, location, slot_number
+      let id, model, hostname, rack, owner, rack_u, datacenter, asset_number, location, slot_number,  ovr_memory, ovr_cpu, ovr_color, ovr_storage
 
 
       if (asset.bladeserver) {
         ({ id, model, hostname, rack, owner, location, slot_number, datacenter, asset_number } = asset.bladeserver)
       }
       else {
-        ({ id, model, hostname, rack, owner, rack_u, datacenter, asset_number } = asset.asset)
+        ({ id, model, hostname, rack, owner, rack_u, datacenter, asset_number,  ovr_memory, ovr_cpu, ovr_color, ovr_storage } = asset.asset)
       }
 
 
@@ -476,6 +480,7 @@ export class InstanceTableMUI extends Component {
           <TableCell align="center">{slot_number}</TableCell>
           <TableCell align="center">{model ? model.vendor : null}</TableCell>
           <TableCell align="center">{model ? model.model_number : null}</TableCell>
+          <TableCell align="center">{(ovr_memory || ovr_cpu || ovr_color || ovr_storage) ? <CheckIcon /> : null}</TableCell>
           <TableCell align="center">{hostname}</TableCell>
           <TableCell align="center">{datacenter ? datacenter.abbreviation : null}</TableCell>
           <TableCell align="center">{owner ? owner.username : null}</TableCell>

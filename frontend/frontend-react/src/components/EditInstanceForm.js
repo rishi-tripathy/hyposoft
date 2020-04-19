@@ -4,8 +4,10 @@ import {
   Button, Container, TextField,
   Grid, Input, FormControl, Typography,
   Tooltip, Paper, List,
-  ListItem, ListItemText, Divider
+  ListItem, ListItemText, Divider, Table, TableBody, TableCell, TableContainer, TableRow, Toolbar,
 } from "@material-ui/core";
+import ToggleButton from '@material-ui/lab/ToggleButton';
+import CheckIcon from '@material-ui/icons/Check'
 import { Autocomplete } from "@material-ui/lab";
 import CancelIcon from '@material-ui/icons/Cancel';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
@@ -33,6 +35,10 @@ export class EditInstanceForm extends Component {
         asset_number: null,
         network_ports: [],
         power_ports: [],
+        ovr_color: null,
+        ovr_storage: null,
+        ovr_memory: null,
+        ovr_cpu: null,
       },
       modelOptions: [],
       selectedModelOption: null,
@@ -74,6 +80,19 @@ export class EditInstanceForm extends Component {
       slotNumberOptions: [],
       selectedSlotNumberOption: null,
       is_offline: false,
+
+
+      selectedDisplayColor: null,
+      selectedCPU: null,
+      selectedMemory: null,
+      selectedStorage: null,
+
+      memoryChecked: false,
+      displayColorChecked: false,
+      storageChecked: false,
+      cpuChecked: false,
+
+      revert: false,
     }
   }
 
@@ -207,8 +226,17 @@ export class EditInstanceForm extends Component {
       //this.loadRacks();
       this.loadOwners();
       this.loadInstance();
+      // this.loadRevert();
     }, delay);
   }
+
+  // loadRevert = () => {
+  //   if(this.state.asset.ovr_color || this.state.ovr_cpu || this.state.ovr_memory || this.state.ovr_storage){
+  //     this.setState({
+  //       revert: true,
+  //     })
+  //   }
+  // }
 
   componentDidUpdate(prevProps, prevState) {
     if (prevState.selectedModelOption !== this.state.selectedModelOption) {
@@ -216,6 +244,9 @@ export class EditInstanceForm extends Component {
         this.loadNetworkPortInfoForCurrentlySelectedModel();
         this.loadNumberOfPowerPortsForModel();
         this.loadCurrentModelMountType();
+        setTimeout(() => {
+          this.loadChangeableModelFields();
+        }, 50);
       }
       else {
         this.setState({ networkPortNamesForCurrentAsset: [], numberOfNetworkPortsForCurrentAsset: null });
@@ -267,6 +298,29 @@ export class EditInstanceForm extends Component {
     }
   }
 
+  loadChangeableModelFields = () => {
+    let modelURL = this.state.selectedModelOption.value
+    console.log(modelURL)
+    axios.get(modelURL).then(res => {
+      // console.log(res.data)
+      let instanceCopy = JSON.parse(JSON.stringify(this.state.asset));
+      if(!this.state.asset.ovr_color){
+        instanceCopy.ovr_color = res.data.display_color;
+      }
+      this.setState({
+        asset: instanceCopy,
+        selectedDisplayColor: res.data.display_color,
+        selectedCPU: res.data.cpu,
+        selectedMemory: res.data.memory,
+        selectedStorage: res.data.storage,
+      });
+    })
+      .catch(function (error) {
+        alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+      });
+  }
+
+
   loadInstance = () => {
 
     console.log(this.props)
@@ -283,13 +337,36 @@ export class EditInstanceForm extends Component {
         instanceCopy.location = res.data.location;
         instanceCopy.slot_number = res.data.slot_number;
         instanceCopy.asset_number = res.data.asset_number;
-        // instanceCopy.ovr_color = res.data.ovr_color;
-        // instanceCopy.ovr_storage = res.data.ovr_storage;
-        // instanceCopy.ovr_cpu = res.data.ovr_cpu;
-        // instanceCopy.ovr_memory = res.data.ovr_memory;
+        instanceCopy.ovr_color = res.data.ovr_color;
+        instanceCopy.ovr_storage = res.data.ovr_storage;
+        instanceCopy.ovr_cpu = res.data.ovr_cpu;
+        instanceCopy.ovr_memory = res.data.ovr_memory;
+
+        let color = false;
+        let cpu = false;
+        let mem = false;
+        let str = false;
+
+        if(instanceCopy.ovr_color !== this.state.selectedDisplayColor){
+          color = true;
+        }
+        if(instanceCopy.ovr_cpu){
+          cpu = true;
+        }
+        if(instanceCopy.ovr_memory){
+          mem = true;
+        }
+        if(instanceCopy.ovr_storage){
+          str = true;
+        }
+        
         this.setState({
           asset: instanceCopy,
-          selectedDatacenterOption: res.data.datacenter
+          selectedDatacenterOption: res.data.datacenter,
+          displayColorChecked: color,
+          cpuChecked: cpu,
+          memoryChecked: mem,
+          storageChecked: str,
         })
       })
         .catch(function (error) {
@@ -299,25 +376,48 @@ export class EditInstanceForm extends Component {
     }
     //TODO: add blade offline 
       else if (this.context.is_offline) {
-      let dst = '/api/all_assets/?offline=true/'.concat(this.props.match.params.id).concat('/');
+      let dst = '/api/all_assets/'.concat(this.props.match.params.id).concat('/');
       console.log(dst)
 
       axios.get(dst).then(res => {
         let instanceCopy = JSON.parse(JSON.stringify(this.state.asset));
         console.log(res.data)
-          instanceCopy.model = res.data.results.asset.model;
-          instanceCopy.hostname = res.data.results.asset.hostname;
-          instanceCopy.datacenter = res.data.results.asset.datacenter;
-          instanceCopy.owner = res.data.results.asset.owner;
-          instanceCopy.comment = res.data.results.asset.comment;
-          instanceCopy.asset_number = res.data.results.asset.asset_number;
-          instanceCopy.ovr_color = res.data.results.ovr_color;
-          instanceCopy.ovr_storage = res.data.results.ovr_storage;
-          instanceCopy.ovr_cpu = res.data.results.ovr_cpu;
-          instanceCopy.ovr_memory = res.data.results.ovr_memory;
+          instanceCopy.model = res.data.asset.model;
+          instanceCopy.hostname = res.data.asset.hostname;
+          instanceCopy.datacenter = res.data.asset.datacenter;
+          instanceCopy.owner = res.data.asset.owner;
+          instanceCopy.comment = res.data.asset.comment;
+          instanceCopy.asset_number = res.data.asset.asset_number;
+          instanceCopy.ovr_color = res.data.asset.ovr_color;
+          instanceCopy.ovr_storage = res.data.asset.ovr_storage;
+          instanceCopy.ovr_cpu = res.data.asset.ovr_cpu;
+          instanceCopy.ovr_memory = res.data.asset.ovr_memory;
+
+          let color = false;
+          let cpu = false;
+          let mem = false;
+          let str = false;
+
+          if(instanceCopy.ovr_color){
+            color = true;
+          }
+          if(instanceCopy.ovr_cpu){
+            cpu = true;
+          }
+          if(instanceCopy.ovr_memory){
+            mem = true;
+          }
+          if(instanceCopy.ovr_storage){
+            str = true;
+          }
+          
           this.setState({
             asset: instanceCopy,
             selectedDatacenterOption: res.data.asset.datacenter,
+            displayColorChecked: color,
+            cpuChecked: cpu,
+            memoryChecked: mem,
+            storageChecked: str,
           })
         })
         .catch(function (error) {
@@ -339,20 +439,39 @@ export class EditInstanceForm extends Component {
           instanceCopy.owner = res.data.asset.owner;
           instanceCopy.comment = res.data.asset.comment;
           instanceCopy.asset_number = res.data.asset.asset_number;
-          instanceCopy.network_ports = res.data.asset.network_ports;
-          instanceCopy.power_ports = res.data.asset.power_ports;
-          instanceCopy.ovr_color = res.data.ovr_color;
-          instanceCopy.ovr_storage = res.data.ovr_storage;
-          instanceCopy.ovr_cpu = res.data.ovr_cpu;
-          instanceCopy.ovr_memory = res.data.ovr_memory;
-          // instanceCopy.model = res.data.model;
-          // instanceCopy.hostname = res.data.hostname;
-          // instanceCopy.datacenter = res.data.datacenter;
-          // instanceCopy.location = res.data.location;
-          // instanceCopy.slot_number = res.data.slot_number;
+          // instanceCopy.network_ports = res.data.asset.network_ports;
+          // instanceCopy.power_ports = res.data.asset.power_ports;
+          instanceCopy.ovr_color = res.data.asset.ovr_color;
+          instanceCopy.ovr_storage = res.data.asset.ovr_storage;
+          instanceCopy.ovr_cpu = res.data.asset.ovr_cpu;
+          instanceCopy.ovr_memory = res.data.asset.ovr_memory;
+
+
+          let color = false;
+          let cpu = false;
+          let mem = false;
+          let str = false;
+
+          if(instanceCopy.ovr_color){
+            color = true;
+          }
+          if(instanceCopy.ovr_cpu){
+            cpu = true;
+          }
+          if(instanceCopy.ovr_memory){
+            mem = true;
+          }
+          if(instanceCopy.ovr_storage){
+            str = true;
+          }
+          
           this.setState({
             asset: instanceCopy,
             selectedDatacenterOption: res.data.asset.datacenter,
+            displayColorChecked: color,
+            cpuChecked: cpu,
+            memoryChecked: mem,
+            storageChecked: str,
           })
         })
         .catch(function (error) {
@@ -617,10 +736,25 @@ export class EditInstanceForm extends Component {
       }
     }
 
+
     let stateToSend = this.removeEmpty(stateCopy);
     if (this.state.is_offline) {
       stateToSend.rack = null;
       stateToSend.rack_u = null;
+    }
+
+    if(this.state.revert){
+      stateToSend.ovr_color = null;
+      stateToSend.ovr_memory = null;
+      stateToSend.ovr_cpu = null;
+      stateToSend.ovr_storage = null;
+    }
+    //logic for color)
+    else {
+      //not revert, some changes
+      if(this.state.selectedDisplayColor === this.state.asset.ovr_color){
+        stateToSend.ovr_color = null;
+      }
     }
     
     console.log(JSON.stringify(stateToSend, null, 2))
@@ -633,7 +767,10 @@ export class EditInstanceForm extends Component {
       stateToSend.model = this.state.selectedModelOption ? this.state.selectedModelOption.id : null;
       stateToSend.location = this.state.selectedLocationOption ? this.state.selectedLocationOption.id : null;
       stateToSend.slot_number = this.state.selectedSlotNumberOption ? this.state.selectedSlotNumberOption.value : null;
-
+      stateToSend.ovr_color = this.state.asset.ovr_color;
+      stateToSend.ovr_storage = this.state.asset.ovr_storage;
+      stateToSend.ovr_cpu = this.state.asset.ovr_cpu;
+      stateToSend.ovr_memory = this.state.asset.ovr_memory;
 
       let dst = '/api/blades/'.concat(this.props.match.params.id).concat('/');
       axios.put(dst, stateToSend)
@@ -706,6 +843,257 @@ export class EditInstanceForm extends Component {
     return fieldList;
   }
 
+  renderTableHeader() {
+    let headCells = [
+      {id: 'display_color', label: 'Color'},
+      {id: 'cpu', label: 'CPU'},
+      {id: 'memory', label: 'Memory'},
+      {id: 'storage', label: 'Storage'},
+    ];
+    return headCells.map(headCell => (
+      <TableCell
+        align={'center'}
+        padding={'default'}
+
+      >
+        {headCell.label.toUpperCase()}
+
+      </TableCell>
+    ))
+  }
+
+  renderCheckRow() {
+    let model = this.state.selectedModelOption;
+    
+    if(model== null || this.state.revert){
+    }
+    else {
+      return(
+        <TableRow
+          hover
+          tabIndex={-1}
+        >
+          <TableCell align="center">
+            <ToggleButton
+              value="check"
+              selected={this.state.displayColorChecked}
+              onChange={() => {
+                this.setDisplayColorChecked();
+              }}
+            >
+              <CheckIcon />
+            </ToggleButton>
+            </TableCell>
+          <TableCell align="center">
+          <ToggleButton
+            value="check"
+            selected={this.state.cpuChecked}
+            onChange={() => {
+              this.setCpuChecked();
+            }}
+          >
+            <CheckIcon />
+          </ToggleButton>
+          </TableCell>
+          <TableCell align="center">
+            <ToggleButton
+              value="check"
+              selected={this.state.memoryChecked}
+              onChange={() => {
+                this.setMemoryChecked();
+              }}
+            >
+              <CheckIcon />
+            </ToggleButton>
+          </TableCell>
+          <TableCell align='center'>
+          <ToggleButton
+            value="check"
+            selected={this.state.storageChecked}
+            onChange={() => {
+              this.setStorageSelected();
+            }}
+          >
+            <CheckIcon />
+          </ToggleButton>
+          </TableCell>
+          </TableRow>
+      )
+    }
+  }
+
+  setStorageSelected = () => {
+    this.setState(prevState => ({
+      storageChecked: !prevState.storageChecked
+    }));
+  }
+
+  setDisplayColorChecked = () => {
+    this.setState(prevState => ({
+      displayColorChecked: !prevState.displayColorChecked
+    }));
+  }
+
+  setMemoryChecked = () => {
+    this.setState(prevState => ({
+      memoryChecked: !prevState.memoryChecked
+    }));
+  }
+
+  setCpuChecked = () => {
+    this.setState(prevState => ({
+      cpuChecked: !prevState.cpuChecked
+    }));
+  }
+
+  handleRevert = () => {
+    let instanceCopy = JSON.parse(JSON.stringify(this.state.asset))
+    instanceCopy.ovr_storage = null;
+    instanceCopy.ovr_cpu = null;
+    instanceCopy.ovr_memory = null;
+    instanceCopy.ovr_displayColor = null;
+    this.setState(prevState => ({
+      revert: !prevState.revert,
+      asset: instanceCopy,  
+      displayColorChecked: false,
+      cpuChecked: false,
+      memoryChecked: false,
+      storageChecked: false,
+    }));
+  }
+
+  renderTableData() {
+    let model = this.state.selectedModelOption;
+
+    let colorOverride = this.state.asset.ovr_color;
+    let cpuOverride = this.state.asset.ovr_cpu;
+    let storageOverride = this.state.asset.ovr_storage;
+    let memoryOverride = this.state.asset.ovr_memory;
+
+    if(!colorOverride){
+      colorOverride = this.state.selectedDisplayColor;
+    }
+    if(!cpuOverride){
+      cpuOverride = this.state.selectedCPU;
+    }
+    if(!memoryOverride){
+      memoryOverride = this.state.selectedMemory;
+    }
+    if(!storageOverride){
+      storageOverride = this.state.selectedStorage;
+    }
+
+    if (model == null) return (
+      <TableRow hover tabIndex={-1}>
+        <TableCell align="center" colSpan={12}>Select a Model</TableCell>
+      </TableRow>
+    )
+    else if(this.state.revert) return (
+      <TableRow hover tabIndex={-1}>
+      <TableCell align="center" colSpan={12}>No differing fields from the model.</TableCell>
+    </TableRow>
+    )
+    // console.log(model)
+      return (
+        <TableRow
+          hover
+          tabIndex={-1}
+        >
+          <TableCell align="right">
+            {this.state.displayColorChecked ?
+            <FormControl fullWidth>
+            <Input type="color" name="Display Color" startAdornment="Display Color"
+              value={'#' + this.state.asset.ovr_color}
+              onChange={e => {
+                let instanceCopy = JSON.parse(JSON.stringify(this.state.asset))
+                instanceCopy.ovr_color = e.target.value.replace('#', '');
+                this.setState({
+                  asset: instanceCopy
+                })
+              }} />{' '}
+          </FormControl>
+            : 
+            <div style={{
+              width: 12,
+              height: 10,
+              backgroundColor: '#' + colorOverride,
+              left: 2,
+              top: 2,
+            }}></div>}
+            </TableCell>
+          <TableCell align="center">
+              {this.state.cpuChecked ? 
+               <TextField label='CPU' type="text"  defaultValue={cpuOverride} helperText="Describe the CPU" fullWidth onChange={e => {
+                let instanceCopy = JSON.parse(JSON.stringify(this.state.asset))
+                instanceCopy.ovr_cpu = e.target.value
+                this.setState({
+                  asset: instanceCopy
+                })
+              }} />
+              : cpuOverride}
+           </TableCell>
+          <TableCell align="center">
+            {this.state.memoryChecked ?
+           <TextField label='Memory' type="number"  defaultValue={memoryOverride} helperText="RAM available in GB" fullWidth onChange={e => {
+            let instanceCopy = JSON.parse(JSON.stringify(this.state.asset))
+            instanceCopy.ovr_memory = e.target.value
+            this.setState({
+              asset: instanceCopy
+            })
+          }} />
+          :
+          memoryOverride}
+          </TableCell>
+          <TableCell align="center">
+            {this.state.storageChecked ?
+             <TextField label='Storage' defaultValue={storageOverride} type="text" helperText="Describe the storage" fullWidth onChange={e => {
+              let instanceCopy = JSON.parse(JSON.stringify(this.state.asset))
+              instanceCopy.ovr_storage = e.target.value
+              this.setState({
+                asset: instanceCopy
+              })
+            }} />
+          : storageOverride}</TableCell>
+      </TableRow>
+      )
+    }
+
+    renderTableToolbar = () => {
+
+      let message = '';
+      if(this.state.revert){
+        message = 'Change Model Fields';
+      }
+      else {
+        if(this.state.displayColorChecked || this.state.storageChecked || this.state.memoryChecked || this.state.cpuChecked){
+          message = 'Revert to Original Model';
+        }
+      }
+      return (
+        
+        <Toolbar>
+          {
+            <Container maxwidth="xl">
+          <Grid container className='themed-container' spacing={2}>
+              <Grid item alignContent='center' xs={6}>
+                  <Typography style={{flex: '1 1 20%'}} variant="h6" id="modelFieldsTableTitle">
+                    Edit Model Fields for this Asset
+            </Typography>
+            </Grid>
+
+            <Grid item alignContent='right' xs={6}>
+                <Button variant="outlined" color="primary" size="small" alignContent='flex-end'
+                  onClick={this.handleRevert}>
+                    {message}
+                </Button>
+            </Grid>
+          </Grid>
+          </Container>
+          }
+        </Toolbar>
+      );
+    };
+
   render() {
     console.log(this.state)    
     
@@ -752,6 +1140,8 @@ export class EditInstanceForm extends Component {
           })
         }} />;
 
+        console.log(this.state)
+
     return (
       <div>
         {this.state.redirect && <Redirect to={{ pathname: '/assets' }} />}
@@ -793,6 +1183,8 @@ export class EditInstanceForm extends Component {
                       })
                     }} />
                 </Grid>
+
+              
 
                 <Grid item xs={6}>
                   <Autocomplete
@@ -941,6 +1333,26 @@ export class EditInstanceForm extends Component {
                         asset: instanceCopy
                       })
                     }} />
+                </Grid>
+
+                <Grid item xs={8}>
+                <Paper>
+                  {this.renderTableToolbar()}
+                  <TableContainer>
+                    <Table
+                      size="small"
+                      aria-labelledby="modelTableTitle"
+                      aria-label="enhanced table"
+                    >
+                      <TableRow>{this.renderTableHeader()}</TableRow>
+
+                      <TableBody textAlign='center' >
+                        {this.renderCheckRow()}
+                        {this.renderTableData()}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                </Paper>
                 </Grid>
                 <Grid item xs={2}>
                   <Tooltip title='Submit'>
