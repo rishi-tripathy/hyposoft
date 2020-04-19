@@ -34,11 +34,11 @@ class DatacenterViewSet(viewsets.ModelViewSet):
             try:
                 user = User.objects.get(username=self.request.user.username)
                 if user.is_staff or len(user.permission_set.all().filter(name='asset')) > 0:
-                    permission_classes = [IsAdminUser]
-                else:
                     permission_classes = [IsAuthenticated]
+                else:
+                    permission_classes = [IsAdmin]
             except:
-                permission_classes = [IsAuthenticated]
+                permission_classes = [IsAdmin]
         else:
             permission_classes = [IsAuthenticated]
         return [permission() for permission in permission_classes]
