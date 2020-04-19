@@ -588,6 +588,7 @@ export class CreateInstanceForm extends Component {
                     autoHighlight
                     autoSelect
                     id="datacenter-select"
+
                     options={options.sort((a, b) => -b.firstLetter.localeCompare(a.firstLetter))}
                     groupBy={option => option.firstLetter}
                     getOptionLabel={option => option.abbreviation}
