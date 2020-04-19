@@ -303,7 +303,9 @@ export class EditInstanceForm extends Component {
     axios.get(modelURL).then(res => {
       // console.log(res.data)
       let instanceCopy = JSON.parse(JSON.stringify(this.state.asset));
-      instanceCopy.ovr_color = res.data.display_color;
+      if(!this.state.asset.ovr_color){
+        instanceCopy.ovr_color = res.data.display_color;
+      }
       this.setState({
         asset: instanceCopy,
         selectedDisplayColor: res.data.display_color,
@@ -344,7 +346,7 @@ export class EditInstanceForm extends Component {
         let mem = false;
         let str = false;
 
-        if(instanceCopy.ovr_color){
+        if(instanceCopy.ovr_color !== this.state.selectedDisplayColor){
           color = true;
         }
         if(instanceCopy.ovr_cpu){
@@ -746,8 +748,13 @@ export class EditInstanceForm extends Component {
       stateToSend.ovr_cpu = null;
       stateToSend.ovr_storage = null;
     }
-
-    //logic for checkboxes
+    //logic for color)
+    else {
+      //not revert, some changes
+      if(this.state.selectedDisplayColor === this.state.asset.ovr_color){
+        stateToSend.ovr_color = null;
+      }
+    }
     
     console.log(JSON.stringify(stateToSend, null, 2))
     var self = this;
@@ -759,7 +766,10 @@ export class EditInstanceForm extends Component {
       stateToSend.model = this.state.selectedModelOption ? this.state.selectedModelOption.id : null;
       stateToSend.location = this.state.selectedLocationOption ? this.state.selectedLocationOption.id : null;
       stateToSend.slot_number = this.state.selectedSlotNumberOption ? this.state.selectedSlotNumberOption.value : null;
-
+      stateToSend.ovr_color = this.state.asset.ovr_color;
+      stateToSend.ovr_storage = this.state.asset.ovr_storage;
+      stateToSend.ovr_cpu = this.state.asset.ovr_cpu;
+      stateToSend.ovr_memory = this.state.asset.ovr_memory;
 
       let dst = '/api/blades/'.concat(this.props.match.params.id).concat('/');
       axios.put(dst, stateToSend)
@@ -1048,7 +1058,18 @@ export class EditInstanceForm extends Component {
     }
 
     renderTableToolbar = () => {
+
+      let message = '';
+      if(this.state.revert){
+        message = 'Change Model Fields';
+      }
+      else {
+        if(this.state.displayColorChecked || this.state.storageChecked || this.state.memoryChecked || this.state.cpuChecked){
+          message = 'Revert to Original Model';
+        }
+      }
       return (
+        
         <Toolbar>
           {
             <Container maxwidth="xl">
@@ -1060,12 +1081,12 @@ export class EditInstanceForm extends Component {
             </Grid>
 
             <Grid item alignContent='right' xs={6}>
-                    <Button variant="outlined" color="primary" size="small" alignContent='flex-end'
-                      onClick={this.handleRevert}>
-                        {this.state.revert ? 'Change Model Fields' : 'Revert to Original Model'}
-              </Button>
-              </Grid>
-              </Grid>
+                <Button variant="outlined" color="primary" size="small" alignContent='flex-end'
+                  onClick={this.handleRevert}>
+                    {message}
+                </Button>
+            </Grid>
+          </Grid>
           </Container>
           }
         </Toolbar>

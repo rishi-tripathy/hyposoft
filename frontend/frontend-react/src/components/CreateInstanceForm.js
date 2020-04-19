@@ -401,6 +401,9 @@ export class CreateInstanceForm extends Component {
       stateToSend.rack_u = null;
     }
 
+    if(this.state.selectedDisplayColor === this.state.asset.ovr_color){
+      stateToSend.ovr_color = null;
+    }
 
     console.log(JSON.stringify(stateToSend, null, 2))
     //console.log(JSON.stringify(this.state, null, 2))
@@ -412,7 +415,10 @@ export class CreateInstanceForm extends Component {
       stateToSend.model = this.state.selectedModelOption ? this.state.selectedModelOption.id : null;
       stateToSend.datacenter = this.state.selectedDatacenterOption ? this.state.selectedDatacenterOption.id : null;
       stateToSend.slot_number = this.state.selectedSlotNumberOption ? this.state.selectedSlotNumberOption.value : null;
-
+      stateToSend.ovr_color = this.state.asset.ovr_color;
+      stateToSend.ovr_storage = this.state.asset.ovr_storage;
+      stateToSend.ovr_cpu = this.state.asset.ovr_cpu;
+      stateToSend.ovr_memory = this.state.asset.ovr_memory;
 
       var self = this;
       console.log(JSON.stringify(stateToSend, null, 2))
@@ -516,7 +522,12 @@ export class CreateInstanceForm extends Component {
     // console.log(modelURL)
     axios.get(modelURL).then(res => {
       // console.log(res.data)
+      let instanceCopy = JSON.parse(JSON.stringify(this.state.asset));
+      // if(!this.state.asset.ovr_color){
+        instanceCopy.ovr_color = res.data.display_color;
+      // }
       this.setState({
+        asset: instanceCopy,
         selectedDisplayColor: res.data.display_color,
         selectedCPU: res.data.cpu,
         selectedMemory: res.data.memory,
