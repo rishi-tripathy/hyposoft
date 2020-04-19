@@ -11,6 +11,7 @@ import { Autocomplete } from "@material-ui/lab";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
 import { Link, Redirect } from "react-router-dom";
 import CancelIcon from '@material-ui/icons/Cancel';
+import { jsonToHumanText } from './Helpers'
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
@@ -131,7 +132,7 @@ export class EditModelForm extends Component {
         });
       })
       .catch(function (error) {
-        alert('Edit was not successful.\n' + JSON.stringify(error.response.data, null, 2));
+        alert('Edit was not successful.\n' + jsonToHumanText(error.response.data));
       });
   }
 
@@ -201,7 +202,7 @@ export class EditModelForm extends Component {
                   </Typography>
                 </Grid>
                 <Grid item xs={12}>
-                  <FormControl component="fieldset">
+                  <FormControl component="fieldset" disabled={true}>
                     <FormLabel component="legend">
                       <Typography variant="h6" gutterBottom>
                         Model Type
