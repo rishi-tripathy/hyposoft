@@ -6,6 +6,7 @@ from django_filters import rest_framework as djfiltBackend
 from rest_framework.filters import OrderingFilter
 from rest_framework.permissions import IsAuthenticated
 from django.db.models.functions import Greatest
+from ass_man.export_manager import export_assets, export_network_ports
 
 ALLASSETS_ORDERING_FIELDS = ['model', 'datacenter', 'model_number',
 'vendor', 'mount_type', 'hostname', 'owner', 'asset_number', 'rack_number', 'rack_u',
@@ -42,3 +43,10 @@ class AllAssetViewSet(viewsets.ModelViewSet):
                        djfiltBackend.DjangoFilterBackend,
                        AllAssetFilterByRack]
     filterset_class = AllAssetsFilter
+
+    def list(self, request, *args, **kwargs):
+        if request.query_params.get('export') == 'true':
+            if request.query_params.get('np') == 'true':
+                return export_network_ports(self.get_queryset())
+            return export_assets(self.get_queryset())
+        return super().list(self, request, *args, **kwargs)
