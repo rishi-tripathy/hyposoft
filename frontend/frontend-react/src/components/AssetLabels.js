@@ -25,8 +25,14 @@ import '../stylesheets/PrintingAssetLabels.css'
 //height 18 -> fits 20
 
 const labelHeight = 18
-const labelWidth = 3.5
+const labelWidth = 2.7
 const textAlignPosition = 'left'
+
+// 10 is default
+const mTop = 5
+const mBottom = 25
+const mLeft = 35
+const mRight = 48
 
 export class AssetLabels extends Component {
   constructor() {
@@ -63,10 +69,16 @@ export class AssetLabels extends Component {
   }
 }
 
-const myTableStyle = {
+const myTableRowStyle = {
   //border: '1px solid black',
   textAlign: 'center',
+  width: '10%'
 };
+
+const myTableStyle = {
+  width: '50%', 
+  //borderSpacing: '10mm 0mm'
+}
 
 class ComponentToPrint extends Component {
 
@@ -224,7 +236,7 @@ class ComponentToPrint extends Component {
       const { one, two, three, four } = row //destructuring
       return (
         <tr>
-          <td style={myTableStyle}>
+          <td style={myTableRowStyle}>
             {
               one ? (
                 <Barcode
@@ -234,11 +246,16 @@ class ComponentToPrint extends Component {
                   format={'CODE128C'}
                   text={'HypoSoft    ' + one}
                   textAlign={textAlignPosition}
+                  margin={0}
+                  marginTop={mTop}
+                  marginBottom={mBottom}
+                  marginLeft={mLeft}
+                  marginRight={mRight}
                 />
               ) : <div></div>
             }
           </td>
-          <td style={myTableStyle}>
+          <td style={myTableRowStyle}>
             {
               two ? (
                 <Barcode
@@ -248,11 +265,16 @@ class ComponentToPrint extends Component {
                   format={'CODE128C'}
                   text={'HypoSoft    ' + two}
                   textAlign={textAlignPosition}
+                  margin={0}
+                  marginTop={mTop}
+                  marginBottom={mBottom}
+                  marginLeft={mLeft}
+                  marginRight={mRight}
                 />
               ) : <div></div>
             }
           </td>
-          <td style={myTableStyle}>
+          <td style={myTableRowStyle}>
             {
               three ? (
                 <Barcode
@@ -262,11 +284,16 @@ class ComponentToPrint extends Component {
                   format={'CODE128C'}
                   text={'HypoSoft    ' + three}
                   textAlign={textAlignPosition}
+                  margin={0}
+                  marginTop={mTop}
+                  marginBottom={mBottom}
+                  marginLeft={mLeft}
+                  marginRight={mRight}
                 />
               ) : <div></div>
             }
           </td>
-          <td style={myTableStyle}>
+          <td style={myTableRowStyle}>
             {
               four ? (
                 <Barcode
@@ -276,6 +303,11 @@ class ComponentToPrint extends Component {
                   format={'CODE128C'}
                   text={'HypoSoft    ' + four}
                   textAlign={textAlignPosition}
+                  margin={0}
+                  marginTop={mTop}
+                  marginBottom={mBottom}
+                  marginLeft={mLeft}
+                  marginRight={mRight}
                 />
               ) : <div></div>
             }
