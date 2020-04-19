@@ -68,6 +68,9 @@ export class EditInstanceForm extends Component {
       selectedLocationOption: null,
 
       currentMountType: '',
+
+      slotNumberOptions: [],
+      selectedSlotNumberOption: null,
     }
   }
 
@@ -157,6 +160,8 @@ export class EditInstanceForm extends Component {
     // console.log(this.state.rightFreePDUSlots)
   }
 
+
+
   removeEmpty = (obj) => {
     Object.keys(obj).forEach((k) => (!obj[k] && obj[k] !== undefined) && delete obj[k]);
     return obj;
@@ -237,11 +242,20 @@ export class EditInstanceForm extends Component {
       this.loadMACAddresses();
       this.loadConnectedNPs();
     }
+
+    if (this.state.selectedLocationOption !== prevState.selectedLocationOption) {
+      if (this.state.selectedLocationOption) {
+        if (this.state.selectedLocationOption.id) {
+          this.loadSlotNumbers();
+        }
+      }
+    }
   }
 
   loadInstance = () => {
 
     if (this.props.location.state != null && this.props.location.state.isBlade) {
+      //blade
       let dst = '/api/blades/'.concat(this.props.match.params.id).concat('/');
       axios.get(dst).then(res => {
         let instanceCopy = JSON.parse(JSON.stringify(this.state.asset));
@@ -261,6 +275,7 @@ export class EditInstanceForm extends Component {
         });
     }
     else {
+      //not blade
       let dst = '/api/assets/'.concat(this.props.match.params.id).concat('/');
       axios.get(dst).then(res => {
         let instanceCopy = JSON.parse(JSON.stringify(this.state.asset));
@@ -401,7 +416,7 @@ export class EditInstanceForm extends Component {
       for (let i = 0; i < res.data.length; i++) {
         myOptions.push({ value: res.data[i].id, label: res.data[i].hostname + ' ' + res.data[i].asset_number, id: res.data[i].id });
       }
-      this.setState({ 
+      this.setState({
         locationOptions: myOptions,
         selectedLocationOption: {
           value: this.state.asset.location ? this.state.asset.location.id : null,
@@ -439,6 +454,30 @@ export class EditInstanceForm extends Component {
       });
   }
 
+  loadSlotNumbers = () => {
+    // load array of free slot numbers
+    console.log(this.state.selectedLocationOption)
+    const dst = '/api/assets/' + this.state.selectedLocationOption.id + '/chassis_slots/';
+    console.log(dst)
+    axios.get(dst).then(res => {
+      let myOptions = [];
+      for (let i = 0; i < res.data.length; i++) {
+        myOptions.push({ value: res.data[i], label: res.data[i].toString(), });
+      }
+      this.setState({ slotNumberOptions: myOptions });
+      this.setState({
+        selectedSlotNumberOption: {
+          value: this.state.asset.slot_number ? this.state.asset.slot_number : null,
+          label: this.state.asset.slot_number ? this.state.asset.slot_number.toString() : null,
+        }
+      })
+    })
+      .catch(function (error) {
+        // TODO: handle error
+        alert('Could not load racks. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+      });
+  }
+
   handleChangeModel = (event, selectedModelOption) => {
     this.setState({ selectedModelOption });
     console.log(this.state.asset)
@@ -460,6 +499,10 @@ export class EditInstanceForm extends Component {
     this.setState({ selectedDatacenterOption });
     console.log(selectedDatacenterOption)
   }
+
+  handleChangeSlotNumber = (event, selectedSlotNumberOption) => {
+    this.setState({ selectedSlotNumberOption });
+  };
 
   handleSubmit = (e) => {
     e.preventDefault();
@@ -512,6 +555,8 @@ export class EditInstanceForm extends Component {
       stateToSend.model = this.state.selectedModelOption ? this.state.selectedModelOption.id : null;
       stateToSend.datacenter = this.state.selectedDatacenterOption ? this.state.selectedDatacenterOption.id : null;
       stateToSend.location = this.state.selectedLocationOption ? this.state.selectedLocationOption.id : null;
+      stateToSend.slot_number = this.state.selectedSlotNumberOption ? this.state.selectedSlotNumberOption.value : null;
+
 
       let dst = '/api/blades/'.concat(this.props.match.params.id).concat('/');
       axios.put(dst, stateToSend)
@@ -708,7 +753,7 @@ export class EditInstanceForm extends Component {
                 </Grid>
 
                 <Grid item xs={6}>
-                  < TextField label="Chassis Slot"
+                  {/* < TextField label="Chassis Slot"
                     fullWidth
                     type="number"
                     disabled={this.state.currentMountType != 'blade'}
@@ -720,7 +765,21 @@ export class EditInstanceForm extends Component {
                       this.setState({
                         asset: instanceCopy
                       })
-                    }} />
+                    }} /> */}
+                  <Autocomplete
+                    autoComplete
+                    autoHighlight
+                    autoSelect
+                    id="instance-create-slot-select"
+                    options={this.state.slotNumberOptions}
+                    getOptionLabel={option => option.label}
+                    onChange={this.handleChangeSlotNumber}
+                    value={this.state.selectedSlotNumberOption}
+                    disabled={this.state.selectedDatacenterOption === null || this.state.selectedLocationOption == null || this.state.currentMountType != 'blade'}
+                    renderInput={params => (
+                      <TextField {...params} label="Chassis slot number" fullWidth />
+                    )}
+                  />
                 </Grid>
 
                 <Grid item xs={6}>
