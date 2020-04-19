@@ -76,10 +76,10 @@ export class EditUserForm extends Component {
     axios.get(dst).then(res => {
       console.log(res.data)
       this.setState({
-        hasModelPermission: res.data.model_permission,
-        hasPowerPermission: res.data.power_permission,
-        hasAuditPermission: res.data.log_permission,
-        hasGlobalAssetPermission: res.data.global_asset,
+        hasModelPermission: res.data.model_permission === 'true' ? true : false,
+        hasPowerPermission: res.data.power_permission === 'true' ? true : false,
+        hasAuditPermission: res.data.log_permission === 'true' ? true : false,
+        hasGlobalAssetPermission: res.data.global_asset === 'true' ? true : false,
         selectedDatacenterOption: res.data.asset_permission,
       })
     })
