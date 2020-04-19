@@ -847,26 +847,6 @@ export class CreateInstanceForm extends Component {
                   }} />
                 </Grid>
 
-                <Grid item xs={6}>
-                <Paper>
-                  {this.renderTableToolbar()}
-                  <TableContainer>
-                    <Table
-                      size="small"
-                      aria-labelledby="modelTableTitle"
-                      aria-label="enhanced table"
-                    >
-                      <TableRow>{this.renderTableHeader()}</TableRow>
-
-                      <TableBody textAlign='center' >
-                        {this.renderCheckRow()}
-                        {this.renderTableData()}
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
-                </Paper>
-                </Grid>
-
                 <Grid item xs={6} />
 
                 <Grid item xs={6}>
@@ -988,6 +968,25 @@ export class CreateInstanceForm extends Component {
                         asset: instanceCopy
                       })
                     }} />
+                </Grid>
+                <Grid item xs={6}>
+                <Paper>
+                  {this.renderTableToolbar()}
+                  <TableContainer>
+                    <Table
+                      size="small"
+                      aria-labelledby="modelTableTitle"
+                      aria-label="enhanced table"
+                    >
+                      <TableRow>{this.renderTableHeader()}</TableRow>
+
+                      <TableBody textAlign='center' >
+                        {this.renderCheckRow()}
+                        {this.renderTableData()}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                </Paper>
                 </Grid>
                 <Grid item xs={2}>
                   <Tooltip title='Submit'>

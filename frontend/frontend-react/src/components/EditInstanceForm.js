@@ -1029,13 +1029,22 @@ export class EditInstanceForm extends Component {
       return (
         <Toolbar>
           {
-            <Typography style={{flex: '1 1 20%'}} variant="h6" id="modelFieldsTableTitle">
-              Edit Model Fields for this Asset
-              <Button variant="outlined" color="primary" size="small" alignContent='flex-end'
-                onClick={this.handleRevert}>
-                  {this.state.revert ? 'Change Model Fields' : 'Revert to Original Model'}
-              </Button>
+            <Container maxwidth="xl">
+          <Grid container className='themed-container' spacing={2}>
+              <Grid item alignContent='center' xs={6}>
+                  <Typography style={{flex: '1 1 20%'}} variant="h6" id="modelFieldsTableTitle">
+                    Edit Model Fields for this Asset
             </Typography>
+            </Grid>
+
+            <Grid item alignContent='right' xs={6}>
+                    <Button variant="outlined" color="primary" size="small" alignContent='flex-end'
+                      onClick={this.handleRevert}>
+                        {this.state.revert ? 'Change Model Fields' : 'Revert to Original Model'}
+              </Button>
+              </Grid>
+              </Grid>
+          </Container>
           }
         </Toolbar>
       );
@@ -1131,25 +1140,7 @@ export class EditInstanceForm extends Component {
                     }} />
                 </Grid>
 
-                <Grid item xs={6}>
-                <Paper>
-                  {this.renderTableToolbar()}
-                  <TableContainer>
-                    <Table
-                      size="small"
-                      aria-labelledby="modelTableTitle"
-                      aria-label="enhanced table"
-                    >
-                      <TableRow>{this.renderTableHeader()}</TableRow>
-
-                      <TableBody textAlign='center' >
-                        {this.renderCheckRow()}
-                        {this.renderTableData()}
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
-                </Paper>
-                </Grid>
+              
 
                 <Grid item xs={6}>
                   <Autocomplete
@@ -1298,7 +1289,27 @@ export class EditInstanceForm extends Component {
                       })
                     }} />
                 </Grid>
-                <Grid item xs={12}>
+
+                <Grid item xs={8}>
+                <Paper>
+                  {this.renderTableToolbar()}
+                  <TableContainer>
+                    <Table
+                      size="small"
+                      aria-labelledby="modelTableTitle"
+                      aria-label="enhanced table"
+                    >
+                      <TableRow>{this.renderTableHeader()}</TableRow>
+
+                      <TableBody textAlign='center' >
+                        {this.renderCheckRow()}
+                        {this.renderTableData()}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                </Paper>
+                </Grid>
+                <Grid item xs={2}>
                   <Tooltip title='Submit'>
                     <Button variant="contained" type="submit" color="primary" endIcon={<AddCircleIcon />}
                       onClick={() => this.handleSubmit}>Update
