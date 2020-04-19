@@ -13,6 +13,7 @@ import { Redirect, Link } from 'react-router-dom'
 import CancelIcon from '@material-ui/icons/Cancel';
 import NetworkPortConnectionDialog from './NetworkPortConnectionDialog';
 import PowerPortConnectionDialog from './PowerPortConnectionDialog';
+import DatacenterContext from './DatacenterContext';
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
@@ -39,6 +40,7 @@ export class CreateInstanceForm extends Component {
 
       datacenterOptions: [],
       selectedDatacenterOption: null,
+      is_offline: false,
 
       rackOptions: [],
       selectedRackOption: null,
@@ -169,21 +171,21 @@ export class CreateInstanceForm extends Component {
       });
   }
 
-  loadDatacenters = () => {
-    const dst = '/api/datacenters/?show_all=true';
-    axios.get(dst).then(res => {
-      let myOptions = [];
-      for (let i = 0; i < res.data.length; i++) {
-        //TODO: change value to URL
-        myOptions.push({ value: res.data[i].url, label: res.data[i].abbreviation, id: res.data[i].id });
-      }
-      this.setState({ datacenterOptions: myOptions });
-    })
-      .catch(function (error) {
-        // TODO: handle error
-        alert('Could not load owners. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
-      });
-  }
+  // loadDatacenters = () => {
+  //   const dst = '/api/datacenters/?show_all=true';
+  //   axios.get(dst).then(res => {
+  //     let myOptions = [];
+  //     for (let i = 0; i < res.data.length; i++) {
+  //       //TODO: change value to URL
+  //       myOptions.push({ value: res.data[i].url, label: res.data[i].abbreviation, id: res.data[i].id, is_offline: res.data[i].is_offline });
+  //     }
+  //     this.setState({ datacenterOptions: myOptions });
+  //   })
+  //     .catch(function (error) {
+  //       // TODO: handle error
+  //       alert('Could not load owners. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+  //     });
+  // }
 
   loadNumberOfPowerPortsForModel = () => {
     const dst = '/api/models/' + this.state.selectedModelOption.id + '/';
@@ -230,6 +232,7 @@ export class CreateInstanceForm extends Component {
     console.log(dst)
     axios.get(dst).then(res => {
       let myOptions = [];
+      console.log(res.data)
       for (let i = 0; i < res.data.length; i++) {
         myOptions.push({ value: res.data[i].id, label: res.data[i].hostname + ' ' + res.data[i].asset_number, id: res.data[i].id });
       }
@@ -262,7 +265,7 @@ export class CreateInstanceForm extends Component {
   componentDidMount() {
     this.loadAssetNumber();
     this.loadModels();
-    this.loadDatacenters();
+    //this.loadDatacenters();
     this.loadOwners();
   }
 
@@ -280,8 +283,20 @@ export class CreateInstanceForm extends Component {
 
     if (prevState.selectedDatacenterOption !== this.state.selectedDatacenterOption) {
       if (this.state.selectedDatacenterOption) {
-        this.loadRacks();
+        console.log(this.state.selectedDatacenterOption)
+        if(this.state.selectedDatacenterOption.is_offline){
+          this.setState({
+            is_offline: true,
+          })
         this.loadLocations();
+        }
+        else {
+          this.setState({
+            is_offline: false,
+          })
+          this.loadRacks();
+          this.loadLocations();
+        }
       }
       else {
         this.setState({ rackOptions: [], selectedRackOption: null });
@@ -346,12 +361,18 @@ export class CreateInstanceForm extends Component {
 
     let stateCopy = Object.assign({}, this.state.asset);
     stateCopy.model = this.state.selectedModelOption ? this.state.selectedModelOption.value : null;
-    stateCopy.datacenter = this.state.selectedDatacenterOption ? this.state.selectedDatacenterOption.value : null;
+    console.log(this.state.selectedDatacenterOption)
+    stateCopy.datacenter = this.state.selectedDatacenterOption ? this.state.selectedDatacenterOption.url : null;
     stateCopy.rack = this.state.selectedRackOption ? this.state.selectedRackOption.value : null;
     stateCopy.owner = this.state.selectedOwnerOption ? this.state.selectedOwnerOption.value : null;
     stateCopy.network_ports = networkPortsBuilder
     stateCopy.power_ports = tmpPP
     let stateToSend = this.removeEmpty(stateCopy);
+    if(this.state.is_offline){
+      stateToSend.rack = null;
+      stateToSend.rack_u = null;
+    }
+
 
     console.log(JSON.stringify(stateToSend, null, 2))
     //console.log(JSON.stringify(this.state, null, 2))
@@ -461,8 +482,78 @@ export class CreateInstanceForm extends Component {
 
 
   render() {
+
+    let rack_select = 
+      <Autocomplete
+        autoComplete
+        autoHighlight
+        autoSelect
+        id="instance-create-rack-select"
+        options={this.state.rackOptions}
+        getOptionLabel={option => option.label}
+        onChange={this.handleChangeRack}
+        value={this.state.selectedRackOption}
+        disabled={this.state.selectedDatacenterOption === null}
+        renderInput={params => (
+          <TextField {...params} label="Rack" fullWidth />
+        )}
+    />;
+
+    let rackU_select = 
+      < TextField label="Rack U"
+        fullWidth
+        type="number"
+        onChange={e => {
+          let instanceCopy = JSON.parse(JSON.stringify(this.state.asset))
+          instanceCopy.rack_u = e.target.value
+          this.setState({
+            asset: instanceCopy
+          })
+      }} />;
+
+      let np_select = 
+        <Paper>
+          <Typography variant="h6" gutterBottom>
+            Network Ports
+          </Typography>
+          <List style={{ maxHeight: 200, overflow: 'auto' }}>
+            {this.openNetworkPortConfigAndMAC()}
+          </List>
+      </Paper>;
+
+      let pp_select = 
+        <Paper>
+          <Typography variant="h6" gutterBottom>
+            Power Ports
+          </Typography>
+          <PowerPortConnectionDialog
+            sendPowerPortConnectionInfo={this.getPowerPortConnectionInfo}
+            numberOfPowerPorts={this.state.numberOfPowerPorts}
+            rackID={this.state.selectedRackOption ? this.state.selectedRackOption.id : null}
+            leftPPName={this.state.leftPPName}
+            rightPPName={this.state.rightPPName}
+            leftFree={this.state.leftFreePDUSlots}
+            rightFree={this.state.rightFreePDUSlots}
+            isDisabled={this.state.selectedRackOption === null || this.state.selectedModelOption === null}
+            currentPowerPortConfiguration={null}
+          />
+        </Paper>;
+
+        let options = this.context.datacenterOptions;
+        console.log(options)
+        options = options.slice(1);
+        options.map(option => {
+          let firstLetter = option.is_offline;
+          console.log(firstLetter);
+            return {
+              firstLetter: /true/.test(firstLetter) ? "Offline Sites" : "Datacenters",
+              ...option
+            };
+        })
+
     console.log(this.state.currentMountType)
     console.log(this.state.selectedSlotNumberOption)
+    console.log(this.state.locationOptions)
     return (
       <div>
         {this.state.redirect && <Redirect to={{ pathname: '/assets' }} />}
@@ -507,12 +598,13 @@ export class CreateInstanceForm extends Component {
                     autoHighlight
                     autoSelect
                     id="datacenter-select"
-                    options={this.state.datacenterOptions}
-                    getOptionLabel={option => option.label}
+                    options={options.sort((a, b) => -b.name)}
+                    groupBy={option => option.firstLetter}
+                    getOptionLabel={option => option.abbreviation}
                     onChange={this.handleChangeDatacenter}
                     value={this.state.selectedDatacenterOption}
                     renderInput={params => (
-                      <TextField {...params} label="Datacenter" fullWidth />
+                      <TextField {...params} label="DC/Offline Site" fullWidth />
                     )}
                   />
                 </Grid>
@@ -533,35 +625,11 @@ export class CreateInstanceForm extends Component {
 
 
                 <Grid item xs={6}>
-                  <Autocomplete
-                    autoComplete
-                    autoHighlight
-                    autoSelect
-                    id="instance-create-rack-select"
-                    options={this.state.rackOptions}
-                    getOptionLabel={option => option.label}
-                    onChange={this.handleChangeRack}
-                    value={this.state.selectedRackOption}
-                    disabled={this.state.selectedDatacenterOption === null || this.state.currentMountType === 'blade'}
-                    renderInput={params => (
-                      <TextField {...params} label="Rack" fullWidth />
-                    )}
-                  />
+                  {this.state.is_offline ? <p></p> : rack_select}
                 </Grid>
                 <Grid item xs={6}>
-                  < TextField label="Rack U"
-                    fullWidth
-                    type="number"
-                    disabled={this.state.currentMountType === 'blade'}
-                    onChange={e => {
-                      let instanceCopy = JSON.parse(JSON.stringify(this.state.asset))
-                      instanceCopy.rack_u = e.target.value
-                      this.setState({
-                        asset: instanceCopy
-                      })
-                    }} />
+                  {this.state.is_offline ? <p></p> : rackU_select}
                 </Grid>
-
                 <Grid item xs={6}>
                   <Autocomplete
                     autoComplete
@@ -606,36 +674,12 @@ export class CreateInstanceForm extends Component {
                     )}
                   />
                 </Grid>
-
                 <Grid item xs={6}>
-                  <Paper>
-                    <Typography variant="h6" gutterBottom>
-                      Network Ports
-                    </Typography>
-                    <List style={{ maxHeight: 200, overflow: 'auto' }}>
-                      {this.openNetworkPortConfigAndMAC()}
-                    </List>
-                  </Paper>
-
+                  {this.state.is_offline ? <p></p> : np_select}
                 </Grid>
 
                 <Grid item xs={6}>
-                  <Paper>
-                    <Typography variant="h6" gutterBottom>
-                      Power Ports
-                    </Typography>
-                    <PowerPortConnectionDialog
-                      sendPowerPortConnectionInfo={this.getPowerPortConnectionInfo}
-                      numberOfPowerPorts={this.state.numberOfPowerPorts}
-                      rackID={this.state.selectedRackOption ? this.state.selectedRackOption.id : null}
-                      leftPPName={this.state.leftPPName}
-                      rightPPName={this.state.rightPPName}
-                      leftFree={this.state.leftFreePDUSlots}
-                      rightFree={this.state.rightFreePDUSlots}
-                      isDisabled={this.state.selectedRackOption === null || this.state.selectedModelOption === null}
-                      currentPowerPortConfiguration={null}
-                    />
-                  </Paper>
+                  {this.state.is_offline ? <p></p> : pp_select}
                 </Grid>
 
                 <Grid item xs={6}>
@@ -688,5 +732,7 @@ export class CreateInstanceForm extends Component {
     )
   }
 }
+
+CreateInstanceForm.contextType = DatacenterContext;
 
 export default CreateInstanceForm

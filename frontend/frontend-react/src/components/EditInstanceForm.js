@@ -12,6 +12,7 @@ import AddCircleIcon from '@material-ui/icons/AddCircle';
 import { Link, Redirect } from "react-router-dom";
 import NetworkPortConnectionDialog from './NetworkPortConnectionDialog';
 import PowerPortConnectionDialog from './PowerPortConnectionDialog';
+import DatacenterContext from './DatacenterContext';
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
@@ -71,6 +72,7 @@ export class EditInstanceForm extends Component {
 
       slotNumberOptions: [],
       selectedSlotNumberOption: null,
+      is_offline: false,
     }
   }
 
@@ -195,12 +197,12 @@ export class EditInstanceForm extends Component {
   }
 
   componentDidMount() {
-    const delay = 50;
+    const delay = 80;
     this.loadInstance();
     //console.log(this.state.instance)
     setTimeout(() => {
       this.loadModels();
-      this.loadDatacenters();
+      //this.loadDatacenters();
       //this.loadRacks();
       this.loadOwners();
       this.loadInstance();
@@ -221,8 +223,20 @@ export class EditInstanceForm extends Component {
 
     if (prevState.selectedDatacenterOption !== this.state.selectedDatacenterOption) {
       if (this.state.selectedDatacenterOption) {
-        this.loadRacks();
-        this.loadLocations();
+        console.log(this.state.selectedDatacenterOption)
+        if (this.state.selectedDatacenterOption.is_offline) {
+          this.setState({
+            is_offline: true,
+          })
+          this.loadLocations();
+        }
+        else {
+          this.setState({
+            is_offline: false,
+          })
+          this.loadRacks();
+          this.loadLocations();
+        }
       }
       else {
         this.setState({ rackOptions: [], selectedRackOption: null });
@@ -254,6 +268,8 @@ export class EditInstanceForm extends Component {
 
   loadInstance = () => {
 
+    console.log(this.props)
+
     if (this.props.location.state != null && this.props.location.state.isBlade) {
       //blade
       let dst = '/api/blades/'.concat(this.props.match.params.id).concat('/');
@@ -267,6 +283,7 @@ export class EditInstanceForm extends Component {
         instanceCopy.asset_number = res.data.asset_number;
         this.setState({
           asset: instanceCopy,
+          selectedDatacenterOption: res.data.datacenter
         })
       })
         .catch(function (error) {
@@ -275,27 +292,38 @@ export class EditInstanceForm extends Component {
         });
     }
     else {
-      //not blade
-      let dst = '/api/assets/'.concat(this.props.match.params.id).concat('/');
+      let dst = '/api/all_assets/'.concat(this.props.match.params.id).concat('/');
       axios.get(dst).then(res => {
         let instanceCopy = JSON.parse(JSON.stringify(this.state.asset));
-        instanceCopy.model = res.data.model;
-        instanceCopy.hostname = res.data.hostname;
-        instanceCopy.datacenter = res.data.datacenter;
-        instanceCopy.rack = res.data.rack;
-        instanceCopy.rack_u = res.data.rack_u;
-        instanceCopy.owner = res.data.owner;
-        instanceCopy.comment = res.data.comment;
-        instanceCopy.asset_number = res.data.asset_number;
-        instanceCopy.network_ports = res.data.network_ports;
-        instanceCopy.power_ports = res.data.power_ports;
-        // instanceCopy.model = res.data.model;
-        // instanceCopy.hostname = res.data.hostname;
-        // instanceCopy.datacenter = res.data.datacenter;
-        // instanceCopy.location = res.data.location;
-        // instanceCopy.slot_number = res.data.slot_number;
+        console.log(res.data.asset)
+        if (res.data.asset.datacenter.is_offline) {
+          instanceCopy.model = res.data.asset.model;
+          instanceCopy.hostname = res.data.asset.hostname;
+          instanceCopy.datacenter = res.data.asset.datacenter;
+          instanceCopy.owner = res.data.asset.owner;
+          instanceCopy.comment = res.data.asset.comment;
+          instanceCopy.asset_number = res.data.asset.asset_number;
+        }
+        else {
+          instanceCopy.model = res.data.asset.model;
+          instanceCopy.hostname = res.data.asset.hostname;
+          instanceCopy.datacenter = res.data.asset.datacenter;
+          instanceCopy.rack = res.data.asset.rack;
+          instanceCopy.rack_u = res.data.asset.rack_u;
+          instanceCopy.owner = res.data.asset.owner;
+          instanceCopy.comment = res.data.asset.comment;
+          instanceCopy.asset_number = res.data.asset.asset_number;
+          instanceCopy.network_ports = res.data.asset.network_ports;
+          instanceCopy.power_ports = res.data.asset.power_ports;
+          // instanceCopy.model = res.data.model;
+          // instanceCopy.hostname = res.data.hostname;
+          // instanceCopy.datacenter = res.data.datacenter;
+          // instanceCopy.location = res.data.location;
+          // instanceCopy.slot_number = res.data.slot_number;
+        }
         this.setState({
           asset: instanceCopy,
+          selectedDatacenterOption: res.data.asset.datacenter,
         })
       })
         .catch(function (error) {
@@ -310,7 +338,9 @@ export class EditInstanceForm extends Component {
     let tmpMAC = []
     let NPs = this.state.asset.network_ports
     for (let i = 0; i < this.state.numberOfNetworkPortsForCurrentAsset; i++) {
-      tmpMAC.push(NPs[i].mac)
+      if (NPs && NPs[i]) {
+        tmpMAC.push(NPs[i].mac)
+      }
     }
     this.setState({
       macAddresses: tmpMAC,
@@ -321,11 +351,13 @@ export class EditInstanceForm extends Component {
     let NPs = this.state.asset.network_ports
     let tmpNPConnects = []
     for (let i = 0; i < this.state.numberOfNetworkPortsForCurrentAsset; i++) {
-      if (NPs[i].connection) {
-        tmpNPConnects[i] = {}
-        tmpNPConnects[i].connectedPortID = NPs[i].connection.id;
-        tmpNPConnects[i].connectedPortName = NPs[i].connection.name;
-        tmpNPConnects[i].connectedAssetHostname = NPs[i].connection.asset.hostname;
+      if (NPs && NPs[i]) {
+        if (NPs[i].connection) {
+          tmpNPConnects[i] = {}
+          tmpNPConnects[i].connectedPortID = NPs[i].connection.id;
+          tmpNPConnects[i].connectedPortName = NPs[i].connection.name;
+          tmpNPConnects[i].connectedAssetHostname = NPs[i].connection.asset.hostname;
+        }
       }
       else {
         tmpNPConnects[i] = {}
@@ -431,28 +463,28 @@ export class EditInstanceForm extends Component {
       });
   }
 
-  loadDatacenters = () => {
-    const dst = '/api/datacenters/?show_all=true';
-    axios.get(dst).then(res => {
-      let myOptions = [];
-      for (let i = 0; i < res.data.length; i++) {
-        //TODO: change value to URL
-        myOptions.push({ value: res.data[i].url, label: res.data[i].abbreviation, id: res.data[i].id });
-      }
-      this.setState({
-        datacenterOptions: myOptions,
-        selectedDatacenterOption: {
-          value: this.state.asset.datacenter ? this.state.asset.datacenter.url : null,
-          label: this.state.asset.datacenter ? this.state.asset.datacenter.abbreviation : null,
-          id: this.state.asset.datacenter ? this.state.asset.datacenter.id : null,
-        }
-      });
-    })
-      .catch(function (error) {
-        // TODO: handle error
-        alert('Could not load owners. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
-      });
-  }
+  // loadDatacenters = () => {
+  //   const dst = '/api/datacenters/?show_all=true';
+  //   axios.get(dst).then(res => {
+  //     let myOptions = [];
+  //     for (let i = 0; i < res.data.length; i++) {
+  //       //TODO: change value to URL
+  //       myOptions.push({ value: res.data[i].url, label: res.data[i].abbreviation, id: res.data[i].id });
+  //     }
+  //     this.setState({
+  //       datacenterOptions: myOptions,
+  //       selectedDatacenterOption: {
+  //         value: this.state.asset.datacenter ? this.state.asset.datacenter.url : null,
+  //         label: this.state.asset.datacenter ? this.state.asset.datacenter.abbreviation : null,
+  //         id: this.state.asset.datacenter ? this.state.asset.datacenter.id : null,
+  //       }
+  //     });
+  //   })
+  //     .catch(function (error) {
+  //       // TODO: handle error
+  //       alert('Could not load owners. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+  //     });
+  // }
 
   loadSlotNumbers = () => {
     // load array of free slot numbers
@@ -540,11 +572,15 @@ export class EditInstanceForm extends Component {
     stateCopy.model = this.state.selectedModelOption ? this.state.selectedModelOption.value : null;
     stateCopy.rack = this.state.selectedRackOption ? this.state.selectedRackOption.value : null;
     stateCopy.owner = this.state.selectedOwnerOption ? this.state.selectedOwnerOption.value : null;
-    stateCopy.datacenter = this.state.selectedDatacenterOption ? this.state.selectedDatacenterOption.value : null;
+    stateCopy.datacenter = this.state.selectedDatacenterOption ? this.state.selectedDatacenterOption.url : null;
     stateCopy.network_ports = networkPortsBuilder
     stateCopy.power_ports = tmpPP
 
     let stateToSend = this.removeEmpty(stateCopy);
+    if (this.state.is_offline) {
+      stateToSend.rack = null;
+      stateToSend.rack_u = null;
+    }
     console.log(JSON.stringify(stateToSend, null, 2))
     var self = this;
 
@@ -553,7 +589,6 @@ export class EditInstanceForm extends Component {
       delete stateToSend.rack
       delete stateToSend.rack_u
       stateToSend.model = this.state.selectedModelOption ? this.state.selectedModelOption.id : null;
-      stateToSend.datacenter = this.state.selectedDatacenterOption ? this.state.selectedDatacenterOption.id : null;
       stateToSend.location = this.state.selectedLocationOption ? this.state.selectedLocationOption.id : null;
       stateToSend.slot_number = this.state.selectedSlotNumberOption ? this.state.selectedSlotNumberOption.value : null;
 
@@ -573,6 +608,7 @@ export class EditInstanceForm extends Component {
     }
     else {
       //PUT: asset
+
       let dst = '/api/assets/'.concat(this.props.match.params.id).concat('/');
       axios.put(dst, stateToSend)
         .then(function (response) {
@@ -631,6 +667,52 @@ export class EditInstanceForm extends Component {
   }
 
   render() {
+
+    let options = this.context.datacenterOptions;
+    console.log(options)
+    options = options.slice(1);
+
+    options.map(option => {
+      console.log(option)
+      let firstLetter = option.is_offline;
+      console.log(firstLetter);
+      return {
+        firstLetter: /true/.test(firstLetter) ? "Offline Sites" : "Datacenters",
+        ...option
+      };
+    })
+
+    let rack_select =
+      <Autocomplete
+        autoComplete
+        autoHighlight
+        autoSelect
+        id="instance-create-rack-select"
+        options={this.state.rackOptions}
+        getOptionLabel={option => option.label}
+        onChange={this.handleChangeRack}
+        value={this.state.selectedRackOption}
+        disabled={this.state.selectedDatacenterOption === null || this.state.currentMountType === 'blade'}
+        renderInput={params => (
+          <TextField {...params} label="Rack" fullWidth />
+        )}
+      />;
+
+    let rack_u_select =
+      < TextField label="Rack U"
+        fullWidth
+        type="number"
+        disabled={this.state.currentMountType === 'blade'}
+        value={this.state.asset.rack_u}
+        InputLabelProps={{ shrink: true }}
+        onChange={e => {
+          let instanceCopy = JSON.parse(JSON.stringify(this.state.asset))
+          instanceCopy.rack_u = e.target.value
+          this.setState({
+            asset: instanceCopy
+          })
+        }} />;
+
     return (
       <div>
         {this.state.redirect && <Redirect to={{ pathname: '/assets' }} />}
@@ -679,8 +761,9 @@ export class EditInstanceForm extends Component {
                     autoHighlight
                     autoSelect
                     id="datacenter-select"
-                    options={this.state.datacenterOptions}
-                    getOptionLabel={option => option.label}
+                    options={options.sort((a, b) => -b.name)}
+                    groupBy={option => option.firstLetter}
+                    getOptionLabel={option => option.abbreviation}
                     onChange={this.handleChangeDatacenter}
                     value={this.state.selectedDatacenterOption}
                     renderInput={params => (
@@ -704,35 +787,10 @@ export class EditInstanceForm extends Component {
 
 
                 <Grid item xs={6}>
-                  <Autocomplete
-                    autoComplete
-                    autoHighlight
-                    autoSelect
-                    id="instance-create-rack-select"
-                    options={this.state.rackOptions}
-                    getOptionLabel={option => option.label}
-                    onChange={this.handleChangeRack}
-                    value={this.state.selectedRackOption}
-                    disabled={this.state.selectedDatacenterOption === null || this.state.currentMountType === 'blade'}
-                    renderInput={params => (
-                      <TextField {...params} label="Rack" fullWidth />
-                    )}
-                  />
+                  {this.state.is_offline ? <p></p> : rack_select}
                 </Grid>
                 <Grid item xs={6}>
-                  < TextField label="Rack U"
-                    fullWidth
-                    type="number"
-                    disabled={this.state.currentMountType === 'blade'}
-                    value={this.state.asset.rack_u}
-                    InputLabelProps={{ shrink: true }}
-                    onChange={e => {
-                      let instanceCopy = JSON.parse(JSON.stringify(this.state.asset))
-                      instanceCopy.rack_u = e.target.value
-                      this.setState({
-                        asset: instanceCopy
-                      })
-                    }} />
+                  {this.state.is_offline ? <p></p> : rack_u_select}
                 </Grid>
 
                 <Grid item xs={6}>
@@ -783,34 +841,36 @@ export class EditInstanceForm extends Component {
                 </Grid>
 
                 <Grid item xs={6}>
-                  <Paper>
-                    <Typography variant="h6" gutterBottom>
-                      Network Ports
-                    </Typography>
-                    <List style={{ maxHeight: 200, overflow: 'auto' }}>
-                      {this.openNetworkPortConfigAndMAC()}
-                    </List>
-                  </Paper>
+                  {this.state.is_offline ? <p></p> :
+                    <Paper>
+                      <Typography variant="h6" gutterBottom>
+                        Network Ports
+                        </Typography>
+                      <List style={{ maxHeight: 200, overflow: 'auto' }}>
+                        {this.openNetworkPortConfigAndMAC()}
+                      </List>
+                    </Paper>}
 
                 </Grid>
 
                 <Grid item xs={6}>
-                  <Paper>
-                    <Typography variant="h6" gutterBottom>
-                      Power Ports
-                    </Typography>
-                    <PowerPortConnectionDialog
-                      sendPowerPortConnectionInfo={this.getPowerPortConnectionInfo}
-                      numberOfPowerPorts={this.state.numberOfPowerPorts}
-                      rackID={this.state.selectedRackOption ? this.state.selectedRackOption.id : null}
-                      leftPPName={this.state.leftPPName}
-                      rightPPName={this.state.rightPPName}
-                      leftFree={this.state.leftFreePDUSlots}
-                      rightFree={this.state.rightFreePDUSlots}
-                      isDisabled={this.state.selectedRackOption === null || this.state.selectedModelOption === null}
-                      currentPowerPortConfiguration={this.state.asset ? this.state.asset.power_ports : null}
-                    />
-                  </Paper>
+                  {this.state.is_offline ? <p></p> :
+                    <Paper>
+                      <Typography variant="h6" gutterBottom>
+                        Power Ports
+                  </Typography>
+                      <PowerPortConnectionDialog
+                        sendPowerPortConnectionInfo={this.getPowerPortConnectionInfo}
+                        numberOfPowerPorts={this.state.numberOfPowerPorts}
+                        rackID={this.state.selectedRackOption ? this.state.selectedRackOption.id : null}
+                        leftPPName={this.state.leftPPName}
+                        rightPPName={this.state.rightPPName}
+                        leftFree={this.state.leftFreePDUSlots}
+                        rightFree={this.state.rightFreePDUSlots}
+                        isDisabled={this.state.selectedRackOption === null || this.state.selectedModelOption === null}
+                        currentPowerPortConfiguration={this.state.asset ? this.state.asset.power_ports : null}
+                      />
+                    </Paper>}
                 </Grid>
 
                 <Grid item xs={6}>
@@ -864,5 +924,7 @@ export class EditInstanceForm extends Component {
     )
   }
 }
+
+EditInstanceForm.contextType = DatacenterContext;
 
 export default EditInstanceForm

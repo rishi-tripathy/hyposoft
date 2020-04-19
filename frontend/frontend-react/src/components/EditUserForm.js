@@ -39,7 +39,8 @@ export class EditUserForm extends Component {
 
 
       datacenterOptions: [],
-
+      
+      offlineStorageSiteOptions: [],
 
       // this is the DC permissions
       selectedDatacenterOption: [],
@@ -88,15 +89,24 @@ export class EditUserForm extends Component {
   loadDatacenters = () => {
     const dst = '/api/datacenters/?show_all=true';
     axios.get(dst).then(res => {
-      let myOptions = [];
+      let myDcOptions = [];
+      let myOsOptions = [];
       for (let i = 0; i < res.data.length; i++) {
-        //TODO: change value to URL
-        myOptions.push({ value: res.data[i].id, label: res.data[i].abbreviation });
+        //TODO: change value to URL -- i think this is Michae'ls todo
+
+        if(res.data[i].is_offline){
+          myOsOptions.push({ value: res.data[i].id, label: res.data[i].abbreviation });
+        }
+        else{
+        myDcOptions.push({ value: res.data[i].id, label: res.data[i].abbreviation });
+
+        }
       }
       // let allDCs = { value: null, label: 'ALL', id: -1 };
       // myOptions.push(allDCs)
       this.setState({
-        datacenterOptions: myOptions,
+        datacenterOptions: myDcOptions,
+        offlineStorageSiteOptions: myOsOptions,
         // selectedDatacenterOption: {
         //   value: this.state.asset.datacenter ? this.state.asset.datacenter.url : null,
         //   label: this.state.asset.datacenter ? this.state.asset.datacenter.abbreviation : null,
@@ -216,6 +226,7 @@ export class EditUserForm extends Component {
   };
 
   render() {
+    console.log(this.state)
     if (this.state.redirect) {
       return <Redirect to={{ pathname: '/users' }} />
 
@@ -225,6 +236,18 @@ export class EditUserForm extends Component {
     </Typography>
 
     console.log(this.state)
+
+    let groupedOptions = [
+      {
+        label: 'Datacenters',
+        options: this.state.datacenterOptions,
+      },
+      {
+        label: 'Offline Storage Centers',
+        //TODO: change below to oss
+        options: this.state.offlineStorageSiteOptions,
+      }
+    ]
 
     return (
       <div>
@@ -282,7 +305,7 @@ export class EditUserForm extends Component {
                             </Grid>
                             <Grid item xs={8}>
                               <DualListBox
-                                options={this.state.datacenterOptions}
+                                options={groupedOptions}
                                 selected={this.state.selectedDatacenterOption}
                                 onChange={this.handleDatacenterChange}
                                 icons={{
