@@ -766,7 +766,9 @@ export class EditInstanceForm extends Component {
       stateToSend.model = this.state.selectedModelOption ? this.state.selectedModelOption.id : null;
       stateToSend.location = this.state.selectedLocationOption ? this.state.selectedLocationOption.id : null;
       stateToSend.slot_number = this.state.selectedSlotNumberOption ? this.state.selectedSlotNumberOption.value : null;
-      stateToSend.ovr_color = this.state.asset.ovr_color;
+      if(this.state.selectedDisplayColor === this.state.asset.ovr_color || this.state.revert){
+        stateToSend.ovr_color = null;
+      }
       stateToSend.ovr_storage = this.state.asset.ovr_storage;
       stateToSend.ovr_cpu = this.state.asset.ovr_cpu;
       stateToSend.ovr_memory = this.state.asset.ovr_memory;

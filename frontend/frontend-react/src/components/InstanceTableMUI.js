@@ -452,7 +452,7 @@ export class InstanceTableMUI extends Component {
 
 
       if (asset.bladeserver) {
-        ({ id, model, hostname, rack, owner, location, slot_number, datacenter, asset_number } = asset.bladeserver)
+        ({ id, model, hostname, rack, owner, location, slot_number, datacenter, asset_number, ovr_memory, ovr_cpu, ovr_color, ovr_storage } = asset.bladeserver)
       }
       else {
         ({ id, model, hostname, rack, owner, rack_u, datacenter, asset_number,  ovr_memory, ovr_cpu, ovr_color, ovr_storage } = asset.asset)
