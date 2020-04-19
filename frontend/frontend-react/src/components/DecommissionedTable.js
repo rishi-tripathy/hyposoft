@@ -70,7 +70,7 @@ export class DecommissionedTable extends Component {
         </Collapse>
         <Tooltip title="Filter list">
           <Button endIcon={<FilterListIcon />} onClick={() => this.handleOpenFilters()} aria-label="filter instance list">
-            Filter
+            
           </Button>
         </Tooltip>
 
