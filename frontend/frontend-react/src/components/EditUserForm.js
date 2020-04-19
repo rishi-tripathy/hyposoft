@@ -78,7 +78,7 @@ export class EditUserForm extends Component {
         hasModelPermission: res.data.model_permission,
         hasPowerPermission: res.data.power_permission,
         hasAuditPermission: res.data.log_permission,
-        //hasGlobalAssetPermission: res.data.global_asset_permission,
+        hasGlobalAssetPermission: res.data.global_asset,
         selectedDatacenterOption: res.data.asset_permission,
       })
     })

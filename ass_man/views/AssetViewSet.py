@@ -52,7 +52,6 @@ class AssetViewSet(viewsets.ModelViewSet):
 
     # View Housekeeping (permissions, serializers, filter fields, etc
     def get_permissions(self):
-        print(IsAdminUser)
         if self.action in ADMIN_ACTIONS:
             if IsAdminUser:
                 try:
@@ -64,7 +63,7 @@ class AssetViewSet(viewsets.ModelViewSet):
                     else:
                         datacenter_url = self.request.data.get('datacenter')
                         datacenter = Datacenter.objects.all().get(pk=datacenter_url[-2])
-                    if user.is_superuser or user.permission_set.get(name='asset', datacenter=datacenter):
+                    if user.is_superuser or user.permission_set.get(name='global-asset', user=user) or user.permission_set.get(name='asset', datacenter=datacenter):
                         permission_classes = [IsAuthenticated]
                 except:
                     permission_classes = [IsAdminUser]
