@@ -119,7 +119,7 @@ export class EditUserForm extends Component {
     })
       .catch(function (error) {
         // TODO: handle error
-        alert('Could not load owners. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+        alert('Could not load owners. Re-login.\n');
       });
   }
 
