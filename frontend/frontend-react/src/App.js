@@ -205,6 +205,7 @@ class App extends React.Component {
           asset_permission: res.data.asset_permission,
           power_permission: res.data.power_permission === 'true',
           audit_permission: res.data.log_permission === 'true',
+          global_asset_permission: res.data.global_asset === 'true',
         });
         //  console.log('going to fill DCs')
         this.getDatacenters();
