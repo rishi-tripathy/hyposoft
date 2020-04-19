@@ -21,7 +21,7 @@ from ass_man.serializers.blade_serializer import BladeServerSerializer
 # Auth
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 # Project
-from ass_man.models import Model, Asset, Rack, Datacenter, Network_Port, Power_Port, PDU, Asset_Number, Decommissioned
+from ass_man.models import Model, Asset, Rack, Datacenter, Network_Port, Power_Port, PDU, Asset_Number, Decommissioned, BladeServer
 from rest_framework.filters import OrderingFilter
 from django_filters import rest_framework as djfiltBackend
 from ass_man.filters import AssetFilter, AssetFilterByRack
@@ -63,7 +63,7 @@ class AssetViewSet(viewsets.ModelViewSet):
                     else:
                         datacenter_url = self.request.data.get('datacenter')
                         datacenter = Datacenter.objects.all().get(pk=datacenter_url[-2])
-                    if user.is_superuser or user.permission_set.get(name='asset', datacenter=datacenter):
+                    if user.is_superuser or user.permission_set.get(name='global-asset', user=user) or user.permission_set.get(name='asset', datacenter=datacenter):
                         permission_classes = [IsAuthenticated]
                 except:
                     permission_classes = [IsAdminUser]
@@ -495,7 +495,10 @@ class AssetViewSet(viewsets.ModelViewSet):
         table = []
         dict = {}
         for i in asset_ids:
-            asset = Asset.objects.all().get(pk=i)
+            try:
+                asset = Asset.objects.all().get(pk=i)
+            except Asset.DoesNotExist:
+                asset = BladeServer.objects.all().get(pk=i)
             if count == 1:
                 dict['one'] = asset.asset_number
             if count == 2:
