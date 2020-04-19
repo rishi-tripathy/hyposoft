@@ -2,7 +2,6 @@ from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
 from django.core.exceptions import ObjectDoesNotExist
-from pexpect import pxssh
 # API
 from rest_framework import viewsets
 from ass_man.serializers.blade_serializer import BladeServerSerializer, BladeCreateSerializer
