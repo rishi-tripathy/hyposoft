@@ -31,7 +31,7 @@ const textAlignPosition = 'left'
 // 10 is default
 const mTop = 5
 const mBottom = 25
-const mLeft = 35
+const mLeft = 32
 const mRight = 48
 
 export class AssetLabels extends Component {
