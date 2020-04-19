@@ -52,6 +52,7 @@ export class InstanceTableMUI extends Component {
       //for AssetLabels.js, the labels table
       assetLabelTableGenerationData: [],
       redirectToAssetTagPage: false,
+      is_offline: false,
 
       //spinner for decom
       loadingDecommission: false,
@@ -84,6 +85,15 @@ export class InstanceTableMUI extends Component {
 
   componentDidMount() {
     this.loadAllAssetIDs();
+    this.setOfflineState();
+  }
+
+  setOfflineState = () => {
+    if(this.context.is_offline){
+      this.setState({
+        offline: true,
+      })
+    }
   }
 
   showDecommissionedForm = (id, isBlade) => {
