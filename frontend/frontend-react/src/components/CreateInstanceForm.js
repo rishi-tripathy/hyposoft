@@ -381,15 +381,16 @@ export class CreateInstanceForm extends Component {
     console.log(this.state.asset)
 
     let stateCopy = Object.assign({}, this.state.asset);
+    console.log(this.state.asset)
     stateCopy.model = this.state.selectedModelOption ? this.state.selectedModelOption.value : null;
     // console.log(this.state.selectedDatacenterOption)
     stateCopy.datacenter = this.state.selectedDatacenterOption ? this.state.selectedDatacenterOption.url : null;
     stateCopy.rack = this.state.selectedRackOption ? this.state.selectedRackOption.value : null;
     stateCopy.owner = this.state.selectedOwnerOption ? this.state.selectedOwnerOption.value : null;
-    stateCopy.ovr_color = this.state.displayColorChecked ? this.state.asset.ovr_color.value : null;
+    stateCopy.ovr_color = this.state.displayColorChecked ? this.state.asset.ovr_color : null;
     stateCopy.ovr_memory = this.state.memoryChecked ?  this.state.asset.ovr_memory : null;
-    stateCopy.ovr_cpu = this.state.cpuChecked ? this.state.asset.ovr_cpu.value : null;
-    stateCopy.ovr_storage = this.state.storageChecked ? this.state.asset.ovr_storage.value : null;
+    stateCopy.ovr_cpu = this.state.cpuChecked ? this.state.asset.ovr_cpu : null;
+    stateCopy.ovr_storage = this.state.storageChecked ? this.state.asset.ovr_storage : null;
     stateCopy.network_ports = networkPortsBuilder
     stateCopy.power_ports = tmpPP
     
@@ -404,7 +405,6 @@ export class CreateInstanceForm extends Component {
     if(this.state.selectedDisplayColor === this.state.asset.ovr_color){
       stateToSend.ovr_color = null;
     }
-
     console.log(JSON.stringify(stateToSend, null, 2))
     //console.log(JSON.stringify(this.state, null, 2))
 
@@ -426,6 +426,8 @@ export class CreateInstanceForm extends Component {
       stateToSend.ovr_memory = this.state.asset.ovr_memory;
 
       var self = this;
+    console.log('state to send blade')
+
       console.log(JSON.stringify(stateToSend, null, 2))
 
       axios.post('/api/blades/', stateToSend)
@@ -442,6 +444,9 @@ export class CreateInstanceForm extends Component {
     }
     else {
       var self = this;
+      console.log('state to send normal')
+
+      console.log(JSON.stringify(stateToSend, null, 2))
       axios.post('/api/assets/', stateToSend)
         .then(function (response) {
           alert('Created successfully');
