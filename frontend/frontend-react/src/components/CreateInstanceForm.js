@@ -667,7 +667,6 @@ export class CreateInstanceForm extends Component {
               onChange={e => {
                 let instanceCopy = JSON.parse(JSON.stringify(this.state.asset))
                 instanceCopy.ovr_color = e.target.value.replace('#', '');
-                instanceCopy.ovr_color = e.target.value
                 this.setState({
                   asset: instanceCopy
                 })
