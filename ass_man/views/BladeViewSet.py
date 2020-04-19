@@ -67,23 +67,21 @@ class BladeViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['GET'])
     def get_power(self, request, *args, **kwargs):
-try:
-    s = pxssh.pxssh()
-    hostname = 'hyposoft-mgt.colab.duke.edu'
-    un = 'admin4'
-    port = '2222'
-    word = 'TVH$458'
-    s.login(hostname, un, word, port=2222)
-    s.sendline('help blade')
-    s.prompt()
-    ret = s.before()
-    s.logout()
-    print(ret)
-except Exception as e:
-    print(e)
-            return Response(ret)
-        except pxssh.ExceptionPxssh as e:
+        try:
+            s = pxssh.pxssh()
+            hostname = 'hyposoft-mgt.colab.duke.edu'
+            un = 'admin4'
+            port = '2222'
+            word = 'TVH$458'
+            s.login(hostname, un, word, port=2222)
+            s.sendline('help blade')
+            s.prompt()
+            ret = s.before()
+            s.logout()
+            print(ret)
+        except Exception as e:
             print(e)
+            return Response(ret)
 
 
 
