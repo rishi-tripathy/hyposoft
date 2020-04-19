@@ -225,8 +225,17 @@ export class EditInstanceForm extends Component {
       //this.loadRacks();
       this.loadOwners();
       this.loadInstance();
+      // this.loadRevert();
     }, delay);
   }
+
+  // loadRevert = () => {
+  //   if(this.state.asset.ovr_color || this.state.ovr_cpu || this.state.ovr_memory || this.state.ovr_storage){
+  //     this.setState({
+  //       revert: true,
+  //     })
+  //   }
+  // }
 
   componentDidUpdate(prevProps, prevState) {
     if (prevState.selectedModelOption !== this.state.selectedModelOption) {
@@ -293,7 +302,10 @@ export class EditInstanceForm extends Component {
     console.log(modelURL)
     axios.get(modelURL).then(res => {
       // console.log(res.data)
+      let instanceCopy = JSON.parse(JSON.stringify(this.state.asset));
+      instanceCopy.ovr_color = res.data.display_color;
       this.setState({
+        asset: instanceCopy,
         selectedDisplayColor: res.data.display_color,
         selectedCPU: res.data.cpu,
         selectedMemory: res.data.memory,
@@ -721,11 +733,21 @@ export class EditInstanceForm extends Component {
       }
     }
 
+
     let stateToSend = this.removeEmpty(stateCopy);
     if (this.state.is_offline) {
       stateToSend.rack = null;
       stateToSend.rack_u = null;
     }
+
+    if(this.state.revert){
+      stateToSend.ovr_color = null;
+      stateToSend.ovr_memory = null;
+      stateToSend.ovr_cpu = null;
+      stateToSend.ovr_storage = null;
+    }
+
+    //logic for checkboxes
     
     console.log(JSON.stringify(stateToSend, null, 2))
     var self = this;
