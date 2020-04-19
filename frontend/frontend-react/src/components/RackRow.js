@@ -1,9 +1,19 @@
-import React, {Component} from 'react'
+import React, { Component } from 'react'
 import '../stylesheets/RackTable.css'
 // import '../stylesheets/Printing.css'
-import {Link} from 'react-router-dom'
+import { Link } from 'react-router-dom'
+import axios from 'axios'
+
+axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
 export class RackRow extends Component {
+
+  constructor() {
+    super()
+    this.state = {
+      numberOfBlades: null,
+    }
+  }
 
   displayName() {
     let name = '';
@@ -29,7 +39,31 @@ export class RackRow extends Component {
     }
   }
 
+  loadNumberOfBlades = () => {
+    if (this.props.id && this.props.modelMountType && this.props.modelMountType === 'chassis') {
+      const dst = '/api/assets/' + this.props.id + '/blades/';
+      axios.get(dst).then(res => {
+        console.log(res.data)
+        this.setState({ numberOfBlades: res.data.length });
+      })
+        .catch(function (error) {
+          alert('Could not load model. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+        });
+    }
+  }
+
+  componentDidMount() {
+    this.loadNumberOfBlades()
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (prevProps.id !== this.props.id) {
+      this.loadNumberOfBlades()
+    }
+  }
+
   render() {
+    console.log(this.props.modelMountType)
     let objectIsNull = true;
     let isCondensed = false;
     let row = this.props.row;
@@ -62,19 +96,19 @@ export class RackRow extends Component {
             color: textColor,
             borderBottom: 'solid',
           }}>
-            <Link style={{color: textColor }} to={'/assets/' + this.props.id}>
-            {this.props.model} {this.displayName()} 
+            <Link style={{ color: textColor }} to={'/assets/' + this.props.id}>
+              {this.props.model} {this.displayName()}
             </Link>
           </td>;
       } else if ((this.props.row === 42) || (!objectIsNull && this.props.hostname == null)) {
         //no display name, just display color
         content =
-        // <Link to={'/assets/' + this.props.id}>
+          // <Link to={'/assets/' + this.props.id}>
           <td style={{
             fontSize: 12,
             backgroundColor: dispColor
           }}>
-            <Link style={{color: textColor }} to={'/assets/' + this.props.id}> { } </Link>
+            <Link style={{ color: textColor }} to={'/assets/' + this.props.id}> {} </Link>
           </td>
         // </Link>;
       } else if (objectIsNull) {
@@ -103,7 +137,7 @@ export class RackRow extends Component {
         } else {
           //null with 2 instances sandwiching, render normal
           content =
-            <td style={{fontSize: 12,}}> </td>
+            <td style={{ fontSize: 12, }}> </td>
         }
       }
     }
@@ -118,9 +152,13 @@ export class RackRow extends Component {
             color: textColor,
             borderBottom: 'solid',
           }}>
-          <Link style={{color: textColor }} to={'/assets/' + this.props.id}>
-            {this.props.model} {this.displayName()}
-          </Link>
+
+            <Link style={{ color: textColor }} to={'/assets/' + this.props.id}>
+              {this.props.model} {this.displayName()}
+              {
+                this.props.modelMountType === 'chassis' ? ' (' + this.state.numberOfBlades + ' blades)' : ''
+              }
+            </Link>
           </td>
       } else if (!objectIsNull && this.props.hostname == null) {
         content =
@@ -129,10 +167,10 @@ export class RackRow extends Component {
             backgroundColor: dispColor,
             cursor: 'pointer',
           }}>
-            <Link style={{color: textColor }} to={'/assets/' + this.props.id}>{ }</Link>
+            <Link style={{ color: textColor }} to={'/assets/' + this.props.id}>{}</Link>
           </td>
       } else {
-        content = <td style={{fontSize: 12,}}> </td>
+        content = <td style={{ fontSize: 12, }}> </td>
       }
 
       if (objectIsNull && this.props.index === 1) {
@@ -147,15 +185,15 @@ export class RackRow extends Component {
     }
 
     return (
-        <tr>
-          <td>
-            {row}
-          </td>
-          {content}
-          <td>
-            {row}
-          </td>
-        </tr>
+      <tr>
+        <td>
+          {row}
+        </td>
+        {content}
+        <td>
+          {row}
+        </td>
+      </tr>
     )
   }
 }
