@@ -650,12 +650,12 @@ export class EditInstanceForm extends Component {
   }
 
   render() {
-    console.log(this.state)
-    let options = this.context.datacenterOptions;
-    // console.log(options)
-    options = options.slice(1);
-
-    options.map((option) => {
+    console.log(this.state)    
+    
+    let options2 = this.context.datacenterOptions;
+    console.log(options2)
+    options2 = options2.slice(1);
+    let options = options2.map((option) => {
       let firstLetter = option.is_offline;
       console.log(firstLetter);
         return {

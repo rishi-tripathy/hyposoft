@@ -531,17 +531,18 @@ export class CreateInstanceForm extends Component {
         let groupedModelOptions = this.state.modelOptions;
         console.log(groupedModelOptions)
         groupedModelOptions.map(modelOption => {
-          let mounts = modelOption.mountType;
+          let mounts = modelOption.mountType.toString();
           console.log(mounts);
             return {
-              mounts: /'normal'/.test(mounts) ? "RACK MOUNT" : modelOption.mountType.toUpperCase(),
+              mounts: /[0-9]/.test(mounts) ? "dumbshit" : modelOption.mountType.toString(),
               ...modelOption
             };
           })
 
 
-    console.log(this.state.currentMountType)
-    console.log(this.state.locationOptions)
+    // console.log(this.state.currentMountType)
+    // console.log(this.state.locationOptions)
+
     return (
       <div>
         {this.state.redirect && <Redirect to={{ pathname: '/assets' }} />}
@@ -561,7 +562,8 @@ export class CreateInstanceForm extends Component {
                     autoHighlight
                     autoSelect
                     id="instance-create-model-select"
-                    options={groupedModelOptions.sort((a, b) => -b.mounts.localeCompare(a.mounts))}
+                    options={groupedModelOptions/*.sort((a, b) => -b.mounts.localeCompare(a.mounts))*/}
+                    groupBy={modelOption => modelOption.mounts}
                     getOptionLabel={modelOption => modelOption.label}
                     onChange={this.handleChangeModel}
                     value={this.state.selectedModelOption}
