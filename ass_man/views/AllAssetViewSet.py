@@ -78,29 +78,29 @@ class AllAssetViewSet(viewsets.ModelViewSet):
     filterset_class = AllAssetsFilter
 
     def list(self, request, *args, **kwargs):
-            if request.query_params.get('offline') == 'true':
+        if request.query_params.get('offline') == 'true':
 
-                queryset = self.filter_queryset(self.get_queryset().all().annotate(rack_letter=Cast('id', CharField()))
-                                                .annotate(numstr_in_rack=Cast('id', CharField()))
-                                                .annotate(number_in_racknum=Cast('id', IntegerField()))
-                                                .exclude(is_offline=False))
+            queryset = self.filter_queryset(self.get_queryset().all().annotate(rack_letter=Cast('id', CharField()))
+                                            .annotate(numstr_in_rack=Cast('id', CharField()))
+                                            .annotate(number_in_racknum=Cast('id', IntegerField()))
+                                            .exclude(is_offline=False))
 
-                page = self.paginate_queryset(queryset)
-                if page is not None:
-                    serializer = self.get_serializer(page, many=True)
-                    return self.get_paginated_response(serializer.data)
-                serializer = self.get_serializer(queryset, many=True)
-                return Response(serializer.data)
+            page = self.paginate_queryset(queryset)
+            if page is not None:
+                serializer = self.get_serializer(page, many=True)
+                return self.get_paginated_response(serializer.data)
+            serializer = self.get_serializer(queryset, many=True)
+            return Response(serializer.data)
 
-            if not request.query_params.get('offline') == 'true':
-                queryset = self.filter_queryset(self.get_queryset()).exclude(is_offline=True)
+        if not request.query_params.get('offline') == 'true':
+            queryset = self.filter_queryset(self.get_queryset()).exclude(is_offline=True)
 
-                page = self.paginate_queryset(queryset)
-                if page is not None:
-                    serializer = self.get_serializer(page, many=True)
-                    return self.get_paginated_response(serializer.data)
-                serializer = self.get_serializer(queryset, many=True)
-                return Response(serializer.data)
+            page = self.paginate_queryset(queryset)
+            if page is not None:
+                serializer = self.get_serializer(page, many=True)
+                return self.get_paginated_response(serializer.data)
+            serializer = self.get_serializer(queryset, many=True)
+            return Response(serializer.data)
 
 
-            return super().list(self, request, *args, **kwargs)
+        return super().list(self, request, *args, **kwargs)

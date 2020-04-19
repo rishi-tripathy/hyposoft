@@ -155,7 +155,7 @@ export class InstanceController extends Component {
       sort = sort + '&'
     }
 
-    let dst = '/api/assets/' + '?' + filter + sort + 'export=true';
+    let dst = '/api/all_assets/' + '?' + filter + sort + 'export=true';
     console.log('exporting to:  ' + dst);
     const FileDownload = require('js-file-download');
     axios.get(dst).then(res => {
@@ -181,7 +181,7 @@ export class InstanceController extends Component {
       sort = sort + '&'
     }
 
-    let dst = '/api/assets/' + '?' + filter + sort + 'export=true&np=true';
+    let dst = '/api/all_assets/' + '?' + filter + sort + 'export=true&np=true';
     console.log('exporting to:  ' + dst);
     const FileDownload = require('js-file-download');
     axios.get(dst).then(res => {
