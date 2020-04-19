@@ -91,9 +91,8 @@ class AllAssetFilterByRack(rest_filters.BaseFilterBackend):
 
 class AssetFilterByRack(rest_filters.BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
-        if request.query_params.get('offline') == 'true':
+        if request.query_params.get('offline') == 'true' or request.method is not 'GET':
             return queryset
-
         start_letter = request.query_params.get('rack_num_start')[0].upper() if request.query_params.get(
             'rack_num_start') else 'A'
         start_number = request.query_params.get('rack_num_start')[1:] if request.query_params.get(
@@ -104,13 +103,36 @@ class AssetFilterByRack(rest_filters.BaseFilterBackend):
             else '999'
 
         queryset = queryset \
-            .annotate(rack_letter=Substr('rack__rack_number', 1, 1)) \
-            .annotate(rack_numstr=Substr('rack__rack_number', 2, None))
+            .annotate(rack_letter=Substr('rack_number', 1, 1)) \
+            .annotate(rack_numstr=Substr('rack_number', 2, None))
         queryset = queryset.annotate(rack_number_int=Cast('rack_numstr', IntegerField()))
 
         return queryset \
             .filter(rack_letter__range=(start_letter, end_letter)) \
             .filter(rack_number_int__range=(start_number, end_number))
+
+# class AssetFilterByRack(rest_filters.BaseFilterBackend):
+#     def filter_queryset(self, request, queryset, view):
+#         if request.query_params.get('offline') == 'true' or request.method is not 'GET':
+#             return queryset
+
+#         start_letter = request.query_params.get('rack_num_start')[0].upper() if request.query_params.get(
+#             'rack_num_start') else 'A'
+#         start_number = request.query_params.get('rack_num_start')[1:] if request.query_params.get(
+#             'rack_num_start') else '0'
+#         end_letter = request.query_params.get('rack_num_end')[0].upper() if request.query_params.get('rack_num_end') \
+#             else 'Z'
+#         end_number = request.query_params.get('rack_num_end')[1:] if request.query_params.get('rack_num_end') \
+#             else '999'
+
+#         queryset = queryset \
+#             .annotate(rack_letter=Substr('rack__rack_number', 1, 1)) \
+#             .annotate(rack_numstr=Substr('rack__rack_number', 2, None))
+#         queryset = queryset.annotate(rack_number_int=Cast('rack_numstr', IntegerField()))
+
+#         return queryset \
+#             .filter(rack_letter__range=(start_letter, end_letter)) \
+#             .filter(rack_number_int__range=(start_number, end_number))
 
 
 class RackFilter(rest_filters.BaseFilterBackend):

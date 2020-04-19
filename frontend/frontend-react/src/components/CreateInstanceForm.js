@@ -72,6 +72,11 @@ export class CreateInstanceForm extends Component {
 
       slotNumberOptions: [],
       selectedSlotNumberOption: null,
+      //override
+      ovr_color: null,
+      over_storage: null,
+      ovr_cpu: null,
+      ovr_memory: null,
     }
   }
 
@@ -127,7 +132,8 @@ export class CreateInstanceForm extends Component {
     axios.get(dst).then(res => {
       let myOptions = [];
       for (let i = 0; i < res.data.length; i++) {
-        myOptions.push({ value: res.data[i].url, label: res.data[i].vendor + ' ' + res.data[i].model_number, id: res.data[i].id });
+        console.log(res.data[i])
+        myOptions.push({ value: res.data[i].url, label: res.data[i].vendor + ' ' + res.data[i].model_number, id: res.data[i].id, mountType: res.data[i].mount_type });
       }
       this.setState({ modelOptions: myOptions });
     })
@@ -365,6 +371,10 @@ export class CreateInstanceForm extends Component {
     stateCopy.datacenter = this.state.selectedDatacenterOption ? this.state.selectedDatacenterOption.url : null;
     stateCopy.rack = this.state.selectedRackOption ? this.state.selectedRackOption.value : null;
     stateCopy.owner = this.state.selectedOwnerOption ? this.state.selectedOwnerOption.value : null;
+    stateCopy.ovr_color = this.state.ovr_color ? this.state.ovr_color.value : null;
+    stateCopy.ovr_memory = this.state.ovr_memory ? this.state.ovr_memory.value : null;
+    stateCopy.ovr_cpu = this.state.ovr_cpu ? this.state.ovr_cpu.value : null;
+    stateCopy.ovr_storage = this.state.ovr_storage ? this.state.ovr_storage.value : null;
     stateCopy.network_ports = networkPortsBuilder
     stateCopy.power_ports = tmpPP
     let stateToSend = this.removeEmpty(stateCopy);
@@ -493,7 +503,7 @@ export class CreateInstanceForm extends Component {
         getOptionLabel={option => option.label}
         onChange={this.handleChangeRack}
         value={this.state.selectedRackOption}
-        disabled={this.state.selectedDatacenterOption === null}
+        disabled={this.state.selectedDatacenterOption === null || this.state.currentMountType=="blade"}
         renderInput={params => (
           <TextField {...params} label="Rack" fullWidth />
         )}
@@ -503,6 +513,7 @@ export class CreateInstanceForm extends Component {
       < TextField label="Rack U"
         fullWidth
         type="number"
+        disabled={this.state.selectedDatacenterOption === null || this.state.currentMountType=="blade"}
         onChange={e => {
           let instanceCopy = JSON.parse(JSON.stringify(this.state.asset))
           instanceCopy.rack_u = e.target.value
@@ -539,10 +550,10 @@ export class CreateInstanceForm extends Component {
           />
         </Paper>;
 
-        let options = this.context.datacenterOptions;
-        console.log(options)
-        options = options.slice(1);
-        options.map(option => {
+        let options2 = this.context.datacenterOptions;
+        console.log(options2)
+        options2 = options2.slice(1);
+        let options = options2.map((option) => {
           let firstLetter = option.is_offline;
           console.log(firstLetter);
             return {
@@ -551,9 +562,21 @@ export class CreateInstanceForm extends Component {
             };
         })
 
-    console.log(this.state.currentMountType)
-    console.log(this.state.selectedSlotNumberOption)
-    console.log(this.state.locationOptions)
+        let groupedModelOptions = this.state.modelOptions;
+        console.log(groupedModelOptions)
+        groupedModelOptions.map(modelOption => {
+          let mounts = modelOption.mountType.toString();
+          console.log(mounts);
+            return {
+              mounts: /[0-9]/.test(mounts) ? "dumbshit" : modelOption.mountType.toString(),
+              ...modelOption
+            };
+          })
+
+
+    // console.log(this.state.currentMountType)
+    // console.log(this.state.locationOptions)
+
     return (
       <div>
         {this.state.redirect && <Redirect to={{ pathname: '/assets' }} />}
@@ -573,8 +596,9 @@ export class CreateInstanceForm extends Component {
                     autoHighlight
                     autoSelect
                     id="instance-create-model-select"
-                    options={this.state.modelOptions}
-                    getOptionLabel={option => option.label}
+                    options={groupedModelOptions/*.sort((a, b) => -b.mounts.localeCompare(a.mounts))*/}
+                    groupBy={modelOption => modelOption.mounts}
+                    getOptionLabel={modelOption => modelOption.label}
                     onChange={this.handleChangeModel}
                     value={this.state.selectedModelOption}
                     renderInput={params => (
@@ -598,10 +622,12 @@ export class CreateInstanceForm extends Component {
                     autoHighlight
                     autoSelect
                     id="datacenter-select"
-                    options={options.sort((a, b) => -b.name)}
+
+                    options={options.sort((a, b) => -b.firstLetter.localeCompare(a.firstLetter))}
                     groupBy={option => option.firstLetter}
                     getOptionLabel={option => option.abbreviation}
                     onChange={this.handleChangeDatacenter}
+                    defaultValue={this.context.datacenter}
                     value={this.state.selectedDatacenterOption}
                     renderInput={params => (
                       <TextField {...params} label="DC/Offline Site" fullWidth />

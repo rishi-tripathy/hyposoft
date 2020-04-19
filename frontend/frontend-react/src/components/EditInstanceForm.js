@@ -273,6 +273,7 @@ export class EditInstanceForm extends Component {
     if (this.props.location.state != null && this.props.location.state.isBlade) {
       //blade
       let dst = '/api/blades/'.concat(this.props.match.params.id).concat('/');
+      console.log(dst)
       axios.get(dst).then(res => {
         let instanceCopy = JSON.parse(JSON.stringify(this.state.asset));
         instanceCopy.model = res.data.model;
@@ -281,6 +282,10 @@ export class EditInstanceForm extends Component {
         instanceCopy.location = res.data.location;
         instanceCopy.slot_number = res.data.slot_number;
         instanceCopy.asset_number = res.data.asset_number;
+        // instanceCopy.ovr_color = res.data.ovr_color;
+        // instanceCopy.ovr_storage = res.data.ovr_storage;
+        // instanceCopy.ovr_cpu = res.data.ovr_cpu;
+        // instanceCopy.ovr_memory = res.data.ovr_memory;
         this.setState({
           asset: instanceCopy,
           selectedDatacenterOption: res.data.datacenter
@@ -291,20 +296,40 @@ export class EditInstanceForm extends Component {
           alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
         });
     }
-    else {
-      let dst = '/api/all_assets/'.concat(this.props.match.params.id).concat('/');
+    //TODO: add blade offline 
+      else if (this.context.is_offline) {
+      let dst = '/api/all_assets/?offline=true/'.concat(this.props.match.params.id).concat('/');
+      console.log(dst)
+
       axios.get(dst).then(res => {
         let instanceCopy = JSON.parse(JSON.stringify(this.state.asset));
-        console.log(res.data.asset)
-        if (res.data.asset.datacenter.is_offline) {
-          instanceCopy.model = res.data.asset.model;
-          instanceCopy.hostname = res.data.asset.hostname;
-          instanceCopy.datacenter = res.data.asset.datacenter;
-          instanceCopy.owner = res.data.asset.owner;
-          instanceCopy.comment = res.data.asset.comment;
-          instanceCopy.asset_number = res.data.asset.asset_number;
-        }
+        console.log(res.data)
+          instanceCopy.model = res.data.results.asset.model;
+          instanceCopy.hostname = res.data.results.asset.hostname;
+          instanceCopy.datacenter = res.data.results.asset.datacenter;
+          instanceCopy.owner = res.data.results.asset.owner;
+          instanceCopy.comment = res.data.results.asset.comment;
+          instanceCopy.asset_number = res.data.results.asset.asset_number;
+          instanceCopy.ovr_color = res.data.results.ovr_color;
+          instanceCopy.ovr_storage = res.data.results.ovr_storage;
+          instanceCopy.ovr_cpu = res.data.results.ovr_cpu;
+          instanceCopy.ovr_memory = res.data.results.ovr_memory;
+          this.setState({
+            asset: instanceCopy,
+            selectedDatacenterOption: res.data.asset.datacenter,
+          })
+        })
+        .catch(function (error) {
+          // TODO: handle error
+          alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+        });
+      }
         else {
+          let dst = '/api/all_assets/'.concat(this.props.match.params.id).concat('/');
+      console.log(dst)
+          axios.get(dst).then(res => {
+            let instanceCopy = JSON.parse(JSON.stringify(this.state.asset));
+            console.log(res.data.asset)
           instanceCopy.model = res.data.asset.model;
           instanceCopy.hostname = res.data.asset.hostname;
           instanceCopy.datacenter = res.data.asset.datacenter;
@@ -315,24 +340,26 @@ export class EditInstanceForm extends Component {
           instanceCopy.asset_number = res.data.asset.asset_number;
           instanceCopy.network_ports = res.data.asset.network_ports;
           instanceCopy.power_ports = res.data.asset.power_ports;
+          instanceCopy.ovr_color = res.data.ovr_color;
+          instanceCopy.ovr_storage = res.data.ovr_storage;
+          instanceCopy.ovr_cpu = res.data.ovr_cpu;
+          instanceCopy.ovr_memory = res.data.ovr_memory;
           // instanceCopy.model = res.data.model;
           // instanceCopy.hostname = res.data.hostname;
           // instanceCopy.datacenter = res.data.datacenter;
           // instanceCopy.location = res.data.location;
           // instanceCopy.slot_number = res.data.slot_number;
-        }
-        this.setState({
-          asset: instanceCopy,
-          selectedDatacenterOption: res.data.asset.datacenter,
+          this.setState({
+            asset: instanceCopy,
+            selectedDatacenterOption: res.data.asset.datacenter,
+          })
         })
-      })
         .catch(function (error) {
           // TODO: handle error
           alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
         });
+      }
     }
-
-  }
 
   loadMACAddresses = () => {
     let tmpMAC = []
@@ -580,6 +607,7 @@ export class EditInstanceForm extends Component {
     if (this.state.is_offline) {
       stateToSend.rack = null;
       stateToSend.rack_u = null;
+      stateToSend.datacenter = this.state.selecterDatacenterOption.id;
     }
     console.log(JSON.stringify(stateToSend, null, 2))
     var self = this;
@@ -622,8 +650,6 @@ export class EditInstanceForm extends Component {
           alert('Edit was not successful.\n' + JSON.stringify(error.response.data, null, 2));
         });
     }
-
-
   }
 
   openNetworkPortConfigAndMAC = () => {
@@ -667,19 +693,18 @@ export class EditInstanceForm extends Component {
   }
 
   render() {
-
-    let options = this.context.datacenterOptions;
-    console.log(options)
-    options = options.slice(1);
-
-    options.map(option => {
-      console.log(option)
+    console.log(this.state)    
+    
+    let options2 = this.context.datacenterOptions;
+    console.log(options2)
+    options2 = options2.slice(1);
+    let options = options2.map((option) => {
       let firstLetter = option.is_offline;
       console.log(firstLetter);
-      return {
-        firstLetter: /true/.test(firstLetter) ? "Offline Sites" : "Datacenters",
-        ...option
-      };
+        return {
+          firstLetter: /true/.test(firstLetter) ? "Offline Sites" : "Datacenters",
+          ...option
+        };
     })
 
     let rack_select =
@@ -761,7 +786,7 @@ export class EditInstanceForm extends Component {
                     autoHighlight
                     autoSelect
                     id="datacenter-select"
-                    options={options.sort((a, b) => -b.name)}
+                    options={options.sort((a, b) => -b.firstLetter.localeCompare(a.firstLetter))}
                     groupBy={option => option.firstLetter}
                     getOptionLabel={option => option.abbreviation}
                     onChange={this.handleChangeDatacenter}

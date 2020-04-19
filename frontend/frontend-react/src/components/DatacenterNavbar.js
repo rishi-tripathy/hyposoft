@@ -11,7 +11,7 @@ export class DatacenterNavbar extends Component{
   render() {
   
     // console.log(this.context.datacenterOptions[0].name);
-    let options = this.context.datacenterOptions.map(option => {
+    let options = this.context.datacenterOptions.map((option) => {
       let firstLetter = option.is_offline;
       console.log(firstLetter);
         return {
@@ -19,12 +19,15 @@ export class DatacenterNavbar extends Component{
           ...option
         };
     })
+
+    console.log(options)
     
   return (
+    
     <Autocomplete
       id="highlights-demo"
       style={{ width: 150, marginRight: '0px', fontSize: '10px', borderRadius: '15px'}}
-      options={options.sort((a, b) => -b.name)}
+      options={options.sort((a, b) => -b.firstLetter.localeCompare(a.firstLetter))}
       groupBy={option => option.firstLetter}
       onChange={(event, value) =>this.context.setDatacenter(value.id, value.name, value.abbreviation, value.is_offline)} 
       getOptionLabel={option => option.abbreviation}

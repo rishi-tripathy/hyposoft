@@ -93,7 +93,7 @@ class App extends React.Component {
     axios.get(dst).then(res => {
       // console.log(res)
       let d = [];
-      let allCase = { id: -1, url: null, abbreviation: 'ALL', name: 'ALL' };
+      let allCase = { id: -1, url: null, abbreviation: 'ALL DC\'s', name: 'ALL' };
       d.push(allCase);
       res.data.map((dc, index) => {
         d.push(dc)

@@ -425,7 +425,7 @@ def import_asset_file(request):
                 should_update = True
             else:
                 fields_overriden[str(asset.asset_number)+'_datacenter'] = [asset.datacenter.abbreviation, row['datacenter']]
-        if asset.datacenter and not rack_handled and (asset.datacenter.abbreviation+'-'+asset.rack.rack_number) != row['datacenter']+'-'+row['rack']:
+        if asset.datacenter and asset.model.mount_type != 'blade' and asset.rack and not rack_handled and (asset.datacenter.abbreviation+'-'+asset.rack.rack_number) != row['datacenter']+'-'+row['rack']:
             try:
                 rack = datacenter.rack_set.get(rack_number=row['rack'])
             except Rack.DoesNotExist:
@@ -558,6 +558,22 @@ def import_asset_file(request):
                 fields_overriden[key] = [asset.comment, row['comment']]
             override = True
 
+        disp_col = row['custom_display_color']
+        if disp_col.startswith('#'):
+                    disp_col = disp_col[1:]
+        if row['custom_display_color'] and asset.model.display_color != disp_col and asset.ovr_color != disp_col:
+            asset.ovr_color = disp_col
+            should_update = True
+        if row['custom_cpu'] and asset.model.cpu != row['custom_cpu'] and asset.ovr_cpu != row['custom_cpu']:
+            asset.ovr_cpu = row['custom_cpu']
+            should_update = True
+        if row['custom_memory'] and asset.model.memory != row['custom_memory'] and asset.ovr_memory != row['custom_memory']:
+            asset.ovr_memory = row['custom_memory']
+            should_update = True
+        if row['custom_storage'] and asset.model.storage != row['custom_storage'] and asset.ovr_storage != row['custom_storage']:
+            asset.ovr_storage = row['custom_storage']
+            should_update = True
+
         if asset.model.mount_type != 'blade':
             pp1_reg=re.search('([A-Z])([0-9]{1,2})$', row['power_port_connection_1'])
             pp2_reg=re.search('([A-Z])([0-9]{1,2})$', row['power_port_connection_2'])
@@ -636,7 +652,7 @@ def import_asset_file(request):
 
         if should_update:
             assets_to_update.append(asset)
-        if override:
+        elif override:
             overriden += 1
         else:
             ignored += 1
@@ -706,7 +722,7 @@ def import_asset_file(request):
     return Response({
         'Number of assets created': (len(assets_to_create)),
         'Number of assets ignored': ignored,
-        'Number of assets updated': overriden,
+        'Number of assets updated': (len(assets_to_update)),
         'Created assets': created_assets,
         'Updated assets': updated_assets,
         'Ignored assets': ignored_assets
