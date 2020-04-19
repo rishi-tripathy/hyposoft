@@ -599,16 +599,29 @@ export class EditInstanceForm extends Component {
     stateCopy.model = this.state.selectedModelOption ? this.state.selectedModelOption.value : null;
     stateCopy.rack = this.state.selectedRackOption ? this.state.selectedRackOption.value : null;
     stateCopy.owner = this.state.selectedOwnerOption ? this.state.selectedOwnerOption.value : null;
-    stateCopy.datacenter = this.state.selectedDatacenterOption ? this.state.selectedDatacenterOption.url : null;
     stateCopy.network_ports = networkPortsBuilder
     stateCopy.power_ports = tmpPP
+
+
+    stateCopy.datacenter = this.state.selectedDatacenterOption ? this.state.selectedDatacenterOption.url : null;
+    console.log(this.state.currentMountType)
+    if(this.state.is_offline){
+      if(this.state.currentMountType === 'blade'){
+        stateCopy.datacenter = this.state.selectedDatacenterOption.id;
+      }
+    }
+    else{
+      if(this.state.currentMountType==='blade'){
+        stateCopy.datacenter = this.state.selectedDatacenterOption.id;
+      }
+    }
 
     let stateToSend = this.removeEmpty(stateCopy);
     if (this.state.is_offline) {
       stateToSend.rack = null;
       stateToSend.rack_u = null;
-      stateToSend.datacenter = this.state.selecterDatacenterOption.id;
     }
+    
     console.log(JSON.stringify(stateToSend, null, 2))
     var self = this;
 
