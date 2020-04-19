@@ -71,7 +71,7 @@ export class ChassisCard extends Component {
     console.log(this.props)
     return (
       <div>
-        <Table hover striped>
+        <Table hover striped padding={'none'} size={'small'}>
           <TableBody>
             <TableRow>{this.renderTableHeader()}</TableRow>
             {this.renderTableData()}

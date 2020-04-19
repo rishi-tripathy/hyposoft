@@ -37,7 +37,7 @@ class BladeViewSet(viewsets.ModelViewSet):
                     else:
                         datacenter_url = self.request.data.get('datacenter')
                         datacenter = Datacenter.objects.all().get(pk=datacenter_url[-2])
-                    if user.is_superuser or user.permission_set.get(name='asset', datacenter=datacenter):
+                    if user.is_superuser or user.is_staff or user.permission_set.get(name='global-asset', user=user) or user.permission_set.get(name='asset', datacenter=datacenter):
                         permission_classes = [IsAuthenticated]
                 except:
                     permission_classes = [IsAdminUser]

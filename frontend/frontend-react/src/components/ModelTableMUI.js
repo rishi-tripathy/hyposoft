@@ -108,7 +108,7 @@ export class ModelTable extends Component {
         </Collapse>
         <Tooltip title="Filter list">
           <Button endIcon={<FilterListIcon/>} onClick={() => this.handleOpenFilters()} aria-label="filter instance list">
-            Filter
+            
           </Button>
         </Tooltip>
 
@@ -167,7 +167,7 @@ export class ModelTable extends Component {
           <TableCell align="center">{mount_type}</TableCell>
           <TableCell align="center">{vendor}</TableCell>
           <TableCell align="center">{model_number}</TableCell>
-          <TableCell align="center">{height}</TableCell>
+          <TableCell align="center">{mount_type === 'blade' ? 'N/A' : height}</TableCell>
           <TableCell align="right">
             <div style={{
               width: 12,

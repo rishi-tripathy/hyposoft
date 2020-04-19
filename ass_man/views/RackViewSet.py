@@ -45,7 +45,20 @@ class RackViewSet(viewsets.ModelViewSet):
     # View Housekeeping (permissions, serializers, filter fields, etc
     def get_permissions(self):
         if self.action in ADMIN_ACTIONS:
-            permission_classes = [IsAdminUser]
+            try:
+                user = User.objects.get(username=self.request.user.username)
+                datacenter_url = self.request.data.get('datacenter')
+                datacenter = Datacenter.objects.all().get(pk=datacenter_url[-2])
+                print(user.is_staff)
+                print(user.is_superuser)
+                print(len(user.permission_set.all().filter(name='global_asset')))
+                print(len(user.permission_set.all().filter(name='asset', datacenter=datacenter)))
+                if user.is_staff or user.is_superuser or len(user.permission_set.all().filter(name='global_asset')) > 0 or len(user.permission_set.all().filter(name='asset', datacenter=datacenter)) > 0:
+                    permission_classes = [IsAuthenticated]
+                else:
+                    permission_classes = [IsAdmin]
+            except:
+                permission_classes = [IsAdmin]
         else:
             permission_classes = [IsAuthenticated]
         return [permission() for permission in permission_classes]
