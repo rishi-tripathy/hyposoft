@@ -39,10 +39,16 @@ class Asset(AllAssets):
     model = models.ForeignKey(Model, on_delete=models.PROTECT)
     hostname = models.CharField(max_length=64, blank=True, null=True)
     datacenter = models.ForeignKey('Datacenter', on_delete=models.PROTECT)
-    rack = models.ForeignKey('Rack', on_delete=models.PROTECT)
-    rack_u = models.PositiveIntegerField(blank=False)
+    rack = models.ForeignKey('Rack', on_delete=models.PROTECT, blank=True, null=True)
+    rack_u = models.PositiveIntegerField(blank=True, null=True)
     owner = models.ForeignKey(User, blank=True, null=True, on_delete=models.PROTECT)
     comment = models.TextField(blank=True)
+    # Upgrades
+    ovr_color = models.CharField(blank=True, null=True, max_length=6)
+    ovr_cpu = models.CharField(blank=True, null=True, max_length=50)
+    ovr_memory = models.PositiveIntegerField(blank=True, null=True)
+    ovr_storage = models.CharField(blank=True, null=True, max_length=50)
+
     asset_number = models.PositiveIntegerField(blank=True, default=100000, \
     validators=[RegexValidator(r'^[0-9]{6}$', 'Number must be 6 digits', 'Invalid Number')])
 
@@ -57,6 +63,12 @@ class BladeServer(AllAssets):
     slot_number = models.PositiveIntegerField()
     owner = models.ForeignKey(User, blank=True, null=True, on_delete=models.PROTECT)
     comment = models.TextField(blank=True)
+    # Upgrades
+    ovr_color = models.CharField(blank=True, null=True, max_length=6)
+    ovr_cpu = models.CharField(blank=True, null=True, max_length=50)
+    ovr_memory = models.PositiveIntegerField(blank=True, null=True)
+    ovr_storage = models.CharField(blank=True, null=True, max_length=50)
+    
     asset_number = models.PositiveIntegerField(blank=True, default=100000, \
     validators=[RegexValidator(r'^[0-9]{6}$', 'Number must be 6 digits', 'Invalid Number')])
 
@@ -86,6 +98,7 @@ class PDU(models.Model):
 class Datacenter(models.Model):
     abbreviation = models.CharField(max_length=6)
     name = models.CharField(max_length=50)
+    is_offline = models.BooleanField(default=False)
 
     def __str__(self):
         return self.abbreviation or ''

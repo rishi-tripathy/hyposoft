@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import axios from 'axios'
 import { Button, TextField, Grid, Input, Container, FormControl } from "@material-ui/core";
 import { Autocomplete } from "@material-ui/lab";
+import DatacenterContext from './DatacenterContext';
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
@@ -156,7 +157,9 @@ export class InstanceFilters extends Component {
 
   createQuery = () => {
     const { datacenterID, modelID, modelNumber, modelVendor, hostname, rackID, rack_u, ownerID, rackStart, rackEnd } = this.state.identifiers;
-    let q = '' +
+    let q;
+    if(!this.context.is_offline){
+      q = '' +
       'datacenter=' + datacenterID + '&' +
       'model=' + modelID + '&' +
       'model_number=' + modelNumber + '&' +
@@ -167,6 +170,17 @@ export class InstanceFilters extends Component {
       'owner=' + ownerID + '&' +
       'rack_num_start=' + rackStart + '&' +
       'rack_num_end=' + rackEnd;
+    }
+    else{
+      q = '' +
+      'datacenter=' + datacenterID + '&' +
+      'model=' + modelID + '&' +
+      'model_number=' + modelNumber + '&' +
+      'vendor=' + modelVendor + '&' +
+      'hostname=' + hostname + '&' +
+      'owner=' + ownerID;
+    }
+     
     this.setState({ query: q });
     return q;
   }
@@ -208,6 +222,43 @@ export class InstanceFilters extends Component {
   }
 
   render() {
+
+    let rack_range_start = 
+    <Grid item xs={3}>
+      <TextField label='Rack Range Start' type="text" fullWidth
+        onChange={e => {
+          let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
+          identifiersCopy.rackStart = e.target.value
+          this.setState({
+            identifiers: identifiersCopy
+          })
+        }} />
+    </Grid>;
+
+    let rack_range_end = 
+    <Grid item xs={3}>
+      <TextField label='Rack Range End' type="text" fullWidth
+        onChange={e => {
+          let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
+          identifiersCopy.rackEnd = e.target.value
+          this.setState({
+            identifiers: identifiersCopy
+          })
+        }} />
+    </Grid>;
+
+    let rack_u =
+      <Grid item xs={3}>
+      <TextField label='Rack U' type="number" fullWidth
+        onChange={e => {
+          let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
+          identifiersCopy.rack_u = e.target.value
+          this.setState({
+            identifiers: identifiersCopy
+          })
+        }} />
+    </Grid>;
+
     return (
       <div style={{ padding: 10 }}>
         <Container maxWidth="xl">
@@ -286,37 +337,11 @@ export class InstanceFilters extends Component {
               {/*    )}*/}
               {/*  />*/}
               {/*</Grid>*/}
-              <Grid item xs={3}>
-                <TextField label='Rack Range Start' type="text" fullWidth
-                  onChange={e => {
-                    let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
-                    identifiersCopy.rackStart = e.target.value
-                    this.setState({
-                      identifiers: identifiersCopy
-                    })
-                  }} />
-              </Grid>
 
-              <Grid item xs={3}>
-                <TextField label='Rack Range End' type="text" fullWidth
-                  onChange={e => {
-                    let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
-                    identifiersCopy.rackEnd = e.target.value
-                    this.setState({
-                      identifiers: identifiersCopy
-                    })
-                  }} />
-              </Grid>
-              <Grid item xs={3}>
-                <TextField label='Rack U' type="number" fullWidth
-                  onChange={e => {
-                    let identifiersCopy = JSON.parse(JSON.stringify(this.state.identifiers))
-                    identifiersCopy.rack_u = e.target.value
-                    this.setState({
-                      identifiers: identifiersCopy
-                    })
-                  }} />
-              </Grid>
+            { !this.context.is_offline ? (rack_range_start ) : <p></p>}
+            { !this.context.is_offline ? ( rack_range_end ) : <p></p> }
+            { !this.context.is_offline ? ( rack_u ) : <p></p> }
+              
               <Grid item xs={3}>
                 <Autocomplete
                   id="instance-owner-select"
@@ -351,5 +376,7 @@ export class InstanceFilters extends Component {
     )
   }
 }
+
+InstanceFilters.contextType = DatacenterContext;
 
 export default InstanceFilters

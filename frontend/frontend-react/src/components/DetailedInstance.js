@@ -29,6 +29,7 @@ export class DetailedInstance extends Component {
       asset: {},
       connectedAssets: [],
       installedBlades: [],
+      is_offline: false,
     }
   }
 
@@ -47,10 +48,11 @@ export class DetailedInstance extends Component {
           });
       }
       else {
-        let dst = '/api/assets/'.concat(this.props.match.params.id).concat('/');
+        let dst = '/api/all_assets/'.concat(this.props.match.params.id).concat('/');
         axios.get(dst).then(res => {
           this.setState({
-            asset: res.data
+            asset: res.data.asset,
+            is_offline: res.data.asset.datacenter.is_offline
           });
         })
           .catch(function (error) {
@@ -66,6 +68,7 @@ export class DetailedInstance extends Component {
     let tmpConnections = []
     let npArray = this.state.asset.network_ports;
     console.log(npArray)
+    if(npArray){
     for (let i = 0; i < npArray.length; i++) {
       if (npArray[i].connection) {
         let obj = npArray[i].connection.asset;
@@ -75,6 +78,7 @@ export class DetailedInstance extends Component {
       }
     }
     this.setState({ connectedAssets: tmpConnections })
+  }
     // return tmpConnections;
   }
 
@@ -94,7 +98,8 @@ export class DetailedInstance extends Component {
     }
 
     if (prevState.asset !== this.state.asset) {
-      if (this.props.location.state != null && this.props.location.state.isBlade) {
+      console.log(this.props.location.state)
+      if ((this.props.location.state != null && this.props.location.state.isBlade) || this.state.is_offline) {
 
       }
       else {
@@ -267,7 +272,7 @@ export class DetailedInstance extends Component {
                 }
               </Grid>
 
-              <Grid item xs={6}>
+              <Grid item xs={12}>
                 {
                   this.state.asset.model ? (
                     this.state.asset.model.mount_type === 'chassis' ? (
