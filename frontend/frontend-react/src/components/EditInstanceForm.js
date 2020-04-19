@@ -15,6 +15,7 @@ import { Link, Redirect } from "react-router-dom";
 import NetworkPortConnectionDialog from './NetworkPortConnectionDialog';
 import PowerPortConnectionDialog from './PowerPortConnectionDialog';
 import DatacenterContext from './DatacenterContext';
+import { jsonToHumanText } from './Helpers'
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
@@ -783,7 +784,7 @@ export class EditInstanceForm extends Component {
           });
         })
         .catch(function (error) {
-          alert('Edit was not successful.\n' + JSON.stringify(error.response.data, null, 2));
+          alert('Edit was not successful.\n' + jsonToHumanText(error.response.data));
         });
     }
     else {
@@ -799,7 +800,7 @@ export class EditInstanceForm extends Component {
           });
         })
         .catch(function (error) {
-          alert('Edit was not successful.\n' + JSON.stringify(error.response.data, null, 2));
+          alert('Edit was not successful.\n' + jsonToHumanText(error.response.data));
         });
     }
   }
@@ -1207,6 +1208,7 @@ export class EditInstanceForm extends Component {
                   <TextField label='Asset Number' type="text" fullWidth
                     InputLabelProps={{ shrink: true }}
                     value={this.state.asset.asset_number}
+                    disabled={true}
                     onChange={e => {
                       let instanceCopy = JSON.parse(JSON.stringify(this.state.asset))
                       instanceCopy.asset_number = e.target.value

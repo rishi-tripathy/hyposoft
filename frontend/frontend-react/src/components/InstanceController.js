@@ -51,7 +51,7 @@ export class InstanceController extends Component {
       dst = '/api/all_assets/' + '?' + this.state.filterQuery + '&' + this.state.sortQuery + '&offline=false';
     }
     else if (this.context.is_offline) {
-      dst = '/api/assets/' + '?' + 'datacenter=' + this.state.datacenterID + '&' + this.state.filterquery + '&' + this.state.getSortQuery + '&offline=true';
+      dst = '/api/all_assets/' + '?' + 'datacenter=' + this.state.datacenterID + '&' + this.state.filterquery + '&' + this.state.getSortQuery + '&offline=true';
     }
     else {
       dst = '/api/all_assets/' + '?' + 'datacenter=' + this.state.datacenterID + '&' + this.state.filterQuery + '&' + this.state.sortQuery;
@@ -155,7 +155,7 @@ export class InstanceController extends Component {
       sort = sort + '&'
     }
 
-    let dst = '/api/assets/' + '?' + filter + sort + 'export=true';
+    let dst = '/api/all_assets/' + '?' + filter + sort + 'export=true';
     console.log('exporting to:  ' + dst);
     const FileDownload = require('js-file-download');
     axios.get(dst).then(res => {
@@ -181,7 +181,7 @@ export class InstanceController extends Component {
       sort = sort + '&'
     }
 
-    let dst = '/api/assets/' + '?' + filter + sort + 'export=true&np=true';
+    let dst = '/api/all_assets/' + '?' + filter + sort + 'export=true&np=true';
     console.log('exporting to:  ' + dst);
     const FileDownload = require('js-file-download');
     axios.get(dst).then(res => {

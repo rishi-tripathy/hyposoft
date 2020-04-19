@@ -16,6 +16,7 @@ import CancelIcon from '@material-ui/icons/Cancel';
 import NetworkPortConnectionDialog from './NetworkPortConnectionDialog';
 import PowerPortConnectionDialog from './PowerPortConnectionDialog';
 import DatacenterContext from './DatacenterContext';
+import { jsonToHumanText } from './Helpers'
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
@@ -410,7 +411,7 @@ export class CreateInstanceForm extends Component {
 
 
     if (this.state.currentMountType === 'blade') {
-
+      stateToSend.owner = this.state.selectedOwnerOption ? this.state.selectedOwnerOption.id : null;
       stateToSend.location = this.state.selectedLocationOption ? this.state.selectedLocationOption.id : null;
       stateToSend.model = this.state.selectedModelOption ? this.state.selectedModelOption.id : null;
       stateToSend.datacenter = this.state.selectedDatacenterOption ? this.state.selectedDatacenterOption.id : null;
@@ -421,9 +422,9 @@ export class CreateInstanceForm extends Component {
       else {
         stateToSend.ovr_color = this.state.asset.ovr_color;
       }
-      stateToSend.ovr_storage = this.state.asset.ovr_storage;
-      stateToSend.ovr_cpu = this.state.asset.ovr_cpu;
-      stateToSend.ovr_memory = this.state.asset.ovr_memory;
+      // stateToSend.ovr_storage = this.state.asset.ovr_storage;
+      // stateToSend.ovr_cpu = this.state.asset.ovr_cpu;
+      // stateToSend.ovr_memory = this.state.asset.ovr_memory;
 
       var self = this;
     console.log('state to send blade')
@@ -439,7 +440,7 @@ export class CreateInstanceForm extends Component {
           })
         })
         .catch(function (error) {
-          alert('Creation was not successful.\n' + JSON.stringify(error.response.data, null, 2));
+          alert('Creation was not successful.\n' + jsonToHumanText(error.response.data));
         });
     }
     else {
@@ -456,7 +457,7 @@ export class CreateInstanceForm extends Component {
           })
         })
         .catch(function (error) {
-          alert('Creation was not successful.\n' + JSON.stringify(error.response.data, null, 2));
+          alert('Creation was not successful.\n' + jsonToHumanText(error.response.data));
         });
     }
 

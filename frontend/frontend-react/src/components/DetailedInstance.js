@@ -383,7 +383,7 @@ export class DetailedInstance extends Component {
               <Grid item xs={6}>
                 {
                   this.state.asset.model ? (
-                    // FIXME: right now nobody can see asset graph
+                    // FIXME: right now nobody can see asset graph, coz graph is broken for blades
                     this.state.asset.model.mount_type === 'nothing' ?
                       (
                         <div>
@@ -397,10 +397,6 @@ export class DetailedInstance extends Component {
                   ) : (<div></div>)
                 }
               </Grid>
-
-
-
-
             </Grid>
           </Container>
         </div>

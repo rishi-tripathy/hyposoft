@@ -104,3 +104,9 @@ class AllAssetViewSet(viewsets.ModelViewSet):
 
 
             return super().list(self, request, *args, **kwargs)
+            #miles' changes from dev below
+        # if request.query_params.get('export') == 'true':
+        #     if request.query_params.get('np') == 'true':
+        #         return export_network_ports(self.get_queryset())
+        #     return export_assets(self.get_queryset())
+        # return super().list(self, request, *args, **kwargs)
