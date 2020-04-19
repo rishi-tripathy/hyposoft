@@ -752,7 +752,7 @@ export class EditInstanceForm extends Component {
     //logic for color)
     else {
       //not revert, some changes
-      if(this.state.selectedDisplayColor === this.state.asset.ovr_color){
+      if(this.state.selectedDisplayColor === this.state.asset.ovr_color || !this.displayColorChecked){
         stateToSend.ovr_color = null;
       }
     }
@@ -767,12 +767,10 @@ export class EditInstanceForm extends Component {
       stateToSend.model = this.state.selectedModelOption ? this.state.selectedModelOption.id : null;
       stateToSend.location = this.state.selectedLocationOption ? this.state.selectedLocationOption.id : null;
       stateToSend.slot_number = this.state.selectedSlotNumberOption ? this.state.selectedSlotNumberOption.value : null;
-      if(this.state.selectedDisplayColor === this.state.asset.ovr_color || this.state.revert){
-        stateToSend.ovr_color = null;
-      }
-      stateToSend.ovr_storage = this.state.asset.ovr_storage;
-      stateToSend.ovr_cpu = this.state.asset.ovr_cpu;
-      stateToSend.ovr_memory = this.state.asset.ovr_memory;
+      stateToSend.ovr_color = this.state.displayColorChecked&&this.state.selectedDisplayColor!==this.state.asset.ovr_color ? this.state.asset.ovr_color : null;
+      stateToSend.ovr_storage = this.state.storageChecked&&this.state.asset.ovr_storage!==this.state.selectedStorage ? this.state.asset.ovr_storage : null;
+      stateToSend.ovr_cpu = this.state.cpuChecked&&this.state.asset.ovr_cpu!==this.state.selectedCPU ? this.state.asset.ovr_cpu : null;
+      stateToSend.ovr_memory = this.state.memoryChecked&&this.state.asset.ovr_memory!==this.state.selectedMemory ? this.state.asset.ovr_memory : null;
 
       let dst = '/api/blades/'.concat(this.props.match.params.id).concat('/');
       axios.put(dst, stateToSend)
@@ -789,6 +787,10 @@ export class EditInstanceForm extends Component {
     }
     else {
       //PUT: asset
+      stateToSend.ovr_color = this.state.displayColorChecked&&this.state.selectedDisplayColor!==this.state.asset.ovr_color ? this.state.asset.ovr_color : null;
+      stateToSend.ovr_storage = this.state.storageChecked&&this.state.asset.ovr_storage!==this.state.selectedStorage ? this.state.asset.ovr_storage : null;
+      stateToSend.ovr_cpu = this.state.cpuChecked&&this.state.asset.ovr_cpu!==this.state.selectedCPU ? this.state.asset.ovr_cpu : null;
+      stateToSend.ovr_memory = this.state.memoryChecked&&this.state.asset.ovr_memory!==this.state.selectedMemory ? this.state.asset.ovr_memory : null;
 
       let dst = '/api/assets/'.concat(this.props.match.params.id).concat('/');
       axios.put(dst, stateToSend)
