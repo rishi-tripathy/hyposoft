@@ -17,8 +17,10 @@ import { green } from '@material-ui/core/colors';
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
-const sleep = (milliseconds) => {
-  return new Promise(resolve => setTimeout(resolve, milliseconds))
+function sleeper(ms) {
+  return function(x) {
+    return new Promise(resolve => setTimeout(() => resolve(x), ms));
+  };
 }
 
 export class PowerManagement extends Component {
@@ -103,16 +105,16 @@ export class PowerManagement extends Component {
     const dst = '/api/assets/' + this.props.assetID + '/update_pp_state/';
     let self = this
     const delay = 2000;
+    //https://stackoverflow.com/questions/38956121/how-to-add-delay-to-promise-inside-then
+    //this link saved my butt
     axios.post(dst, offState)
       .then((res) => {
-        // do something with Google res
-        sleep(delay)
-        //setTimeout(() => {
+        self.handleStatusUpdate()
         return axios.post(dst, onState);
-        //}, delay);
+        
       })
+      .then(sleeper(delay))
       .then((res) => {
-        // do something with Apple res
         alert('Toggle response below. A failure status may indicate that PDU Networkx 98 Pro is down\n' + JSON.stringify(res.data, null, 2));
         self.setState({ isLoading: false })
         self.handleStatusUpdate()
@@ -121,7 +123,7 @@ export class PowerManagement extends Component {
         // handle err
         alert('Toggle was un-successful.\n' + JSON.stringify(err.response.data, null, 2));
         self.handleStatusUpdate()
-        //this.setState({ isLoading: false })
+        self.setState({ isLoading: false })
       });
     this.setState({ isLoading: false })
   };
@@ -146,20 +148,6 @@ export class PowerManagement extends Component {
                   <BatteryUnknownIcon />
                 )
               }
-              {/* <TextField
-                label='PDU Status'
-                type="text"
-                fullWidth
-                disabled={true}
-                InputLabelProps={{ shrink: true }}
-                value={this.state.status}
-                onChange={e => {
-                  // let modelCopy = JSON.parse(JSON.stringify(this.state.model))
-                  // modelCopy.height = e.target.value
-                  // this.setState({
-                  //   model: modelCopy
-                  // })
-                }} />{' '} */}
             </Grid>
 
             <Grid item xs={6}>

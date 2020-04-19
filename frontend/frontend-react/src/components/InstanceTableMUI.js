@@ -48,6 +48,7 @@ export class InstanceTableMUI extends Component {
       // for checkboxes
       selected: [], // list of IDs
       allAssetIDs: [],
+      assetIDsOnPage: [],
 
       //for AssetLabels.js, the labels table
       assetLabelTableGenerationData: [],
@@ -59,8 +60,20 @@ export class InstanceTableMUI extends Component {
     }
   }
 
+  loadAssetIDsOnPage = () => {
+    //make list of asset ids that are on the page
+    //let idsOnPage = Object.assign([], this.state.assetIDsOnPage)
+    let idsOnPage = []
+    for (let i = 0; i < this.props.assets.length; i++) {
+      idsOnPage.push(this.props.assets[i].id)
+    }
+    this.setState({
+      assetIDsOnPage: idsOnPage
+    })
+  }
+
   componentDidMount() {
-    this.loadAllAssetIDs();
+    this.loadAssetIDsOnPage();
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -68,31 +81,9 @@ export class InstanceTableMUI extends Component {
       console.log('going to asset tags page')
       this.setState({ redirectToAssetTagPage: true })
     }
-  }
 
-  loadAllAssetIDs = () => {
-    let dst = '/api/assets/all_ids/';
-    axios.get(dst).then(res => {
-      this.setState({
-        allAssetIDs: res.data.ids
-      });
-    })
-      .catch(function (error) {
-        // TODO: handle error
-        alert('Cannot load assets. Re-login.\n' + JSON.stringify(error.response, null, 2));
-      });
-  }
-
-  componentDidMount() {
-    this.loadAllAssetIDs();
-    this.setOfflineState();
-  }
-
-  setOfflineState = () => {
-    if(this.context.is_offline){
-      this.setState({
-        offline: true,
-      })
+    if (prevProps.assets !== this.props.assets) {
+      this.loadAssetIDsOnPage();
     }
   }
 
@@ -179,7 +170,7 @@ export class InstanceTableMUI extends Component {
   }
 
   showRerender = () => {
-    this.loadAllAssetIDs();
+    this.loadAssetIDsOnPage();
     this.props.sendRerender(true);
   }
 
@@ -277,7 +268,7 @@ export class InstanceTableMUI extends Component {
         </Collapse>
         <Tooltip title="Filter list">
           <Button endIcon={<FilterListIcon />} onClick={() => this.handleOpenFilters()} aria-label="filter instance list">
-            Filter
+
           </Button>
         </Tooltip>
       </Toolbar>
@@ -299,6 +290,8 @@ export class InstanceTableMUI extends Component {
       // { id: 'np', label: 'Network Ports' },
       // { id: 'pp', label: 'Power Ports' },
       { id: 'asset_number', label: 'Asset no.' },
+      { id: 'actions', label: 'Actions' },
+
     ];
 
     if(this.context.is_offline){
@@ -315,21 +308,38 @@ export class InstanceTableMUI extends Component {
     }
 
     return headCells.map(headCell => (
-      <TableCell
-        key={headCell.id}
-        align={'center'}
-        padding={'default'}
-
-      >
-        <TableSortLabel
-          active={this.state.sortBy === headCell.id}
-          hideSortIcon={!(this.state.sortBy === headCell.id)}
-          direction={this.state.sortBy === headCell.id ? this.state.sortType : false}
-          onClick={() => this.handleHeaderClickSort(headCell.id)}
+      headCell.id === 'actions' ?
+        <TableCell
+          key={headCell.id}
+          align={'center'}
+          padding={'default'}
+          rowSpan={4}
         >
-          {headCell.label.toUpperCase()}
-        </TableSortLabel>
-      </TableCell>
+          <TableSortLabel
+            active={this.state.sortBy === headCell.id}
+            hideSortIcon={!(this.state.sortBy === headCell.id)}
+            direction={this.state.sortBy === headCell.id ? this.state.sortType : false}
+          // onClick={() => this.handleHeaderClickSort(headCell.id)}
+          >
+            {headCell.label.toUpperCase()}
+          </TableSortLabel>
+        </TableCell>
+        :
+        <TableCell
+          key={headCell.id}
+          align={'center'}
+          padding={'default'}
+
+        >
+          <TableSortLabel
+            active={this.state.sortBy === headCell.id}
+            hideSortIcon={!(this.state.sortBy === headCell.id)}
+            direction={this.state.sortBy === headCell.id ? this.state.sortType : false}
+            onClick={() => this.handleHeaderClickSort(headCell.id)}
+          >
+            {headCell.label.toUpperCase()}
+          </TableSortLabel>
+        </TableCell>
     ))
   }
 
@@ -462,6 +472,7 @@ export class InstanceTableMUI extends Component {
               checked={this.state.selected.includes(id)}
               onChange={(e) => this.onSelectCheckboxClick(id, e)}
               inputProps={{ 'aria-labelledby': id }}
+              size={'small'}
             />
           </TableCell>
           <TableCell align="center">{rack ? rack.rack_number : null}</TableCell>
@@ -477,7 +488,7 @@ export class InstanceTableMUI extends Component {
           <TableCell align="center">{power_ports ? power_ports.length : null}</TableCell> */}
           <TableCell align="center">{asset_number}</TableCell>
           <div>
-            <TableCell align="right">
+            <TableCell align="right" >
               <Link to={{
                 pathname: '/assets/' + id,
                 state: {
@@ -490,6 +501,7 @@ export class InstanceTableMUI extends Component {
                   </IconButton>
                 </Tooltip>
               </Link>
+
             </TableCell>
 
             {
@@ -511,6 +523,7 @@ export class InstanceTableMUI extends Component {
                         </IconButton>
                       </Tooltip>
                     </Link>
+
                   </TableCell>) : <div></div>
             }
             {
@@ -525,6 +538,7 @@ export class InstanceTableMUI extends Component {
                         <BlockIcon />
                       </IconButton>
                     </Tooltip>
+
                   </TableCell>
                 ) : <div></div>
             }
@@ -540,6 +554,7 @@ export class InstanceTableMUI extends Component {
                         <DeleteIcon />
                       </IconButton>
                     </Tooltip>
+
                   </TableCell>
                 ) : <div></div>
             }
@@ -552,15 +567,16 @@ export class InstanceTableMUI extends Component {
   }
 
   onSelectAllCheckboxClick = () => {
+    let firstArrayIncludesAllElementsOfSecond = (arr, target) => target.every(v => arr.includes(v));
     console.log('select all')
-
-    if (this.state.selected.length === this.state.allAssetIDs.length || this.state.allAssetIDs.length === 0) {
+    if (firstArrayIncludesAllElementsOfSecond(this.state.selected, this.state.assetIDsOnPage) && this.state.selected.length != 0) {
       this.setState({ selected: [] })
     }
     else {
-      console.log(this.state.allAssetIDs)
-      let allIDs = Object.assign([], this.state.allAssetIDs)
-      this.setState({ selected: allIDs })
+      let newSelected = Object.assign([], this.state.assetIDsOnPage)
+      let allSelectedWithDuplicates = newSelected.concat(this.state.selected)
+      let allSelected = allSelectedWithDuplicates.filter((item, pos) => allSelectedWithDuplicates.indexOf(item) === pos)
+      this.setState({ selected: allSelected })
     }
     console.log(this.state.selected)
   }
@@ -584,6 +600,10 @@ export class InstanceTableMUI extends Component {
   }
 
   render() {
+    console.log(this.props.assets)
+    console.log(this.state.assetIDsOnPage)
+    console.log(this.state.selected)
+    let firstArrayIncludesAllElementsOfSecond = (arr, target) => target.every(v => arr.includes(v));
     console.log(this.state.assetLabelTableGenerationData)
     if (this.state.redirectToAssetTagPage) {
       return <Redirect to={{
@@ -609,14 +629,16 @@ export class InstanceTableMUI extends Component {
                       size="small"
                       aria-labelledby="instanceTableTitle"
                       aria-label="instanceTable"
+                      padding={'none'}
                     >
                       <TableRow>
                         <TableCell padding="checkbox">
                           <Checkbox
                             //indeterminate={numSelected > 0 && numSelected < rowCount}
-                            checked={this.state.selected.length === this.state.allAssetIDs.length && this.state.selected.length != 0}
+                            checked={firstArrayIncludesAllElementsOfSecond(this.state.selected, this.state.assetIDsOnPage) && this.state.selected.length != 0}
                             onChange={this.onSelectAllCheckboxClick}
                             inputProps={{ 'aria-label': 'select all desserts' }}
+                            size={'small'}
                           />
                         </TableCell>
                         {this.renderTableHeader()}
