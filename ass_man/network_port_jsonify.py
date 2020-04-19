@@ -13,10 +13,11 @@ def restructure_net_port_data(graph_serializer):
     master_data = graph_serializer.data
     data = graph_serializer.data
 
+    root_rn = data.get("rack").get("rack_number") if data.get("rack") else ""
     root = {
         "id": data.get("id"),
         "hostname": data.get("hostname"),
-        "location": "Rack {} U{}".format(data.get("rack").get("rack_number"), data.get("rack_u"))
+        "location": "Rack {} U{}".format(root_rn, data.get("rack_u"))
     }
 
     assets.append(root)
@@ -30,10 +31,11 @@ def restructure_net_port_data(graph_serializer):
         if c:
             data = c.get("asset")
             if data and (data.get("id") not in seen_asset_ids):
+                a2_rn = data.get("rack").get("rack_number") if data.get("rack") else ""
                 a2 = {
                     "id": data.get("id"),
                     "hostname": data.get("hostname"),
-                    "location": "Rack {} U{}".format(data.get("rack").get("rack_number"), data.get("rack_u"))
+                    "location": "Rack {} U{}".format(a2_rn, data.get("rack_u"))
                 }
                 assets.append(a2)
                 nodes.append({
@@ -58,10 +60,11 @@ def restructure_net_port_data(graph_serializer):
         if c:
             data = c.get("asset")
             if data and (data.get("id") not in seen_asset_ids):
+                a1_rn = data.get("rack").get("rack_number") if data.get("rack") else ""
                 a1 = {
                     "id": data.get("id"),
                     "hostname": data.get("hostname"),
-                    "location": "Rack {} U{}".format(data.get("rack").get("rack_number"), data.get("rack_u"))
+                    "location": "Rack {} U{}".format(a1_rn, data.get("rack_u"))
                 }
                 assets.append(a1)
                 nodes.append({
