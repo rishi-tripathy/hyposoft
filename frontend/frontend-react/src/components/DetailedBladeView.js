@@ -10,6 +10,7 @@ import PageviewIcon from '@material-ui/icons/Pageview';
 import { Link } from 'react-router-dom'
 import axios from 'axios'
 import ChassisCard from './ChassisCard';
+import BladePowerManagement from './BladePowerManagement'
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
@@ -166,16 +167,19 @@ export class DetailedBladeView extends Component {
             </Grid>
             <Grid item alignContent='center' xs={12} />
             <Grid item alignContent='center' xs={12} />
-            <Grid item xs={6}>
+            <Grid item xs={12}>
               <Typography variant="h4">
                 Chassis
               </Typography>
-              <ChassisCard asset={[this.state.currentChassis]}/>
+              <Paper>
+                <ChassisCard asset={[this.state.currentChassis]} />
+              </Paper>
             </Grid>
             <Grid item xs={6}>
               <Typography variant="h4">
                 Power
               </Typography>
+              <BladePowerManagement />
             </Grid>
 
           </Grid>

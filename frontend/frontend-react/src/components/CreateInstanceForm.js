@@ -70,6 +70,8 @@ export class CreateInstanceForm extends Component {
       locationOptions: [],
       selectedLocationOption: null,
 
+      slotNumberOptions: [],
+      selectedSlotNumberOption: null,
       //override
       ovr_color: null,
       over_storage: null,
@@ -248,6 +250,24 @@ export class CreateInstanceForm extends Component {
       });
   }
 
+  loadSlotNumbers = () => {
+    // load array of free slot numbers
+    
+    const dst = '/api/assets/' + this.state.selectedLocationOption.id + '/chassis_slots/';
+    console.log(dst)
+    axios.get(dst).then(res => {
+      let myOptions = [];
+      for (let i = 0; i < res.data.length; i++) {
+        myOptions.push({ value: res.data[i], label: res.data[i].toString(), });
+      }
+      this.setState({ slotNumberOptions: myOptions });
+    })
+      .catch(function (error) {
+        // TODO: handle error
+        alert('Could not load racks. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+      });
+  }
+
   componentDidMount() {
     this.loadAssetNumber();
     this.loadModels();
@@ -294,6 +314,12 @@ export class CreateInstanceForm extends Component {
       if (this.state.selectedRackOption) {
         this.loadLeftAndRightPDUNames();
         this.loadFreePDUsAndSetDefaultConfigurations();
+      }
+    }
+
+    if (this.state.selectedLocationOption !== prevState.selectedLocationOption) {
+      if (this.state.selectedLocationOption) {
+        this.loadSlotNumbers();
       }
     }
   }
@@ -367,8 +393,12 @@ export class CreateInstanceForm extends Component {
       stateToSend.location = this.state.selectedLocationOption ? this.state.selectedLocationOption.id : null;
       stateToSend.model = this.state.selectedModelOption ? this.state.selectedModelOption.id : null;
       stateToSend.datacenter = this.state.selectedDatacenterOption ? this.state.selectedDatacenterOption.id : null;
+      stateToSend.slot_number = this.state.selectedSlotNumberOption ? this.state.selectedSlotNumberOption.value : null;
+
 
       var self = this;
+      console.log(JSON.stringify(stateToSend, null, 2))
+
       axios.post('/api/blades/', stateToSend)
         .then(function (response) {
           alert('Created successfully');
@@ -418,7 +448,11 @@ export class CreateInstanceForm extends Component {
   handleChangeDatacenter = (event, selectedDatacenterOption) => {
     this.setState({ selectedDatacenterOption });
     console.log(selectedDatacenterOption)
-  }
+  };
+
+  handleChangeSlotNumber = (event, selectedSlotNumberOption) => {
+    this.setState({ selectedSlotNumberOption });
+  };
 
   openNetworkPortConfigAndMAC = () => {
     let fieldList = [];
@@ -640,7 +674,7 @@ export class CreateInstanceForm extends Component {
                 </Grid>
 
                 <Grid item xs={6}>
-                  < TextField label="Chassis Slot"
+                  {/* < TextField label="Chassis Slot"
                     fullWidth
                     type="number"
                     disabled={this.state.currentMountType != 'blade'}
@@ -650,7 +684,21 @@ export class CreateInstanceForm extends Component {
                       this.setState({
                         asset: instanceCopy
                       })
-                    }} />
+                    }} /> */}
+                  <Autocomplete
+                    autoComplete
+                    autoHighlight
+                    autoSelect
+                    id="instance-create-slot-select"
+                    options={this.state.slotNumberOptions}
+                    getOptionLabel={option => option.label}
+                    onChange={this.handleChangeSlotNumber}
+                    value={this.state.selectedSlotNumberOption}
+                    disabled={this.state.selectedDatacenterOption === null || this.state.selectedLocationOption == null || this.state.currentMountType != 'blade'}
+                    renderInput={params => (
+                      <TextField {...params} label="Chassis slot number" fullWidth />
+                    )}
+                  />
                 </Grid>
                 <Grid item xs={6}>
                   {this.state.is_offline ? <p></p> : np_select}
