@@ -113,7 +113,7 @@ export class DetailedBladeView extends Component {
             <TableCell align="center">{model ? model.model_number : null}</TableCell>
             <TableCell align="center">{hostname}</TableCell>
             <TableCell align="center">{slot_number}</TableCell>
-            <TableCell align="center">{owner}</TableCell>
+            <TableCell align="center">{owner ? owner.username : null}</TableCell>
             <TableCell align="center">{asset_number}</TableCell>
           </TableRow>
         )
@@ -129,7 +129,7 @@ export class DetailedBladeView extends Component {
             <TableCell align="center">{model ? model.model_number : null}</TableCell>
             <TableCell align="center">{hostname}</TableCell>
             <TableCell align="center">{slot_number}</TableCell>
-            <TableCell align="center">{owner}</TableCell>
+            <TableCell align="center">{owner ? owner.username : null}</TableCell>
             <TableCell align="center">{asset_number}</TableCell>
           </TableRow>
         )

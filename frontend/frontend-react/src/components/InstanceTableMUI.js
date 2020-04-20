@@ -285,9 +285,9 @@ export class InstanceTableMUI extends Component {
       { id: 'slot_number', label: 'Slot No.' },
       { id: 'vendor', label: 'Vendor' },
       { id: 'model_number', label: 'Model Number' },
-      { id: 'override', label: 'Model Upgraded?' },
+      { id: 'override', label: 'Model Updated' },
       { id: 'hostname', label: 'Hostname' },
-      { id: 'datacenter', label: 'Datacenter' },
+      { id: 'datacenter', label: 'Site' },
       { id: 'owner', label: 'Owner' },
       // { id: 'np', label: 'Network Ports' },
       // { id: 'pp', label: 'Power Ports' },
@@ -302,7 +302,7 @@ export class InstanceTableMUI extends Component {
         { id: 'slot_number', label: 'Slot No.' },
         { id: 'model__vendor', label: 'Vendor' },
         { id: 'model_number', label: 'Model Number' },
-        { id: 'override', label: 'Model Upgraded?' },
+        { id: 'override', label: 'Model Updated' },
         { id: 'hostname', label: 'Hostname' },
         { id: 'datacenter', label: 'Site' },
         { id: 'owner', label: 'Owner' },
@@ -468,7 +468,7 @@ export class InstanceTableMUI extends Component {
                 ) ? (
                     < TableCell align="right">
                       < Tooltip title='Delete'>
-                        <IconButton size="sm" onClick={() => this.showDeleteForm(id)}>
+                        <IconButton size="sm" onClick={() => this.showDeleteForm(id, model.mount_type === 'blade')}>
                           <DeleteIcon />
                         </IconButton>
                       </Tooltip>
@@ -590,7 +590,7 @@ export class InstanceTableMUI extends Component {
                 ) ? (
                     < TableCell align="right">
                       < Tooltip title='Delete'>
-                        <IconButton size="sm" onClick={() => this.showDeleteForm(id)}>
+                        <IconButton size="sm" onClick={() => this.showDeleteForm(id, model.mount_type === 'blade')}>
                           <DeleteIcon />
                         </IconButton>
                       </Tooltip>
