@@ -18,6 +18,7 @@ from django.core.files.base import ContentFile
 from django.contrib.auth.models import User
 import re, requests, io
 from django.http import FileResponse, HttpResponse
+from django.db.models import Q
 # API
 from rest_framework import viewsets
 
@@ -92,15 +93,16 @@ class AllAssetViewSet(viewsets.ModelViewSet):
             serializer = self.get_serializer(queryset, many=True)
             return Response(serializer.data)
 
-        if not request.query_params.get('offline') == 'true':
-            queryset = self.filter_queryset(self.get_queryset()).exclude(is_offline=True)
-
-            page = self.paginate_queryset(queryset)
-            if page is not None:
-                serializer = self.get_serializer(page, many=True)
-                return self.get_paginated_response(serializer.data)
-            serializer = self.get_serializer(queryset, many=True)
-            return Response(serializer.data)
+            if not request.query_params.get('offline') == 'true':
+                queryset = self.filter_queryset(self.get_queryset()).filter(Q(datacenter=None) | Q(is_offline=False))#.exclude(is_offline=True)
+                print('yo')
+                print(len(queryset.all().filter(pk=71)))
+                page = self.paginate_queryset(queryset)
+                if page is not None:
+                    serializer = self.get_serializer(page, many=True)
+                    return self.get_paginated_response(serializer.data)
+                serializer = self.get_serializer(queryset, many=True)
+                return Response(serializer.data)
 
 
         return super().list(self, request, *args, **kwargs)
