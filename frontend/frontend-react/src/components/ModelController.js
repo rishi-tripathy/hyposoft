@@ -12,7 +12,7 @@ import SaveAltIcon from "@material-ui/icons/SaveAlt";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
 import { Link } from 'react-router-dom'
 import DatacenterContext from "./DatacenterContext";
-
+import { jsonToHumanText } from './Helpers'
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
@@ -148,7 +148,7 @@ export class ModelController extends Component {
       return;
     }
     this.fileUpload(this.state.file).then((response) => {
-      alert("Import was successful.\n" + JSON.stringify(response.data, null, 2));
+      alert("Import was successful.\n" + jsonToHumanText(response.data));
     })
       .catch(function (error) {
         console.log(error.response)
@@ -164,13 +164,13 @@ export class ModelController extends Component {
           return post(url, formData, config)
         }
 
-        if (window.confirm("Import was not successful.\n" + JSON.stringify(error.response.data, null, 2))) {
+        if (window.confirm("Import was not successful.\n" + jsonToHumanText(error.response.data))) {
           fileUploadOverride(f).then((response) => {
-            alert("Import was successful.\n" + JSON.stringify(response.data, null, 2));
+            alert("Import was successful.\n" + jsonToHumanText(response.data));
           })
             .catch(function (error) {
               console.log(error.response)
-              alert("Import was not successful.\n" + JSON.stringify(error.response.data, null, 2));
+              alert("Import was not successful.\n" + jsonToHumanText(error.response.data));
             });
         }
       });

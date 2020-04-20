@@ -468,35 +468,45 @@ export class InstanceController extends Component {
 
     ) : <div></div>;
 
-    let imp = (this.context.is_admin || this.context.username === 'admin' || this.context.asset_permission) ? (
-      <>
-        <Button variant="outlined" component="span" startIcon={<CloudUploadIcon />} onClick={this.handleImport}>
-          Import Assets
+    let imp = (
+      this.context.is_admin
+      || this.context.username === 'admin'
+      || this.context.global_asset_permission
+      || this.context.asset_permission.length != 0
+    ) ? (
+        <>
+          <Button variant="outlined" component="span" startIcon={<CloudUploadIcon />} onClick={this.handleImport}>
+            Import Assets
         </Button>
-        <input
-          accept="text/csv"
-          id="outlined-button-file"
-          multiple
-          type="file"
-          onChange={this.handleFileUpload}
-        />
-      </>
-    ) : <div></div>;
+          <input
+            accept="text/csv"
+            id="outlined-button-file"
+            multiple
+            type="file"
+            onChange={this.handleFileUpload}
+          />
+        </>
+      ) : <div></div>;
 
-    let importNetworkConnections = (this.context.is_admin || this.context.username === 'admin' || this.context.asset_permission) ? (
-      <>
-        <Button variant="outlined" component="span" startIcon={<SettingsEthernetIcon />} onClick={this.handleNPImport}>
-          Import Network Connections
+    let importNetworkConnections = (
+      this.context.is_admin
+      || this.context.username === 'admin'
+      || this.context.global_asset_permission
+      || this.context.asset_permission.length != 0
+    ) ? (
+        <>
+          <Button variant="outlined" component="span" startIcon={<SettingsEthernetIcon />} onClick={this.handleNPImport}>
+            Import Network Connections
         </Button>
-        <input
-          accept="text/csv"
-          id="outlined-button-file"
-          multiple
-          type="file"
-          onChange={this.handleNPFileUpload}
-        />
-      </>
-    ) : <div></div>;
+          <input
+            accept="text/csv"
+            id="outlined-button-file"
+            multiple
+            type="file"
+            onChange={this.handleNPFileUpload}
+          />
+        </>
+      ) : <div></div>;
 
     // if we're not on the table, then don't show pagination or filters or sorting
     if (!this.state.showTableView) {

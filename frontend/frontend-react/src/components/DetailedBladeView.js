@@ -176,10 +176,18 @@ export class DetailedBladeView extends Component {
               </Paper>
             </Grid>
             <Grid item xs={6}>
-              <Typography variant="h4">
-                Power
-              </Typography>
-              <BladePowerManagement />
+              {
+                this.state.currentChassis && this.state.currentChassis.model && this.state.currentChassis.model.vendor === 'BMI' ? (
+                  <div>
+                    <Typography variant="h4">Blade Power Management</Typography>
+                    <BladePowerManagement assetID={this.state.currentBladeID} />
+                  </div>
+
+                ) : (
+                  <div></div>
+                )
+              }
+
             </Grid>
 
           </Grid>

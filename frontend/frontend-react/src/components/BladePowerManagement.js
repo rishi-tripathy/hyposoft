@@ -33,98 +33,89 @@ export class BladePowerManagement extends Component {
   }
 
   handleStatusUpdate = () => {
-    // this.setState({ isLoading: true })
-    // const dst = '/api/assets/' + this.props.assetID + '/get_pp_status/';
-    // axios.get(dst).then(res => {
-    //   let statusArray = res.data.statuses
-    //   let out;
-    //   if (statusArray.indexOf('ON') > -1) {
-    //     out = 'ON'
-    //   }
-    //   else {
-    //     out = 'OFF'
-    //   }
-
-    //   this.setState({
-    //     status: out,
-    //     isLoading: false
-    //   });
-    // })
-    //   .catch(function (error) {
-    //     // TODO: handle error
-    //     alert('Could not load statuses.\n' + JSON.stringify(error.response.data, null, 2));
-    //     this.setState({ isLoading: false })
-    //   });
+    this.setState({ isLoading: true })
+    const dst = '/api/blades/' + this.props.assetID + '/get_power/';
+    axios.get(dst).then(res => {
+      this.setState({
+        status: res.data.status,
+        isLoading: false
+      });
+    })
+      .catch(function (error) {
+        // TODO: handle error
+        alert('Could not load statuses.\n' + JSON.stringify(error.response.data, null, 2));
+        this.setState({ isLoading: false })
+      });
   }
 
   handleOnToggle = () => {
-    // this.setState({ isLoading: true })
-    // const dst = '/api/assets/' + this.props.assetID + '/update_pp_state/';
-    // const onState = {}
-    // onState.status = 'ON'
-    // let self = this
-    // axios.post(dst, onState)
-    //   .then(function (response) {
-    //     alert('Toggle response below. A failure status may indicate that PDU Networkx 98 Pro is down\n' + JSON.stringify(response.data, null, 2));
-    //     self.setState({ isLoading: false })
-    //   })
-    //   .catch(function (error) {
-    //     alert('Toggle was not successful (on).\n' + JSON.stringify(error.response.data, null, 2));
-    //     //this.setState({ isLoading: false })
-    //   });
-    // this.setState({ isLoading: false })
-    // this.handleStatusUpdate()
+    this.setState({ isLoading: true })
+    const dst = '/api/blades/' + this.props.assetID + '/set_power/';
+    const onState = {}
+    onState.status = 'on'
+    let self = this
+    axios.post(dst, onState)
+      .then(function (response) {
+        alert('Toggle response below. A failure status may indicate that BCMAN is down\n' + JSON.stringify(response.data, null, 2));
+        self.setState({ isLoading: false })
+      })
+      .catch(function (error) {
+        alert('Toggle was not successful (on).\n' + JSON.stringify(error.response.data, null, 2));
+        //this.setState({ isLoading: false })
+      });
+    this.setState({ isLoading: false })
+    this.handleStatusUpdate()
   }
 
   handleOffToggle = () => {
-    // this.setState({ isLoading: true })
-    // const dst = '/api/assets/' + this.props.assetID + '/update_pp_state/';
-    // const offState = {}
-    // offState.status = 'OFF'
-    // let self = this
-    // axios.post(dst, offState)
-    //   .then(function (response) {
-    //     alert('Toggle response below. A failure status may indicate that PDU Networkx 98 Pro is down\n' + JSON.stringify(response.data, null, 2));
-    //     self.setState({ isLoading: false })
-    //   })
-    //   .catch(function (error) {
-    //     alert('Toggle was not successful (off).\n' + JSON.stringify(error.response.data, null, 2));
-    //     //this.setState({ isLoading: false })
-    //   });
-    // this.setState({ isLoading: false })
-    // this.handleStatusUpdate()
+    this.setState({ isLoading: true })
+    const dst = '/api/blades/' + this.props.assetID + '/set_power/';
+    const offState = {}
+    offState.status = 'off'
+    let self = this
+    axios.post(dst, offState)
+      .then(function (response) {
+        alert('Toggle response below. A failure status may indicate that PDU Networkx 98 Pro is down\n' + JSON.stringify(response.data, null, 2));
+        self.setState({ isLoading: false })
+      })
+      .catch(function (error) {
+        alert('Toggle was not successful (off).\n' + JSON.stringify(error.response.data, null, 2));
+        //this.setState({ isLoading: false })
+      });
+    this.setState({ isLoading: false })
+    this.handleStatusUpdate()
   }
 
   handleCycleToggle = () => {
-    // this.setState({ isLoading: true })
-    // const offState = {}
-    // offState.status = 'OFF'
-    // const onState = {}
-    // onState.status = 'ON'
-    // const dst = '/api/assets/' + this.props.assetID + '/update_pp_state/';
-    // let self = this
-    // const delay = 2000;
-    // //https://stackoverflow.com/questions/38956121/how-to-add-delay-to-promise-inside-then
-    // //this link saved my butt
-    // axios.post(dst, offState)
-    //   .then((res) => {
-    //     self.handleStatusUpdate()
-    //     return axios.post(dst, onState);
+    this.setState({ isLoading: true })
+    const offState = {}
+    offState.action = 'off'
+    const onState = {}
+    onState.action = 'on'
+    const dst = '/api/blades/' + this.props.assetID + '/set_power/';
+    let self = this
+    const delay = 2000;
+    //https://stackoverflow.com/questions/38956121/how-to-add-delay-to-promise-inside-then
+    //this link saved my butt
+    axios.post(dst, offState)
+      .then((res) => {
+        self.handleStatusUpdate()
+        return axios.post(dst, onState);
 
-    //   })
-    //   .then(sleeper(delay))
-    //   .then((res) => {
-    //     alert('Toggle response below. A failure status may indicate that PDU Networkx 98 Pro is down\n' + JSON.stringify(res.data, null, 2));
-    //     self.setState({ isLoading: false })
-    //     self.handleStatusUpdate()
-    //   })
-    //   .catch((err) => {
-    //     // handle err
-    //     alert('Toggle was un-successful.\n' + JSON.stringify(err.response.data, null, 2));
-    //     self.handleStatusUpdate()
-    //     self.setState({ isLoading: false })
-    //   });
-    // this.setState({ isLoading: false })
+      })
+      .then(sleeper(delay))
+      .then((res) => {
+        alert('Toggle response below. A failure status may indicate that PDU Networkx 98 Pro is down\n' + JSON.stringify(res.data, null, 2));
+        self.setState({ isLoading: false })
+        self.handleStatusUpdate()
+      })
+      .catch((err) => {
+        // handle err
+        alert('Toggle was un-successful.\n' + JSON.stringify(err.response.data, null, 2));
+        self.handleStatusUpdate()
+        self.setState({ isLoading: false })
+      });
+    this.setState({ isLoading: false })
   };
 
 

@@ -87,20 +87,24 @@ export class UserTableMUI extends Component {
       let currentUserAssetPermission;
       let currentUserPowerPermission;
       let currentUserAuditPermission;
+      let currentUserGlobalAssetPermission;
 
       if (this.props.usersPermissions.length != 0) {
         //console.log(this.props.usersPermissions)
         this.props.usersPermissions.forEach((userObject) => {
+          //console.log(userObject)
           if (userObject.user_id === id) {
             currentUserModelPermission = userObject.model_permission
             currentUserAssetPermission = userObject.asset_permission
             currentUserPowerPermission = userObject.power_permission
             currentUserAuditPermission = userObject.log_permission
+            currentUserGlobalAssetPermission = userObject.global_asset
           }
         })
       }
 
-
+      let datacenterDisplayString = currentUserAssetPermission ? currentUserAssetPermission.length : 0
+      datacenterDisplayString += ' datacenter(s)'
 
       return (
         <TableRow
@@ -120,7 +124,7 @@ export class UserTableMUI extends Component {
               //<div>
               <React.Fragment>
                 <TableCell align="center">{currentUserModelPermission ? currentUserModelPermission.toString() : null}</TableCell>
-                <TableCell align="center">{currentUserAssetPermission ? currentUserAssetPermission.length : 0} datacenters</TableCell>
+                <TableCell align="center">{currentUserGlobalAssetPermission === 'true' ? 'GLOBAL' : datacenterDisplayString }</TableCell>
                 <TableCell align="center">{currentUserPowerPermission ? currentUserPowerPermission.toString() : null}</TableCell>
                 <TableCell align="center">{currentUserAuditPermission ? currentUserAuditPermission.toString() : null}</TableCell>
               </React.Fragment>
