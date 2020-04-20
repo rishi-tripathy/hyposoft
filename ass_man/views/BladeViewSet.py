@@ -48,6 +48,20 @@ class BladeViewSet(viewsets.ModelViewSet):
 
     ordering = ['hostname']
 
+    def get_serializer_context(self):
+        context = super(BladeViewSet, self).get_serializer_context()
+        try:
+            method = self.request.method
+        except:
+            method = ''
+        context['method'] = method
+        try:
+            hostname = self.get_object().hostname
+        except:
+            hostname = ''
+        context['hostname'] = hostname
+        return context
+
     def get_serializer_class(self):
         if self.action == 'create' or self.action == 'update' or self.action == 'partial_update':
             serializer_class = BladeCreateSerializer

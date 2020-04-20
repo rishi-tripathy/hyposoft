@@ -978,7 +978,8 @@ export class CreateInstanceForm extends Component {
                       })
                     }} />
                 </Grid>
-                <Grid item xs={6}>
+
+                <Grid item xs={8}>
                   <Paper>
                     {this.renderTableToolbar()}
                     <TableContainer>
@@ -997,6 +998,8 @@ export class CreateInstanceForm extends Component {
                     </TableContainer>
                   </Paper>
                 </Grid>
+                <Grid item xs={4}></Grid>
+                <Grid item xs={8}></Grid>
                 <Grid item xs={2}>
                   <Tooltip title='Submit'>
                     <Button variant="contained" type="submit" color="primary" endIcon={<AddCircleIcon />}
