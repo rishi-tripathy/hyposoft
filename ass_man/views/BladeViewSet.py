@@ -1,3 +1,4 @@
+from paramiko import AutoAddPolicy, SSHClient
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
@@ -5,7 +6,6 @@ from django.core.exceptions import ObjectDoesNotExist
 # API
 from rest_framework import viewsets
 from ass_man.serializers.blade_serializer import BladeServerSerializer, BladeCreateSerializer
-import paramiko
 import time
 import re
 import os
@@ -76,8 +76,8 @@ class BladeViewSet(viewsets.ModelViewSet):
         ip = 'hyposoft-mgt.colab.duke.edu'
         username = os.getenv('BCMAN_UN')
         password = os.getenv('BCMAN_PW')
-        ssh = paramiko.SSHClient()
-        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        ssh = SSHClient()
+        ssh.set_missing_host_key_policy(AutoAddPolicy())
         try:
             ssh.connect(ip, username=username, password=password, port=2222,
                         look_for_keys=False, allow_agent=False)
@@ -104,8 +104,8 @@ class BladeViewSet(viewsets.ModelViewSet):
         ip = 'hyposoft-mgt.colab.duke.edu'
         username = os.getenv('BCMAN_UN')
         password = os.getenv('BCMAN_PW')
-        ssh = paramiko.SSHClient()
-        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        ssh = SSHClient()
+        ssh.set_missing_host_key_policy(AutoAddPolicy())
         try:
             ssh.connect(ip, username=username, password=password, port=2222,
                         look_for_keys=False, allow_agent=False)
