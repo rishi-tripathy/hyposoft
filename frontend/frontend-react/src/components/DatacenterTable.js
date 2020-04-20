@@ -36,7 +36,7 @@ export class DatacenterTable extends Component {
               window.location = '/';
             })
             .catch(function (error) {
-              alert('Delete was not successful.\n' + JSON.stringify(error.response.data, null, 2));
+              alert('Delete was not successful.\n Check datacenter or offline storage site for racks and assets');
             });
         }
       }

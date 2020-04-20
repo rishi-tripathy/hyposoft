@@ -13,6 +13,7 @@ import { Redirect, Link } from 'react-router-dom'
 import CancelIcon from '@material-ui/icons/Cancel';
 import NetworkPortConnectionDialog from './NetworkPortConnectionDialog';
 import PowerPortConnectionDialog from './PowerPortConnectionDialog';
+import DatacenterContext from './DatacenterContext';
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
@@ -70,6 +71,7 @@ export class EditNewAssetForm extends Component {
       ppConnections: [],
 
       redirect: false,
+      is_offline: false,
     }
   }
 
@@ -150,7 +152,8 @@ export class EditNewAssetForm extends Component {
     axios.get(dst).then(res => {
       let myOptions = [];
       for (let i = 0; i < res.data.length; i++) {
-        myOptions.push({ value: res.data[i].url, label: res.data[i].vendor + ' ' + res.data[i].model_number, id: res.data[i].id });
+        console.log(res.data[i])
+        myOptions.push({ value: res.data[i].url, label: res.data[i].vendor + ' ' + res.data[i].model_number, id: res.data[i].id, mountType: res.data[i].mount_type });
       }
       this.setState({
         modelOptions: myOptions,
@@ -214,7 +217,7 @@ export class EditNewAssetForm extends Component {
       let myOptions = [];
       for (let i = 0; i < res.data.length; i++) {
         //TODO: change value to URL
-        myOptions.push({ value: res.data[i].url, label: res.data[i].abbreviation, id: res.data[i].id });
+        myOptions.push({ value: res.data[i].url, label: res.data[i].abbreviation, id: res.data[i].id, is_offline: res.data[i].is_offline });
       }
       this.setState({ 
         datacenterOptions: myOptions,
@@ -222,6 +225,7 @@ export class EditNewAssetForm extends Component {
             value: this.state.asset.datacenter ? this.state.asset.datacenter.url : null,
             label: this.state.asset.datacenter ? this.state.asset.datacenter.abbreviation : null,
             id: this.state.asset.datacenter ? this.state.asset.datacenter.id : null,
+            is_offline: this.state.asset.datacenter ? this.state.assetChanged.datacenter.is_offline: null,
           } });
     })
       .catch(function (error) {
@@ -300,6 +304,7 @@ export class EditNewAssetForm extends Component {
           instanceCopy.id = this.props.match.params.cpAssId;
           this.setState({
             asset: instanceCopy,
+            is_offline: res.data.datacenter.is_offline,
           })
       })
       .catch(function (error) {
@@ -400,6 +405,9 @@ export class EditNewAssetForm extends Component {
       .then(function (response) {
         alert('Created successfully');
         //this.postNP();
+        this.setState({
+          redirect: true,
+        })
         // this.postPP();
       })
       .catch(function (error) {
@@ -456,7 +464,8 @@ export class EditNewAssetForm extends Component {
   };
 
   handleChangeDatacenter = (event, selectedDatacenterOption) => {
-    this.setState({ selectedDatacenterOption });
+    this.setState({ selectedDatacenterOption: selectedDatacenterOption,
+    is_offline: selectedDatacenterOption.is_offline });
     console.log(selectedDatacenterOption)
   }
 
@@ -498,6 +507,61 @@ export class EditNewAssetForm extends Component {
 
 
   render() {
+
+    let rack_select = 
+    <Grid item xs={6}>
+    <Autocomplete
+      autoComplete
+      autoHighlight
+      autoSelect
+      id="instance-create-rack-select"
+      options={this.state.rackOptions}
+      getOptionLabel={option => option.label}
+      onChange={this.handleChangeRack}
+      value={this.state.selectedRackOption}
+      disabled={this.state.selectedDatacenterOption === null}
+      renderInput={params => (
+        <TextField {...params} label="Rack" fullWidth />
+      )}
+    />
+  </Grid>;
+
+  let rackU_select =
+  <Grid item xs={6}>
+    < TextField label="Rack U"
+      fullWidth
+      type="number"
+      value={this.state.asset.rack_u}
+      onChange={e => {
+        let instanceCopy = JSON.parse(JSON.stringify(this.state.asset))
+        instanceCopy.rack_u = e.target.value
+        this.setState({
+          asset: instanceCopy
+        })
+      }} />
+  </Grid>;
+
+    let options2 = this.state.datacenterOptions;
+    let options = options2.map((option) => {
+      let firstLetter = option.is_offline;
+      // console.log(firstLetter);
+        return {
+          firstLetter: /true/.test(firstLetter) ? "Offline Sites" : "Datacenters",
+          ...option
+        };
+    })
+
+    let groupedModelOptions = this.state.modelOptions;
+    // console.log(groupedModelOptions)
+    groupedModelOptions.map(modelOption => {
+      let mounts = modelOption.mountType.toString();
+      // console.log(mounts);
+        return {
+          mounts: /[0-9]/.test(mounts) ? "dumbshit" : modelOption.mountType.toString(),
+          ...modelOption
+        };
+      })
+
       console.log(this.state)
     return (
       <div>
@@ -513,13 +577,15 @@ export class EditNewAssetForm extends Component {
                   </Typography>
                 </Grid>
                 <Grid item xs={6}>
-                  <Autocomplete
+                <Autocomplete
                     autoComplete
                     autoHighlight
                     autoSelect
                     id="instance-create-model-select"
-                    options={this.state.modelOptions}
-                    getOptionLabel={option => option.label}
+                    getOptionDisabled={(modelOption) => modelOption.mountType==='blade'}
+                    options={groupedModelOptions/*.sort((a, b) => -b.mounts.localeCompare(a.mounts))*/}
+                    groupBy={modelOption => modelOption.mounts}
+                    getOptionLabel={modelOption => modelOption.label}
                     onChange={this.handleChangeModel}
                     value={this.state.selectedModelOption}
                     renderInput={params => (
@@ -528,7 +594,7 @@ export class EditNewAssetForm extends Component {
                   />
                 </Grid>
                 <Grid item xs={6}>
-                  <TextField label='Hostname' type="text" fullWidth onChange={e => {
+                  <TextField label='Hostname' type="text" fullWidth value={this.state.asset.hostname} onChange={e => {
                     let instanceCopy = JSON.parse(JSON.stringify(this.state.asset))
                     instanceCopy.hostname = e.target.value
                     this.setState({
@@ -538,17 +604,19 @@ export class EditNewAssetForm extends Component {
                 </Grid>
 
                 <Grid item xs={6}>
-                  <Autocomplete
+                <Autocomplete
                     autoComplete
                     autoHighlight
                     autoSelect
                     id="datacenter-select"
-                    options={this.state.datacenterOptions}
-                    getOptionLabel={option => option.label}
+
+                    options={options.sort((a, b) => -b.firstLetter.localeCompare(a.firstLetter))}
+                    groupBy={option => option.firstLetter}
+                    getOptionLabel={option => option.abbreviation}
                     onChange={this.handleChangeDatacenter}
                     value={this.state.selectedDatacenterOption}
                     renderInput={params => (
-                      <TextField {...params} label="Datacenter" fullWidth />
+                      <TextField {...params} label="DC/Offline Site" fullWidth />
                     )}
                   />
                 </Grid>
@@ -565,37 +633,8 @@ export class EditNewAssetForm extends Component {
                     })
                   }} />
                 </Grid>
-
-
-
-                <Grid item xs={6}>
-                  <Autocomplete
-                    autoComplete
-                    autoHighlight
-                    autoSelect
-                    id="instance-create-rack-select"
-                    options={this.state.rackOptions}
-                    getOptionLabel={option => option.label}
-                    onChange={this.handleChangeRack}
-                    value={this.state.selectedRackOption}
-                    disabled={this.state.selectedDatacenterOption === null}
-                    renderInput={params => (
-                      <TextField {...params} label="Rack" fullWidth />
-                    )}
-                  />
-                </Grid>
-                <Grid item xs={6}>
-                  < TextField label="Rack U"
-                    fullWidth
-                    type="number"
-                    onChange={e => {
-                      let instanceCopy = JSON.parse(JSON.stringify(this.state.asset))
-                      instanceCopy.rack_u = e.target.value
-                      this.setState({
-                        asset: instanceCopy
-                      })
-                    }} />
-                </Grid>
+                  {this.state.is_offline ? <p></p> : rack_select}
+                  {this.state.is_offline ? <p></p> : rackU_select}
 
                 <Grid item xs={6}>
                   <Paper>
@@ -678,5 +717,7 @@ export class EditNewAssetForm extends Component {
     )
   }
 }
+
+EditNewAssetForm.contextType = DatacenterContext;
 
 export default EditNewAssetForm

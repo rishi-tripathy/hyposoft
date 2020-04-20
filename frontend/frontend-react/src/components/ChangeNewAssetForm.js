@@ -13,6 +13,7 @@ import { Redirect, Link } from 'react-router-dom'
 import CancelIcon from '@material-ui/icons/Cancel';
 import NetworkPortConnectionDialog from './NetworkPortConnectionDialog';
 import PowerPortConnectionDialog from './PowerPortConnectionDialog';
+import DatacenterContext from './DatacenterContext';
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
@@ -70,7 +71,18 @@ export class ChangeNewAssetForm extends Component {
       ppConnections: [],
 
       redirect: false,
+      currentMountType: '',
     }
+  }
+
+  loadCurrentModelMountType = () => {
+    const dst = '/api/models/' + this.state.selectedModelOption.id + '/';
+    axios.get(dst).then(res => {
+      this.setState({ currentMountType: res.data.mount_type });
+    })
+      .catch(function (error) {
+        alert('Could not load model. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+      });
   }
 
   loadAssetNumber = () => {
@@ -115,7 +127,8 @@ export class ChangeNewAssetForm extends Component {
     axios.get(dst).then(res => {
       let myOptions = [];
       for (let i = 0; i < res.data.length; i++) {
-        myOptions.push({ value: res.data[i].url, label: res.data[i].vendor + ' ' + res.data[i].model_number, id: res.data[i].id });
+        console.log(res.data[i])
+        myOptions.push({ value: res.data[i].url, label: res.data[i].vendor + ' ' + res.data[i].model_number, id: res.data[i].id, mountType: res.data[i].mount_type });
       }
       this.setState({ modelOptions: myOptions });
     })
@@ -225,6 +238,7 @@ export class ChangeNewAssetForm extends Component {
       if (this.state.selectedModelOption) {
         this.loadNetworkPortInfoForCurrentlySelectedModel();
         this.loadNumberOfPowerPortsForModel();
+        this.loadCurrentModelMountType();
       }
       else {
         this.setState({ networkPortNamesForCurrentAsset: [], numberOfNetworkPortsForCurrentAsset: null });
@@ -233,10 +247,24 @@ export class ChangeNewAssetForm extends Component {
 
     if (prevState.selectedDatacenterOption !== this.state.selectedDatacenterOption) {
       if (this.state.selectedDatacenterOption) {
-        this.loadRacks();
+        // console.log(this.state.selectedDatacenterOption)
+        if(this.state.selectedDatacenterOption.is_offline){
+          this.setState({
+            is_offline: true,
+          })
+        // this.loadLocations();
+        }
+        else {
+          this.setState({
+            is_offline: false,
+          })
+          this.loadRacks();
+          // this.loadLocations();
+        }
       }
       else {
         this.setState({ rackOptions: [], selectedRackOption: null });
+        this.setState({ locationOptions: [], selectedLocationOption: null });
       }
     }
 
@@ -244,6 +272,12 @@ export class ChangeNewAssetForm extends Component {
       if (this.state.selectedRackOption) {
         this.loadLeftAndRightPDUNames();
         this.loadFreePDUsAndSetDefaultConfigurations();
+      }
+    }
+
+    if (this.state.selectedLocationOption !== prevState.selectedLocationOption) {
+      if (this.state.selectedLocationOption) {
+        this.loadSlotNumbers();
       }
     }
   }
@@ -411,6 +445,92 @@ export class ChangeNewAssetForm extends Component {
 
 
   render() {
+    console.log(this.state)
+
+    let rack_select = 
+      <Autocomplete
+        autoComplete
+        autoHighlight
+        autoSelect
+        id="instance-create-rack-select"
+        options={this.state.rackOptions}
+        getOptionLabel={option => option.label}
+        onChange={this.handleChangeRack}
+        value={this.state.selectedRackOption}
+        disabled={this.state.selectedDatacenterOption === null || this.state.currentMountType=="blade"}
+        renderInput={params => (
+          <TextField {...params} label="Rack" fullWidth />
+        )}
+    />;
+
+    let rackU_select = 
+      < TextField label="Rack U"
+        fullWidth
+        type="number"
+        disabled={this.state.selectedDatacenterOption === null || this.state.currentMountType=="blade"}
+        onChange={e => {
+          let instanceCopy = JSON.parse(JSON.stringify(this.state.asset))
+          instanceCopy.rack_u = e.target.value
+          this.setState({
+            asset: instanceCopy
+          })
+      }} />;
+
+      let np_select = 
+        <Paper>
+          <Typography variant="h6" gutterBottom>
+            Network Ports
+          </Typography>
+          <List style={{ maxHeight: 200, overflow: 'auto' }}>
+            {this.openNetworkPortConfigAndMAC()}
+          </List>
+      </Paper>;
+
+      let pp_select = 
+        <Paper>
+          <Typography variant="h6" gutterBottom>
+            Power Ports
+          </Typography>
+          <PowerPortConnectionDialog
+            sendPowerPortConnectionInfo={this.getPowerPortConnectionInfo}
+            numberOfPowerPorts={this.state.numberOfPowerPorts}
+            rackID={this.state.selectedRackOption ? this.state.selectedRackOption.id : null}
+            leftPPName={this.state.leftPPName}
+            rightPPName={this.state.rightPPName}
+            leftFree={this.state.leftFreePDUSlots}
+            rightFree={this.state.rightFreePDUSlots}
+            isDisabled={this.state.selectedRackOption === null || this.state.selectedModelOption === null}
+            currentPowerPortConfiguration={null}
+          />
+        </Paper>;
+
+        let options2 = this.context.datacenterOptions;
+        // console.log(options2)
+        options2 = options2.slice(1);
+        let options = options2.map((option) => {
+          let firstLetter = option.is_offline;
+          // console.log(firstLetter);
+            return {
+              firstLetter: /true/.test(firstLetter) ? "Offline Sites" : "Datacenters",
+              ...option
+            };
+        })
+
+        let groupedModelOptions = this.state.modelOptions;
+        // console.log(groupedModelOptions)
+        groupedModelOptions.map(modelOption => {
+          let mounts = modelOption.mountType.toString();
+          // console.log(mounts);
+            return {
+              mounts: /[0-9]/.test(mounts) ? "dumbshit" : modelOption.mountType.toString(),
+              ...modelOption
+            };
+          })
+
+
+    // console.log(this.state.currentMountType)
+    // console.log(this.state.locationOptions)
+
     return (
       <div>
         {this.state.redirect && <Redirect to={{ pathname: '/changeplans/'.concat(this.props.match.params.id) }} />}
@@ -424,14 +544,17 @@ export class ChangeNewAssetForm extends Component {
                     Create Asset
                   </Typography>
                 </Grid>
+
                 <Grid item xs={6}>
                   <Autocomplete
                     autoComplete
                     autoHighlight
                     autoSelect
                     id="instance-create-model-select"
-                    options={this.state.modelOptions}
-                    getOptionLabel={option => option.label}
+                    getOptionDisabled={(modelOption) => modelOption.mountType==='blade'}
+                    options={groupedModelOptions/*.sort((a, b) => -b.mounts.localeCompare(a.mounts))*/}
+                    groupBy={modelOption => modelOption.mounts}
+                    getOptionLabel={modelOption => modelOption.label}
                     onChange={this.handleChangeModel}
                     value={this.state.selectedModelOption}
                     renderInput={params => (
@@ -439,6 +562,7 @@ export class ChangeNewAssetForm extends Component {
                     )}
                   />
                 </Grid>
+
                 <Grid item xs={6}>
                   <TextField label='Hostname' type="text" fullWidth onChange={e => {
                     let instanceCopy = JSON.parse(JSON.stringify(this.state.asset))
@@ -449,95 +573,98 @@ export class ChangeNewAssetForm extends Component {
                   }} />
                 </Grid>
 
+                <Grid item xs={6} />
+
                 <Grid item xs={6}>
                   <Autocomplete
                     autoComplete
                     autoHighlight
                     autoSelect
                     id="datacenter-select"
-                    options={this.state.datacenterOptions}
-                    getOptionLabel={option => option.label}
+
+                    options={options.sort((a, b) => -b.firstLetter.localeCompare(a.firstLetter))}
+                    groupBy={option => option.firstLetter}
+                    getOptionLabel={option => option.abbreviation}
                     onChange={this.handleChangeDatacenter}
+                    defaultValue={this.context.datacenter}
                     value={this.state.selectedDatacenterOption}
                     renderInput={params => (
-                      <TextField {...params} label="Datacenter" fullWidth />
+                      <TextField {...params} label="DC/Offline Site" fullWidth />
                     )}
                   />
                 </Grid>
                 <Grid item xs={6}>
-                  <TextField label='Asset Number' 
-                    type="text" 
-                    fullWidth 
+                  <TextField label='Asset Number'
+                    type="text"
+                    fullWidth
                     InputLabelProps={{ shrink: true }}
                     value={this.state.asset.asset_number} onChange={e => {
-                    let instanceCopy = JSON.parse(JSON.stringify(this.state.asset))
-                    instanceCopy.asset_number = e.target.value
-                    this.setState({
-                      asset: instanceCopy
-                    })
-                  }} />
-                </Grid>
-
-
-
-                <Grid item xs={6}>
-                  <Autocomplete
-                    autoComplete
-                    autoHighlight
-                    autoSelect
-                    id="instance-create-rack-select"
-                    options={this.state.rackOptions}
-                    getOptionLabel={option => option.label}
-                    onChange={this.handleChangeRack}
-                    value={this.state.selectedRackOption}
-                    disabled={this.state.selectedDatacenterOption === null}
-                    renderInput={params => (
-                      <TextField {...params} label="Rack" fullWidth />
-                    )}
-                  />
-                </Grid>
-                <Grid item xs={6}>
-                  < TextField label="Rack U"
-                    fullWidth
-                    type="number"
-                    onChange={e => {
                       let instanceCopy = JSON.parse(JSON.stringify(this.state.asset))
-                      instanceCopy.rack_u = e.target.value
+                      instanceCopy.asset_number = e.target.value
                       this.setState({
                         asset: instanceCopy
                       })
                     }} />
                 </Grid>
 
-                <Grid item xs={6}>
-                  <Paper>
-                    <Typography variant="h6" gutterBottom>
-                      Network Ports
-                    </Typography>
-                    <List style={{ maxHeight: 200, overflow: 'auto' }}>
-                      {this.openNetworkPortConfigAndMAC()}
-                    </List>
-                  </Paper>
 
+
+                <Grid item xs={6}>
+                  {this.state.is_offline ? <p></p> : rack_select}
+                </Grid>
+                <Grid item xs={6}>
+                  {this.state.is_offline ? <p></p> : rackU_select}
+                </Grid>
+                <Grid item xs={6}>
+                  <Autocomplete
+                    autoComplete
+                    autoHighlight
+                    autoSelect
+                    id="instance-create-location-select"
+                    options={this.state.locationOptions}
+                    getOptionLabel={option => option.label}
+                    onChange={this.handleChangeLocation}
+                    value={this.state.selectedLocationOption}
+                    disabled={this.state.selectedDatacenterOption === null || this.state.currentMountType != 'blade'}
+                    renderInput={params => (
+                      <TextField {...params} label="Location" fullWidth />
+                    )}
+                  />
                 </Grid>
 
                 <Grid item xs={6}>
-                  <Paper>
-                    <Typography variant="h6" gutterBottom>
-                      Power Ports
-                    </Typography>
-                    <PowerPortConnectionDialog
-                      sendPowerPortConnectionInfo={this.getPowerPortConnectionInfo}
-                      numberOfPowerPorts={this.state.numberOfPowerPorts}
-                      rackID={this.state.selectedRackOption ? this.state.selectedRackOption.id : null}
-                      leftPPName={this.state.leftPPName}
-                      rightPPName={this.state.rightPPName}
-                      leftFree={this.state.leftFreePDUSlots}
-                      rightFree={this.state.rightFreePDUSlots}
-                      isDisabled={this.state.selectedRackOption === null || this.state.selectedModelOption === null}
-                      currentPowerPortConfiguration={null}
-                    />
-                  </Paper>
+                  {/* < TextField label="Chassis Slot"
+                    fullWidth
+                    type="number"
+                    disabled={this.state.currentMountType != 'blade'}
+                    onChange={e => {
+                      let instanceCopy = JSON.parse(JSON.stringify(this.state.asset))
+                      instanceCopy.slot_number = e.target.value
+                      this.setState({
+                        asset: instanceCopy
+                      })
+                    }} /> */}
+                  <Autocomplete
+                    autoComplete
+                    autoHighlight
+                    autoSelect
+                    id="instance-create-slot-select"
+                    options={this.state.slotNumberOptions}
+                    getOptionLabel={option => option.label}
+                    onChange={this.handleChangeSlotNumber}
+                    value={this.state.selectedSlotNumberOption}
+                    disabled={this.state.selectedDatacenterOption === null || this.state.selectedLocationOption == null || this.state.currentMountType != 'blade'}
+                    renderInput={params => (
+                      <TextField {...params} label="Chassis slot number" fullWidth />
+                    )}
+                  />
+                </Grid>
+                <Grid item xs={6}>
+                  {this.state.is_offline ? <p></p> : np_select}
+                </Grid>
+
+                <Grid item xs={6}>
+                  {this.state.is_offline ? <p></p> : pp_select}
                 </Grid>
 
                 <Grid item xs={6}>
@@ -568,6 +695,27 @@ export class ChangeNewAssetForm extends Component {
                       })
                     }} />
                 </Grid>
+
+                {/* {/*add model upgrades in below if you have time  */}
+                {/* <Grid item xs={6}>
+                <Paper>
+                  {this.renderTableToolbar()}
+                  <TableContainer>
+                    <Table
+                      size="small"
+                      aria-labelledby="modelTableTitle"
+                      aria-label="enhanced table"
+                    >
+                      <TableRow>{this.renderTableHeader()}</TableRow>
+
+                      <TableBody textAlign='center' >
+                        {this.renderCheckRow()}
+                        {this.renderTableData()}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                </Paper>
+                </Grid> */}
                 <Grid item xs={2}>
                   <Tooltip title='Submit'>
                     <Button variant="contained" type="submit" color="primary" endIcon={<AddCircleIcon />}
@@ -576,7 +724,7 @@ export class ChangeNewAssetForm extends Component {
                   </Tooltip>
                 </Grid>
                 <Grid item xs={2}>
-                <Link to={'/changeplans/'.concat(this.props.match.params.id) }>
+                  <Link to={'/assets'}>
                     <Tooltip title='Cancel'>
                       <Button variant="outlined" type="submit" color="primary" endIcon={<CancelIcon />}>Cancel</Button>
                     </Tooltip>
@@ -590,5 +738,7 @@ export class ChangeNewAssetForm extends Component {
     )
   }
 }
+
+ChangeNewAssetForm.contextType = DatacenterContext;
 
 export default ChangeNewAssetForm

@@ -38,6 +38,7 @@ export class DetailedChangePlan extends Component {
       selectedAsset: null,
       spinnerSpinning: false,
       exSpinnerSpinning: false,
+      is_offline: false,
     };
     this.open = this.open.bind(this);
     this.close = this.close.bind(this);
@@ -72,6 +73,7 @@ export class DetailedChangePlan extends Component {
           console.log(res2)
           this.setState({
             datacenterAbbreviation: res2.data.abbreviation,
+            is_offline: res2.data.is_offline,
           })
         })
         .catch(function (error1) {
@@ -102,7 +104,13 @@ export class DetailedChangePlan extends Component {
 
   loadExistingAssetsInDatacenter= () => {
     //get assets from dc
-    let dst = '/api/assets/?datacenter=' + this.state.datacenter + '&show_all=true';
+    let dst = '';
+    if(this.state.is_offline){
+     dst = '/api/all_assets/?datacenter=' + this.state.datacenter + '&show_all=true&offline=true';
+    }
+    else{
+      dst = '/api/all_assets/?datacenter=' + this.state.datacenter + '&show_all=true';
+    }
     console.log(dst)
 
     axios.get(dst).then(res => {
@@ -330,8 +338,9 @@ export class DetailedChangePlan extends Component {
                         id="cp-existing-asset-select"
                         //noOptionsText="No existing assets in Datacenter"
                         options={this.state.assetOptions}
-                        getOptionLabel={(option) => option.hostname}
+                        getOptionLabel={(option) => option.asset ? option.asset.hostname : option.bladeserver.hostname}
                         onChange={this.handleChangeAsset}
+                        getOptionDisabled={(option) => option.bladeserver!==null}
                         // defaultValue={this.state.assetOptions[0]}
                         value={this.state.selectedAsset}
                         renderInput={(params) =>
