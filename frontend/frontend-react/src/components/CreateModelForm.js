@@ -41,7 +41,7 @@ export class CreateModelForm extends Component {
 
       redirect: false,
 
-      modelType: 'normal',
+      modelType: 'asset',
     }
   }
 

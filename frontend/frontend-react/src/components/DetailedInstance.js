@@ -242,7 +242,7 @@ export class DetailedInstance extends Component {
     console.log(this.context)
     console.log(this.props)
     console.log(this.state.asset)
-    console.log(this.state.installedBlades)
+    //console.log(this.state.installedBlades)
     const regex = /[a-e][0-1]?[0-9]$/
     //const { id, model, hostname, rack, rack_u, owner, comment } = this.state.asset;
 
@@ -384,7 +384,7 @@ export class DetailedInstance extends Component {
                 {
                   this.state.asset.model ? (
                     // FIXME: right now nobody can see asset graph, coz graph is broken for blades
-                    this.state.asset.model.mount_type === 'nothing' ?
+                    this.state.asset.model.mount_type !== 'blades' ?
                       (
                         <div>
                           <Typography variant="h4" gutterBottom>Asset Network Graph</Typography>
