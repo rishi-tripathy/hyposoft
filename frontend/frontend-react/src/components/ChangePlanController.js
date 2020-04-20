@@ -123,14 +123,12 @@ export class ChangePlanController extends Component {
                                     //   sendRerender={this.getRerender}/>
                                    /> </div>;
 
-        let add = this.context.is_admin ? (
+        let add = 
             <Link to={'/changeplans/create'}>
               <Button color="primary" variant="contained" endIcon={<AddCircleIcon/>}>
                 Add Change Plan
               </Button>
-            </Link>
-      
-          ) : <p></p>;      
+            </Link>;      
 
         let paginateNavigation = <p></p>;
         if (this.state.prevPage == null && this.state.nextPage != null) {

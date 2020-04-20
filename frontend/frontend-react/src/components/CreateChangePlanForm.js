@@ -22,14 +22,14 @@ export class CreateChangePlanForm extends Component {
         owner: null,
         name: null,
         datacenter: null,
-        datacenterOptions: [],
+        // datacenterOptions: [],
         selectedDataCenterOption: null,
         redirect: false,
     }
   }
 
   componentDidMount() {
-    this.loadDatacenters();
+    // this.loadDatacenters();
     console.log(this.context.user_id)
     this.setState({
       datacenter: '/api/datacenters/'.concat(this.context.datacenter_id).toString().concat('/'),
@@ -38,21 +38,21 @@ export class CreateChangePlanForm extends Component {
     console.log(this.state.datacenter)
   }
 
-  loadDatacenters = () => {
-    const dst = '/api/datacenters/?show_all=true';
-    axios.get(dst).then(res => {
-      let myOptions = [];
-      for (let i = 0; i < res.data.length; i++) {
-        //TODO: change value to URL
-        myOptions.push({ value: res.data[i].url, label: res.data[i].abbreviation, id: res.data[i].id });
-      }
-      this.setState({ datacenterOptions: myOptions });
-    })
-      .catch(function (error) {
-        // TODO: handle error
-        alert('Could not load owners. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
-      });
-  }
+  // loadDatacenters = () => {
+  //   const dst = '/api/datacenters/?show_all=true';
+  //   axios.get(dst).then(res => {
+  //     let myOptions = [];
+  //     for (let i = 0; i < res.data.length; i++) {
+  //       //TODO: change value to URL
+  //       myOptions.push({ value: res.data[i].url, label: res.data[i].abbreviation, id: res.data[i].id });
+  //     }
+  //     this.setState({ datacenterOptions: myOptions });
+  //   })
+  //     .catch(function (error) {
+  //       // TODO: handle error
+  //       alert('Could not load owners. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+  //     });
+  // }
 
  
   handleChangeDatacenter = (event, option) => {
@@ -103,6 +103,18 @@ export class CreateChangePlanForm extends Component {
       defVal = this.context.datacenter_ab;
     }
 
+    let options2 = this.context.datacenterOptions;
+    // console.log(options2)
+    options2 = options2.slice(1);
+    let options = options2.map((option) => {
+      let firstLetter = option.is_offline;
+      // console.log(firstLetter);
+        return {
+          firstLetter: /true/.test(firstLetter) ? "Offline Sites" : "Datacenters",
+          ...option
+        };
+    })
+
     return (
       <div>
         {this.state.redirect && <Redirect to={{ pathname: '/changeplans' }} />}
@@ -125,17 +137,20 @@ export class CreateChangePlanForm extends Component {
                   }}/>
                 </Grid>
                 <Grid item xs={6}>
-                  <Autocomplete
+                <Autocomplete
                     autoComplete
                     autoHighlight
                     autoSelect
                     id="datacenter-select"
-                    options={this.state.datacenterOptions}
-                    getOptionLabel={option => option.label}
+
+                    options={options.sort((a, b) => -b.firstLetter.localeCompare(a.firstLetter))}
+                    groupBy={option => option.firstLetter}
+                    getOptionLabel={option => option.abbreviation}
                     onChange={this.handleChangeDatacenter}
+                    defaultValue={this.context.datacenter}
                     value={this.state.selectedDatacenterOption}
                     renderInput={params => (
-                      <TextField {...params} label="Datacenter" fullWidth />
+                      <TextField {...params} label="DC/Offline Site" fullWidth />
                     )}
                   />
                 </Grid>
