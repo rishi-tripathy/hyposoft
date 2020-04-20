@@ -3,10 +3,12 @@ import axios from 'axios'
 import { Autocomplete } from "@material-ui/lab"
 import {
   Container, Button, Grid, TextField,
-  Typography, IconButton, Tooltip, List,
+  Typography, IconButton, Tooltip, List, FormControl, Input,
   ListSubheader, ListItem, ListItemText, Paper,
-  Divider,
+  Divider, Table, TableBody, TableCell, TableContainer, TableRow, Toolbar, TableFooter
 } from "@material-ui/core";
+import ToggleButton from '@material-ui/lab/ToggleButton';
+import CheckIcon from '@material-ui/icons/Check'
 import EditIcon from '@material-ui/icons/Edit';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
 import { Redirect, Link } from 'react-router-dom'
@@ -34,6 +36,10 @@ export class CreateInstanceForm extends Component {
         asset_number: null,
         network_ports: [],
         power_ports: [],
+        ovr_color: null,
+        ovr_memory: null,
+        ovr_cpu: null,
+        ovr_memory: null,
       },
 
       modelOptions: [],
@@ -64,6 +70,16 @@ export class CreateInstanceForm extends Component {
       rightPPName: null,
       ppConnections: [],
 
+      //changeable model fields for asset
+      selectedDisplayColor: null,
+      selectedMemory: null,
+      selectedCPU: null,
+      selectedStorage: null,
+      displayColorChecked: false,
+      memoryChecked:false,
+      storageChecked: false,
+      cpuChecked: false,
+
       redirect: false,
 
       currentMountType: '',
@@ -74,10 +90,7 @@ export class CreateInstanceForm extends Component {
       slotNumberOptions: [],
       selectedSlotNumberOption: null,
       //override
-      ovr_color: null,
-      over_storage: null,
-      ovr_cpu: null,
-      ovr_memory: null,
+      
     }
   }
 
@@ -234,12 +247,12 @@ export class CreateInstanceForm extends Component {
 
   loadLocations = () => {
     // locations are all chassis assets in a given DC
-    console.log(this.state.selectedDatacenterOption)
+    // console.log(this.state.selectedDatacenterOption)
     const dst = '/api/datacenters/' + this.state.selectedDatacenterOption.id + '/chassis/';
-    console.log(dst)
+    // console.log(dst)
     axios.get(dst).then(res => {
       let myOptions = [];
-      console.log(res.data)
+      // console.log(res.data)
       for (let i = 0; i < res.data.length; i++) {
         myOptions.push({ value: res.data[i].id, label: res.data[i].hostname + ' ' + res.data[i].asset_number, id: res.data[i].id });
       }
@@ -255,7 +268,7 @@ export class CreateInstanceForm extends Component {
     // load array of free slot numbers
     
     const dst = '/api/assets/' + this.state.selectedLocationOption.id + '/chassis_slots/';
-    console.log(dst)
+    // console.log(dst)
     axios.get(dst).then(res => {
       let myOptions = [];
       for (let i = 0; i < res.data.length; i++) {
@@ -290,7 +303,7 @@ export class CreateInstanceForm extends Component {
 
     if (prevState.selectedDatacenterOption !== this.state.selectedDatacenterOption) {
       if (this.state.selectedDatacenterOption) {
-        console.log(this.state.selectedDatacenterOption)
+        // console.log(this.state.selectedDatacenterOption)
         if(this.state.selectedDatacenterOption.is_offline){
           this.setState({
             is_offline: true,
@@ -354,7 +367,7 @@ export class CreateInstanceForm extends Component {
         obj.connection = connectionObj;
       }
 
-      console.log(obj)
+      // console.log(obj)
       networkPortsBuilder.push(this.removeEmptyRecursive(obj))
     }
 
@@ -366,38 +379,43 @@ export class CreateInstanceForm extends Component {
       }
     }
 
+    console.log(this.state.asset)
+
     let stateCopy = Object.assign({}, this.state.asset);
+    console.log(this.state.asset)
     stateCopy.model = this.state.selectedModelOption ? this.state.selectedModelOption.value : null;
-    console.log(this.state.selectedDatacenterOption)
+    // console.log(this.state.selectedDatacenterOption)
     stateCopy.datacenter = this.state.selectedDatacenterOption ? this.state.selectedDatacenterOption.url : null;
     stateCopy.rack = this.state.selectedRackOption ? this.state.selectedRackOption.value : null;
     stateCopy.owner = this.state.selectedOwnerOption ? this.state.selectedOwnerOption.value : null;
-    stateCopy.ovr_color = this.state.ovr_color ? this.state.ovr_color.value : null;
-    stateCopy.ovr_memory = this.state.ovr_memory ? this.state.ovr_memory.value : null;
-    stateCopy.ovr_cpu = this.state.ovr_cpu ? this.state.ovr_cpu.value : null;
-    stateCopy.ovr_storage = this.state.ovr_storage ? this.state.ovr_storage.value : null;
+    stateCopy.ovr_color = this.state.displayColorChecked&&this.state.selectedDisplayColor!==this.state.asset.ovr_color ? this.state.asset.ovr_color : null;
+    stateCopy.ovr_storage = this.state.storageChecked&&this.state.asset.ovr_storage!==this.state.selectedStorage ? this.state.asset.ovr_storage : null;
+    stateCopy.ovr_cpu = this.state.cpuChecked&&this.state.asset.ovr_cpu!==this.state.selectedCPU ? this.state.asset.ovr_cpu : null;
+    stateCopy.ovr_memory = this.state.memoryChecked&&this.state.asset.ovr_memory!==this.state.selectedMemory ? this.state.asset.ovr_memory : null;
     stateCopy.network_ports = networkPortsBuilder
     stateCopy.power_ports = tmpPP
+    
+    console.log(stateCopy)
+
     let stateToSend = this.removeEmpty(stateCopy);
     if(this.state.is_offline){
       stateToSend.rack = null;
       stateToSend.rack_u = null;
     }
-
-
     console.log(JSON.stringify(stateToSend, null, 2))
     //console.log(JSON.stringify(this.state, null, 2))
 
 
     if (this.state.currentMountType === 'blade') {
-
+      stateToSend.owner = this.state.selectedOwnerOption ? this.state.selectedOwnerOption.id : null;
       stateToSend.location = this.state.selectedLocationOption ? this.state.selectedLocationOption.id : null;
       stateToSend.model = this.state.selectedModelOption ? this.state.selectedModelOption.id : null;
       stateToSend.datacenter = this.state.selectedDatacenterOption ? this.state.selectedDatacenterOption.id : null;
       stateToSend.slot_number = this.state.selectedSlotNumberOption ? this.state.selectedSlotNumberOption.value : null;
 
-
       var self = this;
+    console.log('state to send blade')
+
       console.log(JSON.stringify(stateToSend, null, 2))
 
       axios.post('/api/blades/', stateToSend)
@@ -414,6 +432,9 @@ export class CreateInstanceForm extends Component {
     }
     else {
       var self = this;
+      console.log('state to send normal')
+
+      console.log(JSON.stringify(stateToSend, null, 2))
       axios.post('/api/assets/', stateToSend)
         .then(function (response) {
           alert('Created successfully');
@@ -432,6 +453,9 @@ export class CreateInstanceForm extends Component {
 
   handleChangeModel = (event, selectedModelOption) => {
     this.setState({ selectedModelOption });
+    setTimeout(() => {
+      this.loadChangeableModelFields();
+    }, 50);
   };
 
   handleChangeRack = (event, selectedRackOption) => {
@@ -448,7 +472,7 @@ export class CreateInstanceForm extends Component {
 
   handleChangeDatacenter = (event, selectedDatacenterOption) => {
     this.setState({ selectedDatacenterOption });
-    console.log(selectedDatacenterOption)
+    // console.log(selectedDatacenterOption)
   };
 
   handleChangeSlotNumber = (event, selectedSlotNumberOption) => {
@@ -491,8 +515,220 @@ export class CreateInstanceForm extends Component {
     return fieldList;
   }
 
+  loadChangeableModelFields = () => {
+    let modelURL = this.state.selectedModelOption.value
+    // console.log(modelURL)
+    axios.get(modelURL).then(res => {
+      // console.log(res.data)
+      let instanceCopy = JSON.parse(JSON.stringify(this.state.asset));
+      // if(!this.state.asset.ovr_color){
+        instanceCopy.ovr_color = res.data.display_color;
+      // }
+      this.setState({
+        asset: instanceCopy,
+        selectedDisplayColor: res.data.display_color,
+        selectedCPU: res.data.cpu,
+        selectedMemory: res.data.memory,
+        selectedStorage: res.data.storage,
+      });
+    })
+      .catch(function (error) {
+        alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+      });
+  }
+
+
+
+  renderTableToolbar = () => {
+    return (
+      <Toolbar>
+        {
+          <Typography style={{flex: '1 1 20%'}} variant="h6" id="modelFieldsTableTitle">
+            Edit Model Fields for this Asset
+          </Typography>
+        }
+      </Toolbar>
+    );
+  };
+
+  renderTableHeader() {
+    let headCells = [
+      {id: 'display_color', label: 'Color'},
+      {id: 'cpu', label: 'CPU'},
+      {id: 'memory', label: 'Memory'},
+      {id: 'storage', label: 'Storage'},
+    ];
+    return headCells.map(headCell => (
+      <TableCell
+        align={'center'}
+        padding={'default'}
+
+      >
+        {headCell.label.toUpperCase()}
+
+      </TableCell>
+    ))
+  }
+
+  renderCheckRow() {
+    let model = this.state.selectedModelOption;
+    
+    if(model== null){
+    }
+    else {
+      return(
+        <TableRow
+          hover
+          tabIndex={-1}
+        >
+          <TableCell align="center">
+            <ToggleButton
+              value="check"
+              selected={this.state.displayColorChecked}
+              onChange={() => {
+                this.setDisplayColorChecked();
+              }}
+            >
+              <CheckIcon />
+            </ToggleButton>
+            </TableCell>
+          <TableCell align="center">
+          <ToggleButton
+            value="check"
+            selected={this.state.cpuChecked}
+            onChange={() => {
+              this.setCpuChecked();
+            }}
+          >
+            <CheckIcon />
+          </ToggleButton>
+          </TableCell>
+          <TableCell align="center">
+            <ToggleButton
+              value="check"
+              selected={this.state.memoryChecked}
+              onChange={() => {
+                this.setMemoryChecked();
+              }}
+            >
+              <CheckIcon />
+            </ToggleButton>
+          </TableCell>
+          <TableCell align='center'>
+          <ToggleButton
+            value="check"
+            selected={this.state.storageChecked}
+            onChange={() => {
+              this.setStorageSelected();
+            }}
+          >
+            <CheckIcon />
+          </ToggleButton>
+          </TableCell>
+          </TableRow>
+      )
+    }
+  }
+
+  setStorageSelected = () => {
+    this.setState(prevState => ({
+      storageChecked: !prevState.storageChecked
+    }));
+  }
+
+  setDisplayColorChecked = () => {
+    this.setState(prevState => ({
+      displayColorChecked: !prevState.displayColorChecked
+    }));
+  }
+
+  setMemoryChecked = () => {
+    this.setState(prevState => ({
+      memoryChecked: !prevState.memoryChecked
+    }));
+  }
+
+  setCpuChecked = () => {
+    this.setState(prevState => ({
+      cpuChecked: !prevState.cpuChecked
+    }));
+  }
+
+  renderTableData() {
+    let model = this.state.selectedModelOption;
+
+    if (model == null) return (
+      <TableRow hover tabIndex={-1}>
+        <TableCell align="center" colSpan={12}>Select a Model</TableCell>
+      </TableRow>
+    )
+    // console.log(model)
+      return (
+        <TableRow
+          hover
+          tabIndex={-1}
+        >
+          <TableCell align="right">
+            {this.state.displayColorChecked ?
+            <FormControl fullWidth>
+            <Input type="color" name="Display Color" startAdornment="Display Color"
+              value={'#' + this.state.asset.ovr_color}
+              onChange={e => {
+                let instanceCopy = JSON.parse(JSON.stringify(this.state.asset))
+                instanceCopy.ovr_color = e.target.value.replace('#', '');
+                this.setState({
+                  asset: instanceCopy
+                })
+              }} />{' '}
+          </FormControl>
+            : 
+            <div style={{
+              width: 12,
+              height: 10,
+              backgroundColor: '#' + this.state.selectedDisplayColor,
+              left: 2,
+              top: 2,
+            }}></div>}
+            </TableCell>
+          <TableCell align="center">
+              {this.state.cpuChecked ? 
+               <TextField label='CPU' type="text" helperText="Describe the CPU" fullWidth onChange={e => {
+                let instanceCopy = JSON.parse(JSON.stringify(this.state.asset))
+                instanceCopy.ovr_cpu = e.target.value
+                this.setState({
+                  asset: instanceCopy
+                })
+              }} />
+              : this.state.selectedCPU}
+           </TableCell>
+          <TableCell align="center">
+            {this.state.memoryChecked ?
+           <TextField label='Memory' type="number" helperText="RAM available in GB" fullWidth onChange={e => {
+            let instanceCopy = JSON.parse(JSON.stringify(this.state.asset))
+            instanceCopy.ovr_memory = e.target.value
+            this.setState({
+              asset: instanceCopy
+            })
+          }} />
+          :
+          this.state.selectedMemory
+          }</TableCell>
+          <TableCell align="center">
+            {this.state.storageChecked ?
+             <TextField label='Storage' type="text" helperText="Describe the storage" fullWidth onChange={e => {
+              let instanceCopy = JSON.parse(JSON.stringify(this.state.asset))
+              instanceCopy.ovr_storage = e.target.value
+              this.setState({
+                asset: instanceCopy
+              })
+            }} />
+          : this.state.selectedStorage}</TableCell>
+      </TableRow>
+      )
+    }
 
   render() {
+    console.log(this.state)
 
     let rack_select = 
       <Autocomplete
@@ -552,11 +788,11 @@ export class CreateInstanceForm extends Component {
         </Paper>;
 
         let options2 = this.context.datacenterOptions;
-        console.log(options2)
+        // console.log(options2)
         options2 = options2.slice(1);
         let options = options2.map((option) => {
           let firstLetter = option.is_offline;
-          console.log(firstLetter);
+          // console.log(firstLetter);
             return {
               firstLetter: /true/.test(firstLetter) ? "Offline Sites" : "Datacenters",
               ...option
@@ -564,10 +800,10 @@ export class CreateInstanceForm extends Component {
         })
 
         let groupedModelOptions = this.state.modelOptions;
-        console.log(groupedModelOptions)
+        // console.log(groupedModelOptions)
         groupedModelOptions.map(modelOption => {
           let mounts = modelOption.mountType.toString();
-          console.log(mounts);
+          // console.log(mounts);
             return {
               mounts: /[0-9]/.test(mounts) ? "dumbshit" : modelOption.mountType.toString(),
               ...modelOption
@@ -581,6 +817,7 @@ export class CreateInstanceForm extends Component {
     return (
       <div>
         {this.state.redirect && <Redirect to={{ pathname: '/assets' }} />}
+
         <Container maxwidth="xl">
           <Grid container className='themed-container' spacing={2}>
             <Grid item alignContent='center' xs={12} />
@@ -591,6 +828,7 @@ export class CreateInstanceForm extends Component {
                     Create Asset
                   </Typography>
                 </Grid>
+
                 <Grid item xs={6}>
                   <Autocomplete
                     autoComplete
@@ -607,6 +845,7 @@ export class CreateInstanceForm extends Component {
                     )}
                   />
                 </Grid>
+
                 <Grid item xs={6}>
                   <TextField label='Hostname' type="text" fullWidth onChange={e => {
                     let instanceCopy = JSON.parse(JSON.stringify(this.state.asset))
@@ -616,6 +855,8 @@ export class CreateInstanceForm extends Component {
                     })
                   }} />
                 </Grid>
+
+                <Grid item xs={6} />
 
                 <Grid item xs={6}>
                   <Autocomplete
@@ -736,6 +977,25 @@ export class CreateInstanceForm extends Component {
                         asset: instanceCopy
                       })
                     }} />
+                </Grid>
+                <Grid item xs={6}>
+                <Paper>
+                  {this.renderTableToolbar()}
+                  <TableContainer>
+                    <Table
+                      size="small"
+                      aria-labelledby="modelTableTitle"
+                      aria-label="enhanced table"
+                    >
+                      <TableRow>{this.renderTableHeader()}</TableRow>
+
+                      <TableBody textAlign='center' >
+                        {this.renderCheckRow()}
+                        {this.renderTableData()}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                </Paper>
                 </Grid>
                 <Grid item xs={2}>
                   <Tooltip title='Submit'>

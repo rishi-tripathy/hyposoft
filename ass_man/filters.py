@@ -68,6 +68,12 @@ class AssetFilter(filters.FilterSet):
 
 class AllAssetFilterByRack(rest_filters.BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
+        #queryset = queryset.filter(datacenter__is_offline=False)
+        # if request.query_params.get('offline') is True:
+        #     return queryset.exclude(datacenter__is_offline=True)
+        # else:
+        #     queryset = queryset.exclude(datacenter__is_offline=True)
+
         if request.query_params.get('rack_num_start'):
             start_letter = request.query_params.get('rack_num_start')[0].upper() if request.query_params.get(
                 'rack_num_start') else 'A'
@@ -91,8 +97,15 @@ class AllAssetFilterByRack(rest_filters.BaseFilterBackend):
 
 class AssetFilterByRack(rest_filters.BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
-        if request.query_params.get('offline') == 'true' or request.method is not 'GET':
+        # if request.query_params.get('offline') == 'true' or request.method is not 'GET':
+        #     return queryset
+        #
+        if request.method is not 'GET' or 'get':
             return queryset
+
+        if request.query_params.get('offline') is True:
+            return queryset
+
         start_letter = request.query_params.get('rack_num_start')[0].upper() if request.query_params.get(
             'rack_num_start') else 'A'
         start_number = request.query_params.get('rack_num_start')[1:] if request.query_params.get(
