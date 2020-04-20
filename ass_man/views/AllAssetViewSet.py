@@ -96,7 +96,6 @@ class AllAssetViewSet(viewsets.ModelViewSet):
                 return self.get_paginated_response(serializer.data)
             serializer = self.get_serializer(queryset, many=True)
             return Response(serializer.data)
-
             if not request.query_params.get('offline') == 'true':
                 queryset = self.filter_queryset(self.get_queryset()).filter(Q(datacenter=None) | Q(is_offline=False))#.exclude(is_offline=True)
                 page = self.paginate_queryset(queryset)
@@ -105,6 +104,7 @@ class AllAssetViewSet(viewsets.ModelViewSet):
                     return self.get_paginated_response(serializer.data)
                 serializer = self.get_serializer(queryset, many=True)
                 return Response(serializer.data)
+
 
 
         return super().list(self, request, *args, **kwargs)

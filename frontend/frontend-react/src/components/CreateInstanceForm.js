@@ -978,6 +978,7 @@ export class CreateInstanceForm extends Component {
                       })
                     }} />
                 </Grid>
+
                 <Grid item xs={8}>
                   <Paper>
                     {this.renderTableToolbar()}

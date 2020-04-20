@@ -22,6 +22,8 @@ function sleeper(ms) {
   };
 }
 
+const timeoutDelay = 1200
+
 export class BladePowerManagement extends Component {
 
   constructor() {
@@ -52,7 +54,7 @@ export class BladePowerManagement extends Component {
     this.setState({ isLoading: true })
     const dst = '/api/blades/' + this.props.assetID + '/set_power/';
     const onState = {}
-    onState.status = 'on'
+    onState.action = 'on'
     let self = this
     axios.post(dst, onState)
       .then(function (response) {
@@ -64,14 +66,17 @@ export class BladePowerManagement extends Component {
         //this.setState({ isLoading: false })
       });
     this.setState({ isLoading: false })
-    this.handleStatusUpdate()
+    
+    setTimeout(() => {
+      this.handleStatusUpdate()
+    }, timeoutDelay);
   }
 
   handleOffToggle = () => {
     this.setState({ isLoading: true })
     const dst = '/api/blades/' + this.props.assetID + '/set_power/';
     const offState = {}
-    offState.status = 'off'
+    offState.action = 'off'
     let self = this
     axios.post(dst, offState)
       .then(function (response) {
@@ -83,7 +88,9 @@ export class BladePowerManagement extends Component {
         //this.setState({ isLoading: false })
       });
     this.setState({ isLoading: false })
-    this.handleStatusUpdate()
+    setTimeout(() => {
+      this.handleStatusUpdate()
+    }, timeoutDelay);
   }
 
   handleCycleToggle = () => {
