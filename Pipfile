@@ -4,9 +4,21 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
+pylint = "*"
 
 [packages]
+django = "*"
+djangorestframework = "*"
+gunicorn = "*"
+whitenoise = "*"
+python-dotenv = "*"
+dj-database-url = "*"
+psycopg2-binary = "*"
+django-cors-headers = "*"
+django-filter = "*"
+django-easy-audit = "*"
 paramiko = "*"
+requests = "*"
 
 [requires]
-python_version = "3.6"
+python_version = "3.7"
