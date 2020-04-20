@@ -27,19 +27,20 @@ export class DatacenterTable extends Component {
     }
   }
 
-  showDeleteForm = (id) => {
-    if (window.confirm('Are you sure you want to delete?')) {
-      let dst = '/api/datacenters/'.concat(id).concat('/');
-      axios.delete(dst)
-        .then(function (response) {
-          alert('Delete was successful');
-          window.location = '/';
-        })
-        .catch(function (error) {
-          alert('Delete was not successful.\n' + JSON.stringify(error.response.data, null, 2));
-        });
-    }
-  }
+
+    showDeleteForm = (id) => {
+        if (window.confirm('Are you sure you want to delete?')) {
+          let dst = '/api/datacenters/'.concat(id).concat('/');
+          axios.delete(dst)
+            .then(function (response) {
+              alert('Delete was successful');
+              window.location = '/';
+            })
+            .catch(function (error) {
+              alert('Delete was not successful.\n Check datacenter or offline storage site for racks and assets');
+            });
+        }
+      }
 
   renderTableToolbar = () => {
     return (
