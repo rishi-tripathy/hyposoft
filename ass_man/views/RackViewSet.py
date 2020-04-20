@@ -58,6 +58,7 @@ class RackViewSet(viewsets.ModelViewSet):
                 else:
                     permission_classes = [IsAdmin]
             except:
+                print('exception')
                 permission_classes = [IsAdmin]
         else:
             permission_classes = [IsAuthenticated]
