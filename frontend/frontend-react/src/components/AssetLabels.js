@@ -24,15 +24,16 @@ import '../stylesheets/PrintingAssetLabels.css'
 // LABEL PARAMETERS
 //height 18 -> fits 20
 
+
 const labelHeight = 18
 const labelWidth = 2.7
 const textAlignPosition = 'left'
 
 // 10 is default
 const mTop = 5
-const mBottom = 25
+const mBottom = 26
 const mLeft = 32
-const mRight = 48
+const mRight = 46
 
 export class AssetLabels extends Component {
   constructor() {

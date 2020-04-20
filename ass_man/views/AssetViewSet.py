@@ -21,7 +21,7 @@ from ass_man.serializers.blade_serializer import BladeServerSerializer
 # Auth
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 # Project
-from ass_man.models import Model, Asset, Rack, Datacenter, Network_Port, Power_Port, PDU, Asset_Number, Decommissioned, BladeServer
+from ass_man.models import Model, Asset, Rack, Datacenter, Network_Port, Power_Port, PDU, Asset_Number, Decommissioned, BladeServer, Permission
 from rest_framework.filters import OrderingFilter
 from django_filters import rest_framework as djfiltBackend
 from ass_man.filters import AssetFilter, AssetFilterByRack
@@ -388,7 +388,8 @@ class AssetViewSet(viewsets.ModelViewSet):
             }, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            p = Permission.objects().all.get(name='power', user=request.user)
+            user = User.objects.all().get(username = request.user.username)
+            p = Permission.objects.all().get(name='power', user=user)
         except:
             if not request.user.is_superuser and request.user is not self.get_object().owner:
                 return Response({
