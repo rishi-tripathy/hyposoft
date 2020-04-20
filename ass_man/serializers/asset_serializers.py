@@ -183,6 +183,10 @@ class AssetSerializer(serializers.HyperlinkedModelSerializer):
                 '{} is not an valid hostname. Please ensure this value is a valid hostname as per RFC 1034.'.format(
                     value.__str__())
             )
+        print(self.context['hostname'])
+        print(self.context['method'])
+        if self.context['method'] == 'PUT' and value == self.context['hostname']:
+            return value
         if value:
             try:
                 Asset.objects.all().get(hostname=value)
