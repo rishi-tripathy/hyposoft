@@ -92,7 +92,7 @@ export class UserTableMUI extends Component {
       if (this.props.usersPermissions.length != 0) {
         //console.log(this.props.usersPermissions)
         this.props.usersPermissions.forEach((userObject) => {
-          console.log(userObject)
+          //console.log(userObject)
           if (userObject.user_id === id) {
             currentUserModelPermission = userObject.model_permission
             currentUserAssetPermission = userObject.asset_permission
