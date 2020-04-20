@@ -20,9 +20,11 @@ isort==4.3.21
 lazy-object-proxy==1.4.3
 lxml==4.5.0
 mccabe==0.6.1
-paramiko==2.7.1
+-e git+https://github.com/paramiko/paramiko/@ae3d0febef17a8ece5268bbf6c210a30573ce800#egg=paramiko
+pexpect==4.8.0
 Pillow==7.0.0
 psycopg2-binary==2.8.4
+ptyprocess==0.6.0
 pycparser==2.20
 PyJWT==1.7.1
 pylint==2.4.4
