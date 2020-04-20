@@ -15,6 +15,7 @@ export class EditDatacenterForm extends Component {
       'name': null,
       'url': null,
       'abbreviation': null,
+      isOffline: false,
       redirect: false,
     }
     //this.handleSubmit = this.handleSubmit.bind(this);
@@ -53,6 +54,7 @@ export class EditDatacenterForm extends Component {
       this.setState({
           id: res.data.id,
           name: res.data.name,
+          isOffline: res.data.is_offline,
           abbreviation: res.data.abbreviation,
           url: '/api/dataceters/' + this.props.match.params.id +'/'
     });
@@ -68,13 +70,17 @@ export class EditDatacenterForm extends Component {
   }
 
   render() {
+    let title = 'Update Datacenter';
+    if(this.state.isOffline){
+      title = "Update Offline Storage Site"
+    }
     return (
       <div>
         {this.state.redirect && <Redirect to={{pathname:'/datacenters'}}/>}
         <form onSubmit={this.handleSubmit}>
           <Grid container spacing={2}>
             <Grid item xs={12}>
-              <h1>Update Datacenter</h1>
+              <h1>{title}</h1>
             </Grid>
             <Grid item xs={6}>
               <TextField shrink label='Updated Name' type="text" inputProps = {{ maxLength: 50}} fullWidth value={this.state.name}

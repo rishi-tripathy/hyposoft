@@ -497,7 +497,7 @@ export class RackController extends Component {
     }
 
     // if we're not on the table, then don't show pagination
-    if (!this.state.showRacksView) {
+    if (!this.state.showRacksView || this.context.is_offline) {
       paginateNavigation = <p></p>;
       filters = <p></p>;
       printButton = <p></p>;

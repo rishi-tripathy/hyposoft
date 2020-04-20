@@ -4,14 +4,18 @@ import {
   Button, Container, TextField,
   Grid, Input, FormControl, Typography,
   Tooltip, Paper, List,
-  ListItem, ListItemText, Divider
+  ListItem, ListItemText, Divider, Table, TableBody, TableCell, TableContainer, TableRow, Toolbar,
 } from "@material-ui/core";
+import ToggleButton from '@material-ui/lab/ToggleButton';
+import CheckIcon from '@material-ui/icons/Check'
 import { Autocomplete } from "@material-ui/lab";
 import CancelIcon from '@material-ui/icons/Cancel';
 import AddCircleIcon from '@material-ui/icons/AddCircle';
 import { Link, Redirect } from "react-router-dom";
 import NetworkPortConnectionDialog from './NetworkPortConnectionDialog';
 import PowerPortConnectionDialog from './PowerPortConnectionDialog';
+import DatacenterContext from './DatacenterContext';
+import { jsonToHumanText } from './Helpers'
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
@@ -31,6 +35,10 @@ export class EditInstanceForm extends Component {
         asset_number: null,
         network_ports: [],
         power_ports: [],
+        ovr_color: null,
+        ovr_storage: null,
+        ovr_memory: null,
+        ovr_cpu: null,
       },
       modelOptions: [],
       selectedModelOption: null,
@@ -63,7 +71,39 @@ export class EditInstanceForm extends Component {
 
       redirect: false,
       //ppIDs: [],
+
+      locationOptions: [],
+      selectedLocationOption: null,
+
+      currentMountType: '',
+
+      slotNumberOptions: [],
+      selectedSlotNumberOption: null,
+      is_offline: false,
+
+
+      selectedDisplayColor: null,
+      selectedCPU: null,
+      selectedMemory: null,
+      selectedStorage: null,
+
+      memoryChecked: false,
+      displayColorChecked: false,
+      storageChecked: false,
+      cpuChecked: false,
+
+      revert: false,
     }
+  }
+
+  loadCurrentModelMountType = () => {
+    const dst = '/api/models/' + this.state.selectedModelOption.id + '/';
+    axios.get(dst).then(res => {
+      this.setState({ currentMountType: res.data.mount_type });
+    })
+      .catch(function (error) {
+        alert('Could not load model. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+      });
   }
 
   // loadPowerPortIDs = () => {
@@ -85,7 +125,7 @@ export class EditInstanceForm extends Component {
     for (let i = 0; i < a.length; i++) {
       console.log(a[i])
       if (Object.entries(a[i]).length > 0 && a[i].constructor === Object) {
-        if (! a[i]) {
+        if (!a[i]) {
           let obj = {}
           obj.id = this.state.asset.power_ports[i].id
           a.push(obj)
@@ -142,6 +182,8 @@ export class EditInstanceForm extends Component {
     // console.log(this.state.rightFreePDUSlots)
   }
 
+
+
   removeEmpty = (obj) => {
     Object.keys(obj).forEach((k) => (!obj[k] && obj[k] !== undefined) && delete obj[k]);
     return obj;
@@ -175,23 +217,36 @@ export class EditInstanceForm extends Component {
   }
 
   componentDidMount() {
-    const delay = 50;
+    const delay = 80;
     this.loadInstance();
     //console.log(this.state.instance)
     setTimeout(() => {
       this.loadModels();
-      this.loadDatacenters();
+      //this.loadDatacenters();
       //this.loadRacks();
       this.loadOwners();
       this.loadInstance();
+      // this.loadRevert();
     }, delay);
   }
 
+  // loadRevert = () => {
+  //   if(this.state.asset.ovr_color || this.state.ovr_cpu || this.state.ovr_memory || this.state.ovr_storage){
+  //     this.setState({
+  //       revert: true,
+  //     })
+  //   }
+  // }
+
   componentDidUpdate(prevProps, prevState) {
     if (prevState.selectedModelOption !== this.state.selectedModelOption) {
-      if (this.state.selectedModelOption.value) {
+      if (this.state.selectedModelOption) {
         this.loadNetworkPortInfoForCurrentlySelectedModel();
         this.loadNumberOfPowerPortsForModel();
+        this.loadCurrentModelMountType();
+        setTimeout(() => {
+          this.loadChangeableModelFields();
+        }, 50);
       }
       else {
         this.setState({ networkPortNamesForCurrentAsset: [], numberOfNetworkPortsForCurrentAsset: null });
@@ -199,16 +254,30 @@ export class EditInstanceForm extends Component {
     }
 
     if (prevState.selectedDatacenterOption !== this.state.selectedDatacenterOption) {
-      if (this.state.selectedDatacenterOption.value) {
-        this.loadRacks();
+      if (this.state.selectedDatacenterOption) {
+        console.log(this.state.selectedDatacenterOption)
+        if (this.state.selectedDatacenterOption.is_offline) {
+          this.setState({
+            is_offline: true,
+          })
+          this.loadLocations();
+        }
+        else {
+          this.setState({
+            is_offline: false,
+          })
+          this.loadRacks();
+          this.loadLocations();
+        }
       }
       else {
         this.setState({ rackOptions: [], selectedRackOption: null });
+        this.setState({ locationOptions: [], selectedLocationOption: null });
       }
     }
 
     if (this.state.selectedRackOption !== prevState.selectedRackOption) {
-      if (this.state.selectedRackOption.id) {
+      if (this.state.selectedRackOption) {
         this.loadLeftAndRightPDUNames();
         this.loadFreePDUsAndSetDefaultConfigurations();
         //this.loadPowerPortIDs();
@@ -219,37 +288,206 @@ export class EditInstanceForm extends Component {
       this.loadMACAddresses();
       this.loadConnectedNPs();
     }
+
+    if (this.state.selectedLocationOption !== prevState.selectedLocationOption) {
+      if (this.state.selectedLocationOption) {
+        if (this.state.selectedLocationOption.id) {
+          this.loadSlotNumbers();
+        }
+      }
+    }
   }
 
-  loadInstance = () => {
-    let dst = '/api/assets/'.concat(this.props.match.params.id).concat('/');
-    axios.get(dst).then(res => {
+  loadChangeableModelFields = () => {
+    let modelURL = this.state.selectedModelOption.value
+    console.log(modelURL)
+    axios.get(modelURL).then(res => {
+      // console.log(res.data)
       let instanceCopy = JSON.parse(JSON.stringify(this.state.asset));
-      instanceCopy.model = res.data.model;
-      instanceCopy.hostname = res.data.hostname;
-      instanceCopy.datacenter = res.data.datacenter;
-      instanceCopy.rack = res.data.rack;
-      instanceCopy.rack_u = res.data.rack_u;
-      instanceCopy.owner = res.data.owner;
-      instanceCopy.comment = res.data.comment;
-      instanceCopy.asset_number = res.data.asset_number;
-      instanceCopy.network_ports = res.data.network_ports;
-      instanceCopy.power_ports = res.data.power_ports;
+      if (!this.state.asset.ovr_color) {
+        instanceCopy.ovr_color = res.data.display_color;
+      }
       this.setState({
         asset: instanceCopy,
-      })
+        selectedDisplayColor: res.data.display_color,
+        selectedCPU: res.data.cpu,
+        selectedMemory: res.data.memory,
+        selectedStorage: res.data.storage,
+      });
     })
       .catch(function (error) {
-        // TODO: handle error
         alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
       });
+  }
+
+
+  loadInstance = () => {
+
+    console.log(this.props)
+
+    if (this.props.location.state != null && this.props.location.state.isBlade) {
+      //blade
+      let dst = '/api/blades/'.concat(this.props.match.params.id).concat('/');
+      console.log(dst)
+      axios.get(dst).then(res => {
+        let instanceCopy = JSON.parse(JSON.stringify(this.state.asset));
+        instanceCopy.model = res.data.model;
+        instanceCopy.hostname = res.data.hostname;
+        instanceCopy.datacenter = res.data.datacenter;
+        instanceCopy.location = res.data.location;
+        instanceCopy.slot_number = res.data.slot_number;
+        instanceCopy.asset_number = res.data.asset_number;
+        instanceCopy.ovr_color = res.data.ovr_color;
+        instanceCopy.ovr_storage = res.data.ovr_storage;
+        instanceCopy.ovr_cpu = res.data.ovr_cpu;
+        instanceCopy.ovr_memory = res.data.ovr_memory;
+
+        let color = false;
+        let cpu = false;
+        let mem = false;
+        let str = false;
+
+        if (instanceCopy.ovr_color !== this.state.selectedDisplayColor) {
+          color = true;
+        }
+        if (instanceCopy.ovr_cpu) {
+          cpu = true;
+        }
+        if (instanceCopy.ovr_memory) {
+          mem = true;
+        }
+        if (instanceCopy.ovr_storage) {
+          str = true;
+        }
+
+        this.setState({
+          asset: instanceCopy,
+          selectedDatacenterOption: res.data.datacenter ? res.data.datacenter : res.data.location.datacenter,
+          displayColorChecked: color,
+          cpuChecked: cpu,
+          memoryChecked: mem,
+          storageChecked: str,
+        })
+      })
+        .catch(function (error) {
+          // TODO: handle error
+          alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+        });
+    }
+    //TODO: add blade offline 
+    else if (this.context.is_offline) {
+      let dst = '/api/all_assets/'.concat(this.props.match.params.id).concat('/');
+      console.log(dst)
+
+      axios.get(dst).then(res => {
+        let instanceCopy = JSON.parse(JSON.stringify(this.state.asset));
+        console.log(res.data)
+        instanceCopy.model = res.data.asset.model;
+        instanceCopy.hostname = res.data.asset.hostname;
+        instanceCopy.datacenter = res.data.asset.datacenter;
+        instanceCopy.owner = res.data.asset.owner;
+        instanceCopy.comment = res.data.asset.comment;
+        instanceCopy.asset_number = res.data.asset.asset_number;
+        instanceCopy.ovr_color = res.data.asset.ovr_color;
+        instanceCopy.ovr_storage = res.data.asset.ovr_storage;
+        instanceCopy.ovr_cpu = res.data.asset.ovr_cpu;
+        instanceCopy.ovr_memory = res.data.asset.ovr_memory;
+
+        let color = false;
+        let cpu = false;
+        let mem = false;
+        let str = false;
+
+        if (instanceCopy.ovr_color) {
+          color = true;
+        }
+        if (instanceCopy.ovr_cpu) {
+          cpu = true;
+        }
+        if (instanceCopy.ovr_memory) {
+          mem = true;
+        }
+        if (instanceCopy.ovr_storage) {
+          str = true;
+        }
+
+        this.setState({
+          asset: instanceCopy,
+          selectedDatacenterOption: res.data.asset.datacenter,
+          displayColorChecked: color,
+          cpuChecked: cpu,
+          memoryChecked: mem,
+          storageChecked: str,
+        })
+      })
+        .catch(function (error) {
+          // TODO: handle error
+          alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+        });
+    }
+    else {
+      let dst = '/api/all_assets/'.concat(this.props.match.params.id).concat('/');
+      console.log(dst)
+      axios.get(dst).then(res => {
+        let instanceCopy = JSON.parse(JSON.stringify(this.state.asset));
+        console.log(res.data.asset)
+        instanceCopy.model = res.data.asset.model;
+        instanceCopy.hostname = res.data.asset.hostname;
+        instanceCopy.datacenter = res.data.asset.datacenter;
+        instanceCopy.rack = res.data.asset.rack;
+        instanceCopy.rack_u = res.data.asset.rack_u;
+        instanceCopy.owner = res.data.asset.owner;
+        instanceCopy.comment = res.data.asset.comment;
+        instanceCopy.asset_number = res.data.asset.asset_number;
+        // instanceCopy.network_ports = res.data.asset.network_ports;
+        // instanceCopy.power_ports = res.data.asset.power_ports;
+        instanceCopy.ovr_color = res.data.asset.ovr_color;
+        instanceCopy.ovr_storage = res.data.asset.ovr_storage;
+        instanceCopy.ovr_cpu = res.data.asset.ovr_cpu;
+        instanceCopy.ovr_memory = res.data.asset.ovr_memory;
+
+
+        let color = false;
+        let cpu = false;
+        let mem = false;
+        let str = false;
+
+        if (instanceCopy.ovr_color) {
+          color = true;
+        }
+        if (instanceCopy.ovr_cpu) {
+          cpu = true;
+        }
+        if (instanceCopy.ovr_memory) {
+          mem = true;
+        }
+        if (instanceCopy.ovr_storage) {
+          str = true;
+        }
+
+        this.setState({
+          asset: instanceCopy,
+          selectedDatacenterOption: res.data.asset.datacenter,
+          displayColorChecked: color,
+          cpuChecked: cpu,
+          memoryChecked: mem,
+          storageChecked: str,
+        })
+      })
+        .catch(function (error) {
+          // TODO: handle error
+          alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+        });
+    }
   }
 
   loadMACAddresses = () => {
     let tmpMAC = []
     let NPs = this.state.asset.network_ports
     for (let i = 0; i < this.state.numberOfNetworkPortsForCurrentAsset; i++) {
-      tmpMAC.push(NPs[i].mac)
+      if (NPs && NPs[i]) {
+        tmpMAC.push(NPs[i].mac)
+      }
     }
     this.setState({
       macAddresses: tmpMAC,
@@ -260,11 +498,13 @@ export class EditInstanceForm extends Component {
     let NPs = this.state.asset.network_ports
     let tmpNPConnects = []
     for (let i = 0; i < this.state.numberOfNetworkPortsForCurrentAsset; i++) {
-      if (NPs[i].connection) {
-        tmpNPConnects[i] = {}
-        tmpNPConnects[i].connectedPortID = NPs[i].connection.id;
-        tmpNPConnects[i].connectedPortName = NPs[i].connection.name;
-        tmpNPConnects[i].connectedAssetHostname = NPs[i].connection.asset.hostname;
+      if (NPs && NPs[i]) {
+        if (NPs[i].connection) {
+          tmpNPConnects[i] = {}
+          tmpNPConnects[i].connectedPortID = NPs[i].connection.id;
+          tmpNPConnects[i].connectedPortName = NPs[i].connection.name;
+          tmpNPConnects[i].connectedAssetHostname = NPs[i].connection.asset.hostname;
+        }
       }
       else {
         tmpNPConnects[i] = {}
@@ -345,26 +585,75 @@ export class EditInstanceForm extends Component {
       });
   }
 
-  loadDatacenters = () => {
-    const dst = '/api/datacenters/?show_all=true';
+  loadLocations = () => {
+    // locations are all chassis assets in a given DC
+    console.log(this.state.selectedDatacenterOption)
+    const dst = '/api/datacenters/' + this.state.selectedDatacenterOption.id + '/chassis/';
+    console.log(dst)
     axios.get(dst).then(res => {
       let myOptions = [];
       for (let i = 0; i < res.data.length; i++) {
-        //TODO: change value to URL
-        myOptions.push({ value: res.data[i].url, label: res.data[i].abbreviation, id: res.data[i].id });
+        myOptions.push({ value: res.data[i].id, label: res.data[i].hostname + ' ' + res.data[i].asset_number, id: res.data[i].id });
       }
       this.setState({
-        datacenterOptions: myOptions,
-        selectedDatacenterOption: {
-          value: this.state.asset.datacenter ? this.state.asset.datacenter.url : null,
-          label: this.state.asset.datacenter ? this.state.asset.datacenter.abbreviation : null,
-          id: this.state.asset.datacenter ? this.state.asset.datacenter.id : null,
+        locationOptions: myOptions,
+        selectedLocationOption: {
+          value: this.state.asset.location ? this.state.asset.location.id : null,
+          label: this.state.asset.location ? this.state.asset.location.hostname + ' ' + this.state.asset.location.asset_number : null,
+          id: this.state.asset.location ? this.state.asset.location.id : null,
         }
       });
     })
       .catch(function (error) {
         // TODO: handle error
-        alert('Could not load owners. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+        alert('Could not load racks. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+      });
+  }
+
+  // loadDatacenters = () => {
+  //   const dst = '/api/datacenters/?show_all=true';
+  //   axios.get(dst).then(res => {
+  //     let myOptions = [];
+  //     for (let i = 0; i < res.data.length; i++) {
+  //       //TODO: change value to URL
+  //       myOptions.push({ value: res.data[i].url, label: res.data[i].abbreviation, id: res.data[i].id });
+  //     }
+  //     this.setState({
+  //       datacenterOptions: myOptions,
+  //       selectedDatacenterOption: {
+  //         value: this.state.asset.datacenter ? this.state.asset.datacenter.url : null,
+  //         label: this.state.asset.datacenter ? this.state.asset.datacenter.abbreviation : null,
+  //         id: this.state.asset.datacenter ? this.state.asset.datacenter.id : null,
+  //       }
+  //     });
+  //   })
+  //     .catch(function (error) {
+  //       // TODO: handle error
+  //       alert('Could not load owners. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+  //     });
+  // }
+
+  loadSlotNumbers = () => {
+    // load array of free slot numbers
+    console.log(this.state.selectedLocationOption)
+    const dst = '/api/assets/' + this.state.selectedLocationOption.id + '/chassis_slots/';
+    console.log(dst)
+    axios.get(dst).then(res => {
+      let myOptions = [];
+      for (let i = 0; i < res.data.length; i++) {
+        myOptions.push({ value: res.data[i], label: res.data[i].toString(), });
+      }
+      this.setState({ slotNumberOptions: myOptions });
+      this.setState({
+        selectedSlotNumberOption: {
+          value: this.state.asset.slot_number ? this.state.asset.slot_number : null,
+          label: this.state.asset.slot_number ? this.state.asset.slot_number.toString() : null,
+        }
+      })
+    })
+      .catch(function (error) {
+        // TODO: handle error
+        alert('Could not load racks. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
       });
   }
 
@@ -377,6 +666,10 @@ export class EditInstanceForm extends Component {
     this.setState({ selectedRackOption });
   };
 
+  handleChangeLocation = (event, selectedLocationOption) => {
+    this.setState({ selectedLocationOption });
+  };
+
   handleChangeOwner = (event, selectedOwnerOption) => {
     this.setState({ selectedOwnerOption });
   };
@@ -385,6 +678,10 @@ export class EditInstanceForm extends Component {
     this.setState({ selectedDatacenterOption });
     console.log(selectedDatacenterOption)
   }
+
+  handleChangeSlotNumber = (event, selectedSlotNumberOption) => {
+    this.setState({ selectedSlotNumberOption });
+  };
 
   handleSubmit = (e) => {
     e.preventDefault();
@@ -417,31 +714,97 @@ export class EditInstanceForm extends Component {
       }
     }
 
-    let dst = '/api/assets/'.concat(this.props.match.params.id).concat('/');
     let stateCopy = Object.assign({}, this.state.asset);
 
     stateCopy.model = this.state.selectedModelOption ? this.state.selectedModelOption.value : null;
     stateCopy.rack = this.state.selectedRackOption ? this.state.selectedRackOption.value : null;
     stateCopy.owner = this.state.selectedOwnerOption ? this.state.selectedOwnerOption.value : null;
-    stateCopy.datacenter = this.state.selectedDatacenterOption ? this.state.selectedDatacenterOption.value : null;
     stateCopy.network_ports = networkPortsBuilder
     stateCopy.power_ports = tmpPP
 
+
+    stateCopy.datacenter = this.state.selectedDatacenterOption ? this.state.selectedDatacenterOption.url : null;
+    console.log(this.state.currentMountType)
+    if (this.state.is_offline) {
+      if (this.state.currentMountType === 'blade') {
+        stateCopy.datacenter = this.state.selectedDatacenterOption.id;
+      }
+    }
+    else {
+      if (this.state.currentMountType === 'blade') {
+        stateCopy.datacenter = this.state.selectedDatacenterOption.id;
+      }
+    }
+
+
     let stateToSend = this.removeEmpty(stateCopy);
+    if (this.state.is_offline) {
+      stateToSend.rack = null;
+      stateToSend.rack_u = null;
+    }
+
+    if (this.state.revert) {
+      stateToSend.ovr_color = null;
+      stateToSend.ovr_memory = null;
+      stateToSend.ovr_cpu = null;
+      stateToSend.ovr_storage = null;
+    }
+    //logic for color)
+    else {
+      //not revert, some changes
+      if (this.state.selectedDisplayColor === this.state.asset.ovr_color || !this.displayColorChecked) {
+        stateToSend.ovr_color = null;
+      }
+    }
+
     console.log(JSON.stringify(stateToSend, null, 2))
     var self = this;
 
-    axios.put(dst, stateToSend)
-      .then(function (response) {
-        alert('Edit was successful');
-        // window.location = '/assets'
-        self.setState({
-          redirect: true,
+    if (this.props.location.state != null && this.props.location.state.isBlade) {
+      //PUT: blade
+      delete stateToSend.rack
+      delete stateToSend.rack_u
+      stateToSend.model = this.state.selectedModelOption ? this.state.selectedModelOption.id : null;
+      stateToSend.location = this.state.selectedLocationOption ? this.state.selectedLocationOption.id : null;
+      stateToSend.slot_number = this.state.selectedSlotNumberOption ? this.state.selectedSlotNumberOption.value : null;
+      stateToSend.ovr_color = this.state.displayColorChecked && this.state.selectedDisplayColor !== this.state.asset.ovr_color ? this.state.asset.ovr_color : null;
+      stateToSend.ovr_storage = this.state.storageChecked && this.state.asset.ovr_storage !== this.state.selectedStorage ? this.state.asset.ovr_storage : null;
+      stateToSend.ovr_cpu = this.state.cpuChecked && this.state.asset.ovr_cpu !== this.state.selectedCPU ? this.state.asset.ovr_cpu : null;
+      stateToSend.ovr_memory = this.state.memoryChecked && this.state.asset.ovr_memory !== this.state.selectedMemory ? this.state.asset.ovr_memory : null;
+
+      let dst = '/api/blades/'.concat(this.props.match.params.id).concat('/');
+      axios.put(dst, stateToSend)
+        .then(function (response) {
+          alert('Edit was successful');
+          // window.location = '/assets'
+          self.setState({
+            redirect: true,
+          });
+        })
+        .catch(function (error) {
+          alert('Edit was not successful.\n' + jsonToHumanText(error.response.data));
         });
-      })
-      .catch(function (error) {
-        alert('Edit was not successful.\n' + JSON.stringify(error.response.data, null, 2));
-      });
+    }
+    else {
+      //PUT: asset
+      stateToSend.ovr_color = this.state.displayColorChecked && this.state.selectedDisplayColor !== this.state.asset.ovr_color ? this.state.asset.ovr_color : null;
+      stateToSend.ovr_storage = this.state.storageChecked && this.state.asset.ovr_storage !== this.state.selectedStorage ? this.state.asset.ovr_storage : null;
+      stateToSend.ovr_cpu = this.state.cpuChecked && this.state.asset.ovr_cpu !== this.state.selectedCPU ? this.state.asset.ovr_cpu : null;
+      stateToSend.ovr_memory = this.state.memoryChecked && this.state.asset.ovr_memory !== this.state.selectedMemory ? this.state.asset.ovr_memory : null;
+
+      let dst = '/api/assets/'.concat(this.props.match.params.id).concat('/');
+      axios.put(dst, stateToSend)
+        .then(function (response) {
+          alert('Edit was successful');
+          // window.location = '/assets'
+          self.setState({
+            redirect: true,
+          });
+        })
+        .catch(function (error) {
+          alert('Edit was not successful.\n' + jsonToHumanText(error.response.data));
+        });
+    }
   }
 
   openNetworkPortConfigAndMAC = () => {
@@ -484,10 +847,308 @@ export class EditInstanceForm extends Component {
     return fieldList;
   }
 
+  renderTableHeader() {
+    let headCells = [
+      { id: 'display_color', label: 'Color' },
+      { id: 'cpu', label: 'CPU' },
+      { id: 'memory', label: 'Memory' },
+      { id: 'storage', label: 'Storage' },
+    ];
+    return headCells.map(headCell => (
+      <TableCell
+        align={'center'}
+        padding={'default'}
+
+      >
+        {headCell.label.toUpperCase()}
+
+      </TableCell>
+    ))
+  }
+
+  renderCheckRow() {
+    let model = this.state.selectedModelOption;
+
+    if (model == null || this.state.revert) {
+    }
+    else {
+      return (
+        <TableRow
+          hover
+          tabIndex={-1}
+        >
+          <TableCell align="center">
+            <ToggleButton
+              value="check"
+              selected={this.state.displayColorChecked}
+              onChange={() => {
+                this.setDisplayColorChecked();
+              }}
+            >
+              <CheckIcon />
+            </ToggleButton>
+          </TableCell>
+          <TableCell align="center">
+            <ToggleButton
+              value="check"
+              selected={this.state.cpuChecked}
+              onChange={() => {
+                this.setCpuChecked();
+              }}
+            >
+              <CheckIcon />
+            </ToggleButton>
+          </TableCell>
+          <TableCell align="center">
+            <ToggleButton
+              value="check"
+              selected={this.state.memoryChecked}
+              onChange={() => {
+                this.setMemoryChecked();
+              }}
+            >
+              <CheckIcon />
+            </ToggleButton>
+          </TableCell>
+          <TableCell align='center'>
+            <ToggleButton
+              value="check"
+              selected={this.state.storageChecked}
+              onChange={() => {
+                this.setStorageSelected();
+              }}
+            >
+              <CheckIcon />
+            </ToggleButton>
+          </TableCell>
+        </TableRow>
+      )
+    }
+  }
+
+  setStorageSelected = () => {
+    this.setState(prevState => ({
+      storageChecked: !prevState.storageChecked
+    }));
+  }
+
+  setDisplayColorChecked = () => {
+    this.setState(prevState => ({
+      displayColorChecked: !prevState.displayColorChecked
+    }));
+  }
+
+  setMemoryChecked = () => {
+    this.setState(prevState => ({
+      memoryChecked: !prevState.memoryChecked
+    }));
+  }
+
+  setCpuChecked = () => {
+    this.setState(prevState => ({
+      cpuChecked: !prevState.cpuChecked
+    }));
+  }
+
+  handleRevert = () => {
+    let instanceCopy = JSON.parse(JSON.stringify(this.state.asset))
+    instanceCopy.ovr_storage = null;
+    instanceCopy.ovr_cpu = null;
+    instanceCopy.ovr_memory = null;
+    instanceCopy.ovr_displayColor = null;
+    this.setState(prevState => ({
+      revert: !prevState.revert,
+      asset: instanceCopy,
+      displayColorChecked: false,
+      cpuChecked: false,
+      memoryChecked: false,
+      storageChecked: false,
+    }));
+  }
+
+  renderTableData() {
+    let model = this.state.selectedModelOption;
+
+    let colorOverride = this.state.asset.ovr_color;
+    let cpuOverride = this.state.asset.ovr_cpu;
+    let storageOverride = this.state.asset.ovr_storage;
+    let memoryOverride = this.state.asset.ovr_memory;
+
+    if (!colorOverride) {
+      colorOverride = this.state.selectedDisplayColor;
+    }
+    if (!cpuOverride) {
+      cpuOverride = this.state.selectedCPU;
+    }
+    if (!memoryOverride) {
+      memoryOverride = this.state.selectedMemory;
+    }
+    if (!storageOverride) {
+      storageOverride = this.state.selectedStorage;
+    }
+
+    if (model == null) return (
+      <TableRow hover tabIndex={-1}>
+        <TableCell align="center" colSpan={12}>Select a Model</TableCell>
+      </TableRow>
+    )
+    else if (this.state.revert) return (
+      <TableRow hover tabIndex={-1}>
+        <TableCell align="center" colSpan={12}>No differing fields from the model.</TableCell>
+      </TableRow>
+    )
+    // console.log(model)
+    return (
+      <TableRow
+        hover
+        tabIndex={-1}
+      >
+        <TableCell align="right">
+          {this.state.displayColorChecked ?
+            <FormControl fullWidth>
+              <Input type="color" name="Display Color" startAdornment="Display Color"
+                value={'#' + this.state.asset.ovr_color}
+                onChange={e => {
+                  let instanceCopy = JSON.parse(JSON.stringify(this.state.asset))
+                  instanceCopy.ovr_color = e.target.value.replace('#', '');
+                  this.setState({
+                    asset: instanceCopy
+                  })
+                }} />{' '}
+            </FormControl>
+            :
+            <div style={{
+              width: 12,
+              height: 10,
+              backgroundColor: '#' + colorOverride,
+              left: 2,
+              top: 2,
+            }}></div>}
+        </TableCell>
+        <TableCell align="center">
+          {this.state.cpuChecked ?
+            <TextField label='CPU' type="text" defaultValue={cpuOverride} helperText="Describe the CPU" fullWidth onChange={e => {
+              let instanceCopy = JSON.parse(JSON.stringify(this.state.asset))
+              instanceCopy.ovr_cpu = e.target.value
+              this.setState({
+                asset: instanceCopy
+              })
+            }} />
+            : cpuOverride}
+        </TableCell>
+        <TableCell align="center">
+          {this.state.memoryChecked ?
+            <TextField label='Memory' type="number" defaultValue={memoryOverride} helperText="RAM available in GB" fullWidth onChange={e => {
+              let instanceCopy = JSON.parse(JSON.stringify(this.state.asset))
+              instanceCopy.ovr_memory = e.target.value
+              this.setState({
+                asset: instanceCopy
+              })
+            }} />
+            :
+            memoryOverride}
+        </TableCell>
+        <TableCell align="center">
+          {this.state.storageChecked ?
+            <TextField label='Storage' defaultValue={storageOverride} type="text" helperText="Describe the storage" fullWidth onChange={e => {
+              let instanceCopy = JSON.parse(JSON.stringify(this.state.asset))
+              instanceCopy.ovr_storage = e.target.value
+              this.setState({
+                asset: instanceCopy
+              })
+            }} />
+            : storageOverride}</TableCell>
+      </TableRow>
+    )
+  }
+
+  renderTableToolbar = () => {
+
+    let message = 'Change Model Fields';
+    if (this.state.revert) {
+      message = 'Change Model Fields';
+    }
+    else {
+      if (this.state.displayColorChecked || this.state.storageChecked || this.state.memoryChecked || this.state.cpuChecked) {
+        message = 'Revert to Original Model';
+      }
+    }
+    return (
+
+      <Toolbar>
+        {
+          <Container maxwidth="xl">
+            <Grid container className='themed-container' spacing={2}>
+              <Grid item alignContent='center' xs={6}>
+                <Typography style={{ flex: '1 1 20%' }} variant="h6" id="modelFieldsTableTitle">
+                  Edit Model Fields for this Asset
+            </Typography>
+              </Grid>
+
+              <Grid item alignContent='right' xs={6}>
+                <Button variant="outlined" color="primary" size="small" alignContent='flex-end'
+                  onClick={this.handleRevert}>
+                  {message}
+                </Button>
+              </Grid>
+            </Grid>
+          </Container>
+        }
+      </Toolbar>
+    );
+  };
+
   render() {
+    console.log(this.state)
+
+    let options2 = this.context.datacenterOptions;
+    console.log(options2)
+    options2 = options2.slice(1);
+    let options = options2.map((option) => {
+      let firstLetter = option.is_offline;
+      console.log(firstLetter);
+      return {
+        firstLetter: /true/.test(firstLetter) ? "Offline Sites" : "Datacenters",
+        ...option
+      };
+    })
+
+    let rack_select =
+      <Autocomplete
+        autoComplete
+        autoHighlight
+        autoSelect
+        id="instance-create-rack-select"
+        options={this.state.rackOptions}
+        getOptionLabel={option => option.label}
+        onChange={this.handleChangeRack}
+        value={this.state.selectedRackOption}
+        disabled={this.state.selectedDatacenterOption === null || this.state.currentMountType === 'blade'}
+        renderInput={params => (
+          <TextField {...params} label="Rack" fullWidth />
+        )}
+      />;
+
+    let rack_u_select =
+      < TextField label="Rack U"
+        fullWidth
+        type="number"
+        disabled={this.state.currentMountType === 'blade'}
+        value={this.state.asset.rack_u}
+        InputLabelProps={{ shrink: true }}
+        onChange={e => {
+          let instanceCopy = JSON.parse(JSON.stringify(this.state.asset))
+          instanceCopy.rack_u = e.target.value
+          this.setState({
+            asset: instanceCopy
+          })
+        }} />;
+
+    console.log(this.state)
+
     return (
       <div>
-        {this.state.redirect && <Redirect to={{pathname: '/assets'}} />}
+        {this.state.redirect && <Redirect to={{ pathname: '/assets' }} />}
         <Container maxwidth="xl">
           <Grid container className='themed-container' spacing={2}>
             <Grid item alignContent='center' xs={12} />
@@ -503,6 +1164,7 @@ export class EditInstanceForm extends Component {
                     autoComplete
                     autoHighlight
                     autoSelect
+                    disabled={true}
                     id="instance-create-model-select"
                     options={this.state.modelOptions}
                     getOptionLabel={option => option.label}
@@ -526,14 +1188,17 @@ export class EditInstanceForm extends Component {
                     }} />
                 </Grid>
 
+
+
                 <Grid item xs={6}>
                   <Autocomplete
                     autoComplete
                     autoHighlight
                     autoSelect
                     id="datacenter-select"
-                    options={this.state.datacenterOptions}
-                    getOptionLabel={option => option.label}
+                    options={options.sort((a, b) => -b.firstLetter.localeCompare(a.firstLetter))}
+                    groupBy={option => option.firstLetter}
+                    getOptionLabel={option => option.abbreviation}
                     onChange={this.handleChangeDatacenter}
                     value={this.state.selectedDatacenterOption}
                     renderInput={params => (
@@ -545,6 +1210,7 @@ export class EditInstanceForm extends Component {
                   <TextField label='Asset Number' type="text" fullWidth
                     InputLabelProps={{ shrink: true }}
                     value={this.state.asset.asset_number}
+                    disabled={true}
                     onChange={e => {
                       let instanceCopy = JSON.parse(JSON.stringify(this.state.asset))
                       instanceCopy.asset_number = e.target.value
@@ -557,65 +1223,90 @@ export class EditInstanceForm extends Component {
 
 
                 <Grid item xs={6}>
+                  {this.state.is_offline ? <p></p> : rack_select}
+                </Grid>
+                <Grid item xs={6}>
+                  {this.state.is_offline ? <p></p> : rack_u_select}
+                </Grid>
+
+                <Grid item xs={6}>
                   <Autocomplete
                     autoComplete
                     autoHighlight
                     autoSelect
-                    id="instance-create-rack-select"
-                    options={this.state.rackOptions}
+                    id="instance-create-location-select"
+                    options={this.state.locationOptions}
                     getOptionLabel={option => option.label}
-                    onChange={this.handleChangeRack}
-                    value={this.state.selectedRackOption}
-                    disabled={this.state.selectedDatacenterOption === null}
+                    onChange={this.handleChangeLocation}
+                    value={this.state.selectedLocationOption}
+                    disabled={this.state.selectedDatacenterOption === null || this.state.currentMountType != 'blade'}
                     renderInput={params => (
-                      <TextField {...params} label="Rack" fullWidth />
+                      <TextField {...params} label="Location" fullWidth />
                     )}
                   />
                 </Grid>
+
                 <Grid item xs={6}>
-                  < TextField label="Rack U"
+                  {/* < TextField label="Chassis Slot"
                     fullWidth
                     type="number"
-                    value={this.state.asset.rack_u}
+                    disabled={this.state.currentMountType != 'blade'}
+                    value={this.state.asset.slot_number}
                     InputLabelProps={{ shrink: true }}
                     onChange={e => {
                       let instanceCopy = JSON.parse(JSON.stringify(this.state.asset))
-                      instanceCopy.rack_u = e.target.value
+                      instanceCopy.slot_number = e.target.value
                       this.setState({
                         asset: instanceCopy
                       })
-                    }} />
+                    }} /> */}
+                  <Autocomplete
+                    autoComplete
+                    autoHighlight
+                    autoSelect
+                    id="instance-create-slot-select"
+                    options={this.state.slotNumberOptions}
+                    getOptionLabel={option => option.label}
+                    onChange={this.handleChangeSlotNumber}
+                    value={this.state.selectedSlotNumberOption}
+                    disabled={this.state.selectedDatacenterOption === null || this.state.selectedLocationOption == null || this.state.currentMountType != 'blade'}
+                    renderInput={params => (
+                      <TextField {...params} label="Chassis slot number" fullWidth />
+                    )}
+                  />
                 </Grid>
 
                 <Grid item xs={6}>
-                  <Paper>
-                    <Typography variant="h6" gutterBottom>
-                      Network Ports
-                    </Typography>
-                    <List style={{ maxHeight: 200, overflow: 'auto' }}>
-                      {this.openNetworkPortConfigAndMAC()}
-                    </List>
-                  </Paper>
+                  {this.state.is_offline ? <p></p> :
+                    <Paper>
+                      <Typography variant="h6" gutterBottom>
+                        Network Ports
+                        </Typography>
+                      <List style={{ maxHeight: 200, overflow: 'auto' }}>
+                        {this.openNetworkPortConfigAndMAC()}
+                      </List>
+                    </Paper>}
 
                 </Grid>
 
                 <Grid item xs={6}>
-                  <Paper>
-                    <Typography variant="h6" gutterBottom>
-                      Power Ports
-                    </Typography>
-                    <PowerPortConnectionDialog
-                      sendPowerPortConnectionInfo={this.getPowerPortConnectionInfo}
-                      numberOfPowerPorts={this.state.numberOfPowerPorts}
-                      rackID={this.state.selectedRackOption ? this.state.selectedRackOption.id : null}
-                      leftPPName={this.state.leftPPName}
-                      rightPPName={this.state.rightPPName}
-                      leftFree={this.state.leftFreePDUSlots}
-                      rightFree={this.state.rightFreePDUSlots}
-                      isDisabled={this.state.selectedRackOption === null || this.state.selectedModelOption === null}
-                      currentPowerPortConfiguration={this.state.asset ? this.state.asset.power_ports : null}
-                    />
-                  </Paper>
+                  {this.state.is_offline ? <p></p> :
+                    <Paper>
+                      <Typography variant="h6" gutterBottom>
+                        Power Ports
+                  </Typography>
+                      <PowerPortConnectionDialog
+                        sendPowerPortConnectionInfo={this.getPowerPortConnectionInfo}
+                        numberOfPowerPorts={this.state.numberOfPowerPorts}
+                        rackID={this.state.selectedRackOption ? this.state.selectedRackOption.id : null}
+                        leftPPName={this.state.leftPPName}
+                        rightPPName={this.state.rightPPName}
+                        leftFree={this.state.leftFreePDUSlots}
+                        rightFree={this.state.rightFreePDUSlots}
+                        isDisabled={this.state.selectedRackOption === null || this.state.selectedModelOption === null}
+                        currentPowerPortConfiguration={this.state.asset ? this.state.asset.power_ports : null}
+                      />
+                    </Paper>}
                 </Grid>
 
                 <Grid item xs={6}>
@@ -647,6 +1338,28 @@ export class EditInstanceForm extends Component {
                       })
                     }} />
                 </Grid>
+
+                <Grid item xs={8}>
+                  <Paper>
+                    {this.renderTableToolbar()}
+                    <TableContainer>
+                      <Table
+                        size="small"
+                        aria-labelledby="modelTableTitle"
+                        aria-label="enhanced table"
+                      >
+                        <TableRow>{this.renderTableHeader()}</TableRow>
+
+                        <TableBody textAlign='center' >
+                          {this.renderCheckRow()}
+                          {this.renderTableData()}
+                        </TableBody>
+                      </Table>
+                    </TableContainer>
+                  </Paper>
+                </Grid>
+                <Grid item xs={4}></Grid>
+                <Grid item xs={8}></Grid>
                 <Grid item xs={2}>
                   <Tooltip title='Submit'>
                     <Button variant="contained" type="submit" color="primary" endIcon={<AddCircleIcon />}
@@ -669,5 +1382,7 @@ export class EditInstanceForm extends Component {
     )
   }
 }
+
+EditInstanceForm.contextType = DatacenterContext;
 
 export default EditInstanceForm

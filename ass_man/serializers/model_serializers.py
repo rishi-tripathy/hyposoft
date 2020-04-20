@@ -51,7 +51,7 @@ class ModelSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Model
         fields = ['id', 'vendor', 'model_number', 'height', 'display_color',
-                  'network_ports_num', 'network_ports', 'power_ports', 'cpu', 'memory', 'storage', 'comment']
+                  'network_ports_num', 'network_ports', 'power_ports', 'cpu', 'memory', 'storage', 'comment', 'mount_type']
         validators = [
             UniqueTogetherValidator(
                 queryset=Model.objects.all(),
@@ -65,16 +65,16 @@ class ModelShortSerializer(serializers.HyperlinkedModelSerializer):
         model = Model
         fields = ['id', 'vendor', 'model_number', 'height', 'display_color', 'network_ports_num', 'network_ports',
                   'power_ports', 'cpu',
-                  'memory', 'storage']
+                  'memory', 'storage', 'mount_type']
 
 
 class UniqueModelsSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Model
-        fields = ['id', 'url', 'vendor', 'model_number']
+        fields = ['id', 'url', 'vendor', 'model_number', 'mount_type']
 
 
 class ModelAssetSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Model
-        fields = ['id', 'url', 'vendor', 'model_number', 'display_color']
+        fields = ['id', 'url', 'vendor', 'model_number', 'display_color', 'mount_type']

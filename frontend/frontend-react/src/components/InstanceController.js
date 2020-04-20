@@ -48,10 +48,13 @@ export class InstanceController extends Component {
   getInstances = () => {
     let dst;
     if (this.state.datacenterID === -1 || this.state.datacenterID == null) {
-      dst = '/api/assets/' + '?' + this.state.filterQuery + '&' + this.state.sortQuery;
+      dst = '/api/all_assets/' + '?' + this.state.filterQuery + '&' + this.state.sortQuery + '&offline=false';
+    }
+    else if (this.context.is_offline) {
+      dst = '/api/all_assets/' + '?' + 'datacenter=' + this.state.datacenterID + '&' + this.state.filterquery + '&' + this.state.getSortQuery + '&offline=true';
     }
     else {
-      dst = '/api/assets/' + '?' + 'datacenter=' + this.state.datacenterID + '&' + this.state.filterQuery + '&' + this.state.sortQuery;
+      dst = '/api/all_assets/' + '?' + 'datacenter=' + this.state.datacenterID + '&' + this.state.filterQuery + '&' + this.state.sortQuery;
     }
 
     console.log('QUERY')
@@ -73,6 +76,10 @@ export class InstanceController extends Component {
         console.log(error.response)
         alert('Cannot load. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
       });
+
+    this.setState({
+      showingAll: false,
+    })
   }
 
   getFilterQuery = (q) => {
@@ -148,7 +155,7 @@ export class InstanceController extends Component {
       sort = sort + '&'
     }
 
-    let dst = '/api/assets/' + '?' + filter + sort + 'export=true';
+    let dst = '/api/all_assets/' + '?' + filter + sort + 'export=true';
     console.log('exporting to:  ' + dst);
     const FileDownload = require('js-file-download');
     axios.get(dst).then(res => {
@@ -174,7 +181,7 @@ export class InstanceController extends Component {
       sort = sort + '&'
     }
 
-    let dst = '/api/assets/' + '?' + filter + sort + 'export=true&np=true';
+    let dst = '/api/all_assets/' + '?' + filter + sort + 'export=true&np=true';
     console.log('exporting to:  ' + dst);
     const FileDownload = require('js-file-download');
     axios.get(dst).then(res => {
@@ -198,7 +205,8 @@ export class InstanceController extends Component {
     this.fileUpload(this.state.file).then((response) => {
       alert("Import was successful." + JSON.stringify(response.data, null, 2));
       this.setState({
-        rerender: true});
+        rerender: true
+      });
     })
       .catch(function (error) {
         console.log(error.response)
@@ -223,7 +231,8 @@ export class InstanceController extends Component {
               console.log(error.response)
               alert('Import was not successful.\n' + JSON.stringify(error.response.data, null, 2));
               this.setState({
-                rerender: true});
+                rerender: true
+              });
             });
         }
       });
@@ -364,7 +373,7 @@ export class InstanceController extends Component {
       sort = sort + '&'
     }
 
-    let dst = '/api/assets/' + '?' + filter + sort + 'show_all=true';
+    let dst = '/api/all_assets/' + '?' + filter + sort + 'show_all=true';
 
     console.log('QUERY')
     console.log(dst)
@@ -407,7 +416,7 @@ export class InstanceController extends Component {
       assets={this.state.assets}
       filter_query={this.getFilterQuery}
       sendSortQuery={this.getSortQuery}
-      sendRerender={this.getRerender}/>;
+      sendRerender={this.getRerender} />;
 
     let paginateNavigation = <p></p>;
     if (this.state.prevPage == null && this.state.nextPage != null) {
@@ -441,12 +450,12 @@ export class InstanceController extends Component {
     let showAll = <p></p>;
     if (this.state.prevPage != null || this.state.nextPage != null || this.state.showingAll) {
       showAll = <FormControlLabel labelPlacement="left"
-                                      control={
-                                        <Switch value={this.state.showingAll} onChange={() => this.toggleShowingAll()} />
-                                      }
-                                      label={
-                                        <Typography variant="subtitle1"> Show All</Typography>
-                                      }
+        control={
+          <Switch value={this.state.showingAll} onChange={() => this.toggleShowingAll()} />
+        }
+        label={
+          <Typography variant="subtitle1"> Show All</Typography>
+        }
       />
     }
 
@@ -459,35 +468,45 @@ export class InstanceController extends Component {
 
     ) : <div></div>;
 
-    let imp = (this.context.is_admin || this.context.username === 'admin' || this.context.asset_permission) ? (
-      <>
-        <Button variant="outlined" component="span" startIcon={<CloudUploadIcon />} onClick={this.handleImport}>
-          Import Assets
+    let imp = (
+      this.context.is_admin
+      || this.context.username === 'admin'
+      || this.context.global_asset_permission
+      || this.context.asset_permission.length != 0
+    ) ? (
+        <>
+          <Button variant="outlined" component="span" startIcon={<CloudUploadIcon />} onClick={this.handleImport}>
+            Import Assets
         </Button>
-        <input
-          accept="text/csv"
-          id="outlined-button-file"
-          multiple
-          type="file"
-          onChange={this.handleFileUpload}
-        />
-      </>
-    ) : <div></div>;
+          <input
+            accept="text/csv"
+            id="outlined-button-file"
+            multiple
+            type="file"
+            onChange={this.handleFileUpload}
+          />
+        </>
+      ) : <div></div>;
 
-    let importNetworkConnections = (this.context.is_admin || this.context.username === 'admin' || this.context.asset_permission) ? (
-      <>
-        <Button variant="outlined" component="span" startIcon={<SettingsEthernetIcon />} onClick={this.handleNPImport}>
-          Import Network Connections
+    let importNetworkConnections = (
+      this.context.is_admin
+      || this.context.username === 'admin'
+      || this.context.global_asset_permission
+      || this.context.asset_permission.length != 0
+    ) ? (
+        <>
+          <Button variant="outlined" component="span" startIcon={<SettingsEthernetIcon />} onClick={this.handleNPImport}>
+            Import Network Connections
         </Button>
-        <input
-          accept="text/csv"
-          id="outlined-button-file"
-          multiple
-          type="file"
-          onChange={this.handleNPFileUpload}
-        />
-      </>
-    ) : <div></div>;
+          <input
+            accept="text/csv"
+            id="outlined-button-file"
+            multiple
+            type="file"
+            onChange={this.handleNPFileUpload}
+          />
+        </>
+      ) : <div></div>;
 
     // if we're not on the table, then don't show pagination or filters or sorting
     if (!this.state.showTableView) {
@@ -541,7 +560,7 @@ export class InstanceController extends Component {
               {paginateNavigation}
             </Grid>
             <Grid item xs={12}>
-            {this.state.loading ? <center><CircularProgress size={100} /></center> : content }
+              {this.state.loading ? <center><CircularProgress size={100} /></center> : content}
             </Grid>
           </Grid>
         </Container>

@@ -16,6 +16,7 @@ import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import FirstPageIcon from '@material-ui/icons/FirstPage';
 import LastPageIcon from '@material-ui/icons/LastPage';
+import { jsonToHumanText } from './Helpers'
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
@@ -37,9 +38,11 @@ export class EditUserForm extends Component {
       hasPowerPermission: false,
       hasAuditPermission: false,
 
+      hasGlobalAssetPermission: false,
 
       datacenterOptions: [],
 
+      offlineStorageSiteOptions: [],
 
       // this is the DC permissions
       selectedDatacenterOption: [],
@@ -73,9 +76,10 @@ export class EditUserForm extends Component {
     axios.get(dst).then(res => {
       console.log(res.data)
       this.setState({
-        hasModelPermission: res.data.model_permission,
-        hasPowerPermission: res.data.power_permission,
-        hasAuditPermission: res.data.log_permission,
+        hasModelPermission: res.data.model_permission === 'true' ? true : false,
+        hasPowerPermission: res.data.power_permission === 'true' ? true : false,
+        hasAuditPermission: res.data.log_permission === 'true' ? true : false,
+        hasGlobalAssetPermission: res.data.global_asset === 'true' ? true : false,
         selectedDatacenterOption: res.data.asset_permission,
       })
     })
@@ -88,15 +92,24 @@ export class EditUserForm extends Component {
   loadDatacenters = () => {
     const dst = '/api/datacenters/?show_all=true';
     axios.get(dst).then(res => {
-      let myOptions = [];
+      let myDcOptions = [];
+      let myOsOptions = [];
       for (let i = 0; i < res.data.length; i++) {
-        //TODO: change value to URL
-        myOptions.push({ value: res.data[i].id, label: res.data[i].abbreviation });
+        //TODO: change value to URL -- i think this is Michae'ls todo
+
+        if (res.data[i].is_offline) {
+          myOsOptions.push({ value: res.data[i].id, label: res.data[i].abbreviation });
+        }
+        else {
+          myDcOptions.push({ value: res.data[i].id, label: res.data[i].abbreviation });
+
+        }
       }
       // let allDCs = { value: null, label: 'ALL', id: -1 };
       // myOptions.push(allDCs)
       this.setState({
-        datacenterOptions: myOptions,
+        datacenterOptions: myDcOptions,
+        offlineStorageSiteOptions: myOsOptions,
         // selectedDatacenterOption: {
         //   value: this.state.asset.datacenter ? this.state.asset.datacenter.url : null,
         //   label: this.state.asset.datacenter ? this.state.asset.datacenter.abbreviation : null,
@@ -106,7 +119,7 @@ export class EditUserForm extends Component {
     })
       .catch(function (error) {
         // TODO: handle error
-        alert('Could not load owners. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+        alert('Could not load owners. Re-login.\n');
       });
   }
 
@@ -127,6 +140,7 @@ export class EditUserForm extends Component {
     obj.asset = this.state.selectedDatacenterOption;
     obj.power = this.state.hasPowerPermission.toString();
     obj.log = this.state.hasAuditPermission.toString();
+    obj.global_asset = this.state.hasGlobalAssetPermission.toString();
 
     obj.username = this.state.username;
 
@@ -135,10 +149,6 @@ export class EditUserForm extends Component {
     axios.post('/update-permissions/', obj)
       .then(function (response) {
         alert('Permissions successfully updated');
-        // window.location = '/assets'
-        // self.setState({
-        //   redirect: true,
-        // })
       })
       .catch(function (error) {
         alert('Permissions were not updated.\n' + JSON.stringify(error.response.data, null, 2));
@@ -166,7 +176,7 @@ export class EditUserForm extends Component {
         })
       })
       .catch(function (error) {
-        alert('Edit was not successful.\n' + JSON.stringify(error.response.data, null, 2));
+        alert('Edit was not successful.\n' + jsonToHumanText(error.response.data));
       });
 
   }
@@ -215,7 +225,17 @@ export class EditUserForm extends Component {
     }
   };
 
+  handleGlobalAssetPermissionChange = (event) => {
+    if (event.target.value === 'true') {
+      this.setState({ hasGlobalAssetPermission: true });
+    }
+    else {
+      this.setState({ hasGlobalAssetPermission: false });
+    }
+  }
+
   render() {
+    console.log(this.state)
     if (this.state.redirect) {
       return <Redirect to={{ pathname: '/users' }} />
 
@@ -225,6 +245,18 @@ export class EditUserForm extends Component {
     </Typography>
 
     console.log(this.state)
+
+    let groupedOptions = [
+      {
+        label: 'Datacenters',
+        options: this.state.datacenterOptions,
+      },
+      {
+        label: 'Offline Storage Centers',
+        //TODO: change below to oss
+        options: this.state.offlineStorageSiteOptions,
+      }
+    ]
 
     return (
       <div>
@@ -254,104 +286,107 @@ export class EditUserForm extends Component {
                   {
                     !this.state.is_admin ? (
                       <div>
-                          <Grid container spacing={3}>
-                            <Grid item alignContent='center' xs={4}>
-                              <FormLabel component="legend">
-                                <Typography variant="h6" gutterBottom>
-                                  Model Permission
+                        <Grid container spacing={3}>
+                          <Grid item alignContent='center' xs={4}>
+                            <FormLabel component="legend">
+                              <Typography variant="h6" gutterBottom>
+                                Model Permission
                             </Typography>
-                              </FormLabel>
-                            </Grid>
-                            <Grid item xs={4}>
-                              <FormControl component="fieldset">
-                                <RadioGroup aria-label="modelPermissions" name="modelPermissions" value={this.state.hasModelPermission.toString()}
-                                  onChange={this.handleModelChange}>
-                                  <FormControlLabel value='true' control={<Radio />} label="On" />
-                                  <FormControlLabel value='false' control={<Radio />} label="Off" />
-                                </RadioGroup>
-                              </FormControl>
-                            </Grid>
-                            <Grid item xs={4}>
-                            </Grid>
-                            <Grid item alignContent='center' xs={4}>
-                              <FormLabel component="legend">
-                                <Typography variant="h6" gutterBottom>
-                                  Asset Permission
-                            </Typography>
-                              </FormLabel>
-                            </Grid>
-                            <Grid item xs={8}>
-                              <DualListBox
-                                options={this.state.datacenterOptions}
-                                selected={this.state.selectedDatacenterOption}
-                                onChange={this.handleDatacenterChange}
-                                icons={{
-
-                                  moveLeft: <ChevronLeftIcon />,
-                                  moveAllLeft: [
-                                    <FirstPageIcon />
-                                  ],
-                                  moveRight: <ChevronRightIcon />,
-                                  moveAllRight: [
-                                    <LastPageIcon />
-                                  ],
-                                  moveDown: <span className="fa fa-chevron-down" />,
-                                  moveUp: <span className="fa fa-chevron-up" />,
-                                }}
-                              />
-                              {/* <Autocomplete
-                                autoComplete
-                                autoHighlight
-                                autoSelect
-                                id="datacenter-select"
-                                options={this.state.datacenterOptions}
-                                getOptionLabel={option => option.label}
-                                onChange={this.handleDatacenterChange}
-                                value={this.state.selectedDatacenterOption}
-                                renderInput={params => (
-                                  <TextField {...params} label="Datacenter" fullWidth />
-                                )}
-                              /> */}
-                            </Grid>
-                            {/* <Grid item xs={4}>
-                            </Grid> */}
-                            <Grid item alignContent='center' xs={4}>
-                              <FormLabel component="legend">
-                                <Typography variant="h6" gutterBottom>
-                                  Power Permission
-                            </Typography>
-                              </FormLabel>
-                            </Grid>
-                            <Grid item xs={4}>
-                              <FormControl component="fieldset">
-                                <RadioGroup aria-label="powerPermissions" name="powerPermissions" value={this.state.hasPowerPermission.toString()}
-                                  onChange={this.handlePowerChange}>
-                                  <FormControlLabel value='true' control={<Radio />} label="On" />
-                                  <FormControlLabel value='false' control={<Radio />} label="Off" />
-                                </RadioGroup>
-                              </FormControl>
-                            </Grid>
-                            <Grid item xs={4}>
-                            </Grid>
-                            <Grid item alignContent='center' xs={4}>
-                              <FormLabel component="legend">
-                                <Typography variant="h6" gutterBottom>
-                                  Audit Permission
-                            </Typography>
-                              </FormLabel>
-                            </Grid>
-                            <Grid item xs={4}>
-                              <FormControl component="fieldset">
-                                <RadioGroup aria-label="auditPermissions" name="auditPermissions" value={this.state.hasAuditPermission.toString()}
-                                  onChange={this.handleAuditChange}>
-                                  <FormControlLabel value='true' control={<Radio />} label="On" />
-                                  <FormControlLabel value='false' control={<Radio />} label="Off" />
-                                </RadioGroup>
-                              </FormControl>
-                            </Grid>
-                            <Grid item xs={4}>
-                            </Grid>
+                            </FormLabel>
                           </Grid>
+                          <Grid item xs={4}>
+                            <FormControl component="fieldset">
+                              <RadioGroup aria-label="modelPermissions" name="modelPermissions" value={this.state.hasModelPermission.toString()}
+                                onChange={this.handleModelChange}>
+                                <FormControlLabel value='true' control={<Radio />} label="On" />
+                                <FormControlLabel value='false' control={<Radio />} label="Off" />
+                              </RadioGroup>
+                            </FormControl>
+                          </Grid>
+                          <Grid item xs={4}>
+                          </Grid>
+                          <Grid item alignContent='center' xs={4}>
+                            <FormLabel component="legend">
+                              <Typography variant="h6" gutterBottom>
+                                Asset Permission
+                            </Typography>
+                            </FormLabel>
+                          </Grid>
+                          <Grid item xs={3}>
+                            <FormControl component="fieldset">
+                              <RadioGroup aria-label="globalAssetPermissions" name="globalAssetPermissions" value={this.state.hasGlobalAssetPermission.toString()}
+                                onChange={this.handleGlobalAssetPermissionChange}>
+                                <FormControlLabel value='true' control={<Radio />} label="Global" />
+                                <FormControlLabel value='false' control={<Radio />} label="Per DC" />
+                              </RadioGroup>
+                            </FormControl>
+                          </Grid>
+                          <Grid item xs={5}>
+                            {
+                              !this.state.hasGlobalAssetPermission ? (
+                                <DualListBox
+                                  options={groupedOptions}
+                                  selected={this.state.selectedDatacenterOption}
+                                  onChange={this.handleDatacenterChange}
+                                  icons={{
+
+                                    moveLeft: <ChevronLeftIcon />,
+                                    moveAllLeft: [
+                                      <FirstPageIcon />
+                                    ],
+                                    moveRight: <ChevronRightIcon />,
+                                    moveAllRight: [
+                                      <LastPageIcon />
+                                    ],
+                                    moveDown: <span className="fa fa-chevron-down" />,
+                                    moveUp: <span className="fa fa-chevron-up" />,
+                                  }}
+                                />
+                              ) : (
+                                  <div>
+                                  </div>
+                                )
+                            }
+                          </Grid>
+                          {/* <Grid item xs={4}>
+                            </Grid> */}
+                          <Grid item alignContent='center' xs={4}>
+                            <FormLabel component="legend">
+                              <Typography variant="h6" gutterBottom>
+                                Power Permission
+                            </Typography>
+                            </FormLabel>
+                          </Grid>
+                          <Grid item xs={4}>
+                            <FormControl component="fieldset">
+                              <RadioGroup aria-label="powerPermissions" name="powerPermissions" value={this.state.hasPowerPermission.toString()}
+                                onChange={this.handlePowerChange}>
+                                <FormControlLabel value='true' control={<Radio />} label="On" />
+                                <FormControlLabel value='false' control={<Radio />} label="Off" />
+                              </RadioGroup>
+                            </FormControl>
+                          </Grid>
+                          <Grid item xs={4}>
+                          </Grid>
+                          <Grid item alignContent='center' xs={4}>
+                            <FormLabel component="legend">
+                              <Typography variant="h6" gutterBottom>
+                                Audit Permission
+                            </Typography>
+                            </FormLabel>
+                          </Grid>
+                          <Grid item xs={4}>
+                            <FormControl component="fieldset">
+                              <RadioGroup aria-label="auditPermissions" name="auditPermissions" value={this.state.hasAuditPermission.toString()}
+                                onChange={this.handleAuditChange}>
+                                <FormControlLabel value='true' control={<Radio />} label="On" />
+                                <FormControlLabel value='false' control={<Radio />} label="Off" />
+                              </RadioGroup>
+                            </FormControl>
+                          </Grid>
+                          <Grid item xs={4}>
+                          </Grid>
+                        </Grid>
                       </div>
                     )
                       : <div></div>

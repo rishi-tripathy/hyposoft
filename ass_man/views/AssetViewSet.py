@@ -16,11 +16,12 @@ from rest_framework import viewsets
 from ass_man.serializers.asset_serializers import AssetSerializer, AssetFetchSerializer, AssetShortSerializer, \
     AssetSeedForGraphSerializer
 from ass_man.serializers.model_serializers import UniqueModelsSerializer
+from ass_man.serializers.blade_serializer import BladeServerSerializer
 
 # Auth
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 # Project
-from ass_man.models import Model, Asset, Rack, Datacenter, Network_Port, Power_Port, PDU, Asset_Number, Decommissioned, Permission
+from ass_man.models import Model, Asset, Rack, Datacenter, Network_Port, Power_Port, PDU, Asset_Number, Decommissioned, BladeServer, Permission
 from rest_framework.filters import OrderingFilter
 from django_filters import rest_framework as djfiltBackend
 from ass_man.filters import AssetFilter, AssetFilterByRack
@@ -62,7 +63,7 @@ class AssetViewSet(viewsets.ModelViewSet):
                     else:
                         datacenter_url = self.request.data.get('datacenter')
                         datacenter = Datacenter.objects.all().get(pk=datacenter_url[-2])
-                    if user.is_superuser or user.permission_set.get(name='asset', datacenter=datacenter):
+                    if user.is_superuser or user.is_staff or user.permission_set.get(name='global-asset', user=user) or user.permission_set.get(name='asset', datacenter=datacenter):
                         permission_classes = [IsAuthenticated]
                 except:
                     permission_classes = [IsAdminUser]
@@ -94,6 +95,16 @@ class AssetViewSet(viewsets.ModelViewSet):
         except KeyError:
             power_ports_json = None
         context["power_ports"] = power_ports_json
+        try:
+            method = self.request.method
+        except:
+            method = ''
+        context['method'] = method
+        try:
+            hostname = self.get_object().hostname
+        except:
+            hostname = ''
+        context['hostname'] = hostname
         return context
 
     ordering_fields = ASSET_ORDERING_FILTERING_FIELDS
@@ -205,9 +216,10 @@ class AssetViewSet(viewsets.ModelViewSet):
         # asset.save()
         # asset.datacenter.asset_set.add(asset)
         rack = asset.rack
-        for i in range(asset.rack_u, asset.rack_u + asset.model.height):
-            exec('rack.u{} = asset'.format(i))
-        rack.save()
+        if rack:
+            for i in range(asset.rack_u, asset.rack_u + asset.model.height):
+                exec('rack.u{} = asset'.format(i))
+            rack.save()
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
@@ -218,15 +230,17 @@ class AssetViewSet(viewsets.ModelViewSet):
         prev_rack_u = asset.rack_u
         serializer = self.get_serializer(asset, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
-        for i in range(prev_rack_u, prev_rack_u + asset.model.height + 1):
-            exec('prev_rack.u{} = None'.format(i))
-        prev_rack.save()
+        if prev_rack:
+            for i in range(prev_rack_u, prev_rack_u + asset.model.height + 1):
+                exec('prev_rack.u{} = None'.format(i))
+            prev_rack.save()
         self.perform_update(serializer)
         asset = self.get_object()
         new_rack = asset.rack
-        for i in range(asset.rack_u, asset.rack_u + asset.model.height):
-            exec('new_rack.u{} = asset'.format(i))
-        new_rack.save()
+        if new_rack:
+            for i in range(asset.rack_u, asset.rack_u + asset.model.height):
+                exec('new_rack.u{} = asset'.format(i))
+            new_rack.save()
         network_ports_json, power_ports_json = self.get_port_jsons(request)
         self.cru_network_ports(request, asset, network_ports_json)
         self.cru_power_ports(request, asset, power_ports_json)
@@ -237,6 +251,42 @@ class AssetViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
     def list(self, request, *args, **kwargs):
+        if request.query_params.get('offline') == 'true':
+
+            queryset = self.filter_queryset(Asset.objects.all().annotate(rack_letter=Cast('asset_number', CharField()))
+                                            .annotate(numstr_in_rack=Cast('asset_number', CharField()))
+                                            .annotate(number_in_racknum=Cast('asset_number', IntegerField()))
+                                            .exclude(datacenter__is_offline=False))
+            # Asset.objects.all() \
+            #     .annotate(rack_letter=Substr('rack__rack_number', 1, 1)) \
+            #     .annotate(numstr_in_rack=Substr('rack__rack_number', 2))
+            # queryset = queryset.annotate(number_in_racknum=Cast('numstr_in_rack', IntegerField()))
+            # self.filter_queryset(self.get_queryset())
+            if request.query_params.get('export') == 'true':
+                if request.query_params.get('np') == 'true':
+                    return export_network_ports(queryset)
+                return export_assets(queryset)
+
+            page = self.paginate_queryset(queryset)
+            if page is not None:
+                serializer = self.get_serializer(page, many=True)
+                return self.get_paginated_response(serializer.data)
+            serializer = self.get_serializer(queryset, many=True)
+            return Response(serializer.data)
+
+        if not request.query_params.get('offline') == 'true':
+            queryset = self.filter_queryset(self.get_queryset()).exclude(datacenter__is_offline=True)
+            if request.query_params.get('export') == 'true':
+                queryset = self.filter_queryset(self.get_queryset())
+                if request.query_params.get('np') == 'true':
+                    return export_network_ports(queryset)
+                return export_assets(queryset)
+            page = self.paginate_queryset(queryset)
+            if page is not None:
+                serializer = self.get_serializer(page, many=True)
+                return self.get_paginated_response(serializer.data)
+            serializer = self.get_serializer(queryset, many=True)
+            return Response(serializer.data)
         if request.query_params.get('export') == 'true':
             queryset = self.filter_queryset(self.get_queryset())
             if request.query_params.get('np') == 'true':
@@ -256,14 +306,35 @@ class AssetViewSet(viewsets.ModelViewSet):
         return super().destroy(self, request, *args, **kwargs)
 
     # Custom actions below
+    @action(detail=True, methods=[GET])
+    def chassis_slots(self, request, *args, **kwargs):
+        asset = self.get_object()
+        if asset.model.mount_type != 'chassis':
+            return Response("Detail must specify a chassis.")
+        openings = []
+        for i in range(1, 15):
+            if not len(asset.bladeserver_set.filter(slot_number=i).all()) > 0:
+                openings.append(i)
+        return Response(openings)
+    @action(detail=True, methods=[GET])
+    def blades(self, request, *args, **kwargs):
+        asset = self.get_object()
+        blades = asset.bladeserver_set
+        serializer = BladeServerSerializer(blades, many=True, context={'request': request})
+        return Response(serializer.data)
+
     @action(detail=False, methods=[GET])
     def asset_number(self, request, *args, **kwargs):
-        try:
-            num = Asset_Number.objects.get(pk=1)
-            ass_num = num.next_avail
-        except Asset_Number.DoesNotExist:
+        num = Asset_Number.objects.all().first()
+        if not num:
             num = Asset_Number.objects.create(next_avail=100000)
-            ass_num = num.next_avail
+        ass_num = num.next_avail
+        # try:
+        #     num = Asset_Number.objects.get(pk=1)
+        #     ass_num = num.next_avail
+        # except Asset_Number.DoesNotExist:
+        #     num = Asset_Number.objects.create(next_avail=100000)
+        #     ass_num = num.next_avail
         return Response({
             'asset_number': ass_num
         })
@@ -435,7 +506,10 @@ class AssetViewSet(viewsets.ModelViewSet):
         table = []
         dict = {}
         for i in asset_ids:
-            asset = Asset.objects.all().get(pk=i)
+            try:
+                asset = Asset.objects.all().get(pk=i)
+            except Asset.DoesNotExist:
+                asset = BladeServer.objects.all().get(pk=i)
             if count == 1:
                 dict['one'] = asset.asset_number
             if count == 2:

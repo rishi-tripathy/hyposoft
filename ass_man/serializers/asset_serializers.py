@@ -1,4 +1,4 @@
-from ass_man.models import Asset, Power_Port, Network_Port, PDU, Asset_Number
+from ass_man.models import Asset, Power_Port, Network_Port, PDU, Asset_Number, BladeServer
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from django.core.validators import MinValueValidator
@@ -13,18 +13,37 @@ from ass_man.serializers.power_port_serializers import PowerPortSerializer
 from ass_man.serializers.rack_serializers import RackOfAssetSerializer
 from ass_man.serializers.datacenter_serializers import DatacenterSerializer
 
+class ChassisSerializer(serializers.ModelSerializer):
+    model = ModelAssetSerializer()
+    datacenter = DatacenterSerializer()
+    class Meta:
+        model = Asset
+        fields = ['id', 'hostname', 'datacenter', 'model', 'ovr_color', 'ovr_storage', 'ovr_cpu', 'ovr_memory']
 
 class AssetSerializer(serializers.HyperlinkedModelSerializer):
     # hostname = serializers.CharField(validators=[UniqueValidator(queryset=Asset.objects.all())])
-    rack_u = serializers.IntegerField(validators=[MinValueValidator(1)])
 
     # network_ports = NetworkPortSerializer()
     # power_ports = PowerPortSerializer()
     # model = ModelAssetSerializer()
 
     def check_rack_u_validity(self, validated_data, asset=None):
+        if validated_data['datacenter'].is_offline:
+            return
         rack = validated_data['rack']
         rack_u = validated_data['rack_u']
+        if not rack:
+            raise serializers.ValidationError({
+                'Bad Rack': 'You must specify a rack for an asset in an online datacenter.'
+            })
+        if not rack_u:
+            raise serializers.ValidationError({
+                'Bad rack_u': 'You must specify a rack_u for an asset in an online datacenter.'
+            })
+        if rack_u < 1:
+            raise serializers.ValidationError({
+                'Bad rack_u': 'The specified rack_u must be a positive integer.'
+            })
         model = validated_data['model']
         height = model.height
         invalid_list = []
@@ -156,6 +175,7 @@ class AssetSerializer(serializers.HyperlinkedModelSerializer):
     # adapted from https://stackoverflow.com/questions/2063213/regular-expression-for-validating-dns-label-host-name
 
     def validate_hostname(self, value):
+        print("CALLED VALIDATE HOSTNAME")
         if not value:
             return value
         if not re.match('^(?![0-9]+$)(?!-)[a-zA-Z0-9-]{,63}(?<!-)$', value):
@@ -163,6 +183,10 @@ class AssetSerializer(serializers.HyperlinkedModelSerializer):
                 '{} is not an valid hostname. Please ensure this value is a valid hostname as per RFC 1034.'.format(
                     value.__str__())
             )
+        print(self.context['hostname'])
+        print(self.context['method'])
+        if self.context['method'] == 'PUT' and value == self.context['hostname']:
+            return value
         if value:
             try:
                 Asset.objects.all().get(hostname=value)
@@ -170,53 +194,104 @@ class AssetSerializer(serializers.HyperlinkedModelSerializer):
                     '{} is not a unique hostname. Please ensure this value is unique across all assets.'.format(
                         value.__str__())
                 )
-            except Asset.DoesNotExist:
+                BladeServer.objects.all().get(hostname=value)
+                raise serializers.ValidationError(
+                    '{} is not a unique hostname. Please ensure this value is unique across all assets.'.format(
+                        value.__str__())
+                )
+            except (Asset.DoesNotExist, BladeServer.DoesNotExist):
                 pass
-
         return value
 
     def check_asset_number(self, validated_data):
+        print('check asset number')
         try:
             validated_data['asset_number']
+            bladeserver= True
+            asset = True
+            try:
+                BladeServer.objects.get(asset_number=validated_data['asset_number'])
+            except BladeServer.DoesNotExist:
+                bladeserver = False
             try:
                 Asset.objects.get(asset_number=validated_data['asset_number'])
             except Asset.DoesNotExist:
-                try:
-                    num = Asset_Number.objects.get(pk=1)
-                except Asset_Number.DoesNotExist:
+                asset = False
+            if not bladeserver and not asset:
+                print('asset number does not exist')
+                bladeserver= True
+                asset = True
+                num = Asset_Number.objects.all().first()
+                if not num:
                     num = Asset_Number.objects.create(next_avail=100000)
+                    print('new num')
                 if validated_data['asset_number'] == num.next_avail:
-                    try:
-                        curr = num.next_avail
-                        while True:
+                    print('input is next avail')
+                    curr = num.next_avail+1
+                    while True:
+                        bladeserver= True
+                        asset = True
+                        try:
+                            BladeServer.objects.get(asset_number=curr)
+                        except BladeServer.DoesNotExist:
+                            bladeserver = False
+                        try:
                             Asset.objects.get(asset_number=curr)
-                            curr += 1
-                    except Asset.DoesNotExist:
-                        num.next_avail = curr+1
-                        num.save()
+                        except Asset.DoesNotExist:
+                            asset = False
+                        print(asset)
+                        print(bladeserver)
+                        print(curr)
+                        if not asset and not bladeserver:
+                            num.next_avail = curr
+                            num.save()
+                            break
+                        curr += 1
+
                 return validated_data
             raise serializers.ValidationError(
                 "Asset Number: {} is already taken.".format(validated_data['asset_number'])
             )
         except KeyError:
-            try:
-                num = Asset_Number.objects.get(pk=1)
-            except Asset_Number.DoesNotExist:
+            print('key error')
+            print(validated_data)
+            num = Asset_Number.objects.all().first()
+            if not num:
                 num = Asset_Number.objects.create(next_avail=100000)
-            try:
-                curr = num.next_avail
-                while True:
+            # try:
+            #     num = Asset_Number.objects.get(pk=1)
+            # except Asset_Number.DoesNotExist:
+            #     num = Asset_Number.objects.create(next_avail=100000)
+
+            curr = num.next_avail
+            bladeserver= True
+            asset = True
+            notset = True
+            while True:
+                try:
+                    BladeServer.objects.get(asset_number=curr)
+                except BladeServer.DoesNotExist:
+                    bladeserver = False
+                try:
                     Asset.objects.get(asset_number=curr)
-                    curr += 1
-            except Asset.DoesNotExist:
-                num.next_avail = curr + 1
-                num.save()
-                validated_data['asset_number'] = curr
-                return validated_data
+                except Asset.DoesNotExist:
+                    asset = False
+                if not asset and not bladeserver:
+                    if notset:
+                        validated_data['asset_number'] = curr
+                        notset = False
+                    else:
+                        num.next_avail = curr
+                        num.save()
+                        break
+                curr += 1
+
+            return validated_data
 
     class Meta:
         model = Asset
-        fields = ['id', 'model', 'hostname', 'datacenter', 'rack', 'rack_u', 'owner', 'comment', 'asset_number']
+        fields = ['id', 'model', 'hostname', 'datacenter', 'rack', 'rack_u', 'owner',
+                  'ovr_color', 'ovr_storage', 'ovr_cpu', 'ovr_memory', 'comment', 'asset_number']
 
 
 class AssetFetchSerializer(AssetSerializer):
@@ -230,7 +305,7 @@ class AssetFetchSerializer(AssetSerializer):
     class Meta:
         model = Asset
         fields = ['id', 'model', 'hostname', 'datacenter', 'rack', 'rack_u', 'owner', 'comment', 'network_ports',
-                  'power_ports', 'asset_number']
+                  'power_ports', 'ovr_color', 'ovr_storage', 'ovr_cpu', 'ovr_memory', 'asset_number']
 
 
 class AssetShortSerializer(AssetSerializer):
@@ -241,7 +316,8 @@ class AssetShortSerializer(AssetSerializer):
 
     class Meta:
         model = Asset
-        fields = ['id', 'model', 'hostname', 'datacenter', 'rack', 'rack_u', 'asset_number', 'owner']
+        fields = ['id', 'model', 'hostname', 'datacenter', 'rack', 'rack_u',
+                  'ovr_color', 'ovr_storage', 'ovr_cpu', 'ovr_memory', 'asset_number', 'owner']
 
 
 class AssetOfModelSerializer(serializers.HyperlinkedModelSerializer):
@@ -250,7 +326,8 @@ class AssetOfModelSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Asset
-        fields = ['id', 'url', 'hostname', 'datacenter', 'rack', 'rack_u', 'owner']
+        fields = ['id', 'url', 'hostname', 'asset_number', 'datacenter', 'rack', 'rack_u',
+                  'ovr_color', 'ovr_storage', 'ovr_cpu', 'ovr_memory', 'owner']
 
 
 # For the network graph

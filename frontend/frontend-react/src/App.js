@@ -39,6 +39,7 @@ import DatacenterContext from './components/DatacenterContext';
 import DecommissionedController from './components/DecommissionedController';
 import DetailedDecommissionedAsset from './components/DetailedDecommissionedAsset';
 import AssetLabels from './components/AssetLabels';
+import DetailedInstanceOffline from './components/DetailedInstanceOffline';
 
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
@@ -54,6 +55,7 @@ class App extends React.Component {
       datacenter_id: -1,
       datacenter_name: 'ALL',
       datacenter_ab: 'ALL',
+      is_offline: false,
       setDatacenter: this.setDatacenter,
       datacenterOptions: null,
       user_first: null,
@@ -72,12 +74,13 @@ class App extends React.Component {
     }
   }
 
-  setDatacenter = (value, name, ab) => {
+  setDatacenter = (value, name, ab, is_it) => {
     // console.log("changing id to "+ value + " name: "+name);
     this.setState({
       datacenter_id: value,
       datacenter_name: name,
       datacenter_ab: ab,
+      is_offline: is_it,
     });
   }
 
@@ -90,7 +93,7 @@ class App extends React.Component {
     axios.get(dst).then(res => {
       // console.log(res)
       let d = [];
-      let allCase = { id: -1, url: null, abbreviation: 'ALL', name: 'ALL' };
+      let allCase = { id: -1, url: null, abbreviation: 'ALL DC\'s', name: 'ALL' };
       d.push(allCase);
       res.data.map((dc, index) => {
         d.push(dc)
@@ -202,6 +205,7 @@ class App extends React.Component {
           asset_permission: res.data.asset_permission,
           power_permission: res.data.power_permission === 'true',
           audit_permission: res.data.log_permission === 'true',
+          global_asset_permission: res.data.global_asset === 'true',
         });
         //  console.log('going to fill DCs')
         this.getDatacenters();
@@ -227,18 +231,6 @@ class App extends React.Component {
 
     let content;
 
-    //   if (!this.state.logged_in) {
-    //    content =         
-    //    <div id="contentContainer">
-    //     <LandingPage />
-    //     <div id='login'>
-    //       <Button color='primary' onClick={this.handleOnClick}>
-    //         Log In!
-    //     </Button>
-    //     </div>
-    //   </div>;
-    // }
-    // console.log(this.state.delay)
     if (!this.state.logged_in && !this.state.loading) {
       return (
         <center>
@@ -265,9 +257,6 @@ class App extends React.Component {
         return (
           <DatacenterContext.Provider value={{ ...this.state, setDatacenter: this.setDatacenter }}>
             <div>
-              {/* { (this.state.delay  ? 
-        <p></p> :
-        (content) )} */}
               {this.state.datacenterOptions &&
                 <Router>
                   <NavBar />
@@ -350,6 +339,11 @@ class App extends React.Component {
                       path='/assets/:id'
                       exact
                       render={(props) => <DetailedInstance {...props} />} />
+
+                      <Route
+                      path='/assets/:id/offline'
+                      exact
+                      render={(props) => <DetailedInstanceOffline {...props} />} />
 
                     <Route
                       path='/assets/:id/edit'

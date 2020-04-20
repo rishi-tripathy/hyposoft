@@ -1,4 +1,4 @@
-import React, {Component} from 'react'
+import React, { Component } from 'react'
 import ReactDOMServer from 'react-dom'
 // import '../stylesheets/RacksView.css'
 import '../stylesheets/RackTable.css'
@@ -11,7 +11,7 @@ import {
 import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
 import AddCircleIcon from "@material-ui/icons/AddCircle";
-import {Link} from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import DatacenterContext from './DatacenterContext'
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
@@ -68,11 +68,11 @@ export class RacksView extends Component {
   }
 
   handleCondensation = () => {
-    this.setState({condensedView: true});
+    this.setState({ condensedView: true });
   }
 
   handleCondensationOff = () => {
-    this.setState({condensedView: false});
+    this.setState({ condensedView: false });
   }
 
   showAllRacks = () => {
@@ -89,13 +89,13 @@ export class RacksView extends Component {
   }
 
   toggleShowingAll = () => {
-    if(this.state.count === 1){
+    if (this.state.count === 1) {
       this.setState({
         count: 2,
       });
       this.showAllRacks();
     }
-    else{
+    else {
       this.setState(prevState => ({
         showingAll: !prevState.showingAll
       }));
@@ -111,35 +111,35 @@ export class RacksView extends Component {
     }));
   }
 
-    componentDidMount () {
-      // console.log('mounting')
-      // console.log(this.props.allCase)
-      // if(this.props.allCase){
-      //   // if(this.state.datacenterListForShowAll.length === 0){
-      //     this.getDatacentersForTableHeaders();
-      //   // }
-      // }
-      // else {
-      //   this.setState({
-      //     datacenterIds: [],
-      //   })
-      // }
-    }
-
-    // componentDidUpdate (prevProps, prevState) {
-    //   if(this.state.rack !== prevState.rack){
-    //     if(this.props.allCase){
-    //       // if(this.state.datacenterListForShowAll.length === 0){
-    //         this.getDatacentersForTableHeaders();
-    //       // }
-    //     }
-    //     else {
-    //       this.setState({
-    //         datacenterIds: [],
-    //       })
-    //     }
-    //   }
+  componentDidMount() {
+    // console.log('mounting')
+    // console.log(this.props.allCase)
+    // if(this.props.allCase){
+    //   // if(this.state.datacenterListForShowAll.length === 0){
+    //     this.getDatacentersForTableHeaders();
+    //   // }
     // }
+    // else {
+    //   this.setState({
+    //     datacenterIds: [],
+    //   })
+    // }
+  }
+
+  // componentDidUpdate (prevProps, prevState) {
+  //   if(this.state.rack !== prevState.rack){
+  //     if(this.props.allCase){
+  //       // if(this.state.datacenterListForShowAll.length === 0){
+  //         this.getDatacentersForTableHeaders();
+  //       // }
+  //     }
+  //     else {
+  //       this.setState({
+  //         datacenterIds: [],
+  //       })
+  //     }
+  //   }
+  // }
 
   render() {
 
@@ -147,38 +147,50 @@ export class RacksView extends Component {
 
     let is_admin = false;
 
-    if(this.context.is_admin){
+    if (this.context.is_admin) {
       is_admin = true;
     }
 
-    let add = (is_admin || this.context.username === 'admin' || this.context.asset_permission.length != 0) ? (
-      <Link to={'/racks/create'}>
-        <Button color="primary" variant="contained" endIcon={<AddCircleIcon/>}>
-          Add Rack(s)
+    let add =
+      (
+        this.context.is_admin
+        || this.context.username === 'admin'
+        || this.context.global_asset_permission
+        || this.context.asset_permission.length != 0
+      )
+        ? (
+          <Link to={'/racks/create'}>
+            <Button color="primary" variant="contained" endIcon={<AddCircleIcon />}>
+              Add Rack(s)
         </Button>
-      </Link>
-    ) : <p></p>;
+          </Link>
+        ) : <p></p>;
 
-    let deleteMultiple = (is_admin || this.context.username === 'admin' || this.context.asset_permission.length != 0) ? (
-      <Link to={'/racks/delete'}>
-        <Button color='primary' variant="contained" endIcon={<DeleteIcon/>}>
-          Delete Rack Range
+    let deleteMultiple = (
+      this.context.is_admin
+      || this.context.username === 'admin'
+      || this.context.global_asset_permission
+      || this.context.asset_permission.length != 0
+    ) ? (
+        <Link to={'/racks/delete'}>
+          <Button color='primary' variant="contained" endIcon={<DeleteIcon />}>
+            Delete Rack Range
         </Button>
-      </Link>
-    ) : <p></p>;
+        </Link>
+      ) : <p></p>;
 
     let showAll = <FormControlLabel labelPlacement="left"
       control={
-        <Switch value={this.state.showingAll} onChange={() => this.toggleShowingAll()}/>
+        <Switch value={this.state.showingAll} onChange={() => this.toggleShowingAll()} />
       }
       label={
         <Typography variant="subtitle1"> Show All</Typography>
       }
     />
 
-    let condensed  = <FormControlLabel labelPlacement="left"
+    let condensed = <FormControlLabel labelPlacement="left"
       control={
-        <Switch value={this.state.condensedView} onChange={() => this.toggleCondensed()}/>
+        <Switch value={this.state.condensedView} onChange={() => this.toggleCondensed()} />
       }
       label={
         <Typography variant="subtitle1"> Condensed</Typography>
@@ -190,46 +202,46 @@ export class RacksView extends Component {
 
     console.log(this.props.rack)
 
-    if(this.props.rack == null || this.props.rack.length===0){
-      empty = <h1>no racks</h1>;
+    if (this.props.rack == null || this.props.rack.length === 0) {
+      empty = <h1>No racks to display.</h1>;
       showAll = <p></p>;
       condensed = <p></p>;
       deleteMultiple = <p></p>;
     }
 
 
-
     return (
       <Container maxwidth="xl">
+        {this.context.is_offline ? <h1>Assets are not displayed in racks in offline storage sites.</h1> :
           <Grid container className="themed-container" spacing={2}>
-            <Grid item justify="flex-start" alignContent='center' xs={12}/>
+            <Grid item justify="flex-start" alignContent='center' xs={12} />
             <Grid item justify="flex-start" alignContent='flex-start' xs={2}>
-            <div id="hideOnPrint">
-              {add}
-            </div>
-            </Grid>
-            <Grid item justify="center" alignContent="center" xs={3}>
               <div id="hideOnPrint">
-              {deleteMultiple}
+                {add}
               </div>
             </Grid>
             <Grid item justify="center" alignContent="center" xs={3}>
-            <div id="hideOnPrint">
-              {condensed}
+              <div id="hideOnPrint">
+                {deleteMultiple}
+              </div>
+            </Grid>
+            <Grid item justify="center" alignContent="center" xs={3}>
+              <div id="hideOnPrint">
+                {condensed}
               </div>
             </Grid>
             <Grid item justify="flex-end" alignContent="flex-end" xs={3}>
               <div id="hideOnPrint">
 
-              {showAll}
+                {showAll}
               </div>
             </Grid>
             <Grid item xs={12}>
-            {empty}
+              {empty}
               {this.props.rack.map((item, index) =>
-              <div id="rackContainer">
-                <div id='hideOnPrint'>
-                  {is_admin ? (
+                <div id="rackContainer">
+                  <div id='hideOnPrint'>
+                    {is_admin ? (
                       <ButtonGroup alignContent='center'>
                         <Link to={'/racks/' + item.id + '/edit'}>
                           < Tooltip title='Edit'>
@@ -239,29 +251,29 @@ export class RacksView extends Component {
                           </ Tooltip>
                         </Link>
                         < Tooltip title='Delete'>
-                         <IconButton color='secondary' onClick={() => this.showDeleteForm(item.id)}>
-                           <DeleteIcon />
+                          <IconButton color='secondary' onClick={() => this.showDeleteForm(item.id)}>
+                            <DeleteIcon />
                           </IconButton>
                         </Tooltip>
                       </ButtonGroup>
                     )
-                    :
-                    (<p></p>)}
-                </div>
-                <Grid item justify="flex-start" alignContent='center' xs={12} p={2}>
+                      :
+                      (<p></p>)}
+                  </div>
+                  <Grid item justify="flex-start" alignContent='center' xs={12} p={2}>
                     <RackTable
                       sending={this.sendFromRow}
                       sendUrl={this.sendUrlInView}
                       rack={item}
                       condensedState={this.state.condensedView}
                       allCase={this.props.allCase}
-                      dc = {this.props.dcList[index]}/>
-                </Grid>
-              </div>
-        )}
+                      dc={this.props.dcList[index]} />
+                  </Grid>
+                </div>
+              )}
             </Grid>
-          </Grid>
-        </Container>
+          </Grid>}
+      </Container>
     )
   }
 }

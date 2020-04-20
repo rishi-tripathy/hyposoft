@@ -11,6 +11,7 @@ import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
 import FilterListIcon from '@material-ui/icons/FilterList';
 import LocalOfferIcon from '@material-ui/icons/LocalOffer';
+import CheckIcon from '@material-ui/icons/Check';
 import BlockIcon from '@material-ui/icons/Block';
 import InstanceFilters from './InstanceFilters';
 import '../stylesheets/TableView.css'
@@ -48,31 +49,32 @@ export class InstanceTableMUI extends Component {
       // for checkboxes
       selected: [], // list of IDs
       allAssetIDs: [],
+      assetIDsOnPage: [],
 
       //for AssetLabels.js, the labels table
       assetLabelTableGenerationData: [],
       redirectToAssetTagPage: false,
+      is_offline: false,
 
       //spinner for decom
       loadingDecommission: false,
     }
   }
 
-  loadAllAssetIDs = () => {
-    let dst = '/api/assets/all_ids/';
-    axios.get(dst).then(res => {
-      this.setState({
-        allAssetIDs: res.data.ids
-      });
+  loadAssetIDsOnPage = () => {
+    //make list of asset ids that are on the page
+    //let idsOnPage = Object.assign([], this.state.assetIDsOnPage)
+    let idsOnPage = []
+    for (let i = 0; i < this.props.assets.length; i++) {
+      idsOnPage.push(this.props.assets[i].id)
+    }
+    this.setState({
+      assetIDsOnPage: idsOnPage
     })
-      .catch(function (error) {
-        // TODO: handle error
-        alert('Cannot load assets. Re-login.\n' + JSON.stringify(error.response, null, 2));
-      });
   }
 
   componentDidMount() {
-    this.loadAllAssetIDs();
+    this.loadAssetIDsOnPage();
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -80,59 +82,84 @@ export class InstanceTableMUI extends Component {
       console.log('going to asset tags page')
       this.setState({ redirectToAssetTagPage: true })
     }
+
+    if (prevProps.assets !== this.props.assets) {
+      this.loadAssetIDsOnPage();
+    }
   }
 
-  loadAllAssetIDs = () => {
-    let dst = '/api/assets/all_ids/';
-    axios.get(dst).then(res => {
-      this.setState({
-        allAssetIDs: res.data.ids
-      });
-    })
-      .catch(function (error) {
-        // TODO: handle error
-        alert('Cannot load assets. Re-login.\n' + JSON.stringify(error.response, null, 2));
-      });
-  }
-
-  componentDidMount() {
-    this.loadAllAssetIDs();
-  }
-
-  showDecommissionedForm = (id) => {
+  showDecommissionedForm = (id, isBlade) => {
     if (window.confirm('Are you sure you want to decommission?')) {
       this.setState({
         loadingDecommission: true
       })
-      let dst = '/api/assets/'.concat(id).concat('/?decommissioned=true');
-      let self = this
-      axios.delete(dst)
-        .then(function (response) {
-          alert('Decommission was successful');
-          self.setState({
-            loadingDecommission: false
+
+      if (isBlade) {
+        console.log('decommissioning blade')
+        let dst = '/api/blades/'.concat(id).concat('/?decommissioned=true');
+        let self = this
+        axios.delete(dst)
+          .then(function (response) {
+            alert('Decommission was successful');
+            self.setState({
+              loadingDecommission: false
+            })
           })
-        })
-        .catch(function (error) {
-          alert('Decommission was not successful.\n' + JSON.stringify(error.response.data, null, 2));
-          self.setState({
-            loadingDecommission: false
+          .catch(function (error) {
+            alert('Decommission was not successful.\n' + JSON.stringify(error.response.data, null, 2));
+            self.setState({
+              loadingDecommission: false
+            })
+          });
+      }
+      else {
+        console.log('decommissioning nonblade')
+        let dst = '/api/assets/'.concat(id).concat('/?decommissioned=true');
+        let self = this
+        axios.delete(dst)
+          .then(function (response) {
+            alert('Decommission was successful');
+            self.setState({
+              loadingDecommission: false
+            })
           })
-        });
+          .catch(function (error) {
+            alert('Decommission was not successful.\n' + JSON.stringify(error.response.data, null, 2));
+            self.setState({
+              loadingDecommission: false
+            })
+          });
+      }
     }
     this.showRerender();
   }
 
-  showDeleteForm = (id) => {
-    if (window.confirm('Are you sure you want to delete?')) {
-      let dst = '/api/assets/'.concat(id).concat('/');
-      axios.delete(dst)
-        .then(function (response) {
-          alert('Delete was successful');
-        })
-        .catch(function (error) {
-          alert('Delete was not successful.\n' + JSON.stringify(error.response.data, null, 2));
-        });
+  showDeleteForm = (id, isBlade) => {
+    if (isBlade) {
+      console.log('deleting blade')
+      if (window.confirm('Are you sure you want to delete?')) {
+        let dst = '/api/blades/'.concat(id).concat('/');
+        axios.delete(dst)
+          .then(function (response) {
+            alert('Delete was successful');
+          })
+          .catch(function (error) {
+            alert('Delete was not successful.\n' + JSON.stringify(error.response.data, null, 2));
+          });
+      }
+    }
+    else {
+      console.log('deleting nonblade')
+      if (window.confirm('Are you sure you want to delete?')) {
+        let dst = '/api/assets/'.concat(id).concat('/');
+        axios.delete(dst)
+          .then(function (response) {
+            alert('Delete was successful');
+          })
+          .catch(function (error) {
+            alert('Delete was not successful.\n' + JSON.stringify(error.response.data, null, 2));
+          });
+      }
     }
     this.showRerender();
   }
@@ -144,7 +171,7 @@ export class InstanceTableMUI extends Component {
   }
 
   showRerender = () => {
-    this.loadAllAssetIDs();
+    this.loadAssetIDsOnPage();
     this.props.sendRerender(true);
   }
 
@@ -173,15 +200,15 @@ export class InstanceTableMUI extends Component {
     let arrayToSend = Object.assign([], this.state.selected)
     console.log(arrayToSend)
 
-    // this.setState({ 
+    // this.setState({
     //   assetLabelTableGenerationData: [
-    //     { 
-    //       one: 100000, 
-    //       two: 100001, 
-    //       three: 100002, 
+    //     {
+    //       one: 100000,
+    //       two: 100001,
+    //       three: 100002,
     //       four: 100003,
     //     }
-    //   ] 
+    //   ]
     // })
 
     var self = this
@@ -242,7 +269,7 @@ export class InstanceTableMUI extends Component {
         </Collapse>
         <Tooltip title="Filter list">
           <Button endIcon={<FilterListIcon />} onClick={() => this.handleOpenFilters()} aria-label="filter instance list">
-            Filter
+
           </Button>
         </Tooltip>
       </Toolbar>
@@ -252,147 +279,344 @@ export class InstanceTableMUI extends Component {
   renderTableHeader() {
     //These now come from sorting fields
     let headCells = [
-      { id: 'rack__rack_number', label: 'Rack' },
+      { id: 'rack_number', label: 'Rack' },
       { id: 'rack_u', label: 'Rack U' },
-      { id: 'model__vendor', label: 'Vendor' },
-      { id: 'model__model_number', label: 'Model Number' },
+      { id: 'location', label: 'Location' },
+      { id: 'slot_number', label: 'Slot No.' },
+      { id: 'vendor', label: 'Vendor' },
+      { id: 'model_number', label: 'Model Number' },
+      { id: 'override', label: 'Model Updated' },
       { id: 'hostname', label: 'Hostname' },
-      { id: 'datacenter', label: 'Datacenter' },
+      { id: 'datacenter', label: 'Site' },
       { id: 'owner', label: 'Owner' },
       // { id: 'np', label: 'Network Ports' },
       // { id: 'pp', label: 'Power Ports' },
       { id: 'asset_number', label: 'Asset no.' },
-    ];
-    return headCells.map(headCell => (
-      <TableCell
-        key={headCell.id}
-        align={'center'}
-        padding={'default'}
+      { id: 'actions', label: 'Actions' },
 
-      >
-        <TableSortLabel
-          active={this.state.sortBy === headCell.id}
-          hideSortIcon={!(this.state.sortBy === headCell.id)}
-          direction={this.state.sortBy === headCell.id ? this.state.sortType : false}
-          onClick={() => this.handleHeaderClickSort(headCell.id)}
+    ];
+
+    if (this.context.is_offline) {
+      headCells = [
+        { id: 'location', label: 'Location' },
+        { id: 'slot_number', label: 'Slot No.' },
+        { id: 'model__vendor', label: 'Vendor' },
+        { id: 'model_number', label: 'Model Number' },
+        { id: 'override', label: 'Model Updated' },
+        { id: 'hostname', label: 'Hostname' },
+        { id: 'datacenter', label: 'Site' },
+        { id: 'owner', label: 'Owner' },
+        // { id: 'np', label: 'Network Ports' },
+        // { id: 'pp', label: 'Power Ports' },
+        { id: 'asset_number', label: 'Asset no.' },
+      ];
+    }
+
+    return headCells.map(headCell => (
+      headCell.id === 'actions' ?
+        <TableCell
+          key={headCell.id}
+          align={'center'}
+          padding={'default'}
+          rowSpan={4}
         >
-          {headCell.label.toUpperCase()}
-        </TableSortLabel>
-      </TableCell>
+          <TableSortLabel
+            active={this.state.sortBy === headCell.id}
+            hideSortIcon={!(this.state.sortBy === headCell.id)}
+            direction={this.state.sortBy === headCell.id ? this.state.sortType : false}
+          // onClick={() => this.handleHeaderClickSort(headCell.id)}
+          >
+            {headCell.label.toUpperCase()}
+          </TableSortLabel>
+        </TableCell>
+        :
+        <TableCell
+          key={headCell.id}
+          align={'center'}
+          padding={'default'}
+
+        >
+          <TableSortLabel
+            active={this.state.sortBy === headCell.id}
+            hideSortIcon={!(this.state.sortBy === headCell.id)}
+            direction={this.state.sortBy === headCell.id ? this.state.sortType : false}
+            onClick={() => this.handleHeaderClickSort(headCell.id)}
+          >
+            {headCell.label.toUpperCase()}
+          </TableSortLabel>
+        </TableCell>
     ))
   }
 
   renderTableData() {
+
     if (this.props.assets.length == 0) return (
       <TableRow hover tabIndex={-1}>
         <TableCell align="center" colSpan={12}>No entries</TableCell>
       </TableRow>
     )
-    return this.props.assets.map((asset) => {
-      //console.log(asset)
-      const { id, model, hostname, rack, owner, rack_u, datacenter, network_ports, power_ports, asset_number } = asset //destructuring
-      console.log(datacenter.id)
-      console.log(this.context.asset_permission)
-      console.log(this.context.asset_permission.includes(datacenter.id))
-      console.log(this.context.is_admin)
-      console.log(this.context.username === 'admin')
-      return (
-        <TableRow
-          hover
-          tabIndex={-1}
-          key={id}
-        >
-          <TableCell padding="checkbox">
-            <Checkbox
-              checked={this.state.selected.includes(id)}
-              onChange={(e) => this.onSelectCheckboxClick(id, e)}
-              inputProps={{ 'aria-labelledby': id }}
-            />
-          </TableCell>
-          <TableCell align="center">{rack ? rack.rack_number : null}</TableCell>
-          <TableCell align="center">{rack_u}</TableCell>
-          <TableCell align="center">{model ? model.vendor : null}</TableCell>
-          <TableCell align="center">{model ? model.model_number : null}</TableCell>
-          <TableCell align="center">{hostname}</TableCell>
-          <TableCell align="center">{datacenter ? datacenter.abbreviation : null}</TableCell>
-          <TableCell align="center">{owner ? owner.username : null}</TableCell>
-          {/* <TableCell align="center">{network_ports ? network_ports.length : null}</TableCell>
-          <TableCell align="center">{power_ports ? power_ports.length : null}</TableCell> */}
-          <TableCell align="center">{asset_number}</TableCell>
-          <div>
-            <TableCell align="right">
-              <Link to={'/assets/' + id}>
+    else if (this.context.is_offline) {
+      return this.props.assets.map((asset) => {
+        //console.log(asset)
+        let id, model, hostname, rack, owner, rack_u, datacenter, asset_number, location, slot_number, ovr_memory, ovr_cpu, ovr_color, ovr_storage
+
+        console.log(asset)
+        if (asset.bladeserver) {
+          ({ id, model, hostname, rack, owner, location, slot_number, datacenter, asset_number, ovr_memory, ovr_cpu, ovr_color, ovr_storage } = asset.bladeserver)
+        }
+        else {
+          ({ id, model, hostname, rack, owner, rack_u, datacenter, asset_number, ovr_memory, ovr_cpu, ovr_color, ovr_storage } = asset.asset)
+        }
+
+
+        return (
+          <TableRow
+            hover
+            tabIndex={-1}
+            key={id}
+          >
+            <TableCell padding="checkbox">
+              <Checkbox
+                checked={this.state.selected.includes(id)}
+                onChange={(e) => this.onSelectCheckboxClick(id, e)}
+                inputProps={{ 'aria-labelledby': id }}
+              />
+            </TableCell>
+            <TableCell align="center">{location ? location.hostname : null}</TableCell>
+            <TableCell align="center">{slot_number}</TableCell>
+            <TableCell align="center">{model ? model.vendor : null}</TableCell>
+            <TableCell align="center">{model ? model.model_number : null}</TableCell>
+            <TableCell align="center">{(ovr_memory || ovr_cpu || ovr_color || ovr_storage) ? <CheckIcon /> : null}</TableCell>
+            <TableCell align="center">{hostname}</TableCell>
+            <TableCell align="center">{datacenter ? datacenter.abbreviation : null}</TableCell>
+            <TableCell align="center">{owner ? owner.username : null}</TableCell>
+            {/* <TableCell align="center">{network_ports ? network_ports.length : null}</TableCell>
+            <TableCell align="center">{power_ports ? power_ports.length : null}</TableCell> */}
+            <TableCell align="center">{asset_number}</TableCell>
+            <div>
+              {/* <TableCell align="right">
+                <Link to={'/assets/' + id+ '/offline'}>
                 <Tooltip title='View Details'>
                   <IconButton size="sm">
                     <PageviewIcon />
                   </IconButton>
                 </Tooltip>
               </Link>
-            </TableCell>
+              </TableCell> */}
+              <TableCell align="right" >
+                <Link to={{
+                  pathname: '/assets/' + id + '/offline',
+                  state: {
+                    isBlade: model.mount_type === 'blade'
+                  }
+                }}>
+                  <Tooltip title='View Details'>
+                    <IconButton size="sm">
+                      <PageviewIcon />
+                    </IconButton>
+                  </Tooltip>
+                </Link>
 
-            {
-              (
-                this.context.is_admin
-                || this.context.username === 'admin'
-                || this.context.asset_permission.includes(datacenter.id)
-              ) ? (
-                  <TableCell align="right">
-                    <Link to={'/assets/' + id + '/edit'}>
-                      <Tooltip title='Edit'>
-                        <IconButton size="sm">
-                          <EditIcon />
+              </TableCell>
+
+              {
+                (
+                  this.context.is_admin
+                  || this.context.username === 'admin'
+                  || this.context.global_asset_permission
+                  || (asset.bladeserver ? (this.context.asset_permission.includes(location.datacenter.id)) : (this.context.asset_permission.includes(datacenter.id)))
+                ) ? (
+                    <TableCell align="right">
+                      <Link to={{
+                        pathname: '/assets/' + id + '/edit',
+                        state: {
+                          isBlade: model.mount_type === 'blade'
+                        }
+                      }}>
+                        <Tooltip title='Edit'>
+                          <IconButton size="sm">
+                            <EditIcon />
+                          </IconButton>
+                        </Tooltip>
+                      </Link>
+
+                    </TableCell>) : <div></div>
+              }
+              {
+                (
+                  this.context.is_admin
+                  || this.context.username === 'admin'
+                  || this.context.global_asset_permission
+                  || (asset.bladeserver ? (this.context.asset_permission.includes(location.datacenter.id)) : (this.context.asset_permission.includes(datacenter.id)))
+                ) ? (
+                    < TableCell align="right">
+                      < Tooltip title='Decommission'>
+                        <IconButton size="sm" onClick={() => this.showDecommissionedForm(id, model.mount_type === 'blade')}>
+                          <BlockIcon />
                         </IconButton>
                       </Tooltip>
-                    </Link>
-                  </TableCell>) : <div></div>
-            }
-            {
-              (
-                this.context.is_admin
-                || this.context.username === 'admin'
-                || this.context.asset_permission.includes(datacenter.id)
-              ) ? (
-                  < TableCell align="right">
-                    < Tooltip title='Decommission'>
-                      <IconButton size="sm" onClick={() => this.showDecommissionedForm(id)}>
-                        <BlockIcon />
-                      </IconButton>
-                    </Tooltip>
-                  </TableCell>
-                ) : <div></div>
-            }
-            {
-              (
-                this.context.is_admin
-                || this.context.username === 'admin'
-                || this.context.asset_permission.includes(datacenter.id)
-              ) ? (
-                  < TableCell align="right">
-                    < Tooltip title='Delete'>
-                      <IconButton size="sm" onClick={() => this.showDeleteForm(id)}>
-                        <DeleteIcon />
-                      </IconButton>
-                    </Tooltip>
-                  </TableCell>
-                ) : <div></div>
-            }
 
-          </div>
-        </TableRow>
-      )
-    })
+                    </TableCell>
+                  ) : <div></div>
+              }
+              {
+                (
+                  this.context.is_admin
+                  || this.context.username === 'admin'
+                  || this.context.global_asset_permission
+                  || (asset.bladeserver ? (this.context.asset_permission.includes(location.datacenter.id)) : (this.context.asset_permission.includes(datacenter.id)))
+                ) ? (
+                    < TableCell align="right">
+                      < Tooltip title='Delete'>
+                        <IconButton size="sm" onClick={() => this.showDeleteForm(id, model.mount_type === 'blade')}>
+                          <DeleteIcon />
+                        </IconButton>
+                      </Tooltip>
+
+                    </TableCell>
+                  ) : <div></div>
+              }
+
+            </div>
+          </TableRow>
+        )
+      })
+    }
+    else {
+
+      return this.props.assets.map((asset) => {
+        //console.log(asset)
+
+        let id, model, hostname, rack, owner, rack_u, datacenter, asset_number, location, slot_number, ovr_memory, ovr_cpu, ovr_color, ovr_storage
+
+
+        if (asset.bladeserver) {
+          ({ id, model, hostname, rack, owner, location, slot_number, datacenter, asset_number, ovr_memory, ovr_cpu, ovr_color, ovr_storage } = asset.bladeserver)
+        }
+        else {
+          ({ id, model, hostname, rack, owner, rack_u, datacenter, asset_number, ovr_memory, ovr_cpu, ovr_color, ovr_storage } = asset.asset)
+        }
+
+        return (
+          <TableRow
+            hover
+            tabIndex={-1}
+            key={id}
+          >
+            <TableCell padding="checkbox">
+              <Checkbox
+                checked={this.state.selected.includes(id)}
+                onChange={(e) => this.onSelectCheckboxClick(id, e)}
+                inputProps={{ 'aria-labelledby': id }}
+                size={'small'}
+              />
+            </TableCell>
+            <TableCell align="center">{rack ? rack.rack_number : null}</TableCell>
+            <TableCell align="center">{rack_u}</TableCell>
+            <TableCell align="center">{location ? location.hostname : null}</TableCell>
+            <TableCell align="center">{slot_number}</TableCell>
+            <TableCell align="center">{model ? model.vendor : null}</TableCell>
+            <TableCell align="center">{model ? model.model_number : null}</TableCell>
+            <TableCell align="center">{(ovr_memory || ovr_cpu || ovr_color || ovr_storage) ? <CheckIcon /> : null}</TableCell>
+            <TableCell align="center">{hostname}</TableCell>
+            <TableCell align="center">{datacenter ? datacenter.abbreviation : null}</TableCell>
+            <TableCell align="center">{owner ? owner.username : null}</TableCell>
+            {/* <TableCell align="center">{network_ports ? network_ports.length : null}</TableCell>
+          <TableCell align="center">{power_ports ? power_ports.length : null}</TableCell> */}
+            <TableCell align="center">{asset_number}</TableCell>
+            <div>
+              <TableCell align="right" >
+                <Link to={{
+                  pathname: '/assets/' + id,
+                  state: {
+                    isBlade: model.mount_type === 'blade'
+                  }
+                }}>
+                  <Tooltip title='View Details'>
+                    <IconButton size="sm">
+                      <PageviewIcon />
+                    </IconButton>
+                  </Tooltip>
+                </Link>
+
+              </TableCell>
+
+              {
+                (
+                  this.context.is_admin
+                  || this.context.username === 'admin'
+                  || this.context.global_asset_permission
+                  || (asset.bladeserver ? (this.context.asset_permission.includes(location.datacenter.id)) : (this.context.asset_permission.includes(datacenter.id)))
+                ) ? (
+                    <TableCell align="right">
+                      <Link to={{
+                        pathname: '/assets/' + id + '/edit',
+                        state: {
+                          isBlade: model.mount_type === 'blade'
+                        }
+                      }}>
+                        <Tooltip title='Edit'>
+                          <IconButton size="sm">
+                            <EditIcon />
+                          </IconButton>
+                        </Tooltip>
+                      </Link>
+
+                    </TableCell>) : <div></div>
+              }
+              {
+                (
+                  this.context.is_admin
+                  || this.context.username === 'admin'
+                  || this.context.global_asset_permission
+                  || (asset.bladeserver ? (this.context.asset_permission.includes(location.datacenter.id)) : (this.context.asset_permission.includes(datacenter.id)))
+                ) ? (
+                    < TableCell align="right">
+                      < Tooltip title='Decommission'>
+                        <IconButton size="sm" onClick={() => this.showDecommissionedForm(id, model.mount_type === 'blade')}>
+                          <BlockIcon />
+                        </IconButton>
+                      </Tooltip>
+
+                    </TableCell>
+                  ) : <div></div>
+              }
+              {
+                (
+                  this.context.is_admin
+                  || this.context.username === 'admin'
+                  || this.context.global_asset_permission
+                  || (asset.bladeserver ? (this.context.asset_permission.includes(location.datacenter.id)) : (this.context.asset_permission.includes(datacenter.id)))
+                ) ? (
+                    < TableCell align="right">
+                      < Tooltip title='Delete'>
+                        <IconButton size="sm" onClick={() => this.showDeleteForm(id, model.mount_type === 'blade')}>
+                          <DeleteIcon />
+                        </IconButton>
+                      </Tooltip>
+
+                    </TableCell>
+                  ) : <div></div>
+              }
+
+            </div>
+          </TableRow>
+        )
+      })
+    }
   }
 
   onSelectAllCheckboxClick = () => {
+    let firstArrayIncludesAllElementsOfSecond = (arr, target) => target.every(v => arr.includes(v));
     console.log('select all')
-
-    if (this.state.selected.length === this.state.allAssetIDs.length || this.state.allAssetIDs.length === 0) {
+    if (firstArrayIncludesAllElementsOfSecond(this.state.selected, this.state.assetIDsOnPage) && this.state.selected.length != 0) {
       this.setState({ selected: [] })
     }
     else {
-      console.log(this.state.allAssetIDs)
-      let allIDs = Object.assign([], this.state.allAssetIDs)
-      this.setState({ selected: allIDs })
+      let newSelected = Object.assign([], this.state.assetIDsOnPage)
+      let allSelectedWithDuplicates = newSelected.concat(this.state.selected)
+      let allSelected = allSelectedWithDuplicates.filter((item, pos) => allSelectedWithDuplicates.indexOf(item) === pos)
+      this.setState({ selected: allSelected })
     }
     console.log(this.state.selected)
   }
@@ -416,6 +640,10 @@ export class InstanceTableMUI extends Component {
   }
 
   render() {
+    console.log(this.props.assets)
+    console.log(this.state.assetIDsOnPage)
+    console.log(this.state.selected)
+    let firstArrayIncludesAllElementsOfSecond = (arr, target) => target.every(v => arr.includes(v));
     console.log(this.state.assetLabelTableGenerationData)
     if (this.state.redirectToAssetTagPage) {
       return <Redirect to={{
@@ -441,14 +669,16 @@ export class InstanceTableMUI extends Component {
                       size="small"
                       aria-labelledby="instanceTableTitle"
                       aria-label="instanceTable"
+                      padding={'none'}
                     >
                       <TableRow>
                         <TableCell padding="checkbox">
                           <Checkbox
                             //indeterminate={numSelected > 0 && numSelected < rowCount}
-                            checked={this.state.selected.length === this.state.allAssetIDs.length && this.state.selected.length != 0}
+                            checked={firstArrayIncludesAllElementsOfSecond(this.state.selected, this.state.assetIDsOnPage) && this.state.selected.length != 0}
                             onChange={this.onSelectAllCheckboxClick}
                             inputProps={{ 'aria-label': 'select all desserts' }}
+                            size={'small'}
                           />
                         </TableCell>
                         {this.renderTableHeader()}

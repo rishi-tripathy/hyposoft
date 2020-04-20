@@ -51,6 +51,9 @@ export class RackTable extends Component {
     let hostnameInfo = []; //has hostname String or null
     let idList = [];
     let lastNotNull = '1';
+    //michael below
+    let modelMountTypes = []
+    
 
     let condensed = this.props.condensedState;
     let rows = [];
@@ -80,14 +83,17 @@ export class RackTable extends Component {
           if (previousRackU == null || previousRackU.id !== currentRackU.id) {
             //the previous one is null and this is the first U of the thing //
             modelInfo.push(currentRackU.model.vendor + " " + currentRackU.model.model_number);
+            modelMountTypes.push(currentRackU.model.mount_type)
             hostnameInfo.push(currentRackU.hostname);
           } else {
             modelInfo.push(null);
+            modelMountTypes.push(null);
             hostnameInfo.push(null);
           }
         } else {
           rackInstances.push(rows[i]);
           modelInfo.push(rows[i]);
+          modelMountTypes.push(rows[i]);
           displayColors.push(rows[i]);
           idList.push(rows[i]);
           hostnameInfo.push(rows[i]); //push rackInstance -- null in this case lol, no need to break it apart
@@ -122,10 +128,12 @@ export class RackTable extends Component {
           if (previousRackU == null || previousRackU.id !== currentRackU.id) {
             //the previous one is null or a diff instance and this is the first U of the thing //
             modelInfo.push(currentRackU.model.vendor + " " + currentRackU.model.model_number);
+            modelMountTypes.push(currentRackU.model.mount_type)
             hostnameInfo.push(currentRackU.hostname);
           } else {
             //part of the rack, but not the last one where we need text
             modelInfo.push(null);
+            modelMountTypes.push(null);
             hostnameInfo.push(null);
           }
         }
@@ -136,6 +144,7 @@ export class RackTable extends Component {
             rackUs.push(i);
             rackInstances.push(rows[i]);
             modelInfo.push(rows[i]);
+            modelMountTypes.push(rows[i])
             displayColors.push(rows[i]);
             hostnameInfo.push(rows[i]);
           } else if (previousRackU !== null && nextRackU !== null) {
@@ -145,6 +154,7 @@ export class RackTable extends Component {
             hostnameInfo.push(null);
             displayColors.push(null);
             modelInfo.push(null);
+            modelMountTypes.push(null)
           } else if (i === '41' && (lastNotNull === '1' || lastNotNull !== '40')) {
             //entire rack is empty, needs dots
             rackUs.push(i);
@@ -152,6 +162,7 @@ export class RackTable extends Component {
             hostnameInfo.push(null);
             displayColors.push(null);
             modelInfo.push('...');
+            modelMountTypes.push(null);
           } else if (previousRackU == null && nextRackU == null) {
             //skip
           } else if (nextRackU !== null && previousRackU == null) {
@@ -160,6 +171,7 @@ export class RackTable extends Component {
             hostnameInfo.push(null);
             displayColors.push(null);
             modelInfo.push('...');
+            modelMountTypes.push(null);
           }
         }
       }
@@ -176,7 +188,10 @@ export class RackTable extends Component {
           displayColor={displayColors[rackUs.length - index - 1]}
           hostname={hostnameInfo[rackUs.length - index - 1]}
           sendFromRow={this.sending}
-          id={idList[rackUs.length - index - 1]}/>
+          id={idList[rackUs.length - index - 1]}
+          modelMountType={modelMountTypes[rackUs.length - index - 1]}
+          />
+          
       )
     })
   }

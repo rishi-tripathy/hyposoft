@@ -108,7 +108,7 @@ export class ModelTable extends Component {
         </Collapse>
         <Tooltip title="Filter list">
           <Button endIcon={<FilterListIcon/>} onClick={() => this.handleOpenFilters()} aria-label="filter instance list">
-            Filter
+            
           </Button>
         </Tooltip>
 
@@ -119,6 +119,7 @@ export class ModelTable extends Component {
 
   renderTableHeader() {
     let headCells = [
+      {id: 'mount_type', label: 'Mount Type'},
       {id: 'vendor', label: 'Vendor'},
       {id: 'model_number', label: 'Model Number'},
       {id: 'height', label: 'Height (U)'},
@@ -156,16 +157,17 @@ export class ModelTable extends Component {
     )
     return this.props.models.map((model, index) => {
       const {id, vendor, model_number, height, display_color} = model //destructuring
-      const {network_ports, network_ports_num, power_ports, cpu, memory, storage, comment} = model //more destructuring
+      const {network_ports, network_ports_num, power_ports, cpu, memory, storage, mount_type} = model //more destructuring
       return (
         <TableRow
           hover
           tabIndex={-1}
           key={id}
         >
+          <TableCell align="center">{mount_type}</TableCell>
           <TableCell align="center">{vendor}</TableCell>
           <TableCell align="center">{model_number}</TableCell>
-          <TableCell align="center">{height}</TableCell>
+          <TableCell align="center">{mount_type === 'blade' ? 'N/A' : height}</TableCell>
           <TableCell align="right">
             <div style={{
               width: 12,
