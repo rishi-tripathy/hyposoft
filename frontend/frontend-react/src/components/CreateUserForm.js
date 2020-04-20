@@ -1,7 +1,8 @@
-import React, {Component} from 'react'
+import React, { Component } from 'react'
 import axios from 'axios'
-import {Redirect} from 'react-router-dom'
+import { Redirect } from 'react-router-dom'
 import { Button, Grid, TextField, Container, Typography } from "@material-ui/core";
+import { jsonToHumanText } from './Helpers'
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
@@ -63,17 +64,17 @@ export class CreateUserForm extends Component {
         self.setState({
           redirect: true,
         });
-        
+
       })
       .catch(function (error) {
-        alert('Creation was not successful.\n' + JSON.stringify(error.response.data, null, 2));
+        alert('Creation was not successful.\n' + jsonToHumanText(error.response.data));
       });
   }
 
   render() {
     return (
       <div>
-        { this.state.redirect && <Redirect to={{pathname: '/users'}} />}
+        {this.state.redirect && <Redirect to={{ pathname: '/users' }} />}
         <Container maxwidth="xl">
           <Grid container className='themed-container' spacing={2}>
             <Grid item alignContent='center' xs={12} />
@@ -109,7 +110,7 @@ export class CreateUserForm extends Component {
                     onChange={this.handlePasswordChange} />
                 </Grid>
                 <Grid item xs={4}></Grid>
-                
+
                 <Grid item xs={12}>
                   <Button variant="contained" type="submit" color="primary" onClick={() => this.handleSubmit}>Create
                 +</Button>{' '}

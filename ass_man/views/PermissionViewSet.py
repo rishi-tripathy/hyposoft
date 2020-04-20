@@ -20,7 +20,11 @@ def user_permissions(request):
         permissions['model_permission'] = 'true'
     except Permission.DoesNotExist:
         permissions['model_permission'] = 'false'
-
+    try:
+        curr_user.permission_set.get(name='global_asset')
+        permissions['global_asset'] = 'true'
+    except Permission.DoesNotExist:
+        permissions['global_asset'] = 'false'
     permissions['asset_permission'] = []
     for p in curr_user.permission_set.filter(name='asset'):
         permissions['asset_permission'].append(p.datacenter.id)
@@ -61,6 +65,12 @@ def all_permissions(request):
         except Permission.DoesNotExist:
             user_permissions['model_permission'] = 'false'
 
+        try:
+            u.permission_set.get(name='global_asset')
+            user_permissions['global_asset'] = 'true'
+        except Permission.DoesNotExist:
+            user_permissions['global_asset'] = 'false'
+
         user_permissions['asset_permission'] = []
         for p in u.permission_set.filter(name='asset'):
             user_permissions['asset_permission'].append(p.datacenter.id)
@@ -98,6 +108,18 @@ def update_permissions(request):
     elif request.data.get('model') and request.data.get('model') == 'false':
         try:
             p = Permission.objects.all().get(name='model',user=user)
+            p.delete()
+        except:
+            pass
+    if request.data.get('global_asset') and request.data.get('global_asset') == 'true':
+        try:
+            p = Permission.objects.all().get(name='global_asset', user=user)
+        except:
+            p = Permission(name='global_asset', user=user)
+            p.save()
+    elif request.data.get('global_asset') and request.data.get('global_asset') == 'false':
+        try:
+            p = Permission.objects.all().get(name='global_asset', user=user)
             p.delete()
         except:
             pass

@@ -16,6 +16,7 @@ import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import FirstPageIcon from '@material-ui/icons/FirstPage';
 import LastPageIcon from '@material-ui/icons/LastPage';
+import { jsonToHumanText } from './Helpers'
 
 axios.defaults.xsrfHeaderName = "X-CSRFToken";
 
@@ -75,10 +76,10 @@ export class EditUserForm extends Component {
     axios.get(dst).then(res => {
       console.log(res.data)
       this.setState({
-        hasModelPermission: res.data.model_permission,
-        hasPowerPermission: res.data.power_permission,
-        hasAuditPermission: res.data.log_permission,
-        //hasGlobalAssetPermission: res.data.global_asset_permission,
+        hasModelPermission: res.data.model_permission === 'true' ? true : false,
+        hasPowerPermission: res.data.power_permission === 'true' ? true : false,
+        hasAuditPermission: res.data.log_permission === 'true' ? true : false,
+        hasGlobalAssetPermission: res.data.global_asset === 'true' ? true : false,
         selectedDatacenterOption: res.data.asset_permission,
       })
     })
@@ -118,7 +119,7 @@ export class EditUserForm extends Component {
     })
       .catch(function (error) {
         // TODO: handle error
-        alert('Could not load owners. Re-login.\n' + JSON.stringify(error.response.data, null, 2));
+        alert('Could not load owners. Re-login.\n');
       });
   }
 
@@ -175,7 +176,7 @@ export class EditUserForm extends Component {
         })
       })
       .catch(function (error) {
-        alert('Edit was not successful.\n' + JSON.stringify(error.response.data, null, 2));
+        alert('Edit was not successful.\n' + jsonToHumanText(error.response.data));
       });
 
   }
@@ -322,7 +323,7 @@ export class EditUserForm extends Component {
                           </Grid>
                           <Grid item xs={5}>
                             {
-                              ! this.state.hasGlobalAssetPermission ? (
+                              !this.state.hasGlobalAssetPermission ? (
                                 <DualListBox
                                   options={groupedOptions}
                                   selected={this.state.selectedDatacenterOption}

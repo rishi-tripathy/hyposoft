@@ -33,12 +33,12 @@ class DatacenterViewSet(viewsets.ModelViewSet):
         if self.action in ADMIN_ACTIONS:
             try:
                 user = User.objects.get(username=self.request.user.username)
-                if user.is_staff or len(user.permission_set.all().filter(name='asset')) > 0:
-                    permission_classes = [IsAdminUser]
-                else:
+                if user.is_staff or len(user.permission_set.all().filter(name='global_asset')) > 0 or len(user.permission_set.all().filter(name='asset')) > 0:
                     permission_classes = [IsAuthenticated]
+                else:
+                    permission_classes = [IsAdmin]
             except:
-                permission_classes = [IsAuthenticated]
+                permission_classes = [IsAdmin]
         else:
             permission_classes = [IsAuthenticated]
         return [permission() for permission in permission_classes]
