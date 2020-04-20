@@ -95,6 +95,16 @@ class AssetViewSet(viewsets.ModelViewSet):
         except KeyError:
             power_ports_json = None
         context["power_ports"] = power_ports_json
+        try:
+            method = self.request.method
+        except:
+            method = ''
+        context['method'] = method
+        try:
+            hostname = self.get_object().hostname
+        except:
+            hostname = ''
+        context['hostname'] = hostname
         return context
 
     ordering_fields = ASSET_ORDERING_FILTERING_FIELDS
