@@ -285,9 +285,9 @@ export class InstanceTableMUI extends Component {
       { id: 'slot_number', label: 'Slot No.' },
       { id: 'vendor', label: 'Vendor' },
       { id: 'model_number', label: 'Model Number' },
-      { id: 'override', label: 'Model Upgraded?' },
+      { id: 'override', label: 'Model Updated' },
       { id: 'hostname', label: 'Hostname' },
-      { id: 'datacenter', label: 'DC/Offline Site' },
+      { id: 'datacenter', label: 'Site' },
       { id: 'owner', label: 'Owner' },
       // { id: 'np', label: 'Network Ports' },
       // { id: 'pp', label: 'Power Ports' },
@@ -296,15 +296,15 @@ export class InstanceTableMUI extends Component {
 
     ];
 
-    if(this.context.is_offline){
+    if (this.context.is_offline) {
       headCells = [
         { id: 'location', label: 'Location' },
-      { id: 'slot_number', label: 'Slot No.' },
+        { id: 'slot_number', label: 'Slot No.' },
         { id: 'model__vendor', label: 'Vendor' },
         { id: 'model_number', label: 'Model Number' },
-      { id: 'override', label: 'Model Upgraded?' },
+        { id: 'override', label: 'Model Updated' },
         { id: 'hostname', label: 'Hostname' },
-        { id: 'datacenter', label: 'Offline Storage Site' },
+        { id: 'datacenter', label: 'Site' },
         { id: 'owner', label: 'Owner' },
         // { id: 'np', label: 'Network Ports' },
         // { id: 'pp', label: 'Power Ports' },
@@ -355,20 +355,20 @@ export class InstanceTableMUI extends Component {
         <TableCell align="center" colSpan={12}>No entries</TableCell>
       </TableRow>
     )
-    else if(this.context.is_offline){
+    else if (this.context.is_offline) {
       return this.props.assets.map((asset) => {
         //console.log(asset)
-      let id, model, hostname, rack, owner, rack_u, datacenter, asset_number, location, slot_number,  ovr_memory, ovr_cpu, ovr_color, ovr_storage
+        let id, model, hostname, rack, owner, rack_u, datacenter, asset_number, location, slot_number, ovr_memory, ovr_cpu, ovr_color, ovr_storage
 
-      console.log(asset)
+        console.log(asset)
         if (asset.bladeserver) {
-          ({ id, model, hostname, rack, owner, location, slot_number, datacenter, asset_number,  ovr_memory, ovr_cpu, ovr_color, ovr_storage } = asset.bladeserver)
+          ({ id, model, hostname, rack, owner, location, slot_number, datacenter, asset_number, ovr_memory, ovr_cpu, ovr_color, ovr_storage } = asset.bladeserver)
         }
         else {
-          ({ id, model, hostname, rack, owner, rack_u, datacenter, asset_number,  ovr_memory, ovr_cpu, ovr_color, ovr_storage } = asset.asset)
+          ({ id, model, hostname, rack, owner, rack_u, datacenter, asset_number, ovr_memory, ovr_cpu, ovr_color, ovr_storage } = asset.asset)
         }
-  
-  
+
+
         return (
           <TableRow
             hover
@@ -383,7 +383,7 @@ export class InstanceTableMUI extends Component {
               />
             </TableCell>
             <TableCell align="center">{location ? location.hostname : null}</TableCell>
-          <TableCell align="center">{slot_number}</TableCell>
+            <TableCell align="center">{slot_number}</TableCell>
             <TableCell align="center">{model ? model.vendor : null}</TableCell>
             <TableCell align="center">{model ? model.model_number : null}</TableCell>
             <TableCell align="center">{(ovr_memory || ovr_cpu || ovr_color || ovr_storage) ? <CheckIcon /> : null}</TableCell>
@@ -394,7 +394,7 @@ export class InstanceTableMUI extends Component {
             <TableCell align="center">{power_ports ? power_ports.length : null}</TableCell> */}
             <TableCell align="center">{asset_number}</TableCell>
             <div>
-            {/* <TableCell align="right">
+              {/* <TableCell align="right">
                 <Link to={'/assets/' + id+ '/offline'}>
                 <Tooltip title='View Details'>
                   <IconButton size="sm">
@@ -403,203 +403,205 @@ export class InstanceTableMUI extends Component {
                 </Tooltip>
               </Link>
               </TableCell> */}
-            <TableCell align="right" >
-              <Link to={{
-                pathname: '/assets/' + id+ '/offline',
-                state: {
-                  isBlade: model.mount_type === 'blade'
-                }
-              }}>
-                <Tooltip title='View Details'>
-                  <IconButton size="sm">
-                    <PageviewIcon />
-                  </IconButton>
-                </Tooltip>
-              </Link>
+              <TableCell align="right" >
+                <Link to={{
+                  pathname: '/assets/' + id + '/offline',
+                  state: {
+                    isBlade: model.mount_type === 'blade'
+                  }
+                }}>
+                  <Tooltip title='View Details'>
+                    <IconButton size="sm">
+                      <PageviewIcon />
+                    </IconButton>
+                  </Tooltip>
+                </Link>
 
-            </TableCell>
+              </TableCell>
 
-            {
-              (
-                this.context.is_admin
-                || this.context.username === 'admin'
-                || this.context.asset_permission.includes(datacenter.id)
-              ) ? (
-                  <TableCell align="right">
-                    <Link to={{
-                      pathname: '/assets/' + id + '/edit',
-                      state: {
-                        isBlade: model.mount_type === 'blade'
-                      }
-                    }}>
-                      <Tooltip title='Edit'>
-                        <IconButton size="sm">
-                          <EditIcon />
+              {
+                (
+                  this.context.is_admin
+                  || this.context.username === 'admin'
+                  || this.context.global_asset_permission
+                  || (asset.bladeserver ? (this.context.asset_permission.includes(location.datacenter.id)) : (this.context.asset_permission.includes(datacenter.id)))
+                ) ? (
+                    <TableCell align="right">
+                      <Link to={{
+                        pathname: '/assets/' + id + '/edit',
+                        state: {
+                          isBlade: model.mount_type === 'blade'
+                        }
+                      }}>
+                        <Tooltip title='Edit'>
+                          <IconButton size="sm">
+                            <EditIcon />
+                          </IconButton>
+                        </Tooltip>
+                      </Link>
+
+                    </TableCell>) : <div></div>
+              }
+              {
+                (
+                  this.context.is_admin
+                  || this.context.username === 'admin'
+                  || this.context.global_asset_permission
+                  || (asset.bladeserver ? (this.context.asset_permission.includes(location.datacenter.id)) : (this.context.asset_permission.includes(datacenter.id)))
+                ) ? (
+                    < TableCell align="right">
+                      < Tooltip title='Decommission'>
+                        <IconButton size="sm" onClick={() => this.showDecommissionedForm(id, model.mount_type === 'blade')}>
+                          <BlockIcon />
                         </IconButton>
                       </Tooltip>
-                    </Link>
 
-                  </TableCell>) : <div></div>
-            }
-            {
-              (
-                this.context.is_admin
-                || this.context.username === 'admin'
-                || this.context.asset_permission.includes(datacenter.id)
-              ) ? (
-                  < TableCell align="right">
-                    < Tooltip title='Decommission'>
-                      <IconButton size="sm" onClick={() => this.showDecommissionedForm(id, model.mount_type === 'blade')}>
-                        <BlockIcon />
-                      </IconButton>
-                    </Tooltip>
+                    </TableCell>
+                  ) : <div></div>
+              }
+              {
+                (
+                  this.context.is_admin
+                  || this.context.username === 'admin'
+                  || this.context.global_asset_permission
+                  || (asset.bladeserver ? (this.context.asset_permission.includes(location.datacenter.id)) : (this.context.asset_permission.includes(datacenter.id)))
+                ) ? (
+                    < TableCell align="right">
+                      < Tooltip title='Delete'>
+                        <IconButton size="sm" onClick={() => this.showDeleteForm(id, model.mount_type === 'blade')}>
+                          <DeleteIcon />
+                        </IconButton>
+                      </Tooltip>
 
-                  </TableCell>
-                ) : <div></div>
-            }
-            {
-              (
-                this.context.is_admin
-                || this.context.username === 'admin'
-                || this.context.asset_permission.includes(datacenter.id)
-              ) ? (
-                  < TableCell align="right">
-                    < Tooltip title='Delete'>
-                      <IconButton size="sm" onClick={() => this.showDeleteForm(id)}>
-                        <DeleteIcon />
-                      </IconButton>
-                    </Tooltip>
+                    </TableCell>
+                  ) : <div></div>
+              }
 
-                  </TableCell>
-                ) : <div></div>
-            }
-
-          </div>
+            </div>
           </TableRow>
         )
       })
     }
     else {
-  
+
       return this.props.assets.map((asset) => {
-      //console.log(asset)
+        //console.log(asset)
 
-      let id, model, hostname, rack, owner, rack_u, datacenter, asset_number, location, slot_number,  ovr_memory, ovr_cpu, ovr_color, ovr_storage
-
-
-      if (asset.bladeserver) {
-        ({ id, model, hostname, rack, owner, location, slot_number, datacenter, asset_number,  ovr_memory, ovr_cpu, ovr_color, ovr_storage } = asset.bladeserver)
-      }
-      else {
-        ({ id, model, hostname, rack, owner, rack_u, datacenter, asset_number,  ovr_memory, ovr_cpu, ovr_color, ovr_storage } = asset.asset)
-      }
+        let id, model, hostname, rack, owner, rack_u, datacenter, asset_number, location, slot_number, ovr_memory, ovr_cpu, ovr_color, ovr_storage
 
 
-      // const { id, model, hostname, rack, owner, rack_u, datacenter, asset_number } = asset //destructuring
+        if (asset.bladeserver) {
+          ({ id, model, hostname, rack, owner, location, slot_number, datacenter, asset_number, ovr_memory, ovr_cpu, ovr_color, ovr_storage } = asset.bladeserver)
+        }
+        else {
+          ({ id, model, hostname, rack, owner, rack_u, datacenter, asset_number, ovr_memory, ovr_cpu, ovr_color, ovr_storage } = asset.asset)
+        }
 
-      
-      return (
-        <TableRow
-          hover
-          tabIndex={-1}
-          key={id}
-        >
-          <TableCell padding="checkbox">
-            <Checkbox
-              checked={this.state.selected.includes(id)}
-              onChange={(e) => this.onSelectCheckboxClick(id, e)}
-              inputProps={{ 'aria-labelledby': id }}
-              size={'small'}
-            />
-          </TableCell>
-          <TableCell align="center">{rack ? rack.rack_number : null}</TableCell>
-          <TableCell align="center">{rack_u}</TableCell>
-          <TableCell align="center">{location ? location.hostname : null}</TableCell>
-          <TableCell align="center">{slot_number}</TableCell>
-          <TableCell align="center">{model ? model.vendor : null}</TableCell>
-          <TableCell align="center">{model ? model.model_number : null}</TableCell>
-          <TableCell align="center">{(ovr_memory || ovr_cpu || ovr_color || ovr_storage) ? <CheckIcon /> : null}</TableCell>
-          <TableCell align="center">{hostname}</TableCell>
-          <TableCell align="center">{datacenter ? datacenter.abbreviation : null}</TableCell>
-          <TableCell align="center">{owner ? owner.username : null}</TableCell>
-          {/* <TableCell align="center">{network_ports ? network_ports.length : null}</TableCell>
-          <TableCell align="center">{power_ports ? power_ports.length : null}</TableCell> */}
-          <TableCell align="center">{asset_number}</TableCell>
-          <div>
-            <TableCell align="right" >
-              <Link to={{
-                pathname: '/assets/' + id,
-                state: {
-                  isBlade: model.mount_type === 'blade'
-                }
-              }}>
-                <Tooltip title='View Details'>
-                  <IconButton size="sm">
-                    <PageviewIcon />
-                  </IconButton>
-                </Tooltip>
-              </Link>
-
+        return (
+          <TableRow
+            hover
+            tabIndex={-1}
+            key={id}
+          >
+            <TableCell padding="checkbox">
+              <Checkbox
+                checked={this.state.selected.includes(id)}
+                onChange={(e) => this.onSelectCheckboxClick(id, e)}
+                inputProps={{ 'aria-labelledby': id }}
+                size={'small'}
+              />
             </TableCell>
+            <TableCell align="center">{rack ? rack.rack_number : null}</TableCell>
+            <TableCell align="center">{rack_u}</TableCell>
+            <TableCell align="center">{location ? location.hostname : null}</TableCell>
+            <TableCell align="center">{slot_number}</TableCell>
+            <TableCell align="center">{model ? model.vendor : null}</TableCell>
+            <TableCell align="center">{model ? model.model_number : null}</TableCell>
+            <TableCell align="center">{(ovr_memory || ovr_cpu || ovr_color || ovr_storage) ? <CheckIcon /> : null}</TableCell>
+            <TableCell align="center">{hostname}</TableCell>
+            <TableCell align="center">{datacenter ? datacenter.abbreviation : null}</TableCell>
+            <TableCell align="center">{owner ? owner.username : null}</TableCell>
+            {/* <TableCell align="center">{network_ports ? network_ports.length : null}</TableCell>
+          <TableCell align="center">{power_ports ? power_ports.length : null}</TableCell> */}
+            <TableCell align="center">{asset_number}</TableCell>
+            <div>
+              <TableCell align="right" >
+                <Link to={{
+                  pathname: '/assets/' + id,
+                  state: {
+                    isBlade: model.mount_type === 'blade'
+                  }
+                }}>
+                  <Tooltip title='View Details'>
+                    <IconButton size="sm">
+                      <PageviewIcon />
+                    </IconButton>
+                  </Tooltip>
+                </Link>
 
-            {
-              (
-                this.context.is_admin
-                || this.context.username === 'admin'
-                || this.context.asset_permission.includes(datacenter.id)
-              ) ? (
-                  <TableCell align="right">
-                    <Link to={{
-                      pathname: '/assets/' + id + '/edit',
-                      state: {
-                        isBlade: model.mount_type === 'blade'
-                      }
-                    }}>
-                      <Tooltip title='Edit'>
-                        <IconButton size="sm">
-                          <EditIcon />
+              </TableCell>
+
+              {
+                (
+                  this.context.is_admin
+                  || this.context.username === 'admin'
+                  || this.context.global_asset_permission
+                  || (asset.bladeserver ? (this.context.asset_permission.includes(location.datacenter.id)) : (this.context.asset_permission.includes(datacenter.id)))
+                ) ? (
+                    <TableCell align="right">
+                      <Link to={{
+                        pathname: '/assets/' + id + '/edit',
+                        state: {
+                          isBlade: model.mount_type === 'blade'
+                        }
+                      }}>
+                        <Tooltip title='Edit'>
+                          <IconButton size="sm">
+                            <EditIcon />
+                          </IconButton>
+                        </Tooltip>
+                      </Link>
+
+                    </TableCell>) : <div></div>
+              }
+              {
+                (
+                  this.context.is_admin
+                  || this.context.username === 'admin'
+                  || this.context.global_asset_permission
+                  || (asset.bladeserver ? (this.context.asset_permission.includes(location.datacenter.id)) : (this.context.asset_permission.includes(datacenter.id)))
+                ) ? (
+                    < TableCell align="right">
+                      < Tooltip title='Decommission'>
+                        <IconButton size="sm" onClick={() => this.showDecommissionedForm(id, model.mount_type === 'blade')}>
+                          <BlockIcon />
                         </IconButton>
                       </Tooltip>
-                    </Link>
 
-                  </TableCell>) : <div></div>
-            }
-            {
-              (
-                this.context.is_admin
-                || this.context.username === 'admin'
-                || this.context.asset_permission.includes(datacenter.id)
-              ) ? (
-                  < TableCell align="right">
-                    < Tooltip title='Decommission'>
-                      <IconButton size="sm" onClick={() => this.showDecommissionedForm(id, model.mount_type === 'blade')}>
-                        <BlockIcon />
-                      </IconButton>
-                    </Tooltip>
+                    </TableCell>
+                  ) : <div></div>
+              }
+              {
+                (
+                  this.context.is_admin
+                  || this.context.username === 'admin'
+                  || this.context.global_asset_permission
+                  || (asset.bladeserver ? (this.context.asset_permission.includes(location.datacenter.id)) : (this.context.asset_permission.includes(datacenter.id)))
+                ) ? (
+                    < TableCell align="right">
+                      < Tooltip title='Delete'>
+                        <IconButton size="sm" onClick={() => this.showDeleteForm(id, model.mount_type === 'blade')}>
+                          <DeleteIcon />
+                        </IconButton>
+                      </Tooltip>
 
-                  </TableCell>
-                ) : <div></div>
-            }
-            {
-              (
-                this.context.is_admin
-                || this.context.username === 'admin'
-                || this.context.asset_permission.includes(datacenter.id)
-              ) ? (
-                  < TableCell align="right">
-                    < Tooltip title='Delete'>
-                      <IconButton size="sm" onClick={() => this.showDeleteForm(id)}>
-                        <DeleteIcon />
-                      </IconButton>
-                    </Tooltip>
+                    </TableCell>
+                  ) : <div></div>
+              }
 
-                  </TableCell>
-                ) : <div></div>
-            }
-
-          </div>
-        </TableRow>
-      )
+            </div>
+          </TableRow>
+        )
       })
     }
   }

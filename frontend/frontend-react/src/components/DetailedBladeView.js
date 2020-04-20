@@ -113,7 +113,7 @@ export class DetailedBladeView extends Component {
             <TableCell align="center">{model ? model.model_number : null}</TableCell>
             <TableCell align="center">{hostname}</TableCell>
             <TableCell align="center">{slot_number}</TableCell>
-            <TableCell align="center">{owner}</TableCell>
+            <TableCell align="center">{owner ? owner.username : null}</TableCell>
             <TableCell align="center">{asset_number}</TableCell>
           </TableRow>
         )
@@ -129,7 +129,7 @@ export class DetailedBladeView extends Component {
             <TableCell align="center">{model ? model.model_number : null}</TableCell>
             <TableCell align="center">{hostname}</TableCell>
             <TableCell align="center">{slot_number}</TableCell>
-            <TableCell align="center">{owner}</TableCell>
+            <TableCell align="center">{owner ? owner.username : null}</TableCell>
             <TableCell align="center">{asset_number}</TableCell>
           </TableRow>
         )
@@ -176,10 +176,18 @@ export class DetailedBladeView extends Component {
               </Paper>
             </Grid>
             <Grid item xs={6}>
-              <Typography variant="h4">
-                Power
-              </Typography>
-              <BladePowerManagement />
+              {
+                this.state.currentChassis && this.state.currentChassis.model && this.state.currentChassis.model.vendor === 'BMI' ? (
+                  <div>
+                    <Typography variant="h4">Blade Power Management</Typography>
+                    <BladePowerManagement assetID={this.state.currentBladeID} />
+                  </div>
+
+                ) : (
+                  <div></div>
+                )
+              }
+
             </Grid>
 
           </Grid>
